@@ -21,7 +21,10 @@
             <tr v-for="item in items" :key="item.id" class="border-t border-light-border dark:border-dark-border">
               <td class="p-4">
                 <div class="flex items-center gap-3">
-                  <span class="text-2xl">{{ item.icon }}</span>
+                  <div class="w-10 h-10 rounded flex items-center justify-center bg-light-bg-secondary dark:bg-dark-bg">
+                    <img v-if="item.icon && item.icon.startsWith('/')" :src="getImageUrl(item.icon)" class="w-8 h-8 object-contain" />
+                    <span v-else class="text-2xl">{{ item.icon || '⚡' }}</span>
+                  </div>
                   <span class="font-medium">{{ item.name }}</span>
                 </div>
               </td>
@@ -56,18 +59,49 @@
               <input v-model="form.name" type="text" required class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-sm font-medium mb-1">Иконка (emoji)</label>
-                <input v-model="form.icon" type="text" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
+            <!-- Icon Upload -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Иконка</label>
+              <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-lg border-2 border-dashed border-light-border dark:border-dark-border flex items-center justify-center overflow-hidden bg-light-bg-secondary dark:bg-dark-bg">
+                  <img v-if="form.icon && form.icon.startsWith('/')" :src="getImageUrl(form.icon)" class="w-12 h-12 object-contain" />
+                  <span v-else class="text-3xl">{{ form.icon || '⚡' }}</span>
+                </div>
+                <div class="flex-1">
+                  <div class="flex gap-2 mb-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      @change="handleIconUpload"
+                      class="hidden"
+                      ref="iconInput"
+                    />
+                    <button
+                      type="button"
+                      @click="($refs.iconInput as HTMLInputElement)?.click()"
+                      class="btn-secondary text-sm"
+                      :disabled="uploading"
+                    >
+                      {{ uploading ? '...' : 'Загрузить' }}
+                    </button>
+                  </div>
+                  <input
+                    v-model="form.icon"
+                    type="text"
+                    placeholder="Emoji или URL иконки"
+                    class="w-full px-3 py-1.5 text-sm rounded-lg border border-light-border dark:border-dark-border bg-transparent"
+                  />
+                  <p class="text-xs text-gray-500 mt-1">Введите emoji (⚡) или загрузите SVG/PNG</p>
+                </div>
               </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Категория</label>
-                <select v-model="form.category" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent">
-                  <option value="frontend">Frontend</option>
-                  <option value="backend">Backend</option>
-                </select>
-              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Категория</label>
+              <select v-model="form.category" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent">
+                <option value="frontend">Frontend</option>
+                <option value="backend">Backend</option>
+              </select>
             </div>
 
             <div>
@@ -92,7 +126,8 @@
 </template>
 
 <script setup lang="ts">
-const { fetchWithAuth, isAuthenticated } = useAuth()
+const config = useRuntimeConfig()
+const { fetchWithAuth, uploadFile, isAuthenticated } = useAuth()
 const router = useRouter()
 
 watch(isAuthenticated, (value) => {
@@ -102,6 +137,7 @@ watch(isAuthenticated, (value) => {
 const items = ref<any[]>([])
 const showModal = ref(false)
 const editingItem = ref<any>(null)
+const uploading = ref(false)
 
 const defaultForm = {
   name: '',
@@ -112,6 +148,29 @@ const defaultForm = {
 }
 
 const form = reactive({ ...defaultForm })
+
+const getImageUrl = (url: string) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${config.public.apiUrl}${url}`
+}
+
+const handleIconUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  uploading.value = true
+  try {
+    const result = await uploadFile(file)
+    form.icon = result.url
+  } catch (error) {
+    console.error('Upload error:', error)
+    alert('Ошибка загрузки файла')
+  } finally {
+    uploading.value = false
+  }
+}
 
 const fetchItems = async () => {
   try {

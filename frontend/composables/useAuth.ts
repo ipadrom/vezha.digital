@@ -97,6 +97,32 @@ export const useAuth = () => {
     return response.json()
   }
 
+  const uploadFile = async (file: File): Promise<{ url: string; filename: string }> => {
+    const formData = new FormData()
+    formData.append('file', file)
+
+    const response = await fetch(`${apiUrl}/api/admin/upload`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token.value}`,
+      },
+      body: formData,
+    })
+
+    if (response.status === 401) {
+      clearToken()
+      navigateTo('/admin/login')
+      throw new Error('Unauthorized')
+    }
+
+    if (!response.ok) {
+      const error = await response.text()
+      throw new Error(error || 'Upload failed')
+    }
+
+    return response.json()
+  }
+
   return {
     token,
     admin,
@@ -105,5 +131,6 @@ export const useAuth = () => {
     loginWithTelegram,
     logout,
     fetchWithAuth,
+    uploadFile,
   }
 }

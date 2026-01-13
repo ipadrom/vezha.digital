@@ -20,7 +20,7 @@
             <tr v-for="item in items" :key="item.id" class="border-t border-light-border dark:border-dark-border">
               <td class="p-4">
                 <div class="flex items-center gap-3">
-                  <img v-if="item.image_url" :src="item.image_url" class="w-12 h-12 rounded object-cover" />
+                  <img v-if="item.image_url" :src="getImageUrl(item.image_url)" class="w-12 h-12 rounded object-cover" />
                   <div v-else class="w-12 h-12 rounded bg-gray-200 dark:bg-gray-700" />
                   <div>
                     <p class="font-medium">{{ item.title_ru }}</p>
@@ -49,6 +49,41 @@
           <h2 class="text-xl font-bold mb-4">{{ editingItem ? 'Редактировать' : 'Добавить' }} проект</h2>
 
           <form @submit.prevent="saveItem" class="space-y-4">
+            <!-- Image Upload -->
+            <div>
+              <label class="block text-sm font-medium mb-2">Изображение проекта</label>
+              <div class="flex items-start gap-4">
+                <div class="w-32 h-32 rounded-lg border-2 border-dashed border-light-border dark:border-dark-border flex items-center justify-center overflow-hidden">
+                  <img v-if="form.image_url" :src="getImageUrl(form.image_url)" class="w-full h-full object-cover" />
+                  <span v-else class="text-gray-400 text-sm text-center px-2">Нет изображения</span>
+                </div>
+                <div class="flex-1">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    @change="handleImageUpload"
+                    class="hidden"
+                    ref="imageInput"
+                  />
+                  <button
+                    type="button"
+                    @click="($refs.imageInput as HTMLInputElement)?.click()"
+                    class="btn-secondary mb-2"
+                    :disabled="uploading"
+                  >
+                    {{ uploading ? 'Загрузка...' : 'Выбрать файл' }}
+                  </button>
+                  <p class="text-xs text-gray-500">JPG, PNG, WebP до 10MB</p>
+                  <input
+                    v-model="form.image_url"
+                    type="text"
+                    placeholder="Или вставьте URL"
+                    class="mt-2 w-full px-3 py-1.5 text-sm rounded-lg border border-light-border dark:border-dark-border bg-transparent"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div class="grid md:grid-cols-2 gap-4">
               <div>
                 <label class="block text-sm font-medium mb-1">Название (RU)</label>
@@ -82,20 +117,14 @@
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium mb-1">URL изображения</label>
-                <input v-model="form.image_url" type="text" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
-              </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 gap-4">
-              <div>
                 <label class="block text-sm font-medium mb-1">Ссылка на проект</label>
                 <input v-model="form.link" type="text" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
               </div>
-              <div>
-                <label class="block text-sm font-medium mb-1">Технологии (через запятую)</label>
-                <input v-model="form.technologies" type="text" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
-              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Технологии (через запятую)</label>
+              <input v-model="form.technologies" type="text" placeholder="Vue, FastAPI, PostgreSQL" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
             </div>
 
             <div class="grid md:grid-cols-2 gap-4">
@@ -121,7 +150,8 @@
 </template>
 
 <script setup lang="ts">
-const { fetchWithAuth, isAuthenticated } = useAuth()
+const config = useRuntimeConfig()
+const { fetchWithAuth, uploadFile, isAuthenticated } = useAuth()
 const router = useRouter()
 
 watch(isAuthenticated, (value) => {
@@ -131,6 +161,7 @@ watch(isAuthenticated, (value) => {
 const items = ref<any[]>([])
 const showModal = ref(false)
 const editingItem = ref<any>(null)
+const uploading = ref(false)
 
 const defaultForm = {
   title_ru: '',
@@ -146,6 +177,29 @@ const defaultForm = {
 }
 
 const form = reactive({ ...defaultForm })
+
+const getImageUrl = (url: string) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${config.public.apiUrl}${url}`
+}
+
+const handleImageUpload = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  uploading.value = true
+  try {
+    const result = await uploadFile(file)
+    form.image_url = result.url
+  } catch (error) {
+    console.error('Upload error:', error)
+    alert('Ошибка загрузки файла')
+  } finally {
+    uploading.value = false
+  }
+}
 
 const fetchItems = async () => {
   try {
