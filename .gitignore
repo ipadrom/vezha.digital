@@ -18,7 +18,8 @@ build/
 .env
 .env.local
 .env.*.local
-*/.env.production
+.env.prod
+backend/.env.production
 
 # IDE
 .idea/
