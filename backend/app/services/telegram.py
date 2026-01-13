@@ -13,7 +13,15 @@ async def send_contact_notification(
     if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
         return False
 
-    text = f
+    text = f"""📬 Новая заявка с сайта!
+
+👤 Имя: {name}
+📞 Контакт: {contact}
+
+💬 Сообщение:
+{message}
+
+🕐 {datetime.now().strftime('%d.%m.%Y %H:%M')}"""
 
     url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
 

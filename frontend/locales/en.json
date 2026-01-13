@@ -1,0 +1,60 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "why_us": "Why Us",
+    "projects": "Our Projects",
+    "stack": "Stack",
+    "stages": "Stages",
+    "contacts": "Contacts"
+  },
+  "header": {
+    "discuss_project": "Discuss Project"
+  },
+  "hero": {
+    "title": "Turnkey Development from",
+    "subtitle": "We'll launch your project in 1-4 weeks",
+    "tags": "Telegram Mini Apps, websites, e-commerce and AI solutions",
+    "cta": "Discuss Project"
+  },
+  "services": {
+    "title": "Services",
+    "price_from": "from"
+  },
+  "advantages": {
+    "title": "Why Us"
+  },
+  "projects": {
+    "title": "Our Projects"
+  },
+  "tech_stack": {
+    "title": "Our Stack",
+    "frontend": "Frontend",
+    "backend": "Backend"
+  },
+  "stages": {
+    "title": "Work Stages"
+  },
+  "contacts": {
+    "title": "Contact Us",
+    "telegram": "Telegram",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "cta": {
+    "title": "Ready to Start?",
+    "subtitle": "Let's discuss your project and calculate the exact cost",
+    "name": "Name",
+    "contact": "Contact (phone, telegram or email)",
+    "message": "Describe your project",
+    "submit": "Submit",
+    "success": "Your request has been sent successfully!",
+    "error": "An error occurred. Please try again later."
+  },
+  "footer": {
+    "services_title": "Services",
+    "company_title": "Company",
+    "contacts_title": "Contacts",
+    "rights": "All rights reserved"
+  }
+}

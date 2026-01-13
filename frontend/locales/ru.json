@@ -1,0 +1,60 @@
+{
+  "nav": {
+    "home": "Главная",
+    "services": "Услуги",
+    "why_us": "Почему мы",
+    "projects": "Наши проекты",
+    "stack": "Стек",
+    "stages": "Этапы",
+    "contacts": "Контакты"
+  },
+  "header": {
+    "discuss_project": "Обсудить проект"
+  },
+  "hero": {
+    "title": "Разработка под ключ от",
+    "subtitle": "Запустим ваш проект за 1-4 недели",
+    "tags": "Telegram Mini Apps, веб-сайты, интернет-магазины и AI-решения",
+    "cta": "Обсудить проект"
+  },
+  "services": {
+    "title": "Услуги",
+    "price_from": "от"
+  },
+  "advantages": {
+    "title": "Почему мы"
+  },
+  "projects": {
+    "title": "Наши проекты"
+  },
+  "tech_stack": {
+    "title": "Наш стек",
+    "frontend": "Frontend",
+    "backend": "Backend"
+  },
+  "stages": {
+    "title": "Этапы работы"
+  },
+  "contacts": {
+    "title": "Свяжитесь с нами",
+    "telegram": "Telegram",
+    "email": "Email",
+    "phone": "Телефон"
+  },
+  "cta": {
+    "title": "Готовы начать?",
+    "subtitle": "Обсудим ваш проект и рассчитаем точную стоимость",
+    "name": "Имя",
+    "contact": "Контакт (телефон, telegram или email)",
+    "message": "Опишите ваш проект",
+    "submit": "Отправить",
+    "success": "Ваша заявка успешно отправлена!",
+    "error": "Произошла ошибка. Попробуйте позже."
+  },
+  "footer": {
+    "services_title": "Услуги",
+    "company_title": "Компания",
+    "contacts_title": "Контакты",
+    "rights": "Все права защищены"
+  }
+}
