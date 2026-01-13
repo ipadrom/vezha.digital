@@ -12,8 +12,10 @@
         </h3>
         <div class="flex flex-wrap justify-center gap-8">
           <div v-for="tech in frontendStack" :key="tech.id" class="text-center">
-            <div class="w-16 h-16 mx-auto mb-3 text-gray-700 dark:text-gray-300">
-              <TechIcon :name="tech.icon" />
+            <div class="w-16 h-16 mx-auto mb-3 text-gray-700 dark:text-gray-300 flex items-center justify-center">
+              <img v-if="tech.icon && tech.icon.startsWith('/')" :src="getImageUrl(tech.icon)" :alt="tech.name" class="w-full h-full object-contain" />
+              <span v-else-if="isEmoji(tech.icon)" class="text-4xl">{{ tech.icon }}</span>
+              <TechIcon v-else :name="tech.icon" />
             </div>
             <p class="font-semibold">{{ tech.name }}</p>
             <p class="text-sm text-gray-500">{{ tech.subtitle }}</p>
@@ -28,8 +30,10 @@
         </h3>
         <div class="flex flex-wrap justify-center gap-8">
           <div v-for="tech in backendStack" :key="tech.id" class="text-center">
-            <div class="w-16 h-16 mx-auto mb-3 text-gray-700 dark:text-gray-300">
-              <TechIcon :name="tech.icon" />
+            <div class="w-16 h-16 mx-auto mb-3 text-gray-700 dark:text-gray-300 flex items-center justify-center">
+              <img v-if="tech.icon && tech.icon.startsWith('/')" :src="getImageUrl(tech.icon)" :alt="tech.name" class="w-full h-full object-contain" />
+              <span v-else-if="isEmoji(tech.icon)" class="text-4xl">{{ tech.icon }}</span>
+              <TechIcon v-else :name="tech.icon" />
             </div>
             <p class="font-semibold">{{ tech.name }}</p>
             <p class="text-sm text-gray-500">{{ tech.subtitle }}</p>
@@ -41,6 +45,8 @@
 </template>
 
 <script setup lang="ts">
+const config = useRuntimeConfig()
+
 const props = defineProps<{
   techStack: any[]
 }>()
@@ -52,6 +58,18 @@ const frontendStack = computed(() =>
 const backendStack = computed(() =>
   props.techStack.filter(t => t.category === 'backend')
 )
+
+const getImageUrl = (url: string) => {
+  if (!url) return ''
+  if (url.startsWith('http')) return url
+  return `${config.public.apiUrl}${url}`
+}
+
+const isEmoji = (str: string) => {
+  if (!str) return false
+  const emojiRegex = /^[\p{Emoji}]+$/u
+  return emojiRegex.test(str) && !str.match(/^[a-zA-Z0-9]+$/)
+}
 
 // Tech icons component
 const TechIcon = defineComponent({
