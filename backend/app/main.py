@@ -21,6 +21,7 @@ app = FastAPI(
     description="API for VEZHA Digital website",
     version="1.0.0",
     lifespan=lifespan,
+    root_path=settings.ROOT_PATH,
 )
 
 

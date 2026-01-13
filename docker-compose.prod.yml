@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  vezha-backend:
+    build: ./backend
+    container_name: vezha-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env.production
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://vezha:${POSTGRES_PASSWORD}@vezha-db:5432/vezha
+    volumes:
+      - ./backend/uploads:/app/uploads
+    ports:
+      - "127.0.0.1:8001:8000"
+    depends_on:
+      vezha-db:
+        condition: service_healthy
+    networks:
+      - vezha-network
+
+  vezha-frontend:
+    build:
+      context: ./frontend
+      args:
+        - NUXT_PUBLIC_API_URL=https://n1x9s.site/vezha/api
+        - NUXT_PUBLIC_TELEGRAM_BOT_USERNAME=vezhadigitalbot
+        - NUXT_APP_BASE_URL=/vezha/
+    container_name: vezha-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - vezha-backend
+    networks:
+      - vezha-network
+
+  vezha-db:
+    image: postgres:15-alpine
+    container_name: vezha-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=vezha
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=vezha
+    volumes:
+      - vezha_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vezha"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - vezha-network
+
+volumes:
+  vezha_postgres_data:
+
+networks:
+  vezha-network:
+    driver: bridge

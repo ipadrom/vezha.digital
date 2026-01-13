@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
 
+    # Root path for reverse proxy
+    ROOT_PATH: str = ""
+
     class Config:
         env_file = ".env"
         extra = "ignore"
