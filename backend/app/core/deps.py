@@ -1,13 +1,12 @@
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.core.database import get_session
 from app.core.security import decode_access_token
-from app.config import settings
-
 
 security = HTTPBearer()
 
@@ -23,7 +22,6 @@ DbSession = Annotated[AsyncSession, Depends(get_db)]
 async def get_current_admin(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> int:
-
     token = credentials.credentials
     token_data = decode_access_token(token)
 

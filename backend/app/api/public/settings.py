@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Query
-
 from sqlalchemy import select
 
 from app.core.deps import DbSession
@@ -14,13 +13,11 @@ async def get_settings(
     db: DbSession,
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
-
     result = await db.execute(select(SiteSetting))
     settings = result.scalars().all()
 
     return SettingsPublic(
         settings={
-            s.key: (s.value_ru if lang == "ru" else s.value_en) or ""
-            for s in settings
+            s.key: (s.value_ru if lang == "ru" else s.value_en) or "" for s in settings
         }
     )

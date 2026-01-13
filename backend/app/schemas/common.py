@@ -1,5 +1,5 @@
-from typing import List
 from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -9,7 +9,7 @@ class ReorderItem(BaseModel):
 
 
 class ReorderRequest(BaseModel):
-    items: List[ReorderItem]
+    items: list[ReorderItem]
 
 
 class MessageResponse(BaseModel):

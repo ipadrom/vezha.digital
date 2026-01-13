@@ -1,12 +1,12 @@
 from uuid import UUID
-from typing import Optional, Dict
+
 from pydantic import BaseModel
 
 
 class SettingBase(BaseModel):
     key: str
-    value_ru: Optional[str] = None
-    value_en: Optional[str] = None
+    value_ru: str | None = None
+    value_en: str | None = None
 
 
 class SettingCreate(SettingBase):
@@ -14,8 +14,8 @@ class SettingCreate(SettingBase):
 
 
 class SettingUpdate(BaseModel):
-    value_ru: Optional[str] = None
-    value_en: Optional[str] = None
+    value_ru: str | None = None
+    value_en: str | None = None
 
 
 class SettingResponse(SettingBase):
@@ -26,4 +26,4 @@ class SettingResponse(SettingBase):
 
 
 class SettingsPublic(BaseModel):
-    settings: Dict[str, str]
+    settings: dict[str, str]

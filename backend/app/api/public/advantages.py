@@ -1,6 +1,4 @@
-from typing import List
 from fastapi import APIRouter, Query
-
 from sqlalchemy import select
 
 from app.core.deps import DbSession
@@ -10,12 +8,11 @@ from app.schemas import AdvantagePublic
 router = APIRouter()
 
 
-@router.get("", response_model=List[AdvantagePublic])
+@router.get("", response_model=list[AdvantagePublic])
 async def get_advantages(
     db: DbSession,
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
-
     result = await db.execute(
         select(Advantage)
         .where(Advantage.is_active == True)

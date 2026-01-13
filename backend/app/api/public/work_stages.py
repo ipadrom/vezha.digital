@@ -1,6 +1,4 @@
-from typing import List
 from fastapi import APIRouter, Query
-
 from sqlalchemy import select
 
 from app.core.deps import DbSession
@@ -10,12 +8,11 @@ from app.schemas import WorkStagePublic
 router = APIRouter()
 
 
-@router.get("", response_model=List[WorkStagePublic])
+@router.get("", response_model=list[WorkStagePublic])
 async def get_work_stages(
     db: DbSession,
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
-
     result = await db.execute(
         select(WorkStage)
         .where(WorkStage.is_active == True)

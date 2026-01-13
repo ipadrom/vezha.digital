@@ -1,6 +1,4 @@
-from typing import List
 from fastapi import APIRouter, Query
-
 from sqlalchemy import select
 
 from app.core.deps import DbSession
@@ -10,12 +8,11 @@ from app.schemas import TechStackPublic
 router = APIRouter()
 
 
-@router.get("", response_model=List[TechStackPublic])
+@router.get("", response_model=list[TechStackPublic])
 async def get_tech_stack(
     db: DbSession,
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
-
     result = await db.execute(
         select(TechStack)
         .where(TechStack.is_active == True)

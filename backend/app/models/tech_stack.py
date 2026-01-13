@@ -1,9 +1,10 @@
+import enum
 import uuid
 
-from sqlalchemy import String, Integer, Boolean, Enum as SQLEnum
+from sqlalchemy import Boolean, Integer, String
+from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
-import enum
 
 from app.core.database import Base
 

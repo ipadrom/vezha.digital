@@ -1,23 +1,18 @@
-from typing import List
 from fastapi import APIRouter, HTTPException, status
-
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
+from app.core.deps import CurrentAdmin, DbSession
 from app.models import SiteSetting
-from app.schemas import (
-    SettingCreate, SettingUpdate, SettingResponse, MessageResponse
-)
+from app.schemas import MessageResponse, SettingCreate, SettingResponse, SettingUpdate
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[SettingResponse])
+@router.get("", response_model=list[SettingResponse])
 async def get_settings(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     result = await db.execute(select(SiteSetting))
     return result.scalars().all()
 
@@ -28,11 +23,7 @@ async def create_setting(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-
-    result = await db.execute(
-        select(SiteSetting).where(SiteSetting.key == data.key)
-    )
+    result = await db.execute(select(SiteSetting).where(SiteSetting.key == data.key))
     if result.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -53,10 +44,7 @@ async def update_setting(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(SiteSetting).where(SiteSetting.key == key)
-    )
+    result = await db.execute(select(SiteSetting).where(SiteSetting.key == key))
     setting = result.scalar_one_or_none()
     if not setting:
         raise HTTPException(
@@ -79,10 +67,7 @@ async def delete_setting(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(SiteSetting).where(SiteSetting.key == key)
-    )
+    result = await db.execute(select(SiteSetting).where(SiteSetting.key == key))
     setting = result.scalar_one_or_none()
     if not setting:
         raise HTTPException(

@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -18,13 +18,13 @@ class AdvantageCreate(AdvantageBase):
 
 
 class AdvantageUpdate(BaseModel):
-    icon: Optional[str] = None
-    title_ru: Optional[str] = None
-    title_en: Optional[str] = None
-    description_ru: Optional[str] = None
-    description_en: Optional[str] = None
-    sort_order: Optional[int] = None
-    is_active: Optional[bool] = None
+    icon: str | None = None
+    title_ru: str | None = None
+    title_en: str | None = None
+    description_ru: str | None = None
+    description_en: str | None = None
+    sort_order: int | None = None
+    is_active: bool | None = None
 
 
 class AdvantageResponse(AdvantageBase):

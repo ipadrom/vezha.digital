@@ -1,28 +1,27 @@
-from typing import List
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
 
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
+from app.core.deps import CurrentAdmin, DbSession
 from app.models import Advantage
 from app.schemas import (
-    AdvantageCreate, AdvantageUpdate, AdvantageResponse,
-    ReorderRequest, MessageResponse
+    AdvantageCreate,
+    AdvantageResponse,
+    AdvantageUpdate,
+    MessageResponse,
+    ReorderRequest,
 )
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[AdvantageResponse])
+@router.get("", response_model=list[AdvantageResponse])
 async def get_advantages(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Advantage).order_by(Advantage.sort_order)
-    )
+    result = await db.execute(select(Advantage).order_by(Advantage.sort_order))
     return result.scalars().all()
 
 
@@ -32,7 +31,6 @@ async def create_advantage(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     advantage = Advantage(**data.model_dump())
     db.add(advantage)
     await db.commit()
@@ -47,10 +45,7 @@ async def update_advantage(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Advantage).where(Advantage.id == advantage_id)
-    )
+    result = await db.execute(select(Advantage).where(Advantage.id == advantage_id))
     advantage = result.scalar_one_or_none()
     if not advantage:
         raise HTTPException(
@@ -73,10 +68,7 @@ async def delete_advantage(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Advantage).where(Advantage.id == advantage_id)
-    )
+    result = await db.execute(select(Advantage).where(Advantage.id == advantage_id))
     advantage = result.scalar_one_or_none()
     if not advantage:
         raise HTTPException(
@@ -95,11 +87,8 @@ async def reorder_advantages(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     for item in data.items:
-        result = await db.execute(
-            select(Advantage).where(Advantage.id == item.id)
-        )
+        result = await db.execute(select(Advantage).where(Advantage.id == item.id))
         advantage = result.scalar_one_or_none()
         if advantage:
             advantage.sort_order = item.sort_order

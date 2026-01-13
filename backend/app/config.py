@@ -1,11 +1,8 @@
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
-
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/vezha"
-
 
     SECRET_KEY: str = "your-super-secret-key-change-in-production"
     ALGORITHM: str = "HS256"
@@ -20,7 +17,7 @@ class Settings(BaseSettings):
     ADMIN_TELEGRAM_IDS: str = ""
 
     @property
-    def admin_telegram_ids_list(self) -> List[int]:
+    def admin_telegram_ids_list(self) -> list[int]:
         if not self.ADMIN_TELEGRAM_IDS:
             return []
         return [int(x.strip()) for x in self.ADMIN_TELEGRAM_IDS.split(",") if x.strip()]
@@ -29,7 +26,7 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = "http://localhost:3000"
 
     @property
-    def cors_origins_list(self) -> List[str]:
+    def cors_origins_list(self) -> list[str]:
         return [x.strip() for x in self.CORS_ORIGINS.split(",")]
 
     # Upload

@@ -1,13 +1,13 @@
 from fastapi import APIRouter
 
 from app.api.public import (
-    services,
-    projects,
     advantages,
+    contact,
+    projects,
+    services,
+    settings,
     tech_stack,
     work_stages,
-    settings,
-    contact,
 )
 
 router = APIRouter()

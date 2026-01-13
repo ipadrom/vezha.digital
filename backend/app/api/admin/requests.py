@@ -1,22 +1,20 @@
-from typing import List
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
 
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
+from app.core.deps import CurrentAdmin, DbSession
 from app.models import ContactRequest
 from app.schemas import ContactRequestResponse, MessageResponse
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[ContactRequestResponse])
+@router.get("", response_model=list[ContactRequestResponse])
 async def get_requests(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     result = await db.execute(
         select(ContactRequest).order_by(ContactRequest.created_at.desc())
     )
@@ -29,7 +27,6 @@ async def process_request(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     result = await db.execute(
         select(ContactRequest).where(ContactRequest.id == request_id)
     )
@@ -51,7 +48,6 @@ async def delete_request(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     result = await db.execute(
         select(ContactRequest).where(ContactRequest.id == request_id)
     )

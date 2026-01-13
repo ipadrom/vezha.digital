@@ -14,11 +14,8 @@ async def create_contact_request(
     request: Request,
     db: DbSession,
 ):
-
-
     ip_address = request.client.host if request.client else None
     user_agent = request.headers.get("user-agent")
-
 
     contact_request = ContactRequest(
         name=data.name,
@@ -29,7 +26,6 @@ async def create_contact_request(
     )
     db.add(contact_request)
     await db.commit()
-
 
     await send_contact_notification(
         name=data.name,

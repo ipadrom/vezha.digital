@@ -1,5 +1,5 @@
 from uuid import UUID
-from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -17,12 +17,12 @@ class WorkStageCreate(WorkStageBase):
 
 
 class WorkStageUpdate(BaseModel):
-    step_number: Optional[int] = None
-    title_ru: Optional[str] = None
-    title_en: Optional[str] = None
-    description_ru: Optional[str] = None
-    description_en: Optional[str] = None
-    is_active: Optional[bool] = None
+    step_number: int | None = None
+    title_ru: str | None = None
+    title_en: str | None = None
+    description_ru: str | None = None
+    description_en: str | None = None
+    is_active: bool | None = None
 
 
 class WorkStageResponse(WorkStageBase):

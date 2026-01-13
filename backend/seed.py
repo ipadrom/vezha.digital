@@ -1,9 +1,14 @@
-
 import asyncio
+
 from app.core.database import async_session_maker
 from app.models import (
-    Service, Project, Advantage, TechStack, TechCategory,
-    WorkStage, SiteSetting
+    Advantage,
+    Project,
+    Service,
+    SiteSetting,
+    TechCategory,
+    TechStack,
+    WorkStage,
 )
 
 
@@ -181,7 +186,6 @@ async def seed_projects(session):
 
 async def seed_tech_stack(session):
     tech_items = [
-
         TechStack(
             category=TechCategory.FRONTEND,
             icon="react",
@@ -222,7 +226,6 @@ async def seed_tech_stack(session):
             subtitle_en="CSS Framework",
             sort_order=4,
         ),
-
         TechStack(
             category=TechCategory.BACKEND,
             icon="python",

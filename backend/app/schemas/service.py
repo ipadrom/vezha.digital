@@ -1,6 +1,6 @@
-from uuid import UUID
 from datetime import datetime
-from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel
 
 
@@ -10,8 +10,8 @@ class ServiceBase(BaseModel):
     name_en: str
     description_ru: str
     description_en: str
-    examples_ru: Optional[str] = None
-    examples_en: Optional[str] = None
+    examples_ru: str | None = None
+    examples_en: str | None = None
     price_from: int = 0
     price_currency: str = "₽"
     sort_order: int = 0
@@ -23,17 +23,17 @@ class ServiceCreate(ServiceBase):
 
 
 class ServiceUpdate(BaseModel):
-    icon: Optional[str] = None
-    name_ru: Optional[str] = None
-    name_en: Optional[str] = None
-    description_ru: Optional[str] = None
-    description_en: Optional[str] = None
-    examples_ru: Optional[str] = None
-    examples_en: Optional[str] = None
-    price_from: Optional[int] = None
-    price_currency: Optional[str] = None
-    sort_order: Optional[int] = None
-    is_active: Optional[bool] = None
+    icon: str | None = None
+    name_ru: str | None = None
+    name_en: str | None = None
+    description_ru: str | None = None
+    description_en: str | None = None
+    examples_ru: str | None = None
+    examples_en: str | None = None
+    price_from: int | None = None
+    price_currency: str | None = None
+    sort_order: int | None = None
+    is_active: bool | None = None
 
 
 class ServiceResponse(ServiceBase):
@@ -50,7 +50,7 @@ class ServicePublic(BaseModel):
     icon: str
     name: str
     description: str
-    examples: Optional[str]
+    examples: str | None
     price_from: int
     price_currency: str
 

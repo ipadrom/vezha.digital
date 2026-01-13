@@ -1,6 +1,6 @@
-from uuid import UUID
 from datetime import datetime
-from typing import Optional
+from uuid import UUID
+
 from pydantic import BaseModel, field_validator
 
 
@@ -27,7 +27,7 @@ class ContactRequestResponse(BaseModel):
     name: str
     contact: str
     message: str
-    ip_address: Optional[str]
+    ip_address: str | None
     is_processed: bool
     created_at: datetime
 

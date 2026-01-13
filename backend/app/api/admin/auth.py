@@ -1,13 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, HTTPException, status
 
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
-from app.core.security import verify_telegram_auth, create_access_token
 from app.config import settings
+from app.core.deps import CurrentAdmin, DbSession
+from app.core.security import create_access_token, verify_telegram_auth
 from app.models import Admin
-from app.schemas import TelegramAuth, Token, AdminInfo
+from app.schemas import AdminInfo, TelegramAuth, Token
 
 router = APIRouter()
 
@@ -17,8 +17,6 @@ async def telegram_auth(
     data: TelegramAuth,
     db: DbSession,
 ):
-
-
     auth_dict = data.model_dump()
     if not verify_telegram_auth(auth_dict):
         raise HTTPException(
@@ -26,17 +24,13 @@ async def telegram_auth(
             detail="Invalid Telegram auth data",
         )
 
-
     if data.id not in settings.admin_telegram_ids_list:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You are not authorized as admin",
         )
 
-
-    result = await db.execute(
-        select(Admin).where(Admin.telegram_id == data.id)
-    )
+    result = await db.execute(select(Admin).where(Admin.telegram_id == data.id))
     admin = result.scalar_one_or_none()
 
     if admin:
@@ -58,7 +52,6 @@ async def telegram_auth(
 
     await db.commit()
 
-
     access_token = create_access_token(data.id)
 
     return Token(access_token=access_token)
@@ -69,10 +62,7 @@ async def get_current_admin_info(
     admin_id: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Admin).where(Admin.telegram_id == admin_id)
-    )
+    result = await db.execute(select(Admin).where(Admin.telegram_id == admin_id))
     admin = result.scalar_one_or_none()
 
     if not admin:

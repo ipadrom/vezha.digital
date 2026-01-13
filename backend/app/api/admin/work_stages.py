@@ -1,28 +1,26 @@
-from typing import List
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
 
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
+from app.core.deps import CurrentAdmin, DbSession
 from app.models import WorkStage
 from app.schemas import (
-    WorkStageCreate, WorkStageUpdate, WorkStageResponse,
-    MessageResponse
+    MessageResponse,
+    WorkStageCreate,
+    WorkStageResponse,
+    WorkStageUpdate,
 )
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[WorkStageResponse])
+@router.get("", response_model=list[WorkStageResponse])
 async def get_work_stages(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(WorkStage).order_by(WorkStage.step_number)
-    )
+    result = await db.execute(select(WorkStage).order_by(WorkStage.step_number))
     return result.scalars().all()
 
 
@@ -32,7 +30,6 @@ async def create_work_stage(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     stage = WorkStage(**data.model_dump())
     db.add(stage)
     await db.commit()
@@ -47,10 +44,7 @@ async def update_work_stage(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(WorkStage).where(WorkStage.id == stage_id)
-    )
+    result = await db.execute(select(WorkStage).where(WorkStage.id == stage_id))
     stage = result.scalar_one_or_none()
     if not stage:
         raise HTTPException(
@@ -73,10 +67,7 @@ async def delete_work_stage(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(WorkStage).where(WorkStage.id == stage_id)
-    )
+    result = await db.execute(select(WorkStage).where(WorkStage.id == stage_id))
     stage = result.scalar_one_or_none()
     if not stage:
         raise HTTPException(

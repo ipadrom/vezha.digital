@@ -1,5 +1,6 @@
-import httpx
 from datetime import datetime
+
+import httpx
 
 from app.config import settings
 
@@ -9,7 +10,6 @@ async def send_contact_notification(
     contact: str,
     message: str,
 ) -> bool:
-
     if not settings.TELEGRAM_BOT_TOKEN or not settings.TELEGRAM_CHAT_ID:
         return False
 
@@ -21,7 +21,7 @@ async def send_contact_notification(
 💬 Сообщение:
 {message}
 
-🕐 {datetime.now().strftime('%d.%m.%Y %H:%M')}"""
+🕐 {datetime.now().strftime("%d.%m.%Y %H:%M")}"""
 
     url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"
 

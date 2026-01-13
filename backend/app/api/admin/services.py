@@ -1,28 +1,27 @@
-from typing import List
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
 
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
+from app.core.deps import CurrentAdmin, DbSession
 from app.models import Service
 from app.schemas import (
-    ServiceCreate, ServiceUpdate, ServiceResponse,
-    ReorderRequest, MessageResponse
+    MessageResponse,
+    ReorderRequest,
+    ServiceCreate,
+    ServiceResponse,
+    ServiceUpdate,
 )
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[ServiceResponse])
+@router.get("", response_model=list[ServiceResponse])
 async def get_services(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Service).order_by(Service.sort_order)
-    )
+    result = await db.execute(select(Service).order_by(Service.sort_order))
     return result.scalars().all()
 
 
@@ -32,7 +31,6 @@ async def create_service(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     service = Service(**data.model_dump())
     db.add(service)
     await db.commit()
@@ -46,10 +44,7 @@ async def get_service(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Service).where(Service.id == service_id)
-    )
+    result = await db.execute(select(Service).where(Service.id == service_id))
     service = result.scalar_one_or_none()
     if not service:
         raise HTTPException(
@@ -66,10 +61,7 @@ async def update_service(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Service).where(Service.id == service_id)
-    )
+    result = await db.execute(select(Service).where(Service.id == service_id))
     service = result.scalar_one_or_none()
     if not service:
         raise HTTPException(
@@ -92,10 +84,7 @@ async def delete_service(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Service).where(Service.id == service_id)
-    )
+    result = await db.execute(select(Service).where(Service.id == service_id))
     service = result.scalar_one_or_none()
     if not service:
         raise HTTPException(
@@ -114,11 +103,8 @@ async def reorder_services(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     for item in data.items:
-        result = await db.execute(
-            select(Service).where(Service.id == item.id)
-        )
+        result = await db.execute(select(Service).where(Service.id == item.id))
         service = result.scalar_one_or_none()
         if service:
             service.sort_order = item.sort_order

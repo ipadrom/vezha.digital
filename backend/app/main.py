@@ -1,20 +1,19 @@
+import os
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import os
 
-from app.config import settings
-from app.api.public import router as public_router
 from app.api.admin import router as admin_router
+from app.api.public import router as public_router
+from app.config import settings
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     yield
-
 
 
 app = FastAPI(

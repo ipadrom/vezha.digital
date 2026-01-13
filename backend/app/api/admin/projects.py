@@ -1,28 +1,27 @@
-from typing import List
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
 
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
+from app.core.deps import CurrentAdmin, DbSession
 from app.models import Project
 from app.schemas import (
-    ProjectCreate, ProjectUpdate, ProjectResponse,
-    ReorderRequest, MessageResponse
+    MessageResponse,
+    ProjectCreate,
+    ProjectResponse,
+    ProjectUpdate,
+    ReorderRequest,
 )
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[ProjectResponse])
+@router.get("", response_model=list[ProjectResponse])
 async def get_projects(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Project).order_by(Project.sort_order)
-    )
+    result = await db.execute(select(Project).order_by(Project.sort_order))
     return result.scalars().all()
 
 
@@ -32,7 +31,6 @@ async def create_project(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     project = Project(**data.model_dump())
     db.add(project)
     await db.commit()
@@ -46,10 +44,7 @@ async def get_project(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Project).where(Project.id == project_id)
-    )
+    result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(
@@ -66,10 +61,7 @@ async def update_project(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Project).where(Project.id == project_id)
-    )
+    result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(
@@ -92,10 +84,7 @@ async def delete_project(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(Project).where(Project.id == project_id)
-    )
+    result = await db.execute(select(Project).where(Project.id == project_id))
     project = result.scalar_one_or_none()
     if not project:
         raise HTTPException(
@@ -114,11 +103,8 @@ async def reorder_projects(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     for item in data.items:
-        result = await db.execute(
-            select(Project).where(Project.id == item.id)
-        )
+        result = await db.execute(select(Project).where(Project.id == item.id))
         project = result.scalar_one_or_none()
         if project:
             project.sort_order = item.sort_order

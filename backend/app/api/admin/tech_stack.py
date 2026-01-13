@@ -1,25 +1,26 @@
-from typing import List
 from uuid import UUID
-from fastapi import APIRouter, HTTPException, status
 
+from fastapi import APIRouter, HTTPException, status
 from sqlalchemy import select
 
-from app.core.deps import DbSession, CurrentAdmin
+from app.core.deps import CurrentAdmin, DbSession
 from app.models import TechStack
 from app.schemas import (
-    TechStackCreate, TechStackUpdate, TechStackResponse,
-    ReorderRequest, MessageResponse
+    MessageResponse,
+    ReorderRequest,
+    TechStackCreate,
+    TechStackResponse,
+    TechStackUpdate,
 )
 
 router = APIRouter()
 
 
-@router.get("", response_model=List[TechStackResponse])
+@router.get("", response_model=list[TechStackResponse])
 async def get_tech_stack(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     result = await db.execute(
         select(TechStack).order_by(TechStack.category, TechStack.sort_order)
     )
@@ -32,7 +33,6 @@ async def create_tech_stack(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     tech = TechStack(**data.model_dump())
     db.add(tech)
     await db.commit()
@@ -47,10 +47,7 @@ async def update_tech_stack(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(TechStack).where(TechStack.id == tech_id)
-    )
+    result = await db.execute(select(TechStack).where(TechStack.id == tech_id))
     tech = result.scalar_one_or_none()
     if not tech:
         raise HTTPException(
@@ -73,10 +70,7 @@ async def delete_tech_stack(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
-    result = await db.execute(
-        select(TechStack).where(TechStack.id == tech_id)
-    )
+    result = await db.execute(select(TechStack).where(TechStack.id == tech_id))
     tech = result.scalar_one_or_none()
     if not tech:
         raise HTTPException(
@@ -95,11 +89,8 @@ async def reorder_tech_stack(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-
     for item in data.items:
-        result = await db.execute(
-            select(TechStack).where(TechStack.id == item.id)
-        )
+        result = await db.execute(select(TechStack).where(TechStack.id == item.id))
         tech = result.scalar_one_or_none()
         if tech:
             tech.sort_order = item.sort_order

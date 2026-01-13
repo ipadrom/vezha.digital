@@ -1,8 +1,5 @@
-from typing import List
 from fastapi import APIRouter, Query
-
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import DbSession
 from app.models import Project
@@ -11,16 +8,13 @@ from app.schemas import ProjectPublic
 router = APIRouter()
 
 
-@router.get("", response_model=List[ProjectPublic])
+@router.get("", response_model=list[ProjectPublic])
 async def get_projects(
     db: DbSession,
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
-
     result = await db.execute(
-        select(Project)
-        .where(Project.is_active == True)
-        .order_by(Project.sort_order)
+        select(Project).where(Project.is_active == True).order_by(Project.sort_order)
     )
     projects = result.scalars().all()
 
