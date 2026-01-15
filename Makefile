@@ -158,7 +158,7 @@ prod-deploy: ## Деплой на production (build + up)
 
 prod-update: ## Обновить production (pull + rebuild + restart)
 	git pull
-	docker-compose build
-	docker-compose up -d
-	docker-compose exec backend alembic upgrade head
+	docker compose build
+	docker compose up -d
+	docker compose exec backend alembic upgrade head
 	@echo "$(GREEN)Updated!$(RESET)"
