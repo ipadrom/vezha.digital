@@ -1,0 +1,6 @@
+<svg width="80" height="120" viewBox="0 0 80 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text x="30" y="30" font-family="JetBrains Mono, monospace" font-size="14" fill="#00ff41" opacity="0.5">&lt;/&gt;</text>
+  <text x="40" y="60" font-family="JetBrains Mono, monospace" font-size="12" fill="#00ff41" opacity="0.3">{}</text>
+  <text x="50" y="90" font-family="JetBrains Mono, monospace" font-size="10" fill="#00ff41" opacity="0.4">$_</text>
+  <line x1="40" y1="0" x2="40" y2="120" stroke="#00ff41" stroke-opacity="0.1" stroke-dasharray="4 4"/>
+</svg>

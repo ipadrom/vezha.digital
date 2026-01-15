@@ -13,11 +13,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Dark theme colors
+        // Dark theme colors (maket style)
         dark: {
           bg: '#0a0a0a',
-          'bg-secondary': '#121212',
-          card: '#1a1a1a',
+          'bg-secondary': '#111111',
+          'bg-tertiary': '#1a1a1a',
+          card: '#111111',
           border: '#2a2a2a',
         },
         // Light theme colors
@@ -27,17 +28,21 @@ export default {
           card: '#ffffff',
           border: '#e5e5e5',
         },
-        // Accent colors
+        // Accent colors (maket style - green)
         accent: {
-          dark: '#00ff66',
-          'dark-hover': '#00cc52',
-          light: '#ff3333',
-          'light-hover': '#cc2929',
+          DEFAULT: '#00ff41',
+          dark: '#00ff41',
+          'dark-hover': '#00cc34',
+          light: '#00ff41',
+          'light-hover': '#00cc34',
         },
+        // Text colors
+        'text-dim': '#a0a0a0',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['JetBrains Mono', 'monospace'],
         mono: ['JetBrains Mono', 'monospace'],
+        pixel: ['Pixelify Sans', 'monospace'],
       },
       animation: {
         'glitch': 'glitch 0.3s linear',

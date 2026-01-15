@@ -1,105 +1,98 @@
 <template>
-  <section id="contacts" class="py-20">
+  <section id="contacts" class="section">
     <div class="container-main">
-      <div class="grid lg:grid-cols-2 gap-12">
-        <!-- Contact Info -->
-        <div>
-          <h2 class="text-3xl md:text-4xl font-bold mb-8">
-            <UiGlitchText :text="$t('contacts.title')">{{ $t('contacts.title') }}</UiGlitchText>
-          </h2>
+      <h2 class="section-title">
+        <span class="bracket">&lt;</span>{{ $t('contacts.title') }}<span class="bracket">/&gt;</span>
+      </h2>
 
-          <div class="space-y-6">
-            <!-- Telegram -->
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.912.489-1.302.481-.428-.009-1.252-.242-1.865-.44-.751-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635.099-.002.321.023.465.14.121.099.154.232.17.325.014.094.032.309.018.476z"/>
-                </svg>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">{{ $t('contacts.telegram') }}</p>
-                <a :href="`https://t.me/${(settings?.contact_telegram || '').replace('@', '')}`" target="_blank" class="font-medium hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                  {{ settings?.contact_telegram }}
-                </a>
-              </div>
-            </div>
+      <div class="contact">
+        <!-- Left Column: Contact Info -->
+        <div class="contact__left">
+          <h3>Готовы начать?</h3>
+          <p>Обсудим ваш проект и рассчитаем точную стоимость</p>
 
-            <!-- Email -->
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-lg bg-accent-light/10 dark:bg-accent-dark/10 flex items-center justify-center">
-                <svg class="w-6 h-6 text-accent-light dark:text-accent-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <p class="text-sm text-gray-500">{{ $t('contacts.email') }}</p>
-                <a :href="`mailto:${settings?.contact_email}`" class="font-medium hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                  {{ settings?.contact_email }}
-                </a>
-              </div>
-            </div>
+          <div class="contacts-list">
+            <a
+              v-if="settings?.contact_telegram"
+              :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
+              target="_blank"
+            >
+              <span>📱</span> Telegram: {{ settings.contact_telegram }}
+            </a>
+            <a
+              v-if="settings?.contact_email"
+              :href="`mailto:${settings.contact_email}`"
+              @click.prevent="copyToClipboard(settings.contact_email)"
+            >
+              <span>📧</span> Email: {{ settings.contact_email }}
+            </a>
+            <a
+              v-if="settings?.contact_phone"
+              :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
+              @click.prevent="copyToClipboard(settings.contact_phone)"
+            >
+              <span>📞</span> Телефон: {{ settings.contact_phone }}
+            </a>
+          </div>
 
-            <!-- Phone -->
-            <div class="flex items-center gap-4">
-              <div class="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
+          <a href="#" class="btn btn-primary btn-large" @click.prevent="showModal = true">
+            {{ $t('cta.submit') }}
+          </a>
+        </div>
+
+        <!-- Right Column: Terminal -->
+        <div class="contact__right">
+          <div class="terminal">
+            <div class="terminal__header">contact.sh</div>
+            <div class="terminal__body">
+              <div class="terminal__line">
+                <span class="prompt">$</span> cat contact_info.json
               </div>
-              <div>
-                <p class="text-sm text-gray-500">{{ $t('contacts.phone') }}</p>
-                <a :href="`tel:${settings?.contact_phone?.replace(/\D/g, '')}`" class="font-medium hover:text-accent-light dark:hover:text-accent-dark transition-colors">
-                  {{ settings?.contact_phone }}
-                </a>
-              </div>
+              <pre>{
+  "status": "open_to_work",
+  "services": [
+    "web_development",
+    "telegram_apps",
+    "ai_integration"
+  ],
+  "location": "Moscow, Russia",
+  "response_time": "24 hours",
+  "free_consultation": true
+}</pre>
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Contact Form -->
-        <div class="card">
-          <h3 class="text-2xl font-bold mb-2">{{ $t('cta.title') }}</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">{{ $t('cta.subtitle') }}</p>
-
-          <form @submit.prevent="handleSubmit" class="space-y-4">
-            <div>
-              <input
-                v-model="form.name"
-                type="text"
-                :placeholder="$t('cta.name')"
-                required
-                class="w-full px-4 py-3 rounded-lg bg-light-bg-secondary dark:bg-dark-bg border border-light-border dark:border-dark-border focus:border-accent-light dark:focus:border-accent-dark outline-none transition-colors"
-              />
+      <!-- Contact Modal -->
+      <div v-if="showModal" class="modal active">
+        <div class="modal__overlay" @click="showModal = false"></div>
+        <div class="modal__box">
+          <button class="modal__close" @click="showModal = false">&times;</button>
+          <h2><span class="bracket">&lt;</span>{{ $t('cta.title') }}<span class="bracket">/&gt;</span></h2>
+          <form @submit.prevent="handleSubmit" class="flex flex-col gap-5">
+            <div class="field">
+              <label>{{ $t('cta.name') }}</label>
+              <input v-model="form.name" type="text" required />
             </div>
-            <div>
-              <input
-                v-model="form.contact"
-                type="text"
-                :placeholder="$t('cta.contact')"
-                required
-                class="w-full px-4 py-3 rounded-lg bg-light-bg-secondary dark:bg-dark-bg border border-light-border dark:border-dark-border focus:border-accent-light dark:focus:border-accent-dark outline-none transition-colors"
-              />
+            <div class="field">
+              <label>{{ $t('cta.contact') }}</label>
+              <input v-model="form.contact" type="text" required />
             </div>
-            <div>
-              <textarea
-                v-model="form.message"
-                :placeholder="$t('cta.message')"
-                required
-                rows="4"
-                class="w-full px-4 py-3 rounded-lg bg-light-bg-secondary dark:bg-dark-bg border border-light-border dark:border-dark-border focus:border-accent-light dark:focus:border-accent-dark outline-none transition-colors resize-none"
-              />
+            <div class="field">
+              <label>{{ $t('cta.message') }}</label>
+              <textarea v-model="form.message" rows="5" required></textarea>
+            </div>
+            <div class="checkbox">
+              <input v-model="agreed" type="checkbox" id="agree" required />
+              <label for="agree">Я согласен на обработку персональных данных</label>
             </div>
 
-            <!-- Status message -->
-            <p v-if="status" :class="['text-sm', status === 'success' ? 'text-green-500' : 'text-red-500']">
+            <p v-if="status" :class="['text-sm', status === 'success' ? 'text-accent' : 'text-red-500']">
               {{ status === 'success' ? $t('cta.success') : $t('cta.error') }}
             </p>
 
-            <button
-              type="submit"
-              :disabled="isSubmitting"
-              class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+            <button type="submit" :disabled="isSubmitting" class="btn btn-primary btn-full">
               {{ isSubmitting ? '...' : $t('cta.submit') }}
             </button>
           </form>
@@ -116,6 +109,9 @@ defineProps<{
 
 const { submitContact } = useApi()
 
+const showModal = ref(false)
+const agreed = ref(false)
+
 const form = reactive({
   name: '',
   contact: '',
@@ -126,6 +122,8 @@ const isSubmitting = ref(false)
 const status = ref<'success' | 'error' | null>(null)
 
 const handleSubmit = async () => {
+  if (!agreed.value) return
+
   isSubmitting.value = true
   status.value = null
 
@@ -135,10 +133,201 @@ const handleSubmit = async () => {
     form.name = ''
     form.contact = ''
     form.message = ''
+    setTimeout(() => {
+      showModal.value = false
+      status.value = null
+    }, 2000)
   } catch {
     status.value = 'error'
   } finally {
     isSubmitting.value = false
   }
 }
+
+const copyToClipboard = (text: string) => {
+  navigator.clipboard.writeText(text).then(() => {
+    const notification = document.createElement('div')
+    notification.textContent = 'Скопировано!'
+    notification.style.cssText = `
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--accent);
+      color: var(--bg);
+      padding: 15px 25px;
+      font-family: 'JetBrains Mono', monospace;
+      z-index: 10000;
+    `
+    document.body.appendChild(notification)
+    setTimeout(() => {
+      notification.style.opacity = '0'
+      notification.style.transition = 'opacity 0.3s'
+      setTimeout(() => document.body.removeChild(notification), 300)
+    }, 2000)
+  })
+}
 </script>
+
+<style scoped>
+.contact {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+}
+
+.contact__left h3 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+
+.contact__left > p {
+  color: var(--text-dim);
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+}
+
+.contacts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.contacts-list a {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--text);
+  text-decoration: none;
+  transition: all 0.3s;
+  padding: 10px;
+  border: 1px solid transparent;
+}
+
+.contacts-list a:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  padding-left: 20px;
+}
+
+/* Terminal */
+.terminal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.terminal__header {
+  background: var(--bg-tertiary);
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+.terminal__body {
+  padding: 20px;
+}
+
+.terminal__line {
+  margin-bottom: 15px;
+}
+
+.terminal__line .prompt {
+  color: var(--accent);
+}
+
+.terminal__body pre {
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+/* Modal */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.modal.active {
+  display: flex;
+}
+
+.modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(5px);
+}
+
+.modal__box {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 1px solid var(--accent);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 40px;
+  z-index: 1;
+}
+
+.modal__close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 40px;
+  height: 40px;
+}
+
+.modal__close:hover {
+  color: var(--accent);
+  transform: rotate(90deg);
+}
+
+.modal__box h2 {
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+  font-family: var(--font-pixel);
+}
+
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.checkbox label {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .contact {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+</style>
