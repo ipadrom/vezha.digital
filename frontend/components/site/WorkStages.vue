@@ -7,7 +7,7 @@
 
       <div class="stages-timeline">
         <div v-for="stage in stages" :key="stage.id" class="stage-wrapper">
-          <div class="stage-title">
+          <div class="stage-title section-title">
             <span class="bracket">&lt;</span>{{ stage.title }}<span class="bracket">/&gt;</span>
           </div>
           <div class="stage-number">
@@ -51,21 +51,6 @@ defineProps<{
   width: 100%;
 }
 
-.stages-timeline::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background-image: radial-gradient(circle, var(--accent) 1px, transparent 1px);
-  background-size: 8px 1px;
-  background-position: 0 0;
-  background-repeat: repeat-x;
-  z-index: 0;
-  transform: translateY(-50%);
-}
-
 .stage-wrapper {
   position: relative;
   display: flex;
@@ -77,14 +62,14 @@ defineProps<{
 }
 
 .stage-title {
+  font-family: var(--font-epilepsy);
   margin-bottom: 10px;
-  font-size: 1rem;
+  font-size: 1.2rem;
   text-align: center;
-  font-family: var(--font-pixel);
-  color: var(--text);
 }
 
 .stage-number {
+  font-family: var(--font-epilepsy);
   font-size: 2.5rem;
   color: var(--accent);
   font-weight: 700;
@@ -93,7 +78,7 @@ defineProps<{
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-pixel);
+  position: relative;
 }
 
 .stage-number:hover {
@@ -111,21 +96,21 @@ defineProps<{
 
 .stage-overlay {
   position: absolute;
-  top: 100%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   background: var(--bg-secondary);
-  border: 1px solid var(--accent);
+  border: 3px solid var(--accent);
   padding: 25px;
   width: 350px;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
-  z-index: 3;
+  z-index: 1000;
   max-height: 400px;
-  box-shadow: 0 0 20px var(--shadow);
-  margin-top: 10px;
   overflow: hidden;
+  color: #e0e0e0;
+  border-radius: 0;
 }
 
 .stage-wrapper:hover .stage-overlay {
@@ -133,13 +118,18 @@ defineProps<{
   visibility: visible;
 }
 
+.stage-wrapper:hover {
+  z-index: 2000;
+}
+
 .stage-info {
-  color: var(--text-dim);
+  color: #e0e0e0;
   line-height: 1.6;
   width: 100%;
 }
 
 .stage-info .duration {
+  font-family: var(--font-epilepsy);
   color: var(--accent);
   margin-bottom: 10px;
   font-weight: 600;
@@ -157,7 +147,7 @@ defineProps<{
 }
 
 .stage-info ul li {
-  color: var(--text-dim);
+  color: #e0e0e0;
   padding: 3px 0 3px 15px;
   position: relative;
   font-size: 0.85rem;
@@ -192,10 +182,6 @@ defineProps<{
   .stages-timeline {
     flex-wrap: wrap;
     gap: 30px;
-  }
-
-  .stages-timeline::before {
-    display: none;
   }
 
   .stage-wrapper {

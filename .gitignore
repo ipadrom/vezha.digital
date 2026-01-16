@@ -13,7 +13,7 @@ ENV/
 dist/
 build/
 *.egg-info/
-
+site10
 # Environment
 .env
 .env.local

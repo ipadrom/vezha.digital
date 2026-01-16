@@ -68,16 +68,19 @@ const openProject = (url: string) => {
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
   gap: 30px;
 }
 
 .project {
   background: var(--bg-secondary);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   position: relative;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.3s;
+  color: #e0e0e0;
+  border-radius: 0;
 }
 
 .project:hover {
@@ -114,13 +117,13 @@ const openProject = (url: string) => {
 }
 
 .project__info h3 {
+  font-family: var(--font-epilepsy);
   font-size: 1.3rem;
   margin-bottom: 10px;
-  color: var(--text);
 }
 
 .project__info p {
-  color: var(--text-dim);
+  color: #e0e0e0;
 }
 
 .project__hover {
@@ -141,18 +144,18 @@ const openProject = (url: string) => {
 }
 
 .project__hover h3 {
+  font-family: var(--font-epilepsy);
   font-size: 1.3rem;
   margin-bottom: 10px;
-  color: var(--text);
 }
 
 .project__hover .type {
-  color: var(--text-dim);
+  color: #e0e0e0;
   margin-bottom: 15px;
 }
 
 .project__hover .desc {
-  color: var(--text-dim);
+  color: #e0e0e0;
   line-height: 1.6;
   margin-bottom: 20px;
   flex: 1;

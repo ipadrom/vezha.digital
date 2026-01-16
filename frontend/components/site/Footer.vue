@@ -69,21 +69,25 @@ defineProps<{
 <style scoped>
 .footer {
   background: var(--bg-secondary);
-  border-top: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
   padding: 60px 20px 30px;
+  z-index: 100;
+  position: relative;
+  box-shadow: 0 -5px 10px rgba(0, 255, 65, 0.3);
+  margin-top: auto;
 }
 
 .footer__content {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 40px;
   margin-bottom: 40px;
 }
 
 .footer__col h4 {
+  font-family: var(--font-epilepsy);
   font-size: 1.1rem;
   margin-bottom: 20px;
-  color: var(--text);
 }
 
 .footer__col ul {
@@ -117,7 +121,6 @@ defineProps<{
 .footer__bottom p {
   color: var(--text-dim);
   font-size: 0.9rem;
-  font-family: var(--font-pixel);
 }
 
 @media (max-width: 768px) {

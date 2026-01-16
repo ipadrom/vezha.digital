@@ -1,6 +1,21 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Pixelify+Sans:wght@400;500;600;700&display=swap');
 
+/* Epilepsy Sans Font Declaration */
+@font-face {
+  font-family: 'Epilepsy Sans';
+  src: url('/fonts/EpilepsySans.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Epilepsy Sans';
+  src: url('/fonts/EpilepsySansBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -15,11 +30,13 @@
   --border: #2a2a2a;
   --shadow: rgba(0, 255, 65, 0.1);
   --font-pixel: 'Pixelify Sans', monospace;
+  --font-epilepsy: 'Epilepsy Sans', monospace;
 }
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    height: 100%;
   }
 
   body {
@@ -28,6 +45,9 @@
     line-height: 1.6;
     position: relative;
     overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
   ::selection {
@@ -40,38 +60,70 @@
     @apply max-w-[1200px] mx-auto px-5;
   }
 
-  /* Button styles matching maket */
+  /* Button styles matching site10 */
   .btn {
-    @apply px-7 py-3 font-mono text-sm border-2 border-accent bg-transparent text-accent cursor-pointer relative overflow-hidden transition-all duration-300 inline-block;
+    padding: 12px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    border: 2px solid var(--accent);
+    background: transparent;
+    color: var(--accent);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
   }
 
   .btn::before {
     content: '';
-    @apply absolute top-0 -left-full w-full h-full bg-accent transition-all duration-300 -z-10;
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--accent);
+    transition: all 0.3s;
+    z-index: -1;
   }
 
   .btn:hover::before {
-    @apply left-0;
+    left: 0;
   }
 
   .btn:hover {
-    @apply text-dark-bg;
+    color: var(--bg);
   }
 
   .btn-primary {
-    @apply px-7 py-3 font-mono text-sm border-2 border-accent bg-accent text-dark-bg cursor-pointer relative overflow-hidden transition-all duration-300 inline-block;
+    padding: 12px 28px;
+    font-family: var(--font-epilepsy);
+    font-size: 1.3rem;
+    border: 2px solid var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    text-decoration: none;
+    display: inline-block;
   }
 
   .btn-primary:hover {
-    @apply bg-transparent text-accent;
+    background: transparent;
+    color: var(--accent);
   }
 
   .btn-large {
-    @apply px-10 py-4 text-base;
+    padding: 16px 40px;
+    font-size: 1rem;
   }
 
   .btn-small {
-    @apply px-5 py-2 text-[0.85rem];
+    padding: 8px 20px;
+    font-size: 0.85rem;
   }
 
   .btn-full {
@@ -79,16 +131,42 @@
   }
 
   .card {
-    @apply bg-dark-bg-secondary border border-dark-border p-6;
+    background: var(--bg-secondary);
+    border: 3px solid var(--border);
+    padding: 30px;
+    border-radius: 0;
+  }
+
+  .card h3 {
+    font-family: var(--font-epilepsy);
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--accent);
+  }
+
+  .card p {
+    color: #e0e0e0;
+    line-height: 1.8;
+    margin-bottom: 15px;
+  }
+
+  .card p:last-child {
+    margin-bottom: 0;
   }
 
   .section {
-    @apply py-24 px-5;
+    padding: 100px 20px;
+    flex: 1 0 auto;
   }
 
   .section-title {
-    @apply text-center mb-16 font-pixel relative inline-block w-full;
     font-size: clamp(2rem, 4vw, 3rem);
+    text-align: center;
+    margin-bottom: 60px;
+    font-family: var(--font-epilepsy);
+    position: relative;
+    display: inline-block;
+    width: 100%;
   }
 
   .section-title:hover {
@@ -229,7 +307,7 @@
   width: 120px;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.3;
+  opacity: 0.7;
 }
 
 .pattern-left {
@@ -244,91 +322,186 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 
 .pattern-repeater img {
   display: block;
   margin: 0 auto;
+  width: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+  transform: scaleY(1.2);
+  transform-origin: center;
 }
 
 /* Terminal styling */
 .terminal {
-  @apply bg-dark-bg-secondary border border-dark-border overflow-hidden;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  overflow: hidden;
 }
 
 .terminal__header {
-  @apply bg-dark-bg-tertiary px-4 py-2.5 border-b border-dark-border text-text-dim text-sm;
+  background: var(--bg-tertiary);
+  padding: 10px 15px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-dim);
+  font-size: 0.9rem;
 }
 
 .terminal__body {
-  @apply p-5;
+  padding: 20px;
 }
 
 .terminal__line {
-  @apply mb-4;
+  margin-bottom: 15px;
 }
 
 .terminal__line .prompt {
-  @apply text-accent;
+  color: var(--accent);
 }
 
 .terminal__body pre {
-  @apply text-text-dim font-mono text-sm leading-relaxed;
+  color: var(--text-dim);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  line-height: 1.8;
 }
 
 /* Modal styling */
 .modal {
-  @apply fixed inset-0 z-[2000] hidden items-center justify-center p-5;
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
 }
 
 .modal.active {
-  @apply flex;
+  display: flex;
 }
 
 .modal__overlay {
-  @apply absolute inset-0 bg-black/90 backdrop-blur-sm;
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(5px);
 }
 
 .modal__box {
-  @apply relative bg-dark-bg-secondary border border-accent max-w-[600px] w-full max-h-[90vh] overflow-y-auto p-10 z-10;
+  position: relative;
+  background: var(--bg-secondary);
+  border: 3px solid var(--accent);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 40px;
+  z-index: 1;
   animation: slideIn 0.3s ease-out;
+  color: #e0e0e0;
+  border-radius: 0;
 }
 
 .modal__box--wide {
-  @apply max-w-[900px];
+  max-width: 900px;
 }
 
 .modal__close {
-  @apply absolute top-4 right-4 bg-transparent border-none text-gray-200 text-3xl cursor-pointer transition-all w-10 h-10;
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 40px;
+  height: 40px;
 }
 
 .modal__close:hover {
-  @apply text-accent;
+  color: var(--accent);
   transform: rotate(90deg);
 }
 
+.modal__box h2 {
+  font-family: var(--font-epilepsy);
+  font-size: 2rem;
+  margin-bottom: 30px;
+}
+
 /* Form styling */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
 .field {
-  @apply flex flex-col gap-2;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .field label {
-  @apply text-sm;
+  font-size: 0.9rem;
 }
 
 .field input,
 .field textarea {
-  @apply bg-dark-bg border border-dark-border text-gray-200 p-3 font-mono text-sm transition-all;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  transition: all 0.3s;
 }
 
 .field input:focus,
 .field textarea:focus {
-  @apply outline-none border-accent;
+  outline: none;
+  border-color: var(--accent);
   box-shadow: 0 0 10px var(--shadow);
 }
 
+.checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.checkbox label {
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.checkbox a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
 /* Responsive */
+@media (max-width: 1400px) {
+  .pattern-container {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
   .container-main {
     @apply px-4;

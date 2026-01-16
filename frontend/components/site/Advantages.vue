@@ -35,43 +35,36 @@ defineProps<{
 
 .advantage {
   background: var(--bg-secondary);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   padding: 30px;
   transition: all 0.3s;
-  cursor: pointer;
-  min-height: 180px;
-}
-
-.advantage:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 20px var(--shadow);
+  cursor: default;
+  min-height: auto;
+  color: #e0e0e0;
+  border-radius: 0;
 }
 
 .advantage__main h3 {
+  font-family: var(--font-epilepsy);
   font-size: 1.5rem;
   margin-bottom: 15px;
-  color: var(--text);
+  color: var(--accent);
 }
 
 .advantage__main p {
-  color: var(--text-dim);
+  color: #e0e0e0;
 }
 
 .advantage__details {
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: all 0.4s;
-}
-
-.advantage:hover .advantage__details {
-  max-height: 500px;
+  max-height: none;
   opacity: 1;
+  overflow: visible;
+  transition: all 0.4s;
   margin-top: 20px;
 }
 
 .advantage__details p {
-  color: var(--text-dim);
+  color: #e0e0e0;
   line-height: 1.8;
 }
 

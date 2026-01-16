@@ -89,12 +89,21 @@ const isEmoji = (str: string) => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
-  align-items: start;
+  height: 100%;
 }
 
 .who-we-are__left {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.who-we-are__right {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .who-we-are__left .section-title,
@@ -105,19 +114,21 @@ const isEmoji = (str: string) => {
 
 .card {
   background: var(--bg-secondary);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
   padding: 30px;
-  border-radius: 5px;
+  border-radius: 0;
+  flex-grow: 1;
 }
 
 .card h3 {
+  font-family: var(--font-epilepsy);
   font-size: 1.8rem;
   margin-bottom: 20px;
   color: var(--accent);
 }
 
 .card p {
-  color: var(--text-dim);
+  color: #e0e0e0;
   line-height: 1.8;
   margin-bottom: 15px;
 }
@@ -129,26 +140,34 @@ const isEmoji = (str: string) => {
 .tech-stack {
   display: flex;
   flex-direction: column;
+  height: 100%;
   gap: 40px;
 }
 
+.tech-stack .stack-group:first-child {
+  flex-grow: 1;
+}
+
+.tech-stack .stack-group:last-child {
+  margin-top: auto;
+}
+
 .stack-group h3 {
+  font-family: var(--font-epilepsy);
   font-size: 1.5rem;
   color: var(--accent);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   text-align: center;
 }
 
 .tech-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 15px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 20px;
 }
 
 .tech-item {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  padding: 15px 10px;
+  padding: 20px 10px;
   text-align: center;
   transition: all 0.3s;
   cursor: pointer;
@@ -156,10 +175,11 @@ const isEmoji = (str: string) => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  color: #e0e0e0;
+  border-radius: 0;
 }
 
 .tech-item:hover {
-  border-color: var(--accent);
   box-shadow: 0 0 20px var(--shadow);
   transform: translateY(-5px);
 }
@@ -181,7 +201,8 @@ const isEmoji = (str: string) => {
 }
 
 .tech-item h4 {
-  font-size: 0.85rem;
+  font-family: var(--font-epilepsy);
+  font-size: 1rem;
   margin: 0;
   color: var(--text);
 }
@@ -214,7 +235,7 @@ const isEmoji = (str: string) => {
 
 @media (max-width: 480px) {
   .tech-grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
   }
 }
 </style>

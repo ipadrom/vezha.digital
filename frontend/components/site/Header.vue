@@ -16,9 +16,9 @@
 
         <!-- Actions -->
         <div class="header__actions">
-          <a href="#contacts" class="btn btn-primary hidden sm:inline-block">
+          <button @click="$emit('openModal')" class="btn btn-primary hidden sm:inline-block">
             {{ $t('header.discuss_project') }}
-          </a>
+          </button>
 
           <!-- Mobile Menu Button -->
           <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
@@ -35,15 +35,17 @@
         <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
           {{ item.label }}
         </a>
-        <a href="#contacts" @click="isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
+        <button @click="$emit('openModal'); isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
           {{ $t('header.discuss_project') }}
-        </a>
+        </button>
       </nav>
     </div>
   </header>
 </template>
 
 <script setup lang="ts">
+defineEmits(['openModal'])
+
 const { t } = useI18n()
 const isMenuOpen = ref(false)
 
@@ -66,6 +68,10 @@ onMounted(() => {
     if (window.scrollY > 50) {
       header.style.background = 'rgba(10, 10, 10, 0.98)'
       header.style.boxShadow = '0 5px 20px rgba(0, 255, 65, 0.1)'
+      header.classList.add('glitch-scroll')
+      setTimeout(() => {
+        header.classList.remove('glitch-scroll')
+      }, 500)
     } else {
       header.style.background = 'rgba(10, 10, 10, 0.95)'
       header.style.boxShadow = 'none'
@@ -96,9 +102,9 @@ onMounted(() => {
 }
 
 .logo {
+  font-family: var(--font-epilepsy);
   font-size: 1.5rem;
   font-weight: 700;
-  font-family: var(--font-pixel);
   color: var(--text);
   text-decoration: none;
 }
@@ -111,6 +117,7 @@ onMounted(() => {
 }
 
 .nav a {
+  font-family: var(--font-epilepsy);
   color: var(--text-dim);
   text-decoration: none;
   font-size: 0.9rem;
@@ -164,11 +171,39 @@ onMounted(() => {
   color: var(--text-dim);
   text-decoration: none;
   transition: all 0.3s;
+  font-family: var(--font-epilepsy);
 }
 
 .mobile-nav a:hover {
   color: var(--accent);
   padding-left: 10px;
+}
+
+/* Header Glitch Effect */
+.header:hover {
+  animation: glitch 0.3s infinite;
+}
+
+.header.glitch-scroll {
+  animation: glitch 0.5s ease-in-out;
+}
+
+@keyframes glitch {
+  0% {
+    text-shadow: 2px 2px var(--accent), -2px -2px #ff00ff;
+  }
+  25% {
+    text-shadow: -2px 2px var(--accent), 2px -2px #ff00ff;
+  }
+  50% {
+    text-shadow: 2px -2px var(--accent), -2px 2px #ff00ff;
+  }
+  75% {
+    text-shadow: -2px -2px var(--accent), 2px 2px #ff00ff;
+  }
+  100% {
+    text-shadow: 2px 2px var(--accent), -2px -2px #ff00ff;
+  }
 }
 
 @media (max-width: 1024px) {

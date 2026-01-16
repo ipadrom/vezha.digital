@@ -13,9 +13,9 @@
             и AI-решений
           </h1>
           <p class="hero__subtitle">Запускаем проекты за 1-4 недели</p>
-          <a href="#contacts" class="btn btn-primary btn-large">
+          <button class="btn btn-primary btn-large" @click="$emit('openModal')">
             {{ $t('hero.cta') }}
-          </a>
+          </button>
         </div>
         <div class="hero__right">
           <div class="hero__logo">
@@ -32,6 +32,8 @@
 defineProps<{
   settings?: Record<string, string>
 }>()
+
+defineEmits(['openModal'])
 
 const heroCanvas = ref<HTMLCanvasElement | null>(null)
 

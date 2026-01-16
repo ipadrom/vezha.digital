@@ -75,7 +75,7 @@ const formatPrice = (price: number) => {
 .services-new {
   display: flex;
   gap: 30px;
-  min-height: 400px;
+  min-height: 600px;
 }
 
 .services-list {
@@ -83,14 +83,17 @@ const formatPrice = (price: number) => {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  overflow-y: visible;
+  padding-right: 5px;
 }
 
 .service-item {
   background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  padding: 12px 16px;
+  border: 3px solid var(--border);
+  padding: 12px;
   cursor: pointer;
   transition: all 0.3s;
+  color: #e0e0e0;
 }
 
 .service-item:hover,
@@ -103,9 +106,11 @@ const formatPrice = (price: number) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin: 0;
 }
 
 .service-item h3 {
+  font-family: var(--font-epilepsy);
   font-size: 1.1rem;
   margin: 0;
   color: var(--text);
@@ -113,36 +118,51 @@ const formatPrice = (price: number) => {
 }
 
 .service-item .price {
+  font-family: var(--font-pixel);
   font-size: 1rem;
   color: var(--accent);
   margin: 0 0 0 10px;
   font-weight: 600;
   white-space: nowrap;
+  position: relative;
+}
+
+.service-item .price::after {
+  content: " ->";
+  font-family: var(--font-epilepsy);
+  margin-left: 5px;
 }
 
 .service-details {
-  flex: 1;
+  flex: 1 1 40%;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   padding: 30px;
-  overflow-y: auto;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .service-detail {
   display: none;
+  color: #e0e0e0;
+  position: relative;
 }
 
 .service-detail.active {
   display: block;
+  padding-bottom: 20px;
 }
 
 .service-detail h3 {
+  font-family: var(--font-epilepsy);
   font-size: 1.8rem;
   margin-bottom: 15px;
   color: var(--accent);
 }
 
 .service-detail .price {
+  font-family: var(--font-pixel);
   font-size: 1.5rem;
   color: var(--accent);
   margin-bottom: 15px;
@@ -151,13 +171,13 @@ const formatPrice = (price: number) => {
 
 .service-detail .desc {
   font-size: 1.1rem;
-  color: var(--text-dim);
+  color: #e0e0e0;
   margin-bottom: 25px;
   line-height: 1.6;
 }
 
 .service-content p {
-  color: var(--text-dim);
+  color: #e0e0e0;
   margin-bottom: 15px;
   line-height: 1.6;
 }
@@ -165,11 +185,10 @@ const formatPrice = (price: number) => {
 .service-content ul {
   list-style: none;
   padding-left: 0;
-  margin: 0;
 }
 
 .service-content ul li {
-  color: var(--text-dim);
+  color: #e0e0e0;
   padding: 8px 0 8px 20px;
   position: relative;
   line-height: 1.5;
@@ -180,24 +199,6 @@ const formatPrice = (price: number) => {
   position: absolute;
   left: 0;
   color: var(--accent);
-}
-
-/* Scrollbar styling for services list */
-.services-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.services-list::-webkit-scrollbar-track {
-  background: var(--bg);
-}
-
-.services-list::-webkit-scrollbar-thumb {
-  background: var(--accent);
-  border-radius: 3px;
-}
-
-.services-list::-webkit-scrollbar-thumb:hover {
-  background: #00cc34;
 }
 
 @media (max-width: 992px) {
