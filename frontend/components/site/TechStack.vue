@@ -108,7 +108,7 @@ const isEmoji = (str: string) => {
 
 .who-we-are__left .section-title,
 .who-we-are__right .section-title {
-  text-align: left;
+  text-align: center;
   margin-bottom: 30px;
 }
 
@@ -180,7 +180,6 @@ const isEmoji = (str: string) => {
 }
 
 .tech-item:hover {
-  box-shadow: 0 0 20px var(--shadow);
   transform: translateY(-5px);
 }
 

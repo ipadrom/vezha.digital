@@ -40,6 +40,9 @@
               </ul>
             </div>
           </div>
+          <button class="redirect-btn">
+              {{$t('services.redirect_btn')}}
+          </button>
         </div>
       </div>
     </div>
@@ -135,6 +138,7 @@ const formatPrice = (price: number) => {
 
 .service-details {
   flex: 1 1 40%;
+  max-height: 466px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   padding: 30px;
@@ -199,6 +203,23 @@ const formatPrice = (price: number) => {
   position: absolute;
   left: 0;
   color: var(--accent);
+}
+
+.redirect-btn{
+  width: 240px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  background: var(--accent);
+  color: var(--bg);
+  cursor: pointer;
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+.redirect-btn:hover {
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 @media (max-width: 992px) {

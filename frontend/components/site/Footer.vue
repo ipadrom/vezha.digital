@@ -75,6 +75,7 @@ defineProps<{
   position: relative;
   box-shadow: 0 -5px 10px rgba(0, 255, 65, 0.3);
   margin-top: auto;
+  clear: both;
 }
 
 .footer__content {

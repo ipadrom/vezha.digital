@@ -83,7 +83,8 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: var(--accent);
+    background: var(--bg);
+    color: var(--accent);
     transition: all 0.3s;
     z-index: -1;
   }
@@ -97,7 +98,7 @@
   }
 
   .btn-primary {
-    padding: 12px 28px;
+    padding: 10px 28px;
     font-family: var(--font-epilepsy);
     font-size: 1.3rem;
     border: 2px solid var(--accent);
@@ -117,7 +118,7 @@
   }
 
   .btn-large {
-    padding: 16px 40px;
+    padding: 10px 42px;
     font-size: 1rem;
   }
 
@@ -155,7 +156,7 @@
   }
 
   .section {
-    padding: 100px 20px;
+    padding: 90px 20px;
     flex: 1 0 auto;
   }
 

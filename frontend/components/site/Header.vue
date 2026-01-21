@@ -180,12 +180,8 @@ onMounted(() => {
 }
 
 /* Header Glitch Effect */
-.header:hover {
+.header:hover .logo {
   animation: glitch 0.3s infinite;
-}
-
-.header.glitch-scroll {
-  animation: glitch 0.5s ease-in-out;
 }
 
 @keyframes glitch {
