@@ -120,7 +120,7 @@ onMounted(() => {
   font-family: var(--font-epilepsy);
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
   position: relative;
   transition: all 0.3s;
 }
