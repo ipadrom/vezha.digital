@@ -33,6 +33,12 @@
   --font-epilepsy: 'Epilepsy Sans', monospace;
 }
 
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;
@@ -66,8 +72,8 @@
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.9rem;
     border: 2px solid var(--accent);
-    background: transparent;
-    color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
     cursor: pointer;
     position: relative;
     overflow: hidden;
@@ -94,7 +100,8 @@
   }
 
   .btn:hover {
-    color: var(--bg);
+    background: var(--bg);
+    color: var(--accent);
   }
 
   .btn-primary {

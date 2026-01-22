@@ -19,7 +19,9 @@
   },
   "services": {
     "title": "Services",
-    "price_from": "from"
+    "price_from": "from",
+    "discuss_project": "Discuss Project",
+    "redirect_btn": "Go to the services."
   },
   "advantages": {
     "title": "Why Us"

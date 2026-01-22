@@ -8,18 +8,20 @@
       <div class="services-new">
         <!-- Left Column: Services List -->
         <div class="services-list">
-          <div
-            v-for="service in services"
-            :key="service.id"
-            class="service-item"
-            :class="{ active: activeService === service.id }"
-            @mouseenter="activeService = service.id"
-          >
-            <div class="service-header">
-              <h3>{{ service.name }}</h3>
-              <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
+            <div
+                v-for="service in services"
+                :key="service.id"
+                class="service-item"
+                :class="{ active: activeService === service.id }"
+                @mouseenter="activeService = service.id"
+            >
+              <div class="service-header">
+                  <h3>{{ service.name }}</h3>
+                  <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
+                    {{ service.price_currency }}
+                  </p>
+              </div>
             </div>
-          </div>
         </div>
 
         <!-- Right Column: Service Details -->
@@ -40,9 +42,9 @@
               </ul>
             </div>
           </div>
-          <button class="redirect-btn">
+          <NuxtLink class="redirect-btn" :to="`/services/${services.id}`">
               {{$t('services.redirect_btn')}}
-          </button>
+          </NuxtLink>
         </div>
       </div>
     </div>

@@ -20,7 +20,8 @@
   "services": {
     "title": "Услуги",
     "price_from": "от",
-    "redirect_btn": "Перейти на страницу услуги"
+    "redirect_btn": "Перейти на страницу услуги",
+    "discuss_project": "Обсудить проект"
   },
   "advantages": {
     "title": "Для любых клиентов"

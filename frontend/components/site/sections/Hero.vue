@@ -196,7 +196,7 @@ function init3DScene() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120px 20px 60px;
+  padding: 120px 20px 0;
   position: relative;
   overflow: hidden;
   background: #0a0a0a;
