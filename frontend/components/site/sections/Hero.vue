@@ -196,7 +196,7 @@ function init3DScene() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 120px 20px 60px;
+  padding: 120px 20px 0;
   position: relative;
   overflow: hidden;
   background: #0a0a0a;
@@ -226,13 +226,12 @@ function init3DScene() {
   grid-template-columns: 1fr 1fr;
   gap: 60px;
   align-items: center;
-  width: 100%;
   position: relative;
   z-index: 1;
 }
 
 .hero__left {
-  animation: fadeUp 1s ease-out;
+  animation: none;
 }
 
 .hero__title {
@@ -244,6 +243,8 @@ function init3DScene() {
   margin-bottom: 30px;
   text-transform: uppercase;
   text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  animation: fadeUp 1s ease-out 0.3s forwards;
 }
 
 .hero__subtitle {
@@ -251,6 +252,8 @@ function init3DScene() {
   color: var(--text-dim);
   margin-bottom: 40px;
   font-family: 'JetBrains Mono', monospace;
+  opacity: 0;
+  animation: fadeUp 1s ease-out 0.5s forwards;
 }
 
 .hero__right {

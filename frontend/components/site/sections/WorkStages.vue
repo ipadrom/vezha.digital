@@ -42,12 +42,12 @@ defineProps<{
 .stages-timeline {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   position: relative;
   gap: 40px;
   overflow-x: visible;
-  padding: 40px 0;
+  padding: 40px;
   width: 100%;
 }
 
@@ -74,7 +74,7 @@ defineProps<{
   color: var(--accent);
   font-weight: 700;
   margin-bottom: 10px;
-  z-index: 2;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;

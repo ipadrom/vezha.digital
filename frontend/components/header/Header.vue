@@ -3,7 +3,7 @@
     <div class="container-main">
       <div class="header__wrap">
         <!-- Logo -->
-        <a href="#hero" class="logo">
+        <a href="/#hero" class="logo">
           <span class="bracket">{</span>Vezha Digital<span class="bracket">}</span>
         </a>
 
@@ -50,13 +50,13 @@ const { t } = useI18n()
 const isMenuOpen = ref(false)
 
 const navItems = computed(() => [
-  { href: '#hero', label: t('nav.home') },
-  { href: '#services', label: t('nav.services') },
-  { href: '#advantages', label: t('nav.why_us') },
-  { href: '#projects', label: t('nav.projects') },
-  { href: '#stack', label: t('nav.stack') },
-  { href: '#stages', label: t('nav.stages') },
-  { href: '#contacts', label: t('nav.contacts') },
+  { href: '/#hero', label: t('nav.home') },
+  { href: '/#services', label: t('nav.services') },
+  { href: '/#advantages', label: t('nav.why_us') },
+  { href: '/#projects', label: t('nav.projects') },
+  { href: '/#stack', label: t('nav.stack') },
+  { href: '/#stages', label: t('nav.stages') },
+  { href: '/#contacts', label: t('nav.contacts') },
 ])
 
 // Sticky header effect
@@ -120,7 +120,7 @@ onMounted(() => {
   font-family: var(--font-epilepsy);
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 1rem;
   position: relative;
   transition: all 0.3s;
 }
@@ -180,12 +180,8 @@ onMounted(() => {
 }
 
 /* Header Glitch Effect */
-.header:hover {
+.header:hover .logo {
   animation: glitch 0.3s infinite;
-}
-
-.header.glitch-scroll {
-  animation: glitch 0.5s ease-in-out;
 }
 
 @keyframes glitch {

@@ -8,18 +8,20 @@
       <div class="services-new">
         <!-- Left Column: Services List -->
         <div class="services-list">
-          <div
-            v-for="service in services"
-            :key="service.id"
-            class="service-item"
-            :class="{ active: activeService === service.id }"
-            @mouseenter="activeService = service.id"
-          >
-            <div class="service-header">
-              <h3>{{ service.name }}</h3>
-              <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
+            <div
+                v-for="service in services"
+                :key="service.id"
+                class="service-item"
+                :class="{ active: activeService === service.id }"
+                @mouseenter="activeService = service.id"
+            >
+              <div class="service-header">
+                  <h3>{{ service.name }}</h3>
+                  <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
+                    {{ service.price_currency }}
+                  </p>
+              </div>
             </div>
-          </div>
         </div>
 
         <!-- Right Column: Service Details -->
@@ -40,6 +42,9 @@
               </ul>
             </div>
           </div>
+          <NuxtLink class="redirect-btn" :to="`/services/${services.id}`">
+              {{$t('services.redirect_btn')}}
+          </NuxtLink>
         </div>
       </div>
     </div>
@@ -135,6 +140,7 @@ const formatPrice = (price: number) => {
 
 .service-details {
   flex: 1 1 40%;
+  max-height: 466px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   padding: 30px;
@@ -199,6 +205,23 @@ const formatPrice = (price: number) => {
   position: absolute;
   left: 0;
   color: var(--accent);
+}
+
+.redirect-btn{
+  width: 240px;
+  padding: 5px 10px;
+  font-size: 0.8rem;
+  background: var(--accent);
+  color: var(--bg);
+  cursor: pointer;
+  align-self: flex-end;
+  margin-top: auto;
+}
+
+.redirect-btn:hover {
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 @media (max-width: 992px) {
