@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Query
+from uuid import UUID
+
+from fastapi import APIRouter, Query, HTTPException, status
 from sqlalchemy import select
 
 from app.core.deps import DbSession
@@ -30,3 +32,27 @@ async def get_services(
         )
         for s in services
     ]
+
+@router.get("/{service_id}", response_model=ServicePublic)
+async def get_service_id(
+        db: DbSession,
+        service_id: UUID,
+        lang: str = Query("ru", pattern="^(ru|en)$"),
+):
+    result = await db.execute(select(Service).where(Service.id == service_id))
+    service_id = result.scalar_one_or_none()
+    if not service_id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Service not found"
+        )
+
+    return ServicePublic(
+        id=service_id.id,
+        icon=service_id.icon,
+        name=service_id.name_ru if lang == "ru" else service_id.name_en,
+        description=service_id.description_ru if lang == "ru" else service_id.description_en,
+        examples=service_id.examples_ru if lang == "ru" else service_id.examples_en,
+        price_from=service_id.price_from,
+        price_currency=service_id.price_currency
+    )
