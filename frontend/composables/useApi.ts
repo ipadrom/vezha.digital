@@ -1,3 +1,10 @@
+import type {IService} from "~/utils/interfaces/IService";
+import type {IProjects} from "~/utils/interfaces/IProjects";
+import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
+import type {ITechStack} from "~/utils/interfaces/ITechStack";
+import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
+import type {ISettings} from "~/utils/interfaces/ISettings";
+
 export const useApi = () => {
   const config = useRuntimeConfig()
   const apiUrl = config.public.apiUrl
@@ -38,12 +45,13 @@ export const useApi = () => {
   }
 
   // Public API
-  const getServices = () => fetchApi<any[]>('/services')
-  const getProjects = () => fetchApi<any[]>('/projects')
-  const getAdvantages = () => fetchApi<any[]>('/advantages')
-  const getTechStack = () => fetchApi<any[]>('/tech-stack')
-  const getWorkStages = () => fetchApi<any[]>('/work-stages')
-  const getSettings = () => fetchApi<{ settings: Record<string, string> }>('/settings')
+  const getServiceId = (service_id: string) => fetchApi<IService>(`/services/${service_id}`)
+  const getServices = () => fetchApi<IService[]>('/services')
+  const getProjects = () => fetchApi<IProjects[]>('/projects')
+  const getAdvantages = () => fetchApi<IAdvantages[]>('/advantages')
+  const getTechStack = () => fetchApi<ITechStack[]>('/tech-stack')
+  const getWorkStages = () => fetchApi<IWorkStages[]>('/work-stages')
+  const getSettings = () => fetchApi<ISettings>('/settings')
 
   const submitContact = (data: { name: string; contact: string; message: string }) => {
     // Convert reactive to plain object
@@ -61,6 +69,7 @@ export const useApi = () => {
 
   return {
     fetchApi,
+    getServiceId,
     getServices,
     getProjects,
     getAdvantages,

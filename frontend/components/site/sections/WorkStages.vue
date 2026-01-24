@@ -96,7 +96,7 @@ defineProps<{
 
 .stage-overlay {
   position: absolute;
-  top: 50%;
+  top: 100px;
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--bg-secondary);
@@ -107,8 +107,8 @@ defineProps<{
   visibility: hidden;
   transition: all 0.3s;
   z-index: 1000;
-  max-height: 400px;
-  overflow: hidden;
+  max-height: calc(100vh - 120px);
+  overflow-y: hidden;
   color: #e0e0e0;
   border-radius: 0;
 }
@@ -119,7 +119,7 @@ defineProps<{
 }
 
 .stage-wrapper:hover {
-  z-index: 2000;
+  z-index: 1;
 }
 
 .stage-info {

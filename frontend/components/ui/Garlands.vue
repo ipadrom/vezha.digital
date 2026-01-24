@@ -1,20 +1,23 @@
 <template>
   <div class="pattern-container pattern-left">
     <div class="pattern-repeater">
-      <img v-for="i in 5" :key="i" src="/pattern/pattern-left.svg" alt="" aria-hidden="true" />
+      <img v-for="i in 10" :key="i" src="/pattern/pattern-left.svg" alt="" aria-hidden="true" />
     </div>
   </div>
   <div class="pattern-container pattern-right">
     <div class="pattern-repeater">
-      <img v-for="i in 5" :key="i" src="/pattern/pattern-right.svg" alt="" aria-hidden="true" />
+      <img v-for="i in 10" :key="i" src="/pattern/pattern-right.svg" alt="" aria-hidden="true" />
     </div>
   </div>
 </template>
 <script setup lang="ts">
+
 </script>
 <style scoped>
 .pattern-container {
-  position: fixed;
+  position: absolute;
+  height: 100%;
+  overflow: hidden;
   top: 0;
   bottom: 0;
   width: 120px;

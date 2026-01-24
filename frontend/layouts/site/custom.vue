@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen">
+  <div class="page-wrapper">
     <!-- Header -->
     <Header @open-modal="showModal = true"/>
 
