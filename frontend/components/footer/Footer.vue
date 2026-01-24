@@ -6,13 +6,13 @@
         <div class="footer__col">
           <h4>Услуги</h4>
           <ul>
-            <li><a href="#services">ВЕБ-САЙТЫ</a></li>
-            <li><a href="#services">ИНТЕРНЕТ МАГАЗИНЫ</a></li>
-            <li><a href="#services">TELEGRAM MINI APPS</a></li>
-            <li><a href="#services">TELEGRAM БОТЫ</a></li>
-            <li><a href="#services">КОРПОРАТИВНЫЕ СИСТЕМЫ</a></li>
-            <li><a href="#services">AI И АВТОМАТИЗАЦИЯ</a></li>
-            <li><a href="#services">МОБИЛЬНЫЕ ПРИЛОЖЕНИЯ</a></li>
+            <li><a href="/#services">ВЕБ-САЙТЫ</a></li>
+            <li><a href="/#services">ИНТЕРНЕТ МАГАЗИНЫ</a></li>
+            <li><a href="/#services">TELEGRAM MINI APPS</a></li>
+            <li><a href="/#services">TELEGRAM БОТЫ</a></li>
+            <li><a href="/#services">КОРПОРАТИВНЫЕ СИСТЕМЫ</a></li>
+            <li><a href="/#services">AI И АВТОМАТИЗАЦИЯ</a></li>
+            <li><a href="/#services">МОБИЛЬНЫЕ ПРИЛОЖЕНИЯ</a></li>
           </ul>
         </div>
 
@@ -20,13 +20,13 @@
         <div class="footer__col">
           <h4>Компания</h4>
           <ul>
-            <li><a href="#hero">Главная</a></li>
-            <li><a href="#services">{{ $t('nav.services') }}</a></li>
-            <li><a href="#advantages">{{ $t('nav.why_us') }}</a></li>
-            <li><a href="#projects">{{ $t('nav.projects') }}</a></li>
-            <li><a href="#stack">{{ $t('nav.stack') }}</a></li>
-            <li><a href="#stages">{{ $t('nav.stages') }}</a></li>
-            <li><a href="#contacts">{{ $t('nav.contacts') }}</a></li>
+            <li><a href="/#hero">Главная</a></li>
+            <li><a href="/#services">{{ $t('nav.services') }}</a></li>
+            <li><a href="/#advantages">{{ $t('nav.why_us') }}</a></li>
+            <li><a href="/#projects">{{ $t('nav.projects') }}</a></li>
+            <li><a href="/#stack">{{ $t('nav.stack') }}</a></li>
+            <li><a href="/#stages">{{ $t('nav.stages') }}</a></li>
+            <li><a href="/#contacts">{{ $t('nav.contacts') }}</a></li>
           </ul>
         </div>
 
@@ -72,9 +72,7 @@ defineProps<{
   border-top: 2px solid var(--accent);
   padding: 60px 20px 30px;
   z-index: 100;
-  position: relative;
   box-shadow: 0 -5px 10px rgba(0, 255, 65, 0.3);
-  margin-top: auto;
   clear: both;
 }
 

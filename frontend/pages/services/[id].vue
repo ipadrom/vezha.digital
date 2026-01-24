@@ -1,203 +1,210 @@
 <template>
-   <div class="min-h-screen">
-     <section class="service-hero">
-       <div class="container">
-         <div class="service-hero__content">
-           <h1>Telegram Mini Apps</h1>
-           <p class="service-hero__subtitle">Полный цикл разработки мини-приложений в Telegram</p>
-           <p class="service-hero__price">от 100 000 ₽</p>
-           <button @click="$emit('openModal')" class="btn btn-primary hidden sm:inline-block">
-             {{ $t('services.discuss_project') }}
-           </button>
-         </div>
-       </div>
-     </section>
 
-     <section class="about-service">
-       <div class="container">
-         <h2><span class="bracket">&lt;</span>Об услуге<span class="bracket">/&gt;</span></h2>
-         <p>
-           Telegram Mini Apps — это веб-приложения, которые запускаются прямо внутри мессенджера Telegram без установки.
-           Они позволяют создать полноценный интернет-магазин, игру, сервис бронирования или любое другое приложение,
-           которое ваши пользователи смогут открыть в один клик из Telegram. Удобно, быстро и современно.
-         </p>
-         <p>
-           Мы разрабатываем Mini Apps под ключ: от дизайна интерфейса до запуска в Telegram. Создаем адаптивный дизайн,
-           программируем frontend и backend, интегрируем платежные системы и обеспечиваем бесперебойную работу вашего приложения.
-         </p>
-       </div>
-     </section>
+    <ServiceHero
+      :service="service"
+      @openModal="showModal = true"
+    />
 
-     <section class="section">
-       <div class="container">
-         <h2 class="section-title">
-           <span class="bracket">&lt;</span>
-           Что входит в услугу
-           <span class="bracket">/&gt;</span>
-         </h2>
-         <div class="features-grid">
-           <div class="feature-card">
-             <h3>Дизайн интерфейса</h3>
-             <p>Разработка UI/UX дизайна с учетом guidelines Telegram и лучших практик мобильных приложений</p>
-           </div>
+    <section class="about-service">
+      <div class="container">
+        <h2><span class="bracket">&lt;</span>Об услуге<span class="bracket">/&gt;</span></h2>
+        <p>
+          Telegram Mini Apps — это веб-приложения, которые запускаются прямо внутри мессенджера Telegram без установки.
+          Они позволяют создать полноценный интернет-магазин, игру, сервис бронирования или любое другое приложение,
+          которое ваши пользователи смогут открыть в один клик из Telegram. Удобно, быстро и современно.
+        </p>
+        <p>
+          Мы разрабатываем Mini Apps под ключ: от дизайна интерфейса до запуска в Telegram. Создаем адаптивный дизайн,
+          программируем frontend и backend, интегрируем платежные системы и обеспечиваем бесперебойную работу вашего приложения.
+        </p>
+      </div>
+    </section>
 
-           <div class="feature-card">
-             <h3>Backend + Admin панель</h3>
-             <p>Серверная часть на FastAPI с базой данных PostgreSQL и удобная панель администратора</p>
-           </div>
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">
+          <span class="bracket">&lt;</span>
+          Что входит в услугу
+          <span class="bracket">/&gt;</span>
+        </h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <h3>Дизайн интерфейса</h3>
+            <p>Разработка UI/UX дизайна с учетом guidelines Telegram и лучших практик мобильных приложений</p>
+          </div>
 
-           <div class="feature-card">
-             <h3>Интеграция платежей</h3>
-             <p>Подключение Telegram Payments, ЮKassa, Stripe или других платежных систем</p>
-           </div>
+          <div class="feature-card">
+            <h3>Backend + Admin панель</h3>
+            <p>Серверная часть на FastAPI с базой данных PostgreSQL и удобная панель администратора</p>
+          </div>
 
-           <div class="feature-card">
-             <h3>Авторизация через Telegram</h3>
-             <p>Безопасная авторизация пользователей через Telegram без дополнительной регистрации</p>
-           </div>
+          <div class="feature-card">
+            <h3>Интеграция платежей</h3>
+            <p>Подключение Telegram Payments, ЮKassa, Stripe или других платежных систем</p>
+          </div>
 
-           <div class="feature-card">
-             <h3>Адаптивная верстка</h3>
-             <p>Интерфейс адаптирован под все разрешения экранов от мобильных до планшетов</p>
-           </div>
+          <div class="feature-card">
+            <h3>Авторизация через Telegram</h3>
+            <p>Безопасная авторизация пользователей через Telegram без дополнительной регистрации</p>
+          </div>
 
-           <div class="feature-card">
-             <h3>Тестирование и деплой</h3>
-             <p>Полное тестирование функционала, размещение на сервере и публикация в Telegram</p>
-           </div>
-         </div>
-       </div>
-     </section>
+          <div class="feature-card">
+            <h3>Адаптивная верстка</h3>
+            <p>Интерфейс адаптирован под все разрешения экранов от мобильных до планшетов</p>
+          </div>
 
-     <section class="section">
-       <div class="container">
-         <h2 class="section-title">
-           <span class="bracket">&lt;</span>
-           Примеры проектов с ценами
-           <span class="bracket">/&gt;</span>
-         </h2>
-         <div class="pricing-table">
-           <table>
-             <thead>
-             <tr>
-               <th>Тип проекта</th>
-               <th>Описание</th>
-               <th>Цена</th>
-               <th>Срок</th>
-             </tr>
-             </thead>
-             <tbody>
-             <tr>
-               <td><strong>Простой магазин</strong></td>
-               <td>Каталог товаров, корзина, оформление заказа, уведомления</td>
-               <td class="price-cell">от 200 000 ₽</td>
-               <td>5-7 дней</td>
-             </tr>
-             <tr>
-               <td><strong>Каталог услуг</strong></td>
-               <td>Отображение услуг, запись на время, календарь, уведомления</td>
-               <td class="price-cell">от 150 000 ₽</td>
-               <td>5-7 дней</td>
-             </tr>
-             <tr>
-               <td><strong>Игра</strong></td>
-               <td>Игровая механика, лидерборд, система наград, профиль игрока</td>
-               <td class="price-cell">от 400 000 ₽</td>
-               <td>15-20 дней</td>
-             </tr>
-             <tr>
-               <td><strong>Сервис бронирования</strong></td>
-               <td>Выбор услуги/времени, онлайн-оплата, календарь, напоминания</td>
-               <td class="price-cell">от 300 000 ₽</td>
-               <td>10-15 дней</td>
-             </tr>
-             <tr>
-               <td><strong>Сервис доставки</strong></td>
-               <td>Меню, корзина, адрес доставки, трекинг заказа, оплата</td>
-               <td class="price-cell">от 450 000 ₽</td>
-               <td>18-22 дня</td>
-             </tr>
-             <tr>
-               <td><strong>Система лояльности</strong></td>
-               <td>Баллы, уровни, достижения, история покупок, персональные предложения</td>
-               <td class="price-cell">от 350 000 ₽</td>
-               <td>12-18 дней</td>
-             </tr>
-             </tbody>
-           </table>
-           <p class="pricing-note">* Цены указаны за базовый функционал. Финальная стоимость рассчитывается индивидуально с учетом всех требований.</p>
-         </div>
-       </div>
-     </section>
+          <div class="feature-card">
+            <h3>Тестирование и деплой</h3>
+            <p>Полное тестирование функционала, размещение на сервере и публикация в Telegram</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-     <section class="section" id="projects">
-       <div class="container">
-         <h2 class="section-title">
-           <span class="bracket">&lt;</span>
-           Кейсы
-           <span class="bracket">/&gt;</span>
-         </h2>
-         <div class="projects">
-           <div class="project" onclick="openProjectModal(1)">
-             <div class="project__image"></div>
-             <div class="project__info">
-               <h3>Название проекта</h3>
-               <p>Тип проекта</p>
-             </div>
-             <div class="project__hover">
-               <h3>Название проекта</h3>
-               <p class="type">Тип проекта</p>
-               <p class="desc">Подробное описание проекта Telegram Mini App</p>
-               <div class="tags">
-                 <span>React</span>
-                 <span>Telegram</span>
-                 <span>FastAPI</span>
-               </div>
-               <button class="btn btn--small" onclick="event.stopPropagation()">Смотреть проект</button>
-             </div>
-           </div>
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">
+          <span class="bracket">&lt;</span>
+          Примеры проектов с ценами
+          <span class="bracket">/&gt;</span>
+        </h2>
+        <div class="pricing-table">
+          <table>
+            <thead>
+            <tr>
+              <th>Тип проекта</th>
+              <th>Описание</th>
+              <th>Цена</th>
+              <th>Срок</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td><strong>Простой магазин</strong></td>
+              <td>Каталог товаров, корзина, оформление заказа, уведомления</td>
+              <td class="price-cell">от 200 000 ₽</td>
+              <td>5-7 дней</td>
+            </tr>
+            <tr>
+              <td><strong>Каталог услуг</strong></td>
+              <td>Отображение услуг, запись на время, календарь, уведомления</td>
+              <td class="price-cell">от 150 000 ₽</td>
+              <td>5-7 дней</td>
+            </tr>
+            <tr>
+              <td><strong>Игра</strong></td>
+              <td>Игровая механика, лидерборд, система наград, профиль игрока</td>
+              <td class="price-cell">от 400 000 ₽</td>
+              <td>15-20 дней</td>
+            </tr>
+            <tr>
+              <td><strong>Сервис бронирования</strong></td>
+              <td>Выбор услуги/времени, онлайн-оплата, календарь, напоминания</td>
+              <td class="price-cell">от 300 000 ₽</td>
+              <td>10-15 дней</td>
+            </tr>
+            <tr>
+              <td><strong>Сервис доставки</strong></td>
+              <td>Меню, корзина, адрес доставки, трекинг заказа, оплата</td>
+              <td class="price-cell">от 450 000 ₽</td>
+              <td>18-22 дня</td>
+            </tr>
+            <tr>
+              <td><strong>Система лояльности</strong></td>
+              <td>Баллы, уровни, достижения, история покупок, персональные предложения</td>
+              <td class="price-cell">от 350 000 ₽</td>
+              <td>12-18 дней</td>
+            </tr>
+            </tbody>
+          </table>
+          <p class="pricing-note">* Цены указаны за базовый функционал. Финальная стоимость рассчитывается индивидуально с учетом всех требований.</p>
+        </div>
+      </div>
+    </section>
 
-           <div class="project" onclick="openProjectModal(2)">
-             <div class="project__image"></div>
-             <div class="project__info">
-               <h3>Название проекта</h3>
-               <p>Тип проекта</p>
-             </div>
-             <div class="project__hover">
-               <h3>Название проекта</h3>
-               <p class="type">Тип проекта</p>
-               <p class="desc">Подробное описание проекта Telegram Mini App</p>
-               <div class="tags">
-                 <span>Vue.js</span>
-                 <span>Telegram</span>
-                 <span>Python</span>
-               </div>
-               <button class="btn btn--small" onclick="event.stopPropagation()">Смотреть проект</button>
-             </div>
-           </div>
-         </div>
-       </div>
+    <section class="section" id="projects">
+      <div class="container">
+        <h2 class="section-title">
+          <span class="bracket">&lt;</span>
+          Кейсы
+          <span class="bracket">/&gt;</span>
+        </h2>
+        <div class="projects">
+          <div class="project" onclick="openProjectModal(1)">
+            <div class="project__image"></div>
+            <div class="project__info">
+              <h3>Название проекта</h3>
+              <p>Тип проекта</p>
+            </div>
+            <div class="project__hover">
+              <h3>Название проекта</h3>
+              <p class="type">Тип проекта</p>
+              <p class="desc">Подробное описание проекта Telegram Mini App</p>
+              <div class="tags">
+                <span>React</span>
+                <span>Telegram</span>
+                <span>FastAPI</span>
+              </div>
+              <button class="btn btn--small" onclick="event.stopPropagation()">Смотреть проект</button>
+            </div>
+          </div>
 
-       <Contacts :settings="settings" @openModal="showModal = true" />
-     </section>
-     </div>
+          <div class="project" onclick="openProjectModal(2)">
+            <div class="project__image"></div>
+            <div class="project__info">
+              <h3>Название проекта</h3>
+              <p>Тип проекта</p>
+            </div>
+            <div class="project__hover">
+              <h3>Название проекта</h3>
+              <p class="type">Тип проекта</p>
+              <p class="desc">Подробное описание проекта Telegram Mini App</p>
+              <div class="tags">
+                <span>Vue.js</span>
+                <span>Telegram</span>
+                <span>Python</span>
+              </div>
+              <button class="btn btn--small" onclick="event.stopPropagation()">Смотреть проект</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ContactModal
+          v-model:showModal="showModal"
+      />
+
+      <Contacts :settings="settings" @openModal="showModal = true" />
+    </section>
 </template>
 <script setup lang="ts">
 import Contacts from "~/components/site/sections/Contacts.vue";
-
+import type {IService} from "~/utils/interfaces/IService";
+import ServiceHero from "~/components/site/services/ServiceHero.vue";
+import ContactModal from "~/components/modals/ContactModal.vue";
 definePageMeta({
   layout: 'site-custom'
 })
-const settings = ref<Record<string, string>>({})
-
-onMounted(async () => {
-  const { getSettings } = useApi();
-  const data = await getSettings();
-  settings.value = data.settings;
-});
+const api = useApi()
+const route = useRoute()
+const serviceId = computed(() => route.params.id as string)
 
 const showModal = ref(false)
 
+const settings = ref<Record<string, string>>({})
+
+const {data: service} = await useAsyncData<IService>(
+    `service-${serviceId.value}`,
+    () => api.getServiceId(serviceId.value),
+    {
+      watch: [serviceId]
+    }
+)
+
+onMounted(async () => {
+  const data = await api.getSettings();
+  settings.value = data.settings;
+});
 </script>
 
 <style scoped>
@@ -207,40 +214,6 @@ const showModal = ref(false)
 
 .service-hero h1:hover {
   animation: glitch 0.3s infinite;
-}
-
-.service-hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 150px 20px 80px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
-}
-
-.service-hero__content {
-  max-width: 900px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.service-hero h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  margin-bottom: 20px;
-}
-
-.service-hero__subtitle {
-  font-size: 1.3rem;
-  color: var(--text-dim);
-  margin-bottom: 15px;
-}
-
-.service-hero__price {
-  font-size: 2rem;
-  color: var(--accent);
-  font-weight: 700;
-  margin-bottom: 30px;
 }
 
 .about-service {

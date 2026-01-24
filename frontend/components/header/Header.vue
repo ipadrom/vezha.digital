@@ -16,7 +16,10 @@
 
         <!-- Actions -->
         <div class="header__actions">
-          <button @click="$emit('openModal')" class="btn btn-primary hidden sm:inline-block">
+          <button
+              @click="$emit('openModal')"
+              class="btn btn-primary hidden sm:inline-block"
+          >
             {{ $t('header.discuss_project') }}
           </button>
 

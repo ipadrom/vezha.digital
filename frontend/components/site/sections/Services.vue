@@ -1,74 +1,99 @@
 <template>
-  <section id="services" class="section">
+  <section
+      id="services"
+      class="section"
+      ref="servicesRef"
+  >
     <div class="container-main">
       <h2 class="section-title">
         <span class="bracket">&lt;</span>{{ $t('services.title') }}<span class="bracket">/&gt;</span>
       </h2>
 
-      <div class="services-new">
+      <div v-if="isSectionVisible" class="services-new">
         <!-- Left Column: Services List -->
-        <div class="services-list">
+        <TransitionGroup
+            name="service"
+            tag="div"
+            class="services-list"
+            appear
+        >
             <div
-                v-for="service in services"
+                v-for="(service, index) in services"
                 :key="service.id"
                 class="service-item"
                 :class="{ active: activeService === service.id }"
+                :style="{'--enter-delay': `${index * 160}ms`}"
                 @mouseenter="activeService = service.id"
             >
               <div class="service-header">
-                  <h3>{{ service.name }}</h3>
-                  <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
-                    {{ service.price_currency }}
-                  </p>
+                <h3>{{ service.name }}</h3>
+                <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
+                  {{ service.price_currency }}
+                </p>
               </div>
             </div>
-        </div>
+        </TransitionGroup>
 
         <!-- Right Column: Service Details -->
-        <div class="service-details">
-          <div
-            v-for="service in services"
-            :key="service.id"
-            class="service-detail"
-            :class="{ active: activeService === service.id }"
-          >
-            <h3>{{ service.name }}</h3>
-            <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
-            <p class="desc">{{ service.description }}</p>
-            <div class="service-content">
-              <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
-              <ul v-if="service.features && service.features.length">
-                <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
-              </ul>
-            </div>
-          </div>
-          <NuxtLink class="redirect-btn" :to="`/services/${services.id}`">
+        <Transition
+          name="fade-down"
+          appear
+        >
+          <div v-if="services.length" class="service-details">
+            <TransitionGroup
+              name="fade-down"
+              tag="div"
+              appear
+            >
+              <div
+                  v-for="(service, index) in services"
+                  :key="service.id"
+                  class="service-detail"
+                  :class="{ active: activeService === service.id }"
+                  :style="{ transitionDelay: `${index * 500}ms`}"
+              >
+                <h3>{{ service.name }}</h3>
+                <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
+                <p class="desc">{{ service.description }}</p>
+                <div class="service-content">
+                  <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
+                  <ul v-if="service.features && service.features.length">
+                    <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
+                  </ul>
+                </div>
+              </div>
+            </TransitionGroup>
+            <NuxtLink class="redirect-btn" :to="`/services/${activeService}`">
               {{$t('services.redirect_btn')}}
-          </NuxtLink>
-        </div>
+            </NuxtLink>
+          </div>
+        </Transition>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+const { isSectionVisible, targetRef: servicesRef } = useSectionVisible( 0.1)
+
 const props = defineProps<{
   services: any[]
 }>()
 
 const activeService = ref<number | null>(null)
 
-// Set first service as active by default
-onMounted(() => {
-  if (props.services.length > 0) {
+const setActiveFirst = () => {
+  if (props.services.length > 0 && !activeService.value) {
     activeService.value = props.services[0].id
   }
+}
+
+onMounted(() => {
+  setActiveFirst()
 })
 
-watch(() => props.services, (newServices) => {
-  if (newServices.length > 0 && !activeService.value) {
-    activeService.value = newServices[0].id
-  }
+watch(() => props.services, () => {
+  setActiveFirst()
 }, { immediate: true })
 
 const formatPrice = (price: number) => {
@@ -97,8 +122,28 @@ const formatPrice = (price: number) => {
   border: 3px solid var(--border);
   padding: 12px;
   cursor: pointer;
-  transition: all 0.3s;
   color: #e0e0e0;
+  border-left: 3px solid var(--accent);
+  transition: all 0.2s ease-out;
+
+  box-shadow:
+      inset 0 0 0 var(--accent),
+      0 0 6px rgba(0, 255, 65, 0.15);
+}
+
+.service-enter-from {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+.service-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.service-enter-active {
+  transition: all 0.5s ease-out;
+  transition-delay: var(--enter-delay);
 }
 
 .service-item:hover,
@@ -143,10 +188,15 @@ const formatPrice = (price: number) => {
   max-height: 466px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
   padding: 30px;
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
+
+  box-shadow:
+      inset 0 0 0 var(--accent),
+      0 0 6px rgba(0, 255, 65, 0.15);
 }
 
 .service-detail {
@@ -180,6 +230,19 @@ const formatPrice = (price: number) => {
   color: #e0e0e0;
   margin-bottom: 25px;
   line-height: 1.6;
+}
+
+.fade-down-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.fade-down-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-down-enter-active {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition-delay: 0.25s;
 }
 
 .service-content p {
@@ -216,6 +279,7 @@ const formatPrice = (price: number) => {
   cursor: pointer;
   align-self: flex-end;
   margin-top: auto;
+  text-align: center;
 }
 
 .redirect-btn:hover {

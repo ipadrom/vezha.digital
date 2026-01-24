@@ -7,10 +7,7 @@
       <div class="hero__wrapper">
         <div class="hero__left">
           <h1 class="hero__title">
-            Разработка<br>
-            веб-сайтов,<br>
-            Telegram Mini Apps<br>
-            и AI-решений
+            <span>{{displayedText}}</span><span class="cursor">|</span>
           </h1>
           <p class="hero__subtitle">Запускаем проекты за 1-4 недели</p>
           <button class="btn btn-primary btn-large" @click="$emit('openModal')">
@@ -29,6 +26,8 @@
 </template>
 
 <script setup lang="ts">
+import {useTypeWriterAnimation} from "~/composables/useTypeWriterAnimation";
+
 defineProps<{
   settings?: Record<string, string>
 }>()
@@ -36,6 +35,13 @@ defineProps<{
 defineEmits(['openModal'])
 
 const heroCanvas = ref<HTMLCanvasElement | null>(null)
+
+const heroText = `Разработка
+веб-сайтов,
+Telegram Mini Apps
+и AI-решений`
+
+const { displayedText } = useTypeWriterAnimation(heroText, 50, 300)
 
 // 3D Animation with Three.js
 onMounted(() => {
@@ -215,6 +221,17 @@ function init3DScene() {
   overflow: hidden;
 }
 
+.cursor {
+  display: inline-block;
+  margin-left: 4px;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 50%, 100% { opacity: 1 }
+  25%, 75% { opacity: 0 }
+}
+
 #hero-canvas {
   width: 100%;
   height: 100%;
@@ -235,7 +252,7 @@ function init3DScene() {
 }
 
 .hero__title {
-  font-family: 'Pixelify Sans', monospace;
+  font-family: var(--font-epilepsy);
   font-size: 3.5rem;
   font-weight: 700;
   line-height: 1.2;
