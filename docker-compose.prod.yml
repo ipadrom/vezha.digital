@@ -23,7 +23,7 @@ services:
     build:
       context: ./frontend
       args:
-        - NUXT_PUBLIC_API_URL=https://vezha.n1x9s.site/api
+        - NUXT_PUBLIC_API_URL=https://vezha.digital/api
         - NUXT_PUBLIC_TELEGRAM_BOT_USERNAME=vezhadigitalbot
         - NUXT_APP_BASE_URL=/
     container_name: vezha-frontend
