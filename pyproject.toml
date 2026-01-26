@@ -1,0 +1,9 @@
+[project]
+name = "vezha-digital"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.9"
+dependencies = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]

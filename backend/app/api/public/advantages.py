@@ -14,9 +14,7 @@ async def get_advantages(
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
     result = await db.execute(
-        select(Advantage)
-        .where(Advantage.is_active == True)
-        .order_by(Advantage.sort_order)
+        select(Advantage).where(Advantage.is_active).order_by(Advantage.sort_order)
     )
     advantages = result.scalars().all()
 

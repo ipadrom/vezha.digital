@@ -14,9 +14,7 @@ async def get_work_stages(
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
     result = await db.execute(
-        select(WorkStage)
-        .where(WorkStage.is_active == True)
-        .order_by(WorkStage.step_number)
+        select(WorkStage).where(WorkStage.is_active).order_by(WorkStage.step_number)
     )
     stages = result.scalars().all()
 

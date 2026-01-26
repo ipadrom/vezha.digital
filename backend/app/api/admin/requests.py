@@ -15,9 +15,7 @@ async def get_requests(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-    result = await db.execute(
-        select(ContactRequest).order_by(ContactRequest.created_at.desc())
-    )
+    result = await db.execute(select(ContactRequest).order_by(ContactRequest.created_at.desc()))
     return result.scalars().all()
 
 
@@ -27,9 +25,7 @@ async def process_request(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-    result = await db.execute(
-        select(ContactRequest).where(ContactRequest.id == request_id)
-    )
+    result = await db.execute(select(ContactRequest).where(ContactRequest.id == request_id))
     request = result.scalar_one_or_none()
     if not request:
         raise HTTPException(
@@ -48,9 +44,7 @@ async def delete_request(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-    result = await db.execute(
-        select(ContactRequest).where(ContactRequest.id == request_id)
-    )
+    result = await db.execute(select(ContactRequest).where(ContactRequest.id == request_id))
     request = result.scalar_one_or_none()
     if not request:
         raise HTTPException(

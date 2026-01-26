@@ -13,9 +13,7 @@ async def get_projects(
     db: DbSession,
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
-    result = await db.execute(
-        select(Project).where(Project.is_active == True).order_by(Project.sort_order)
-    )
+    result = await db.execute(select(Project).where(Project.is_active).order_by(Project.sort_order))
     projects = result.scalars().all()
 
     return [

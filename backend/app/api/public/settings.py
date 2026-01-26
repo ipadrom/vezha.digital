@@ -17,7 +17,5 @@ async def get_settings(
     settings = result.scalars().all()
 
     return SettingsPublic(
-        settings={
-            s.key: (s.value_ru if lang == "ru" else s.value_en) or "" for s in settings
-        }
+        settings={s.key: (s.value_ru if lang == "ru" else s.value_en) or "" for s in settings}
     )

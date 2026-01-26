@@ -21,9 +21,7 @@ async def get_tech_stack(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-    result = await db.execute(
-        select(TechStack).order_by(TechStack.category, TechStack.sort_order)
-    )
+    result = await db.execute(select(TechStack).order_by(TechStack.category, TechStack.sort_order))
     return result.scalars().all()
 
 

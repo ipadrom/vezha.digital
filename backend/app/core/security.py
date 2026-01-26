@@ -32,9 +32,7 @@ def verify_telegram_auth(data: dict) -> bool:
 
     secret_key = hashlib.sha256(settings.TELEGRAM_BOT_TOKEN.encode()).digest()
 
-    calculated_hash = hmac.new(
-        secret_key, data_check_string.encode(), hashlib.sha256
-    ).hexdigest()
+    calculated_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
 
     data["hash"] = check_hash
 
@@ -52,9 +50,7 @@ def create_access_token(telegram_id: int) -> str:
 
 def decode_access_token(token: str) -> TokenData | None:
     try:
-        payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
-        )
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         telegram_id = int(payload.get("sub"))
         return TokenData(telegram_id=telegram_id)
     except (JWTError, ValueError):

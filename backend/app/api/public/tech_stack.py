@@ -15,7 +15,7 @@ async def get_tech_stack(
 ):
     result = await db.execute(
         select(TechStack)
-        .where(TechStack.is_active == True)
+        .where(TechStack.is_active)
         .order_by(TechStack.category, TechStack.sort_order)
     )
     items = result.scalars().all()
