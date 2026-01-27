@@ -277,7 +277,7 @@ const formatPrice = (price: number) => {
   padding: 12px 28px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.9rem;
-  border: 2px solid var(--accent);
+  border: 1px solid var(--accent);
   background: var(--accent);
   color: var(--bg);
   cursor: pointer;
