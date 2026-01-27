@@ -64,8 +64,8 @@ defineProps<{
   border-radius: 0;
 
   box-shadow:
-      inset 0 0 0 var(--accent),
-      0 0 6px rgba(0, 255, 65, 0.15);
+      -10px 0 15px -5px
+      rgba(0, 255, 65, 0.3);
 
   opacity: 0;
   transform: translateY(20px);

@@ -114,10 +114,14 @@ const isEmoji = (str: string) => {
 
 .card {
   background: var(--bg-secondary);
-  border: 3px solid var(--border);
+  border-left: 3px solid var(--accent);
   padding: 30px;
   border-radius: 0;
   flex-grow: 1;
+
+  box-shadow:
+      -10px 0 15px -5px
+      rgba(0, 255, 65, 0.3);
 }
 
 .card h3 {
