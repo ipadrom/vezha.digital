@@ -1,5 +1,4 @@
 <template>
-  <AdminLayout>
     <div class="space-y-6">
       <h1 class="text-2xl font-bold">Dashboard</h1>
 
@@ -53,19 +52,21 @@
         </div>
       </div>
     </div>
-  </AdminLayout>
 </template>
 
 <script setup lang="ts">
 const { fetchWithAuth, isAuthenticated } = useAuth()
 const router = useRouter()
 
-// Redirect if not authenticated
 watch(isAuthenticated, (value) => {
   if (!value) {
     router.push('/admin/login')
   }
 }, { immediate: true })
+
+definePageMeta({
+  layout: 'admin-layout',
+})
 
 const stats = ref({
   services: 0,

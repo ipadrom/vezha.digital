@@ -10,7 +10,7 @@
             <span>{{displayedText}}</span><span class="cursor">|</span>
           </h1>
           <p class="hero__subtitle">Запускаем проекты за 1-4 недели</p>
-          <button class="btn btn-primary btn-large" @click="$emit('openModal')">
+          <button class="btn btn-primary" @click="$emit('openModal')">
             {{ $t('hero.cta') }}
           </button>
         </div>

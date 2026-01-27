@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-light-bg-secondary dark:bg-dark-bg-secondary">
+  <div class="page-wrapper bg-light-bg-secondary dark:bg-dark-bg-secondary">
     <!-- Sidebar -->
     <aside class="fixed left-0 top-0 h-full w-64 bg-light-bg dark:bg-dark-bg border-r border-light-border dark:border-dark-border hidden lg:block">
       <div class="p-4">

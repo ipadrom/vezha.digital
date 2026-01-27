@@ -5,9 +5,18 @@
 </template>
 
 <script setup lang="ts">
+const route = useRoute()
+
 // Initialize auth on client
-const layout = 'site-custom';
 const { initAuth } = useAuth()
+
+const layout = computed(() => {
+  if(route.meta.layout === false){
+    return false
+  }
+
+  return route.path.startsWith('/admin') ? 'admin-layout' : 'site-layout'
+})
 
 onMounted(() => {
   initAuth()

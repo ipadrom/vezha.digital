@@ -1,5 +1,4 @@
 <template>
-  <AdminLayout>
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">Стек технологий</h1>
@@ -122,13 +121,16 @@
         </div>
       </div>
     </div>
-  </AdminLayout>
 </template>
 
 <script setup lang="ts">
 const config = useRuntimeConfig()
 const { fetchWithAuth, uploadFile, isAuthenticated } = useAuth()
 const router = useRouter()
+
+definePageMeta({
+  layout: 'admin-layout',
+})
 
 watch(isAuthenticated, (value) => {
   if (!value) router.push('/admin/login')

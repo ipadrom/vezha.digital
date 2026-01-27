@@ -20,11 +20,11 @@
             />
           </div>
           <div class="project__info">
-            <h3>{{ project.name }}</h3>
+            <h3 class="font-bold">{{ project.name }}</h3>
             <p>{{ project.type }}</p>
           </div>
           <div class="project__hover">
-            <h3>{{ project.name }}</h3>
+            <h3 class="font-bold">{{ project.name }}</h3>
             <p class="type">{{ project.type }}</p>
             <p class="desc">{{ project.description }}</p>
             <div v-if="project.technologies && project.technologies.length" class="tags">

@@ -1,5 +1,4 @@
 <template>
-  <AdminLayout>
     <div class="space-y-6">
       <div class="flex items-center justify-between">
         <h1 class="text-2xl font-bold">Преимущества</h1>
@@ -89,12 +88,17 @@
         </div>
       </div>
     </div>
-  </AdminLayout>
 </template>
 
 <script setup lang="ts">
+import {definePageMeta} from "#imports";
+
 const { fetchWithAuth, isAuthenticated } = useAuth()
 const router = useRouter()
+
+definePageMeta({
+  layout: 'admin-layout'
+})
 
 watch(isAuthenticated, (value) => {
   if (!value) router.push('/admin/login')

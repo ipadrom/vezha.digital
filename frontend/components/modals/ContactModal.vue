@@ -40,6 +40,7 @@
 const props = defineProps({
   showModal: { type: Boolean, required: true },
 })
+
 const emit = defineEmits(['update:showModal'])
 
 const showModal = computed({

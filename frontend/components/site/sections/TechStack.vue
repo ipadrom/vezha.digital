@@ -8,7 +8,7 @@
             <span class="bracket">&lt;</span>Кто мы<span class="bracket">/&gt;</span>
           </h2>
           <div class="card">
-            <h3>О нашей команде</h3>
+            <h3 class="font-bold">О нашей команде</h3>
             <p>Мы - команда опытных разработчиков, специализирующихся на создании современных веб-решений, Telegram Mini Apps и интеграции искусственного интеллекта. Наша миссия - превращать идеи в надежные цифровые продукты, используя передовые технологии и подходы.</p>
             <p>С 2020 года мы помогли более чем 100 клиентам реализовать их цифровую трансформацию, уделяя особое внимание качеству кода, юзабилити и скорости разработки.</p>
           </div>
@@ -22,7 +22,7 @@
           <div class="tech-stack">
             <!-- Frontend -->
             <div class="stack-group">
-              <h3>Frontend</h3>
+              <h3 class="font-bold">Frontend</h3>
               <div class="tech-grid">
                 <div v-for="tech in frontendStack" :key="tech.id" class="tech-item">
                   <div class="tech-icon">
@@ -30,14 +30,14 @@
                     <span v-else-if="isEmoji(tech.icon)">{{ tech.icon }}</span>
                     <span v-else class="text-sm font-bold">{{ tech.icon || tech.name.substring(0, 2).toUpperCase() }}</span>
                   </div>
-                  <h4>{{ tech.name }}</h4>
+                  <h4 class="font-bold">{{ tech.name }}</h4>
                 </div>
               </div>
             </div>
 
             <!-- Backend -->
             <div class="stack-group">
-              <h3>Backend</h3>
+              <h3 class="font-bold">Backend</h3>
               <div class="tech-grid">
                 <div v-for="tech in backendStack" :key="tech.id" class="tech-item">
                   <div class="tech-icon">
@@ -45,7 +45,7 @@
                     <span v-else-if="isEmoji(tech.icon)">{{ tech.icon }}</span>
                     <span v-else class="text-sm font-bold">{{ tech.icon || tech.name.substring(0, 2).toUpperCase() }}</span>
                   </div>
-                  <h4>{{ tech.name }}</h4>
+                  <h4 class="font-bold">{{ tech.name }}</h4>
                 </div>
               </div>
             </div>
@@ -177,6 +177,10 @@ const isEmoji = (str: string) => {
   justify-content: center;
   color: #e0e0e0;
   border-radius: 0;
+}
+
+.tech-stack-title{
+  font-weight: bold;
 }
 
 .tech-item:hover {

@@ -22,7 +22,7 @@
                :style="{ '--enter-delay': `${index * 600}ms`}"
           >
             <div class="advantage__main">
-              <h3>{{ advantage.title }}</h3>
+              <h3 class="font-bold">{{ advantage.title }}</h3>
               <p>{{ advantage.subtitle || advantage.description.substring(0, 50) + '...' }}</p>
             </div>
             <div class="advantage__details">
