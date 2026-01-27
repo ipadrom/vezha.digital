@@ -25,12 +25,14 @@
                 :style="{'--enter-delay': `${index * 160}ms`}"
                 @mouseenter="activeService = service.id"
             >
-              <div class="service-header">
-                <h3>{{ service.name }}</h3>
-                <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
-                  {{ service.price_currency }}
-                </p>
-              </div>
+              <NuxtLink :to="`/services/${activeService}`">
+                <div class="service-header">
+                  <h3 class="font-bold">{{ service.name }}</h3>
+                  <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
+                    {{ service.price_currency }}
+                  </p>
+                </div>
+              </NuxtLink>
             </div>
         </TransitionGroup>
 
@@ -52,7 +54,7 @@
                   :class="{ active: activeService === service.id }"
                   :style="{ transitionDelay: `${index * 500}ms`}"
               >
-                <h3>{{ service.name }}</h3>
+                <h3 class="font-bold">{{ service.name }}</h3>
                 <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
                 <p class="desc">{{ service.description }}</p>
                 <div class="service-content">
@@ -105,7 +107,7 @@ const formatPrice = (price: number) => {
 .services-new {
   display: flex;
   gap: 30px;
-  min-height: 600px;
+  max-height: 466px;
 }
 
 .services-list {
@@ -127,8 +129,8 @@ const formatPrice = (price: number) => {
   transition: all 0.2s ease-out;
 
   box-shadow:
-      inset 0 0 0 var(--accent),
-      0 0 6px rgba(0, 255, 65, 0.15);
+      -10px 0 15px -5px
+      rgba(0, 255, 65, 0.3);
 }
 
 .service-enter-from {
@@ -168,7 +170,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-item .price {
-  font-family: var(--font-pixel);
+  font-family: 'JetBrains Mono', monospace;
   font-size: 1rem;
   color: var(--accent);
   margin: 0 0 0 10px;
@@ -195,8 +197,8 @@ const formatPrice = (price: number) => {
   flex-direction: column;
 
   box-shadow:
-      inset 0 0 0 var(--accent),
-      0 0 6px rgba(0, 255, 65, 0.15);
+      -10px 0 15px -5px
+      rgba(0, 255, 65, 0.3);
 }
 
 .service-detail {
@@ -218,7 +220,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-detail .price {
-  font-family: var(--font-pixel);
+  font-family: 'JetBrains Mono', monospace;
   font-size: 1.5rem;
   color: var(--accent);
   margin-bottom: 15px;
@@ -271,15 +273,20 @@ const formatPrice = (price: number) => {
 }
 
 .redirect-btn{
-  width: 240px;
-  padding: 5px 10px;
-  font-size: 0.8rem;
+  align-self: flex-end;
+  padding: 12px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  border: 2px solid var(--accent);
   background: var(--accent);
   color: var(--bg);
   cursor: pointer;
-  align-self: flex-end;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
   margin-top: auto;
-  text-align: center;
 }
 
 .redirect-btn:hover {

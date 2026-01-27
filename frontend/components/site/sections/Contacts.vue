@@ -8,7 +8,7 @@
       <div class="contact">
         <!-- Left Column: Contact Info -->
         <div class="contact__left">
-          <h3>Готовы начать?</h3>
+          <h3 class="font-bold">Готовы начать?</h3>
           <p>Обсудим ваш проект и рассчитаем точную стоимость</p>
 
           <div class="contacts-list">

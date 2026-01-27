@@ -1,5 +1,4 @@
 <template>
-  <AdminLayout>
     <div class="space-y-6">
       <h1 class="text-2xl font-bold">Настройки сайта</h1>
 
@@ -27,12 +26,15 @@
         </form>
       </div>
     </div>
-  </AdminLayout>
 </template>
 
 <script setup lang="ts">
 const { fetchWithAuth, isAuthenticated } = useAuth()
 const router = useRouter()
+
+definePageMeta({
+  layout: 'admin-layout',
+})
 
 watch(isAuthenticated, (value) => {
   if (!value) router.push('/admin/login')

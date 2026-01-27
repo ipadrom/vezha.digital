@@ -47,7 +47,6 @@ defineProps<{
   position: relative;
   gap: 40px;
   overflow-x: visible;
-  padding: 40px;
   width: 100%;
 }
 
