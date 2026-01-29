@@ -1,18 +1,27 @@
 <template>
-  <section id="stack" class="section">
+  <section
+      id="stack"
+      class="section"
+      ref="techStackRef"
+  >
     <div class="container-main">
-      <div class="who-we-are">
+      <div class="who-we-are" v-if="isSectionVisible">
         <!-- Left Column: About Us -->
-        <div class="who-we-are__left">
-          <h2 class="section-title">
-            <span class="bracket">&lt;</span>Кто мы<span class="bracket">/&gt;</span>
-          </h2>
-          <div class="card">
-            <h3 class="font-bold">О нашей команде</h3>
-            <p>Мы - команда опытных разработчиков, специализирующихся на создании современных веб-решений, Telegram Mini Apps и интеграции искусственного интеллекта. Наша миссия - превращать идеи в надежные цифровые продукты, используя передовые технологии и подходы.</p>
-            <p>С 2020 года мы помогли более чем 100 клиентам реализовать их цифровую трансформацию, уделяя особое внимание качеству кода, юзабилити и скорости разработки.</p>
+        <TransitionGroup
+          name="fade-down"
+          appear
+        >
+          <div class="who-we-are__left">
+            <h2 class="section-title">
+              <span class="bracket">&lt;</span>Кто мы<span class="bracket">/&gt;</span>
+            </h2>
+            <div class="card">
+              <h3 class="font-bold fade-item" style="--enter-delay: 0.4s">О нашей команде</h3>
+              <p class="fade-item" style="--enter-delay: 0.6s">Мы - команда опытных разработчиков, специализирующихся на создании современных веб-решений, Telegram Mini Apps и интеграции искусственного интеллекта. Наша миссия - превращать идеи в надежные цифровые продукты, используя передовые технологии и подходы.</p>
+              <p class="fade-item" style="--enter-delay: 0.8s">С 2020 года мы помогли более чем 100 клиентам реализовать их цифровую трансформацию, уделяя особое внимание качеству кода, юзабилити и скорости разработки.</p>
+            </div>
           </div>
-        </div>
+        </TransitionGroup>
 
         <!-- Right Column: Tech Stack -->
         <div class="who-we-are__right">
@@ -57,6 +66,9 @@
 </template>
 
 <script setup lang="ts">
+import {useSectionVisible} from "~/composables/useSectionVisible";
+
+const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
 const config = useRuntimeConfig()
 
 const props = defineProps<{
@@ -64,11 +76,11 @@ const props = defineProps<{
 }>()
 
 const frontendStack = computed(() =>
-  props.techStack.filter(t => t.category === 'frontend')
+    props.techStack.filter(t => t.category === 'frontend')
 )
 
 const backendStack = computed(() =>
-  props.techStack.filter(t => t.category === 'backend')
+    props.techStack.filter(t => t.category === 'backend')
 )
 
 const getImageUrl = (url: string) => {
@@ -97,6 +109,29 @@ const isEmoji = (str: string) => {
   flex-direction: column;
   height: 100%;
   justify-content: flex-end;
+}
+
+.fade-down-enter-from{
+  opacity: 0;
+  transform: translateY(-15px);
+}
+
+.fade-down-enter-to{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-down-enter-active{
+  transition: all 0.5s ease-out;
+  transition-delay: var(--enter-delay, 0s);
+}
+
+.fade-item {
+  opacity: 0;
+  transform: translateY(-30px) rotateX(15deg);
+  transform-origin: top center;
+  animation: cardSlideDown 0.6s forwards;
+  animation-delay: var(--enter-delay, 0s);
 }
 
 .who-we-are__right {
@@ -183,10 +218,6 @@ const isEmoji = (str: string) => {
   border-radius: 0;
 }
 
-.tech-stack-title{
-  font-weight: bold;
-}
-
 .tech-item:hover {
   transform: translateY(-5px);
 }
@@ -212,6 +243,28 @@ const isEmoji = (str: string) => {
   font-size: 1rem;
   margin: 0;
   color: var(--text);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-30px) rotateX(15deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(10px) rotateX(-5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
+  }
 }
 
 @media (max-width: 992px) {
