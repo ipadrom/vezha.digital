@@ -15,7 +15,7 @@
             <h2 class="section-title">
               <span class="bracket">&lt;</span>Кто мы<span class="bracket">/&gt;</span>
             </h2>
-            <div class="card">
+            <div class="card fade-item">
               <h3 class="font-bold fade-item" style="--enter-delay: 0.4s">О нашей команде</h3>
               <p class="fade-item" style="--enter-delay: 0.6s">Мы - команда опытных разработчиков, специализирующихся на создании современных веб-решений, Telegram Mini Apps и интеграции искусственного интеллекта. Наша миссия - превращать идеи в надежные цифровые продукты, используя передовые технологии и подходы.</p>
               <p class="fade-item" style="--enter-delay: 0.8s">С 2020 года мы помогли более чем 100 клиентам реализовать их цифровую трансформацию, уделяя особое внимание качеству кода, юзабилити и скорости разработки.</p>
@@ -128,9 +128,8 @@ const isEmoji = (str: string) => {
 
 .fade-item {
   opacity: 0;
-  transform: translateY(-30px) rotateX(15deg);
-  transform-origin: top center;
-  animation: cardSlideDown 0.6s forwards;
+  clip-path: inset(0 0 100% 0);
+  animation: cardRevealDown 0.9s ease-out forwards;
   animation-delay: var(--enter-delay, 0s);
 }
 
@@ -252,18 +251,16 @@ const isEmoji = (str: string) => {
   }
 }
 
-@keyframes cardSlideDown {
+@keyframes cardRevealDown {
   0% {
     opacity: 0;
-    transform: translateY(-30px) rotateX(15deg);
-  }
-  60% {
-    opacity: 1;
-    transform: translateY(10px) rotateX(-5deg);
+    transform: translateY(-20px);
+    clip-path: inset(0 0 100% 0);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) rotateX(0deg);
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
   }
 }
 
