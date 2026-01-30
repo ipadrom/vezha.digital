@@ -1,5 +1,6 @@
 from app.models.admin import Admin
 from app.models.advantage import Advantage
+from app.models.client_type import ClientType
 from app.models.contact_request import ContactRequest
 from app.models.project import Project
 from app.models.service import Service
@@ -11,6 +12,7 @@ __all__ = [
     "Service",
     "Project",
     "Advantage",
+    "ClientType",
     "TechStack",
     "TechCategory",
     "WorkStage",

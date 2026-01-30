@@ -5,6 +5,12 @@ from app.schemas.advantage import (
     AdvantageUpdate,
 )
 from app.schemas.auth import AdminInfo, TelegramAuth, Token
+from app.schemas.client_type import (
+    ClientTypeCreate,
+    ClientTypePublic,
+    ClientTypeResponse,
+    ClientTypeUpdate,
+)
 from app.schemas.common import (
     MessageResponse,
     ReorderItem,
@@ -56,6 +62,10 @@ __all__ = [
     "AdvantageUpdate",
     "AdvantageResponse",
     "AdvantagePublic",
+    "ClientTypeCreate",
+    "ClientTypeUpdate",
+    "ClientTypeResponse",
+    "ClientTypePublic",
     "TechStackCreate",
     "TechStackUpdate",
     "TechStackResponse",
