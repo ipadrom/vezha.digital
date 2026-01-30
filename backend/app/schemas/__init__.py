@@ -1,3 +1,9 @@
+from app.schemas.about_section import (
+    AboutSectionCreate,
+    AboutSectionPublic,
+    AboutSectionResponse,
+    AboutSectionUpdate,
+)
 from app.schemas.advantage import (
     AdvantageCreate,
     AdvantagePublic,
@@ -66,6 +72,10 @@ __all__ = [
     "ClientTypeUpdate",
     "ClientTypeResponse",
     "ClientTypePublic",
+    "AboutSectionCreate",
+    "AboutSectionUpdate",
+    "AboutSectionResponse",
+    "AboutSectionPublic",
     "TechStackCreate",
     "TechStackUpdate",
     "TechStackResponse",

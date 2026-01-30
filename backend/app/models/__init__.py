@@ -1,3 +1,4 @@
+from app.models.about_section import AboutSection
 from app.models.admin import Admin
 from app.models.advantage import Advantage
 from app.models.client_type import ClientType
@@ -13,6 +14,7 @@ __all__ = [
     "Project",
     "Advantage",
     "ClientType",
+    "AboutSection",
     "TechStack",
     "TechCategory",
     "WorkStage",

@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.public import (
+    about_sections,
     advantages,
     client_types,
     contact,
@@ -17,6 +18,7 @@ router.include_router(services.router, prefix="/services", tags=["Services"])
 router.include_router(projects.router, prefix="/projects", tags=["Projects"])
 router.include_router(advantages.router, prefix="/advantages", tags=["Advantages"])
 router.include_router(client_types.router, prefix="/client-types", tags=["Client Types"])
+router.include_router(about_sections.router, prefix="/about-sections", tags=["About Sections"])
 router.include_router(tech_stack.router, prefix="/tech-stack", tags=["Tech Stack"])
 router.include_router(work_stages.router, prefix="/work-stages", tags=["Work Stages"])
 router.include_router(settings.router, prefix="/settings", tags=["Settings"])
