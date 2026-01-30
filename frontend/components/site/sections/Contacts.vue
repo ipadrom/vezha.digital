@@ -1,5 +1,9 @@
 <template>
-  <section id="contacts" class="section">
+  <section
+      id="contacts"
+      class="section"
+      ref="contactsRef"
+  >
     <div class="container-main">
       <h2 class="section-title">
         <span class="bracket">&lt;</span>{{ $t('contacts.title') }}<span class="bracket">/&gt;</span>
@@ -41,14 +45,18 @@
         </div>
 
         <!-- Right Column: Terminal -->
-        <div class="contact__right">
-          <div class="terminal">
-            <div class="terminal__header">contact.sh</div>
-            <div class="terminal__body">
-              <div class="terminal__line">
-                <span class="prompt">$</span> cat contact_info.json
-              </div>
-              <pre>{
+          <div class="contact__right" v-if="isSectionVisible">
+            <TransitionGroup
+                name="fade-down"
+                appear
+            >
+            <div class="terminal fade-item">
+              <div class="terminal__header fade-item" style="--enter-delay: 0.1s">contact.sh</div>
+              <div class="terminal__body fade-item">
+                <div class="terminal__line fade-item">
+                  <span class="prompt fade-item" style="--enter-delay: 0.2s">$</span> cat contact_info.json
+                </div>
+                <pre style="--enter-delay: 0.3s">{
   "status": "open_to_work",
   "services": [
     "web_development",
@@ -59,15 +67,18 @@
   "response_time": "24 hours",
   "free_consultation": true
 }</pre>
+              </div>
             </div>
+            </TransitionGroup>
           </div>
-        </div>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+const { isSectionVisible, targetRef: contactsRef } = useSectionVisible(0.1)
+
 defineProps<{
   settings?: Record<string, string>
 }>()
@@ -174,6 +185,48 @@ const copyToClipboard = (text: string) => {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.9rem;
   line-height: 1.8;
+}
+
+.fade-down-enter-from{
+  opacity: 0;
+  transform: translateY(-15px);
+}
+
+.fade-down-enter-to{
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-down-enter-active{
+  transition: all 0.5s ease-out;
+  transition-delay: var(--enter-delay, 0s);
+}
+
+.fade-item {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  animation: cardRevealDown 0.9s ease-out forwards;
+  animation-delay: var(--enter-delay, 0s);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardRevealDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @media (max-width: 768px) {
