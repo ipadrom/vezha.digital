@@ -18,15 +18,15 @@
       >
           <div v-for="(advantage, index) in advantages"
                :key="advantage.id"
-               class="advantage"
-               :style="{ '--enter-delay': `${index * 600}ms`}"
+               class="advantage fade-item"
+               :style="{ '--enter-delay': `${index * 500}ms`}"
           >
             <div class="advantage__main">
-              <h3 class="font-bold">{{ advantage.title }}</h3>
-              <p>{{ advantage.subtitle || advantage.description.substring(0, 50) + '...' }}</p>
+              <h3 class="font-bold fade-item" style="--enter-delay: 0.1s">{{ advantage.title }}</h3>
+              <p class="fade-item" style="--enter-delay: 0.2s">{{ advantage.subtitle || advantage.description.substring(0, 50) + '...' }}</p>
             </div>
             <div class="advantage__details">
-              <p>{{ advantage.description }}</p>
+              <p class="fade-item" style="--enter-delay: 0.3s">{{ advantage.description }}</p>
             </div>
           </div>
       </TransitionGroup>
@@ -73,13 +73,6 @@ defineProps<{
   animation-delay: var(--enter-delay);
 }
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .advantage__main h3 {
   font-family: var(--font-epilepsy);
   font-size: 1.5rem;
@@ -102,6 +95,33 @@ defineProps<{
 .advantage__details p {
   color: #e0e0e0;
   line-height: 1.8;
+}
+
+.fade-item {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  animation: cardRevealDown 0.9s ease-out forwards;
+  animation-delay: var(--enter-delay, 0s);
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardRevealDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @media (max-width: 768px) {
