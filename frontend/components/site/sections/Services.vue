@@ -20,9 +20,9 @@
             <div
                 v-for="(service, index) in services"
                 :key="service.id"
-                class="service-item"
+                class="service-item fade-item"
                 :class="{ active: activeService === service.id }"
-                :style="{'--enter-delay': `${index * 160}ms`}"
+                :style="{'--enter-delay': `${index * 120}ms`}"
                 @mouseenter="activeService = service.id"
             >
               <NuxtLink :to="`/services/${activeService}`">
@@ -117,6 +117,21 @@ const formatPrice = (price: number) => {
   gap: 10px;
   overflow-y: visible;
   padding-right: 5px;
+}
+
+.service-enter-from {
+  opacity: 0;
+  transform: translateY(15px);
+}
+
+.service-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.service-enter-active {
+  transition: all 0.5s ease-out;
+  transition-delay: var(--enter-delay);
 }
 
 .service-item {
