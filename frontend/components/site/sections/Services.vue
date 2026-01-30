@@ -37,29 +37,30 @@
         </TransitionGroup>
 
         <!-- Right Column: Service Details -->
-        <Transition
-          name="fade-down"
-          appear
-        >
-          <div v-if="services.length" class="service-details">
+          <div
+              v-if="services.length"
+              class="service-details fade-item"
+              style="--enter-delay: 0.1s"
+          >
             <TransitionGroup
               name="fade-down"
-              tag="div"
               appear
             >
               <div
-                  v-for="(service, index) in services"
+                  v-for="service in services"
                   :key="service.id"
-                  class="service-detail"
+                  class="service-detail fade-item"
                   :class="{ active: activeService === service.id }"
-                  :style="{ transitionDelay: `${index * 500}ms`}"
+                  style="--enter-delay: 0.1s"
               >
                 <h3 class="font-bold">{{ service.name }}</h3>
                 <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
                 <p class="desc">{{ service.description }}</p>
-                <div class="service-content">
-                  <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
-                  <ul v-if="service.features && service.features.length">
+                <div class="service-content fade-item" style="--enter-delay: 0.2s">
+                  <p v-if="service.examples" class="">
+                    <strong>Примеры:</strong> {{ service.examples }}
+                  </p>
+                  <ul v-if="service.features && service.features.length" style="--enter-delay: 0.8s">
                     <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
                   </ul>
                 </div>
@@ -69,7 +70,6 @@
               {{$t('services.redirect_btn')}}
             </NuxtLink>
           </div>
-        </Transition>
       </div>
     </div>
   </section>
@@ -131,21 +131,6 @@ const formatPrice = (price: number) => {
   box-shadow:
       -10px 0 15px -5px
       rgba(0, 255, 65, 0.3);
-}
-
-.service-enter-from {
-  opacity: 0;
-  transform: translateY(15px);
-}
-
-.service-enter-to {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.service-enter-active {
-  transition: all 0.5s ease-out;
-  transition-delay: var(--enter-delay);
 }
 
 .service-item:hover,
@@ -293,6 +278,33 @@ const formatPrice = (price: number) => {
   background: var(--bg);
   color: var(--accent);
   border: 1px solid var(--accent);
+}
+
+.fade-item {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  animation: cardRevealDown 0.9s ease-out forwards;
+  animation-delay: var(--enter-delay, 0s);
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardRevealDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 @media (max-width: 992px) {
