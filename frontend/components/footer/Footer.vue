@@ -123,9 +123,34 @@ defineProps<{
 }
 
 @media (max-width: 768px) {
+  .footer {
+    padding: 40px 20px 20px;
+  }
+
   .footer__content {
-    grid-template-columns: 1fr;
-    gap: 30px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px 15px;
+  }
+
+  .footer__col h4 {
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+  }
+
+  .footer__col a {
+    font-size: 0.8rem;
+  }
+
+  .footer__col ul li {
+    margin-bottom: 10px;
+  }
+
+  .footer__bottom {
+    padding-top: 20px;
+  }
+
+  .footer__bottom p {
+    font-size: 0.8rem;
   }
 }
 </style>

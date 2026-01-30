@@ -10,7 +10,8 @@
           v-for="project in projects"
           :key="project.id"
           class="project"
-          @click="project.project_url && openProject(project.project_url)"
+          :class="{ active: activeProject === project.id }"
+          @click="toggleProject(project)"
         >
           <div class="project__image">
             <img
@@ -53,14 +54,28 @@ defineProps<{
   projects: any[]
 }>()
 
+const activeProject = ref<number | null>(null)
+
 const getImageUrl = (url: string) => {
   if (!url) return ''
   if (url.startsWith('http')) return url
   return `${config.public.apiUrl}${url}`
 }
 
-const openProject = (url: string) => {
-  window.open(url, '_blank')
+const toggleProject = (project: any) => {
+  // На мобильных - переключаем активный проект
+  if (window.innerWidth <= 768) {
+    if (activeProject.value === project.id) {
+      activeProject.value = null
+    } else {
+      activeProject.value = project.id
+    }
+  } else {
+    // На десктопе - открываем проект
+    if (project.project_url) {
+      window.open(project.project_url, '_blank')
+    }
+  }
 }
 </script>
 
@@ -90,7 +105,7 @@ const openProject = (url: string) => {
 
 .project__image {
   width: 100%;
-  height: 250px;
+  height: 120px;
   background: repeating-linear-gradient(
     45deg,
     var(--bg-tertiary),
@@ -113,17 +128,19 @@ const openProject = (url: string) => {
 }
 
 .project__info {
-  padding: 20px;
+  padding: 15px 20px;
 }
 
 .project__info h3 {
   font-family: var(--font-epilepsy);
-  font-size: 1.3rem;
-  margin-bottom: 10px;
+  font-size: 1.1rem;
+  margin-bottom: 5px;
 }
 
 .project__info p {
   color: #e0e0e0;
+  font-size: 0.9rem;
+  margin: 0;
 }
 
 .project__hover {
@@ -178,10 +195,44 @@ const openProject = (url: string) => {
 @media (max-width: 768px) {
   .projects-grid {
     grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    gap: 20px;
   }
 
   .project__image {
-    height: 200px;
+    height: 100px;
+  }
+
+  .project__info {
+    padding: 12px 15px;
+  }
+
+  .project__info h3 {
+    font-size: 1rem;
+  }
+
+  .project__info p {
+    font-size: 0.85rem;
+  }
+
+  .project__hover h3 {
+    font-size: 1.1rem;
+  }
+
+  .project__hover {
+    padding: 20px;
+  }
+
+  /* На мобильных убираем hover эффект */
+  .project:hover .project__hover {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* На мобильных показываем overlay при клике */
+  .project.active .project__hover {
+    opacity: 1 !important;
+    pointer-events: auto !important;
   }
 }
 </style>

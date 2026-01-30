@@ -24,8 +24,9 @@
                 :class="{ active: activeService === service.id }"
                 :style="{'--enter-delay': `${index * 160}ms`}"
                 @mouseenter="activeService = service.id"
+                @click="activeService = service.id"
             >
-              <NuxtLink :to="`/services/${activeService}`">
+              <NuxtLink :to="`/services/${activeService}`" class="service-link">
                 <div class="service-header">
                   <h3 class="font-bold">{{ service.name }}</h3>
                   <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
@@ -33,6 +34,22 @@
                   </p>
                 </div>
               </NuxtLink>
+
+              <!-- Mobile expanded content -->
+              <Transition name="expand">
+                <div v-if="activeService === service.id" class="service-mobile-content">
+                  <p class="desc">{{ service.description }}</p>
+                  <div class="service-content">
+                    <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
+                    <ul v-if="service.features && service.features.length">
+                      <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
+                    </ul>
+                  </div>
+                  <NuxtLink class="redirect-btn-mobile" :to="`/services/${service.id}`">
+                    {{$t('services.redirect_btn')}}
+                  </NuxtLink>
+                </div>
+              </Transition>
             </div>
         </TransitionGroup>
 
@@ -179,6 +196,11 @@ const formatPrice = (price: number) => {
   position: relative;
 }
 
+.service-link {
+  text-decoration: none;
+  display: block;
+}
+
 .service-item .price::after {
   content: " ->";
   font-family: var(--font-epilepsy);
@@ -295,9 +317,14 @@ const formatPrice = (price: number) => {
   border: 1px solid var(--accent);
 }
 
+.service-mobile-content {
+  display: none;
+}
+
 @media (max-width: 992px) {
   .services-new {
     flex-direction: column;
+    max-height: none;
   }
 
   .services-list {
@@ -306,7 +333,98 @@ const formatPrice = (price: number) => {
   }
 
   .service-details {
-    min-height: 300px;
+    display: none;
+  }
+
+  .service-link {
+    pointer-events: none;
+  }
+
+  .service-mobile-content {
+    display: block;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid var(--border);
+  }
+
+  .service-mobile-content .desc {
+    font-size: 1rem;
+    color: #e0e0e0;
+    margin-bottom: 15px;
+    line-height: 1.6;
+  }
+
+  .service-mobile-content .service-content p {
+    color: #e0e0e0;
+    margin-bottom: 12px;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .service-mobile-content .service-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 15px;
+  }
+
+  .service-mobile-content .service-content ul li {
+    color: #e0e0e0;
+    padding: 6px 0 6px 20px;
+    position: relative;
+    line-height: 1.5;
+    font-size: 0.9rem;
+  }
+
+  .service-mobile-content .service-content ul li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+
+  .redirect-btn-mobile {
+    display: inline-block;
+    padding: 10px 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    border: 1px solid var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+    margin-top: 10px;
+  }
+
+  .redirect-btn-mobile:hover {
+    background: var(--bg);
+    color: var(--accent);
+  }
+
+  .service-item .price::after {
+    content: " ↓";
+  }
+
+  .service-item.active .price::after {
+    content: " ↑";
+  }
+
+  .expand-enter-active,
+  .expand-leave-active {
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .expand-enter-from,
+  .expand-leave-to {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  .expand-enter-to,
+  .expand-leave-from {
+    max-height: 1000px;
+    opacity: 1;
   }
 }
 </style>

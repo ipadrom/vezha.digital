@@ -201,11 +201,11 @@ const isEmoji = (str: string) => {
 .tech-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 20px;
+  gap: 15px;
 }
 
 .tech-item {
-  padding: 20px 10px;
+  padding: 15px 8px;
   text-align: center;
   transition: all 0.3s;
   cursor: pointer;
@@ -222,14 +222,14 @@ const isEmoji = (str: string) => {
 }
 
 .tech-icon {
-  font-size: 2rem;
-  margin-bottom: 10px;
+  font-size: 1.5rem;
+  margin-bottom: 8px;
   filter: grayscale(0.8);
   transition: all 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
+  height: 30px;
 }
 
 .tech-item:hover .tech-icon {
@@ -239,7 +239,7 @@ const isEmoji = (str: string) => {
 
 .tech-item h4 {
   font-family: var(--font-epilepsy);
-  font-size: 1rem;
+  font-size: 0.8rem;
   margin: 0;
   color: var(--text);
 }
@@ -268,10 +268,6 @@ const isEmoji = (str: string) => {
   .who-we-are {
     gap: 40px;
   }
-
-  .tech-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 @media (max-width: 768px) {
@@ -286,13 +282,32 @@ const isEmoji = (str: string) => {
   }
 
   .tech-grid {
-    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
-}
 
-@media (max-width: 480px) {
-  .tech-grid {
-    grid-template-columns: 1fr;
+  .tech-item {
+    padding: 10px 5px;
+  }
+
+  .tech-item h4 {
+    font-size: 0.65rem;
+  }
+
+  .tech-icon {
+    height: 24px;
+    font-size: 1.2rem;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .card h3 {
+    font-size: 1.4rem;
+  }
+
+  .card p {
+    font-size: 0.9rem;
   }
 }
 </style>

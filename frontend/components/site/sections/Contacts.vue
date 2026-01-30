@@ -181,5 +181,9 @@ const copyToClipboard = (text: string) => {
     grid-template-columns: 1fr;
     gap: 40px;
   }
+
+  .contact__right {
+    display: none;
+  }
 }
 </style>

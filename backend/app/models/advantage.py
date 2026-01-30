@@ -14,6 +14,8 @@ class Advantage(Base):
     icon: Mapped[str] = mapped_column(String(50), nullable=False, default="star")
     title_ru: Mapped[str] = mapped_column(String(255), nullable=False)
     title_en: Mapped[str] = mapped_column(String(255), nullable=False)
+    subtitle_ru: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    subtitle_en: Mapped[str | None] = mapped_column(String(255), nullable=True)
     description_ru: Mapped[str] = mapped_column(Text, nullable=False)
     description_en: Mapped[str] = mapped_column(Text, nullable=False)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)

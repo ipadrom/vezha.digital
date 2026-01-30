@@ -20,6 +20,10 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  box-sizing: border-box;
+}
+
 :root {
   --bg: #0a0a0a;
   --bg-secondary: #111;
@@ -53,6 +57,8 @@
   html {
     scroll-behavior: smooth;
     height: 100%;
+    overflow-x: hidden;
+    width: 100%;
   }
 
   body {
@@ -64,6 +70,8 @@
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    width: 100%;
+    max-width: 100vw;
   }
 
   ::selection {
@@ -74,6 +82,8 @@
 @layer components {
   .container-main {
     @apply max-w-[1200px] mx-auto px-5;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   /* Button styles matching site10 */
@@ -175,6 +185,9 @@
   .section {
     padding: 90px 20px;
     flex: 1 0 auto;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .section-title {
@@ -524,5 +537,33 @@ form {
 @media (max-width: 768px) {
   .container-main {
     @apply px-4;
+  }
+
+  .modal__box {
+    padding: 25px 20px;
+    max-height: 85vh;
+  }
+
+  .modal__box h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  form {
+    gap: 15px;
+  }
+
+  .field input,
+  .field textarea {
+    padding: 10px;
+    font-size: 0.85rem;
+  }
+
+  .field textarea {
+    rows: 3;
+  }
+
+  .checkbox label {
+    font-size: 0.8rem;
   }
 }

@@ -67,10 +67,13 @@ function init3DScene() {
       antialias: true
     })
 
-    const rightHalfWidth = window.innerWidth / 2
-    renderer.setSize(rightHalfWidth, window.innerHeight)
+    const isMobile = window.innerWidth <= 768
+    const canvasWidth = (window.innerWidth / 2) * 1.4
+    const canvasHeight = window.innerHeight * 1.4
+
+    renderer.setSize(canvasWidth, canvasHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    camera.aspect = rightHalfWidth / window.innerHeight
+    camera.aspect = canvasWidth / canvasHeight
     camera.updateProjectionMatrix()
     camera.position.z = 8
 
@@ -129,6 +132,11 @@ function init3DScene() {
 
     scene.add(group)
 
+    // Scale down on mobile
+    if (isMobile) {
+      group.scale.set(0.5, 0.5, 0.5)
+    }
+
     // Lighting
     scene.add(new THREE.AmbientLight(0xffffff, 0.4))
 
@@ -186,10 +194,11 @@ function init3DScene() {
     animate()
 
     window.addEventListener('resize', () => {
-      const newWidth = window.innerWidth / 2
-      camera.aspect = newWidth / window.innerHeight
+      const newWidth = (window.innerWidth / 2) * 1.4
+      const newHeight = window.innerHeight * 1.4
+      camera.aspect = newWidth / newHeight
       camera.updateProjectionMatrix()
-      renderer.setSize(newWidth, window.innerHeight)
+      renderer.setSize(newWidth, newHeight)
     })
   }
   document.head.appendChild(script)
@@ -204,21 +213,22 @@ function init3DScene() {
   justify-content: center;
   padding: 120px 20px 0;
   position: relative;
-  overflow: hidden;
+  overflow: visible !important;
   background: #0a0a0a;
 }
 
 .hero__background {
   position: absolute;
   top: 0;
-  right: 0;
+  right: -20%;
   bottom: 0;
-  left: 50%;
+  left: 45%;
   display: flex;
   align-items: center;
   justify-content: center;
   pointer-events: none;
-  overflow: hidden;
+  overflow: visible;
+  z-index: 0;
 }
 
 .cursor {
@@ -233,9 +243,11 @@ function init3DScene() {
 }
 
 #hero-canvas {
-  width: 100%;
-  height: 100%;
+  width: 140%;
+  height: 140%;
   display: block;
+  margin-left: -20%;
+  margin-top: -20%;
 }
 
 .hero__wrapper {
@@ -347,43 +359,63 @@ function init3DScene() {
 }
 
 @media (max-width: 768px) {
+  .hero {
+    padding: 80px 15px 40px;
+  }
+
   .hero__wrapper {
-    grid-template-columns: 1fr;
-    gap: 40px;
-    text-align: center;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    min-height: calc(100vh - 120px);
   }
 
   .hero__background {
-    width: 100%;
-    height: 50%;
-    top: auto;
-    bottom: 0;
-    left: 0;
+    width: 50%;
+    height: 100%;
+    right: 0;
+    top: 0;
+    overflow: visible;
   }
 
   .hero__left {
-    order: 2;
-  }
-
-  .hero__right {
-    order: 1;
+    text-align: left;
   }
 
   .hero__title {
-    font-size: 2.2rem;
+    font-size: 1.4rem;
+    margin-bottom: 12px;
   }
 
   .hero__subtitle {
-    font-size: 1rem;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+  }
+
+  .hero__tags {
+    font-size: 0.6rem;
+    margin-bottom: 20px;
+  }
+
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+    height: auto;
+    line-height: 1.2;
   }
 
   .hero__logo-script {
-    font-size: 3.5rem;
+    font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+    font-size: 1.6rem;
+    font-style: italic;
+    font-weight: 400;
   }
 
   .hero__logo-digital {
-    font-size: 2rem;
-    letter-spacing: 4px;
+    font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    text-transform: uppercase;
   }
 }
 
