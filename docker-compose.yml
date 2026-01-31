@@ -13,12 +13,19 @@ services:
       - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
       - ADMIN_TELEGRAM_IDS=${ADMIN_TELEGRAM_IDS}
       - CORS_ORIGINS=${CORS_ORIGINS}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT:-minio:9000}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_BUCKET=${MINIO_BUCKET:-vezha-uploads}
+      - MINIO_USE_SSL=${MINIO_USE_SSL:-false}
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL:-http://localhost:9000}
     volumes:
       - ./backend/uploads:/app/uploads
     ports:
       - "8000:8000"
     depends_on:
       - db
+      - minio
 
   frontend:
     build: ./frontend
@@ -45,5 +52,20 @@ services:
     ports:
       - "5432:5432"
 
+  minio:
+    image: minio/minio:latest
+    container_name: vezha-minio
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+
 volumes:
   postgres_data:
+  minio_data:

@@ -1,16 +1,26 @@
 import os
 import uuid
 
-import aiofiles
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
 from app.config import settings
 from app.core.deps import CurrentAdmin
+from app.core.storage import storage
 from app.schemas import UploadResponse
 
 router = APIRouter()
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
+
+# Content type mapping
+CONTENT_TYPE_MAP = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".svg": "image/svg+xml",
+}
 
 
 @router.post("", response_model=UploadResponse)
@@ -33,14 +43,22 @@ async def upload_file(
         )
 
     unique_filename = f"{uuid.uuid4()}{ext}"
-    file_path = os.path.join(settings.UPLOAD_DIR, unique_filename)
+    content_type = CONTENT_TYPE_MAP.get(ext, "application/octet-stream")
 
-    os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
+    try:
+        # Upload to MinIO
+        url = storage.upload_file(
+            file_data=content,
+            filename=unique_filename,
+            content_type=content_type,
+        )
 
-    async with aiofiles.open(file_path, "wb") as f:
-        await f.write(content)
-
-    return UploadResponse(
-        url=f"/uploads/{unique_filename}",
-        filename=unique_filename,
-    )
+        return UploadResponse(
+            url=url,
+            filename=unique_filename,
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error uploading file: {str(e)}",
+        )

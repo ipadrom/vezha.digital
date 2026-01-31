@@ -33,6 +33,14 @@ class Settings(BaseSettings):
     UPLOAD_DIR: str = "uploads"
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
 
+    # MinIO
+    MINIO_ENDPOINT: str = "localhost:9000"
+    MINIO_ACCESS_KEY: str = "minioadmin"
+    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_BUCKET: str = "vezha-uploads"
+    MINIO_USE_SSL: bool = False
+    MINIO_PUBLIC_URL: str = "http://localhost:9000"
+
     # Root path for reverse proxy
     ROOT_PATH: str = ""
 

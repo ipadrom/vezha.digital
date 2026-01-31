@@ -9,6 +9,12 @@ services:
       - ./backend/.env.production
     environment:
       - DATABASE_URL=postgresql+asyncpg://vezha:${POSTGRES_PASSWORD}@vezha-db:5432/vezha
+      - MINIO_ENDPOINT=vezha-minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - MINIO_BUCKET=${MINIO_BUCKET:-vezha-uploads}
+      - MINIO_USE_SSL=false
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL}
     volumes:
       - ./backend/uploads:/app/uploads
     ports:
@@ -16,6 +22,8 @@ services:
     depends_on:
       vezha-db:
         condition: service_healthy
+      vezha-minio:
+        condition: service_started
     networks:
       - vezha-network
 
@@ -53,8 +61,25 @@ services:
     networks:
       - vezha-network
 
+  vezha-minio:
+    image: minio/minio:latest
+    container_name: vezha-minio
+    restart: unless-stopped
+    environment:
+      - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+    volumes:
+      - vezha_minio_data:/data
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    command: server /data --console-address ":9001"
+    networks:
+      - vezha-network
+
 volumes:
   vezha_postgres_data:
+  vezha_minio_data:
 
 networks:
   vezha-network:
