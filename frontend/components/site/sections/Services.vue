@@ -23,22 +23,53 @@
                 class="service-item fade-item"
                 :class="{ active: activeService === service.id }"
                 :style="{'--enter-delay': `${index * 120}ms`}"
-                @mouseenter="activeService = service.id"
+                @mouseenter="!isAdaptiveMobile && (activeService = service.id)"
+                @click="onServiceClick(service.id)"
             >
-              <NuxtLink :to="`/services/${activeService}`">
-                <div class="service-header">
+              <NuxtLink
+                  v-if="!isAdaptiveMobile"
+                  :to="`/services/${service.id}`"
+                  class="service-header"
+                  @click.stop
+              >
                   <h3 class="font-bold">{{ service.name }}</h3>
                   <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
                     {{ service.price_currency }}
                   </p>
-                </div>
               </NuxtLink>
+
+              <div
+                  v-else
+                  class="service-header"
+              >
+                <h3 class="font-bold">{{ service.name }}</h3>
+                <p class="price">
+                  {{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
+                  {{ service.price_currency }}
+                </p>
+              </div>
+
+              <!-- Mobile Service Details -->
+              <Transition name="expand">
+                <div v-if="activeService === service.id && isAdaptiveMobile" class="service-mobile-content">
+                  <p class="desc">{{ service.description }}</p>
+                  <div class="service-content">
+                    <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
+                    <ul v-if="service.features && service.features.length">
+                      <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
+                    </ul>
+                  </div>
+                  <NuxtLink class="redirect-btn" :to="`/services/${service.id}`">
+                    {{$t('services.redirect_btn')}}
+                  </NuxtLink>
+                </div>
+              </Transition>
             </div>
         </TransitionGroup>
 
         <!-- Right Column: Service Details -->
           <div
-              v-if="services.length"
+              v-if="services.length && !isAdaptiveMobile"
               class="service-details fade-item"
               style="--enter-delay: 0.1s"
           >
@@ -82,6 +113,16 @@ const props = defineProps<{
   services: any[]
 }>()
 
+const isAdaptiveMobile = ref(false)
+const updateMobile = () => {
+  isAdaptiveMobile.value = window.innerWidth <= 992
+}
+
+const onServiceClick = (id: number) => {
+  if (!isAdaptiveMobile.value) return
+  activeService.value = activeService.value === id ? null : id
+}
+
 const activeService = ref<number | null>(null)
 
 const setActiveFirst = () => {
@@ -91,6 +132,7 @@ const setActiveFirst = () => {
 }
 
 onMounted(() => {
+  updateMobile()
   setActiveFirst()
 })
 
@@ -302,6 +344,66 @@ const formatPrice = (price: number) => {
   animation-delay: var(--enter-delay, 0s);
 }
 
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 1000px;
+  opacity: 1;
+}
+
+.service-mobile-content {
+  display: block;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--border);
+}
+
+.service-mobile-content .desc {
+  font-size: 1rem;
+  color: #e0e0e0;
+  margin-bottom: 15px;
+  line-height: 1.6;
+}
+
+.service-mobile-content .service-content p {
+  color: #e0e0e0;
+  margin-bottom: 12px;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.service-mobile-content .service-content ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 15px;
+}
+
+.service-mobile-content .service-content ul li {
+  color: #e0e0e0;
+  padding: 6px 0 6px 20px;
+  position: relative;
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
+.service-mobile-content .service-content ul li::before {
+  content: '>';
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
 @keyframes fadeInUp {
   to {
     opacity: 1;
@@ -325,15 +427,26 @@ const formatPrice = (price: number) => {
 @media (max-width: 992px) {
   .services-new {
     flex-direction: column;
+    max-height: none;
   }
 
   .services-list {
     flex: none;
     width: 100%;
+    overflow: visible;
   }
 
   .service-details {
     min-height: 300px;
+  }
+
+  .service-details.mobile {
+    margin-top: 20px;
+    padding: 20px;
+  }
+
+  .service-details.mobile .service-detail {
+    display: block;
   }
 }
 </style>

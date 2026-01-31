@@ -231,8 +231,55 @@ const copyToClipboard = (text: string) => {
 
 @media (max-width: 768px) {
   .contact {
-    grid-template-columns: 1fr;
-    gap: 40px;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    font-size: 1rem;
+  }
+
+  .contact__left h3 {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+  }
+
+  .contact__left > p {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  .contacts-list {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .contacts-list a {
+    font-size: 0.85rem;
+    padding: 6px 8px;
+    gap: 10px;
+  }
+
+  .terminal {
+    max-width: 100%;
+  }
+
+  .terminal__header {
+    font-size: 0.8rem;
+    padding: 8px 12px;
+  }
+
+  .terminal__body {
+    padding: 12px;
+  }
+
+  .terminal__body pre {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .terminal__line {
+    font-size: 0.8rem;
+    margin-bottom: 10px;
   }
 }
 </style>
