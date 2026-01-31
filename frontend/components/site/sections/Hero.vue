@@ -67,7 +67,8 @@ function init3DScene() {
       antialias: true
     })
 
-    const rightHalfWidth = window.innerWidth / 2
+    const isMobile = window.innerWidth < 768
+    const rightHalfWidth = isMobile ? window.innerWidth * 0.5 : window.innerWidth / 2
     renderer.setSize(rightHalfWidth, window.innerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     camera.aspect = rightHalfWidth / window.innerHeight
@@ -348,29 +349,22 @@ function init3DScene() {
 
 @media (max-width: 768px) {
   .hero__wrapper {
-    grid-template-columns: 1fr;
+    padding: 70px 15px 0;
+    grid-template-columns: 1fr 1fr;
     gap: 40px;
     text-align: center;
   }
 
   .hero__background {
-    width: 100%;
-    height: 50%;
+    width: 50%;
+    height: 100%;
     top: auto;
     bottom: 0;
-    left: 0;
-  }
-
-  .hero__left {
-    order: 2;
-  }
-
-  .hero__right {
-    order: 1;
+    left: 50%;
   }
 
   .hero__title {
-    font-size: 2.2rem;
+    font-size: 1.2rem;
   }
 
   .hero__subtitle {

@@ -10,7 +10,8 @@
           v-for="project in projects"
           :key="project.id"
           class="project"
-          @click="project.project_url && openProject(project.project_url)"
+          :class="{ active: activeProject === project.id }"
+          @click="toggleProject(project)"
         >
           <div class="project__image">
             <img
@@ -53,14 +54,26 @@ defineProps<{
   projects: any[]
 }>()
 
+const activeProject = ref<number | null>(null)
+
 const getImageUrl = (url: string) => {
   if (!url) return ''
   if (url.startsWith('http')) return url
   return `${config.public.apiUrl}${url}`
 }
 
-const openProject = (url: string) => {
-  window.open(url, '_blank')
+const toggleProject = (project: any) => {
+  if (window.innerWidth <= 768) {
+    if (activeProject.value === project.id) {
+      activeProject.value = null
+    } else {
+      activeProject.value = project.id
+    }
+  } else {
+    if (project.project_url) {
+      window.open(project.project_url, '_blank')
+    }
+  }
 }
 </script>
 
@@ -177,11 +190,51 @@ const openProject = (url: string) => {
 
 @media (max-width: 768px) {
   .projects-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
   }
 
   .project__image {
-    height: 200px;
+    height: 130px;
+  }
+
+  .project__info {
+    padding: 8px 10px;
+  }
+
+  .project__info h3 {
+    font-size: 1rem;
+    margin-bottom: 4px;
+  }
+
+  .project__info p {
+    font-size: 0.85rem;
+    line-height: 1.2;
+  }
+
+  .project__hover {
+    padding: 14px;
+  }
+
+  .project__hover h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+  }
+
+  .project__hover .type {
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+  }
+
+  .project__hover .desc {
+    font-size: 0.8rem;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .project__hover .tags span {
+    font-size: 0.7rem;
+    padding: 3px 8px;
   }
 }
 </style>
