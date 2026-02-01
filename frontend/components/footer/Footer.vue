@@ -72,6 +72,7 @@ defineProps<{
   border-top: 2px solid var(--accent);
   padding: 60px 20px 30px;
   z-index: 100;
+  width: 100%;
   box-shadow: 0 -5px 10px rgba(0, 255, 65, 0.3);
   clear: both;
 }
@@ -123,9 +124,11 @@ defineProps<{
 }
 
 @media (max-width: 768px) {
-  .footer__content {
-    grid-template-columns: 1fr;
-    gap: 30px;
+  .footer .container-main {
+    max-width: 100%;
+    margin: 0;
+    padding-left: 20px;
+    padding-right: 20px;
   }
 }
 </style>

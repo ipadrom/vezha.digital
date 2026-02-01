@@ -10,6 +10,8 @@
         <TransitionGroup
           name="fade-down"
           appear
+          tag="div"
+          class="who-we-are__left-wrapper"
         >
           <div class="who-we-are__left">
             <h2 class="section-title">
@@ -102,6 +104,15 @@ const isEmoji = (str: string) => {
   grid-template-columns: 1fr 1fr;
   gap: 60px;
   height: 100%;
+}
+
+.who-we-are__left-wrapper {
+  width: 100%;
+  display: block;
+}
+
+.who-we-are > * {
+  min-width: 0;
 }
 
 .who-we-are__left {
@@ -285,8 +296,26 @@ const isEmoji = (str: string) => {
     text-align: center;
   }
 
+  .stack-group h3 {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
   .tech-grid {
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    overflow-x: visible;
+    gap: 15px;
+    padding: 10px 5px 20px;
+  }
+
+  .tech-item {
+    width: 100px; 
+  }
+
+  .tech-stack {
+    gap: 30px;
   }
 }
 

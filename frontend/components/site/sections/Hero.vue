@@ -379,11 +379,19 @@ function init3DScene() {
     font-size: 2rem;
     letter-spacing: 4px;
   }
+
+  .btn-primary {
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    min-width: auto;
+    opacity: 0;
+    animation: fadeUp 1s ease-out 0.7s forwards;
+  }
 }
 
 @media (max-width: 480px) {
   .hero__title {
-    font-size: 1.8rem;
+    font-size: 1.1rem;
   }
 
   .hero__subtitle {
@@ -397,6 +405,12 @@ function init3DScene() {
   .hero__logo-digital {
     font-size: 1.5rem;
     letter-spacing: 3px;
+  }
+
+  .btn-primary {
+    padding: 8px 16px;
+    font-size: 0.8rem;
+    letter-spacing: 0;
   }
 }
 </style>

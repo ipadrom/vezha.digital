@@ -363,10 +363,9 @@ const formatPrice = (price: number) => {
 }
 
 .service-mobile-content {
-  display: block;
-  margin-top: 15px;
-  padding-top: 15px;
-  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
 }
 
 .service-mobile-content .desc {
@@ -426,6 +425,7 @@ const formatPrice = (price: number) => {
 
 @media (max-width: 992px) {
   .services-new {
+    display: block;
     flex-direction: column;
     max-height: none;
   }
@@ -447,6 +447,11 @@ const formatPrice = (price: number) => {
 
   .service-details.mobile .service-detail {
     display: block;
+  }
+
+  .service-item {
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 </style>
