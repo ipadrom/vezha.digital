@@ -45,7 +45,10 @@
         </div>
 
         <!-- Right Column: Terminal -->
-          <div class="contact__right" v-if="isSectionVisible">
+          <div 
+            class="contact__right" 
+            v-if="isSectionVisible && !isAdaptiveMobile"
+          >
             <TransitionGroup
                 name="fade-down"
                 appear
@@ -83,6 +86,11 @@ defineProps<{
   settings?: Record<string, string>
 }>()
 
+const isAdaptiveMobile = ref(false)
+const checkIsAdaptiveMobile = () => {
+  isAdaptiveMobile.value = window.innerWidth <= 768
+}
+
 defineEmits(['openModal'])
 
 const copyToClipboard = (text: string) => {
@@ -108,6 +116,15 @@ const copyToClipboard = (text: string) => {
     }, 2000)
   })
 }
+
+onMounted(() => {
+  checkIsAdaptiveMobile()
+  window.addEventListener('resize', checkIsAdaptiveMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkIsAdaptiveMobile)
+})
 </script>
 
 <style scoped>
@@ -231,9 +248,12 @@ const copyToClipboard = (text: string) => {
 
 @media (max-width: 768px) {
   .contact {
-    grid-template-columns: 1fr 1fr;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     gap: 30px;
     font-size: 1rem;
+
   }
 
   .contact__left h3 {
@@ -255,31 +275,6 @@ const copyToClipboard = (text: string) => {
     font-size: 0.85rem;
     padding: 6px 8px;
     gap: 10px;
-  }
-
-  .terminal {
-    max-width: 85%;
-  }
-
-  .terminal__header {
-    font-size: 0.8rem;
-    padding: 8px 12px;
-  }
-
-  .terminal__body {
-    padding: 12px;
-  }
-
-  .terminal__body pre {
-    font-size: 0.75rem;
-    line-height: 1.4;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-
-  .terminal__line {
-    font-size: 0.8rem;
-    margin-bottom: 10px;
   }
 }
 </style>
