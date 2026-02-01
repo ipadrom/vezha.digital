@@ -258,7 +258,7 @@ const copyToClipboard = (text: string) => {
   }
 
   .terminal {
-    max-width: 100%;
+    max-width: 85%;
   }
 
   .terminal__header {
