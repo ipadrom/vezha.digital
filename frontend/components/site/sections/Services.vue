@@ -114,7 +114,7 @@ const props = defineProps<{
 }>()
 
 const isAdaptiveMobile = ref(false)
-const updateMobile = () => {
+const checkIsAdaptiveMobile = () => {
   isAdaptiveMobile.value = window.innerWidth <= 992
 }
 
@@ -132,7 +132,7 @@ const setActiveFirst = () => {
 }
 
 onMounted(() => {
-  updateMobile()
+  checkIsAdaptiveMobile()
   setActiveFirst()
 })
 

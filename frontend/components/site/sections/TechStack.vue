@@ -56,7 +56,7 @@
                     <span v-else-if="isEmoji(tech.icon)">{{ tech.icon }}</span>
                     <span v-else class="text-sm font-bold">{{ tech.icon || tech.name.substring(0, 2).toUpperCase() }}</span>
                   </div>
-                  <h4 class="font-bold">{{ tech.name }}</h4>
+                  <h4 class="text-sm font-bold">{{ tech.name }}</h4>
                 </div>
               </div>
             </div>
@@ -303,7 +303,7 @@ const isEmoji = (str: string) => {
 
   .tech-grid {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
     overflow-x: visible;
     gap: 15px;
@@ -311,7 +311,15 @@ const isEmoji = (str: string) => {
   }
 
   .tech-item {
-    width: 100px; 
+    width: auto; 
+    padding: 5px;
+  }
+
+  .tech-item h4 {
+    white-space: nowrap;
+    overflow: hidden;       
+    text-overflow: ellipsis; 
+    font-size: 0.85rem;
   }
 
   .tech-stack {
