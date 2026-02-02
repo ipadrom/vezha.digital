@@ -52,7 +52,7 @@ async def create_project(
     await db.refresh(project)
     return project
 
-# a
+# a ф
 @router.get("/{project_id}", response_model=ProjectResponse)
 async def get_project(
     project_id: UUID,
