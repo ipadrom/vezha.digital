@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     # Root path for reverse proxy
     ROOT_PATH: str = ""
 
+    # Disable docs in production
+    DOCS_ENABLED: bool = True
+
     class Config:
         env_file = ".env"
         extra = "ignore"

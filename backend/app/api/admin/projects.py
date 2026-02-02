@@ -1,9 +1,13 @@
+import os
+import uuid as uuid_module
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 from sqlalchemy import select
 
+from app.config import settings
 from app.core.deps import CurrentAdmin, DbSession
+from app.core.storage import storage
 from app.models import Project
 from app.schemas import (
     MessageResponse,
@@ -11,7 +15,18 @@ from app.schemas import (
     ProjectResponse,
     ProjectUpdate,
     ReorderRequest,
+    UploadResponse,
 )
+
+ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
+CONTENT_TYPE_MAP = {
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".svg": "image/svg+xml",
+}
 
 router = APIRouter()
 
@@ -111,3 +126,107 @@ async def reorder_projects(
 
     await db.commit()
     return MessageResponse(message="Projects reordered successfully")
+
+
+@router.post("/upload", response_model=UploadResponse)
+async def upload_new_project_image(
+    admin: CurrentAdmin,
+    file: UploadFile = File(...),
+):
+    """Upload image for a new project (before creating the project)."""
+    # Validate file extension
+    ext = os.path.splitext(file.filename)[1].lower() if file.filename else ""
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File type not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}",
+        )
+
+    # Read and validate file size
+    content = await file.read()
+    if len(content) > settings.MAX_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File too large. Max size: {settings.MAX_UPLOAD_SIZE // 1024 // 1024}MB",
+        )
+
+    # Upload image
+    unique_filename = f"{uuid_module.uuid4()}{ext}"
+    content_type = CONTENT_TYPE_MAP.get(ext, "application/octet-stream")
+
+    try:
+        url = storage.upload_file(
+            file_data=content,
+            filename=unique_filename,
+            content_type=content_type,
+            prefix="projects/",
+        )
+
+        return UploadResponse(url=url, filename=unique_filename)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error uploading file: {str(e)}",
+        )
+
+
+@router.post("/{project_id}/image", response_model=ProjectResponse)
+async def upload_project_image(
+    project_id: UUID,
+    admin: CurrentAdmin,
+    db: DbSession,
+    file: UploadFile = File(...),
+):
+    """Upload image for a specific project and update the project."""
+    # Get project
+    result = await db.execute(select(Project).where(Project.id == project_id))
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found",
+        )
+
+    # Validate file extension
+    ext = os.path.splitext(file.filename)[1].lower() if file.filename else ""
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File type not allowed. Allowed: {', '.join(ALLOWED_EXTENSIONS)}",
+        )
+
+    # Read and validate file size
+    content = await file.read()
+    if len(content) > settings.MAX_UPLOAD_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"File too large. Max size: {settings.MAX_UPLOAD_SIZE // 1024 // 1024}MB",
+        )
+
+    # Delete old image if exists
+    if project.image_url:
+        storage.delete_file_by_url(project.image_url)
+
+    # Upload new image
+    unique_filename = f"{uuid_module.uuid4()}{ext}"
+    content_type = CONTENT_TYPE_MAP.get(ext, "application/octet-stream")
+
+    try:
+        url = storage.upload_file(
+            file_data=content,
+            filename=unique_filename,
+            content_type=content_type,
+            prefix="projects/",
+        )
+
+        # Update project
+        project.image_url = url
+        await db.commit()
+        await db.refresh(project)
+
+        return project
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error uploading file: {str(e)}",
+        )

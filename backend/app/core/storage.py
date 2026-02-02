@@ -53,6 +53,7 @@ class MinIOStorage:
         file_data: bytes | BinaryIO,
         filename: str,
         content_type: str = "application/octet-stream",
+        prefix: str = "",
     ) -> str:
         """
         Upload file to MinIO.
@@ -61,10 +62,13 @@ class MinIOStorage:
             file_data: File content as bytes or file-like object
             filename: Name of the file in storage
             content_type: MIME type of the file
+            prefix: Optional folder prefix (e.g., "projects/")
 
         Returns:
             Public URL of the uploaded file
         """
+        # Add prefix to filename if provided
+        object_name = f"{prefix}{filename}" if prefix else filename
         try:
             # Convert bytes to BytesIO if needed
             if isinstance(file_data, bytes):
@@ -79,15 +83,15 @@ class MinIOStorage:
             # Upload file
             self.client.put_object(
                 bucket_name=self.bucket_name,
-                object_name=filename,
+                object_name=object_name,
                 data=file_data,
                 length=length,
                 content_type=content_type,
             )
 
             # Return public URL
-            url = f"{settings.MINIO_PUBLIC_URL}/{self.bucket_name}/{filename}"
-            logger.info(f"Uploaded file: {filename} -> {url}")
+            url = f"{settings.MINIO_PUBLIC_URL}/{self.bucket_name}/{object_name}"
+            logger.info(f"Uploaded file: {object_name} -> {url}")
             return url
 
         except S3Error as e:
@@ -106,6 +110,26 @@ class MinIOStorage:
     def get_file_url(self, filename: str) -> str:
         """Get public URL for a file."""
         return f"{settings.MINIO_PUBLIC_URL}/{self.bucket_name}/{filename}"
+
+    def extract_filename_from_url(self, url: str) -> str | None:
+        """Extract the object name (with prefix) from a full URL."""
+        if not url:
+            return None
+        prefix = f"{settings.MINIO_PUBLIC_URL}/{self.bucket_name}/"
+        if url.startswith(prefix):
+            return url[len(prefix):]
+        return None
+
+    def delete_file_by_url(self, url: str) -> bool:
+        """Delete file from MinIO by its full URL."""
+        filename = self.extract_filename_from_url(url)
+        if filename:
+            try:
+                self.delete_file(filename)
+                return True
+            except S3Error:
+                return False
+        return False
 
 
 # Global storage instance
