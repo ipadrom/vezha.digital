@@ -11,7 +11,7 @@ class Advantage(Base):
     __tablename__ = "advantages"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    icon: Mapped[str] = mapped_column(String(50), nullable=False, default="star")
+    icon: Mapped[str] = mapped_column(String(500), nullable=False, default="star")
     title_ru: Mapped[str] = mapped_column(String(255), nullable=False)
     title_en: Mapped[str] = mapped_column(String(255), nullable=False)
     description_ru: Mapped[str] = mapped_column(Text, nullable=False)

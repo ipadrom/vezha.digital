@@ -10,7 +10,14 @@ from app.schemas import UploadResponse
 
 router = APIRouter()
 
-ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
+ALLOWED_EXTENSIONS = {
+    # Images
+    ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg",
+    # 3D models
+    ".gltf", ".glb",
+    # Other
+    ".palette",
+}
 
 # Content type mapping
 CONTENT_TYPE_MAP = {
@@ -20,6 +27,9 @@ CONTENT_TYPE_MAP = {
     ".gif": "image/gif",
     ".webp": "image/webp",
     ".svg": "image/svg+xml",
+    ".gltf": "model/gltf+json",
+    ".glb": "model/gltf-binary",
+    ".palette": "application/octet-stream",
 }
 
 

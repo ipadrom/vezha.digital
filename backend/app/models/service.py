@@ -12,7 +12,7 @@ class Service(Base):
     __tablename__ = "services"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    icon: Mapped[str] = mapped_column(String(50), nullable=False, default="code")
+    icon: Mapped[str] = mapped_column(String(500), nullable=False, default="code")
     name_ru: Mapped[str] = mapped_column(String(255), nullable=False)
     name_en: Mapped[str] = mapped_column(String(255), nullable=False)
     description_ru: Mapped[str] = mapped_column(Text, nullable=False)
