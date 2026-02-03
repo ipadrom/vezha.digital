@@ -53,6 +53,7 @@
 }
 
 .service-hero__price {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 2rem;
   color: var(--accent);
   font-weight: 700;

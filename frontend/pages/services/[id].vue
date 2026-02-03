@@ -27,98 +27,104 @@
           Что входит в услугу
           <span class="bracket">/&gt;</span>
         </h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <h3>Дизайн интерфейса</h3>
-            <p>Разработка UI/UX дизайна с учетом guidelines Telegram и лучших практик мобильных приложений</p>
+        <!-- Desktop view -->
+        <div class="features-grid features-desktop">
+          <div
+              v-for="(feature, index) in features"
+              :key="index"
+              class="feature-card fade-item"
+              :style="{'--enter-delay': `${index * 150}ms`}"
+          >
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
           </div>
+        </div>
 
-          <div class="feature-card">
-            <h3>Backend + Admin панель</h3>
-            <p>Серверная часть на FastAPI с базой данных PostgreSQL и удобная панель администратора</p>
+        <!-- Mobile view -->
+        <div class="features-mobile">
+          <div class="features-list">
+            <div
+                v-for="(feature, index) in features"
+                :key="index"
+                :class="['feature-item', { active: activeFeature === index }]"
+                @click="activeFeature = index"
+            >
+              <div class="feature-item__title">{{ feature.title }}</div>
+            </div>
           </div>
-
-          <div class="feature-card">
-            <h3>Интеграция платежей</h3>
-            <p>Подключение Telegram Payments, ЮKassa, Stripe или других платежных систем</p>
-          </div>
-
-          <div class="feature-card">
-            <h3>Авторизация через Telegram</h3>
-            <p>Безопасная авторизация пользователей через Telegram без дополнительной регистрации</p>
-          </div>
-
-          <div class="feature-card">
-            <h3>Адаптивная верстка</h3>
-            <p>Интерфейс адаптирован под все разрешения экранов от мобильных до планшетов</p>
-          </div>
-
-          <div class="feature-card">
-            <h3>Тестирование и деплой</h3>
-            <p>Полное тестирование функционала, размещение на сервере и публикация в Telegram</p>
+          <div class="features-description">
+            <Transition name="fade" mode="out-in">
+              <div :key="activeFeature" class="description-content">
+                <p>{{ features[activeFeature]?.description }}</p>
+              </div>
+            </Transition>
           </div>
         </div>
       </div>
     </section>
 
     <section class="section">
-      <div class="container">
+      <div class="container-main">
         <h2 class="section-title">
           <span class="bracket">&lt;</span>
           Примеры проектов с ценами
           <span class="bracket">/&gt;</span>
         </h2>
-        <div class="pricing-table">
-          <table>
-            <thead>
-            <tr>
-              <th>Тип проекта</th>
-              <th>Описание</th>
-              <th>Цена</th>
-              <th>Срок</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-              <td><strong>Простой магазин</strong></td>
-              <td>Каталог товаров, корзина, оформление заказа, уведомления</td>
-              <td class="price-cell">от 200 000 ₽</td>
-              <td>5-7 дней</td>
-            </tr>
-            <tr>
-              <td><strong>Каталог услуг</strong></td>
-              <td>Отображение услуг, запись на время, календарь, уведомления</td>
-              <td class="price-cell">от 150 000 ₽</td>
-              <td>5-7 дней</td>
-            </tr>
-            <tr>
-              <td><strong>Игра</strong></td>
-              <td>Игровая механика, лидерборд, система наград, профиль игрока</td>
-              <td class="price-cell">от 400 000 ₽</td>
-              <td>15-20 дней</td>
-            </tr>
-            <tr>
-              <td><strong>Сервис бронирования</strong></td>
-              <td>Выбор услуги/времени, онлайн-оплата, календарь, напоминания</td>
-              <td class="price-cell">от 300 000 ₽</td>
-              <td>10-15 дней</td>
-            </tr>
-            <tr>
-              <td><strong>Сервис доставки</strong></td>
-              <td>Меню, корзина, адрес доставки, трекинг заказа, оплата</td>
-              <td class="price-cell">от 450 000 ₽</td>
-              <td>18-22 дня</td>
-            </tr>
-            <tr>
-              <td><strong>Система лояльности</strong></td>
-              <td>Баллы, уровни, достижения, история покупок, персональные предложения</td>
-              <td class="price-cell">от 350 000 ₽</td>
-              <td>12-18 дней</td>
-            </tr>
-            </tbody>
-          </table>
-          <p class="pricing-note">* Цены указаны за базовый функционал. Финальная стоимость рассчитывается индивидуально с учетом всех требований.</p>
+        <div class="pricing-block">
+          <div class="pricing-list">
+            <div
+                v-for="(project, index) in projects"
+                :key="index"
+                class="pricing-item fade-item"
+                :class="{ active: activeProject === index }"
+                :style="{'--enter-delay': `${index * 120}ms`}"
+                @mouseenter="!isPricingMobile && (activeProject = index)"
+                @click="onPricingClick(index)"
+            >
+              <!-- Desktop: заголовок карточки -->
+              <div v-if="!isPricingMobile" class="pricing-header">
+                <h3>{{ project.title }}</h3>
+                <div class="pricing-meta">
+                  <p class="price">{{ project.price }}</p>
+                  <p class="duration">{{ project.duration }}</p>
+                </div>
+              </div>
+
+              <!-- Mobile: заголовок карточки -->
+              <div v-else class="pricing-header">
+                <h3>{{ project.title }}</h3>
+                <div class="pricing-meta">
+                  <p class="price">{{ project.price }}</p>
+                  <p class="duration">{{ project.duration }}</p>
+                </div>
+              </div>
+
+              <!-- Mobile: раскрытый контент карточки -->
+              <div v-if="activeProject === index && isPricingMobile" class="pricing-mobile-content">
+                <p class="desc">{{ project.description }}</p>
+                <button class="contact-btn" @click.stop="showModal = true">Связаться</button>
+              </div>
+            </div>
+          </div>
+          <!-- Desktop: правая панель с описанием -->
+          <div v-if="!isPricingMobile" class="pricing-details fade-item" style="--enter-delay: 0.1s">
+            <TransitionGroup name="fade-down" appear>
+              <div
+                  v-for="(project, index) in projects"
+                  :key="index"
+                  class="pricing-detail fade-item"
+                  :class="{ active: activeProject === index }"
+                  style="--enter-delay: 0.1s"
+              >
+                <h3>{{ project.title }}</h3>
+                <p class="price">{{ project.price }}</p>
+                <p class="duration">Срок: {{ project.duration }}</p>
+                <p class="desc">{{ project.description }}</p>
+              </div>
+            </TransitionGroup>
+          </div>
         </div>
+        <p class="pricing-note">* Цены указаны за базовый функционал. Финальная стоимость рассчитывается индивидуально с учетом всех требований.</p>
       </div>
     </section>
 
@@ -190,6 +196,44 @@ const route = useRoute()
 const serviceId = computed(() => route.params.id as string)
 
 const showModal = ref(false)
+const activeFeature = ref(0)
+const activeProject = ref<number | null>(0)
+
+// MOBILE: определение мобильного вида для pricing блока
+const isPricingMobile = ref(false)
+const checkIsPricingMobile = () => {
+  isPricingMobile.value = window.innerWidth <= 992
+}
+
+// MOBILE: обработчик клика по карточке (только на мобильном)
+const onPricingClick = (index: number) => {
+  if (!isPricingMobile.value) return
+  activeProject.value = activeProject.value === index ? null : index
+}
+
+const projects = [
+  { title: 'Простой магазин', price: 'от 200 000 ₽', duration: '5-7 дней', description: 'Каталог товаров, корзина, оформление заказа, уведомления' },
+  { title: 'Каталог услуг', price: 'от 150 000 ₽', duration: '5-7 дней', description: 'Отображение услуг, запись на время, календарь, уведомления' },
+  { title: 'Игра', price: 'от 400 000 ₽', duration: '15-20 дней', description: 'Игровая механика, лидерборд, система наград, профиль игрока' },
+  { title: 'Сервис бронирования', price: 'от 300 000 ₽', duration: '10-15 дней', description: 'Выбор услуги/времени, онлайн-оплата, календарь, напоминания' },
+  { title: 'Сервис доставки', price: 'от 450 000 ₽', duration: '18-22 дня', description: 'Меню, корзина, адрес доставки, трекинг заказа, оплата' },
+  { title: 'Система лояльности', price: 'от 350 000 ₽', duration: '12-18 дней', description: 'Баллы, уровни, достижения, история покупок, персональные предложения' },
+]
+
+interface Feature {
+  title: string
+  description: string
+}
+
+const features: Feature[] = [
+  { title: 'Дизайн интерфейса', description: 'Разработка UI/UX дизайна с учетом guidelines Telegram и лучших практик мобильных приложений' },
+  { title: 'Backend + Admin панель', description: 'Серверная часть на FastAPI с базой данных PostgreSQL и удобная панель администратора' },
+  { title: 'Интеграция платежей', description: 'Подключение Telegram Payments, ЮKassa, Stripe или других платежных систем' },
+  { title: 'Авторизация через Telegram', description: 'Безопасная авторизация пользователей через Telegram без дополнительной регистрации' },
+  { title: 'Адаптивная верстка', description: 'Интерфейс адаптирован под все разрешения экранов от мобильных до планшетов' },
+  { title: 'Тестирование и деплой', description: 'Полное тестирование функционала, размещение на сервере и публикация в Telegram' },
+]
+
 
 const settings = ref<Record<string, string>>({})
 
@@ -202,6 +246,7 @@ const {data: service} = await useAsyncData<IService>(
 )
 
 onMounted(async () => {
+  checkIsPricingMobile()
   const data = await api.getSettings();
   settings.value = data.settings;
 });
@@ -245,21 +290,21 @@ onMounted(async () => {
 
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   justify-content: center;
   gap: 30px;
   margin: auto;
-  max-width: 1100px;
+  max-width: 1200px;
 }
 
 .feature-card {
-  max-width: 366px;
-  max-height: 212px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
   padding: 30px;
   transition: all 0.3s;
   cursor: pointer;
+  box-shadow: -10px 0 15px -5px rgba(0, 255, 65, 0.3);
 }
 
 .feature-card:hover {
@@ -269,61 +314,247 @@ onMounted(async () => {
 }
 
 .feature-card h3 {
-  font-size: 1.3rem;
+  font-family: var(--font-epilepsy);
+  font-size: 1.4rem;
   margin-bottom: 15px;
-  font-family: var(--font-pixel);
+  color: var(--accent);
+  font-weight: 700;
 }
 
 .feature-card p {
-  color: var(--text-dim);
-  line-height: 1.6;
+  color: #e0e0e0;
+  line-height: 1.8;
 }
 
-.pricing-table {
+.fade-item {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  animation: cardRevealDown 0.9s ease-out forwards;
+  animation-delay: var(--enter-delay, 0s);
+}
+
+@keyframes cardRevealDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Features mobile */
+.features-mobile {
+  display: none;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .features-desktop {
+    display: none !important;
+  }
+
+  .features-mobile {
+    display: grid;
+    grid-template-columns: 40% 60%;
+    gap: 15px;
+    min-height: 300px;
+  }
+
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .feature-item {
+    background: transparent;
+    border: none;
+    border-left: 3px solid transparent;
+    padding: 10px 0 10px 15px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .feature-item.active {
+    border-left-color: var(--accent);
+    box-shadow: -10px 0 15px -5px rgba(0, 255, 65, 0.3);
+  }
+
+  .feature-item:hover {
+    border-left-color: var(--accent);
+  }
+
+  .feature-item__title {
+    font-family: var(--font-epilepsy);
+    font-size: 0.85rem;
+    line-height: 1.3;
+    color: #e0e0e0;
+    text-align: left;
+    font-weight: 700;
+  }
+
+  .features-description {
+    background: var(--bg-secondary);
+    border: 2px solid var(--border);
+    padding: 20px;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .description-content {
+    color: #e0e0e0;
+    line-height: 1.6;
+    font-size: 0.9rem;
+  }
+
+  .description-content p {
+    margin: 0;
+  }
+}
+
+/* Pricing block */
+.pricing-block {
+  display: flex;
+  gap: 30px;
+}
+
+.pricing-list {
+  flex: 0 0 450px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin: auto;
+  gap: 10px;
+  overflow-y: visible;
+  padding-right: 5px;
 }
 
-.pricing-table table {
-
-  border-collapse: collapse;
+.pricing-item {
   background: var(--bg-secondary);
-  border: 1px solid var(--border);
+  border: 3px solid var(--border);
+  padding: 12px;
+  cursor: pointer;
+  color: #e0e0e0;
+  border-left: 3px solid var(--accent);
+  transition: all 0.2s ease-out;
+  box-shadow: -10px 0 15px -5px rgba(0, 255, 65, 0.3);
 }
 
-.pricing-table th,
-.pricing-table td {
-  padding: 20px;
-  text-align: left;
-  border-bottom: 1px solid var(--border);
+.pricing-item:hover,
+.pricing-item.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px var(--shadow);
 }
 
-.pricing-table th {
-  background: var(--bg-tertiary);
+.pricing-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0;
+}
+
+.pricing-item h3 {
+  font-family: var(--font-epilepsy);
+  font-size: 1.1rem;
+  margin: 0;
+  color: var(--text);
+  flex: 1;
+  font-weight: 700;
+}
+
+.pricing-item .price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
   color: var(--accent);
-  font-weight: 600;
-}
-
-.pricing-table td {
-  color: var(--text-dim);
-}
-
-.pricing-table tr:last-child td {
-  border-bottom: none;
-}
-
-.pricing-table tr:hover {
-  background: var(--bg-tertiary);
-}
-
-.price-cell {
-  color: var(--accent);
+  margin: 0 0 0 10px;
   font-weight: 600;
   white-space: nowrap;
+  position: relative;
+}
+
+.pricing-item .price::after {
+  content: " ->";
+  font-family: var(--font-epilepsy);
+  margin-left: 5px;
+}
+
+.pricing-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  margin-left: 10px;
+}
+
+.pricing-item .duration {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.pricing-details {
+  flex: 1 1 40%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 30px;
+  overflow-y: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 15px -5px rgba(0, 255, 65, 0.3);
+}
+
+.pricing-detail {
+  display: none;
+  color: #e0e0e0;
+  position: relative;
+}
+
+.pricing-detail.active {
+  display: block;
+  padding-bottom: 20px;
+}
+
+.pricing-detail h3 {
+  font-family: var(--font-epilepsy);
+  font-size: 1.8rem;
+  margin-bottom: 15px;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pricing-detail .price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.5rem;
+  color: var(--accent);
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.pricing-detail .duration {
+  font-family: 'JetBrains Mono', monospace;
   font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 15px;
+}
+
+.pricing-detail .desc {
+  font-size: 1.1rem;
+  color: #e0e0e0;
+  margin-bottom: 25px;
+  line-height: 1.6;
 }
 
 .pricing-note {
@@ -331,7 +562,122 @@ onMounted(async () => {
   color: var(--text-dim);
   font-style: italic;
   margin-top: 15px;
+  text-align: center;
 }
+
+/* Pricing animations */
+.pricing-block .fade-item {
+  opacity: 0;
+  clip-path: inset(0 0 100% 0);
+  animation: cardRevealDown 0.9s ease-out forwards;
+  animation-delay: var(--enter-delay, 0s);
+}
+
+.fade-down-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-down-enter-to {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.fade-down-enter-active {
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition-delay: 0.25s;
+}
+
+@keyframes cardRevealDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+    clip-path: inset(0 0 100% 0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+/* Pricing expand animation */
+.expand-enter-active,
+.expand-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
+}
+
+.expand-enter-to,
+.expand-leave-from {
+  max-height: 500px;
+  opacity: 1;
+}
+
+/* =============================================
+   MOBILE: Стили для мобильного вида pricing блока
+   ============================================= */
+
+/* Mobile: контент раскрытой карточки */
+.pricing-mobile-content {
+  margin-top: 10px;
+}
+
+.pricing-mobile-content .desc {
+  font-size: 0.95rem;
+  color: #e0e0e0;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.pricing-mobile-content .contact-btn {
+  padding: 10px 24px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.pricing-mobile-content .contact-btn:hover {
+  background: var(--bg);
+  color: var(--accent);
+}
+
+/* Mobile: медиа-запрос для адаптивности */
+@media (max-width: 992px) {
+  .pricing-block {
+    display: block;
+  }
+
+  .pricing-list {
+    flex: none;
+    width: 100%;
+  }
+
+  .pricing-item {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Mobile: активная карточка с полной зелёной рамкой */
+  .pricing-item.active {
+    border: 3px solid var(--accent);
+  }
+
+  .pricing-item .price::after {
+    content: " ->";
+  }
+}
+/* ============================================= */
 
 /* Projects */
 .projects-grid {
