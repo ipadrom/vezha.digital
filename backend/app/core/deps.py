@@ -31,7 +31,11 @@ async def get_current_admin(
             detail="Invalid authentication credentials",
         )
 
-    if token_data.telegram_id not in settings.admin_telegram_ids_list:
+    # В dev-режиме разрешаем dev_telegram_id
+    dev_telegram_id = 999999999
+    is_dev_admin = settings.DOCS_ENABLED and token_data.telegram_id == dev_telegram_id
+
+    if not is_dev_admin and token_data.telegram_id not in settings.admin_telegram_ids_list:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Not authorized as admin",
