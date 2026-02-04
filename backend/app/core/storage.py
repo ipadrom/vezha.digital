@@ -89,8 +89,8 @@ class MinIOStorage:
                 content_type=content_type,
             )
 
-            # Return public URL
-            url = f"{settings.MINIO_PUBLIC_URL}/{self.bucket_name}/{object_name}"
+            # Return public URL (using /uploads/ path that nginx proxies to MinIO)
+            url = f"{settings.MINIO_PUBLIC_URL}/uploads/{object_name}"
             logger.info(f"Uploaded file: {object_name} -> {url}")
             return url
 
@@ -109,13 +109,13 @@ class MinIOStorage:
 
     def get_file_url(self, filename: str) -> str:
         """Get public URL for a file."""
-        return f"{settings.MINIO_PUBLIC_URL}/{self.bucket_name}/{filename}"
+        return f"{settings.MINIO_PUBLIC_URL}/uploads/{filename}"
 
     def extract_filename_from_url(self, url: str) -> str | None:
         """Extract the object name (with prefix) from a full URL."""
         if not url:
             return None
-        prefix = f"{settings.MINIO_PUBLIC_URL}/{self.bucket_name}/"
+        prefix = f"{settings.MINIO_PUBLIC_URL}/uploads/"
         if url.startswith(prefix):
             return url[len(prefix):]
         return None
