@@ -8,7 +8,7 @@ from app.models.tech_stack import TechCategory
 class TechStackBase(BaseModel):
     category: TechCategory
     icon: str
-    icon_format: str
+    icon_format: str | None = None
     name: str
     subtitle_ru: str | None = None
     subtitle_en: str | None = None
@@ -42,7 +42,7 @@ class TechStackPublic(BaseModel):
     id: UUID
     category: TechCategory
     icon: str
-    icon_format: str
+    icon_format: str | None
     name: str
     subtitle: str | None
 
