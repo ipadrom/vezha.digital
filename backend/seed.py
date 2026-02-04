@@ -1,9 +1,11 @@
 import asyncio
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 from app.core.database import async_session_maker
+from app.core.storage import storage
 from app.models import (
     Advantage,
     Project,
@@ -189,15 +191,47 @@ async def seed_projects(session):
     session.add_all(projects)
 
 
+async def upload_tech_icons():
+    """Upload 3D tech icons to MinIO storage."""
+    icons_dir = Path(__file__).parent.parent / "voxel_tech_icons"
+
+    if not icons_dir.exists():
+        print(f"Warning: Icons directory not found at {icons_dir}")
+        return
+
+    print("Uploading 3D tech icons to MinIO...")
+
+    # Get all technology folders
+    tech_folders = [f for f in icons_dir.iterdir() if f.is_dir()]
+
+    for tech_folder in tech_folders:
+        tech_name = tech_folder.name
+        print(f"  Uploading {tech_name}...")
+
+        # Upload all files in the folder
+        for file_path in tech_folder.iterdir():
+            if file_path.is_file():
+                with open(file_path, "rb") as f:
+                    content_type = "model/gltf+json" if file_path.suffix == ".gltf" else "image/png"
+                    storage.upload_file(
+                        file_data=f.read(),
+                        filename=file_path.name,
+                        content_type=content_type,
+                        prefix=f"voxel_tech_icons/{tech_name}/",
+                    )
+
+    print("✓ 3D tech icons uploaded successfully!")
+
+
 async def seed_tech_stack(session):
-    base_url = f"{os.getenv('MINIO_PUBLIC_URL')}/{os.getenv('MINIO_BUCKET')}"
+    base_url = os.getenv('MINIO_PUBLIC_URL')
 
     tech_items = [
         # Frontend
         TechStack(
             category=TechCategory.FRONTEND,
-            icon=f"{base_url}/voxel_tech_icons/react/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/react/react.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/react/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/react/react.gltf",
             name="REACT",
             subtitle_ru="UI библиотека",
             subtitle_en="UI Library",
@@ -205,8 +239,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon=f"{base_url}/voxel_tech_icons/vue/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/vue/vue.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/vue/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/vue/vue.gltf",
             name="VUE 3",
             subtitle_ru="Прогрессивный фреймворк",
             subtitle_en="Progressive Framework",
@@ -214,8 +248,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon=f"{base_url}/voxel_tech_icons/nextjs/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/nextjs/nextjs.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/nextjs/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/nextjs/nextjs.gltf",
             name="Next.js",
             subtitle_ru="React фреймворк",
             subtitle_en="React Framework",
@@ -223,8 +257,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon=f"{base_url}/voxel_tech_icons/typescript/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/typescript/typescript.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/typescript/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/typescript/typescript.gltf",
             name="TypeScript",
             subtitle_ru="Типизация JS",
             subtitle_en="JS Typing",
@@ -232,8 +266,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon=f"{base_url}/voxel_tech_icons/tailwind/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/tailwind/tailwind.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/tailwind/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/tailwind/tailwind.gltf",
             name="Tailwind",
             subtitle_ru="CSS фреймворк",
             subtitle_en="CSS Framework",
@@ -243,8 +277,8 @@ async def seed_tech_stack(session):
         # Backend
         TechStack(
             category=TechCategory.BACKEND,
-            icon=f"{base_url}/voxel_tech_icons/python/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/python/python.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/python/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/python/python.gltf",
             name="Python",
             subtitle_ru="Основной язык",
             subtitle_en="Primary Language",
@@ -252,8 +286,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.BACKEND,
-            icon=f"{base_url}/voxel_tech_icons/fastapi/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/fastapi/fastapi.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/fastapi/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/fastapi/fastapi.gltf",
             name="FastAPI",
             subtitle_ru="Веб-фреймворк",
             subtitle_en="Web Framework",
@@ -261,8 +295,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.BACKEND,
-            icon=f"{base_url}/voxel_tech_icons/postgresql/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/postgresql/postgresql.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/postgresql/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/postgresql/postgresql.gltf",
             name="PostgreSQL",
             subtitle_ru="База данных",
             subtitle_en="Database",
@@ -270,8 +304,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.BACKEND,
-            icon=f"{base_url}/voxel_tech_icons/docker/palette.png",
-            icon_format=f"{base_url}/voxel_tech_icons/docker/docker.gltf",
+            icon=f"{base_url}/uploads/voxel_tech_icons/docker/palette.png",
+            icon_format=f"{base_url}/uploads/voxel_tech_icons/docker/docker.gltf",
             name="Docker",
             subtitle_ru="Контейнеризация",
             subtitle_en="Containerization",
@@ -367,7 +401,11 @@ async def seed_settings(session):
 
 
 async def main():
+    # First, upload 3D tech icons to MinIO
+    await upload_tech_icons()
+
     async with async_session_maker() as session:
+        print("\nSeeding database...")
         print("Seeding services...")
         await seed_services(session)
 
@@ -387,7 +425,7 @@ async def main():
         await seed_settings(session)
 
         await session.commit()
-        print("Done! Database seeded successfully.")
+        print("\n✓ Done! Database seeded successfully with 3D icons!")
 
 
 if __name__ == "__main__":
