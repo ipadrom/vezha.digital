@@ -25,6 +25,7 @@ async def get_tech_stack(
             id=t.id,
             category=t.category,
             icon=t.icon,
+            icon_format=t.icon_format,
             name=t.name,
             subtitle=t.subtitle_ru if lang == "ru" else t.subtitle_en,
         )

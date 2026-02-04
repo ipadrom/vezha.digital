@@ -37,7 +37,16 @@
               <div class="tech-grid">
                 <div v-for="tech in frontendStack" :key="tech.id" class="tech-item">
                   <div class="tech-icon">
-                    <img v-if="tech.icon && tech.icon.startsWith('/')" :src="getImageUrl(tech.icon)" :alt="tech.name" class="w-8 h-8 object-contain" />
+                    <TechIcon3D
+                      v-if="tech.gltf"
+                      :model-url="tech.gltf"
+                    />
+                    <img
+                      v-else-if="tech.icon"
+                      :src="tech.icon"
+                      :alt="tech.name"
+                      class="w-8 h-8 object-contain"
+                    />
                     <span v-else-if="isEmoji(tech.icon)">{{ tech.icon }}</span>
                     <span v-else class="text-sm font-bold">{{ tech.icon || tech.name.substring(0, 2).toUpperCase() }}</span>
                   </div>
@@ -52,7 +61,16 @@
               <div class="tech-grid">
                 <div v-for="tech in backendStack" :key="tech.id" class="tech-item">
                   <div class="tech-icon">
-                    <img v-if="tech.icon && tech.icon.startsWith('/')" :src="getImageUrl(tech.icon)" :alt="tech.name" class="w-8 h-8 object-contain" />
+                    <TechIcon3D
+                      v-if="tech.icon_format"
+                      :model-url="tech.icon_format"
+                    />
+                    <img
+                      v-else-if="tech.icon"
+                      :src="tech.icon"
+                      :alt="tech.name"
+                      class="w-8 h-8 object-contain"
+                    />
                     <span v-else-if="isEmoji(tech.icon)">{{ tech.icon }}</span>
                     <span v-else class="text-sm font-bold">{{ tech.icon || tech.name.substring(0, 2).toUpperCase() }}</span>
                   </div>
@@ -68,6 +86,7 @@
 </template>
 
 <script setup lang="ts">
+import TechIcon3D from '~/components/ui/TechIcon3D.vue'
 import {useSectionVisible} from "~/composables/useSectionVisible";
 
 const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
@@ -77,12 +96,43 @@ const props = defineProps<{
   techStack: any[]
 }>()
 
+const techStackData = [
+  {
+    id: 1,
+    name: "Docker",
+    category: "backend",
+    icon: "/images/voxel_tech_icons/docker/docker.png",
+    icon_format: "/images/voxel_tech_icons/docker/docker.gltf"
+  },
+  {
+    id: 2,
+    name: "FastAPI",
+    category: "backend",
+    icon: "/images/tech_icons/fastapi/palette.png",
+    icon_format: "/images/voxel_tech_icons/fastapi/fastapi.gltf"
+  },
+  {
+    id: 3,
+    name: "NextJS",
+    category: "frontend",
+    icon: "/images/voxel_tech_icons/nextjs/palette.png",
+    icon_format: "/images/voxel_tech_icons/nextjs/nextjs.gltf"
+  },
+  {
+    id: 4,
+    name: "React",
+    category: "frontend",
+    icon: "/images/voxel_tech_icons/react/palette.png",
+    icon_format: "/images/voxel_tech_icons/react/react.gltf"
+  }
+]
+
 const frontendStack = computed(() =>
-    props.techStack.filter(t => t.category === 'frontend')
+  props.techStack.filter(t => t.category === 'frontend')
 )
 
 const backendStack = computed(() =>
-    props.techStack.filter(t => t.category === 'backend')
+  props.techStack.filter(t => t.category === 'backend')
 )
 
 const getImageUrl = (url: string) => {
@@ -240,7 +290,16 @@ const isEmoji = (str: string) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
+  height: 70px;
+}
+
+.tech-icon-3d {
+  width: 70px;
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .tech-item:hover .tech-icon {
