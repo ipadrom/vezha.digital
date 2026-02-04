@@ -79,6 +79,34 @@ async def create_section_visibility(
     return section
 
 
+@router.patch("/{section_key}/visibility", response_model=SectionVisibilityResponse)
+async def set_section_visibility(
+    section_key: str,
+    is_visible: bool,
+    admin: CurrentAdmin,
+    db: DbSession,
+):
+    """Установить видимость секции (упрощенный endpoint)"""
+    result = await db.execute(
+        select(SectionVisibility).where(SectionVisibility.section_key == section_key)
+    )
+    section = result.scalar_one_or_none()
+    if not section:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Section with key '{section_key}' not found",
+        )
+
+    section.is_visible = is_visible
+    await db.commit()
+    await db.refresh(section)
+
+    # Инвалидируем кеш
+    invalidate_cache()
+
+    return section
+
+
 @router.put("/{section_key}", response_model=SectionVisibilityResponse)
 async def update_section_visibility(
     section_key: str,
