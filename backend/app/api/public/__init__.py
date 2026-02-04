@@ -6,6 +6,7 @@ from app.api.public import (
     client_types,
     contact,
     projects,
+    section_visibility,
     services,
     settings,
     tech_stack,
@@ -22,4 +23,5 @@ router.include_router(about_sections.router, prefix="/about-sections", tags=["Ab
 router.include_router(tech_stack.router, prefix="/tech-stack", tags=["Tech Stack"])
 router.include_router(work_stages.router, prefix="/work-stages", tags=["Work Stages"])
 router.include_router(settings.router, prefix="/settings", tags=["Settings"])
+router.include_router(section_visibility.router, prefix="/section-visibility", tags=["Section Visibility"])
 router.include_router(contact.router, prefix="/contact", tags=["Contact"])

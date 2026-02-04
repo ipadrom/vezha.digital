@@ -30,6 +30,12 @@ from app.schemas.project import (
     ProjectResponse,
     ProjectUpdate,
 )
+from app.schemas.section_visibility import (
+    SectionVisibilityCreate,
+    SectionVisibilityPublic,
+    SectionVisibilityResponse,
+    SectionVisibilityUpdate,
+)
 from app.schemas.service import (
     ServiceCreate,
     ServicePublic,
@@ -88,6 +94,10 @@ __all__ = [
     "SettingUpdate",
     "SettingResponse",
     "SettingsPublic",
+    "SectionVisibilityCreate",
+    "SectionVisibilityUpdate",
+    "SectionVisibilityResponse",
+    "SectionVisibilityPublic",
     "ContactCreate",
     "ContactResponse",
     "ContactRequestResponse",
