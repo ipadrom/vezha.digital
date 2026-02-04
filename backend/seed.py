@@ -19,6 +19,19 @@ from app.models import (
 load_dotenv()
 
 
+async def clear_database(session):
+    """Clear all tables before seeding."""
+    print("Clearing existing data...")
+    await session.execute(TechStack.__table__.delete())
+    await session.execute(WorkStage.__table__.delete())
+    await session.execute(Project.__table__.delete())
+    await session.execute(Service.__table__.delete())
+    await session.execute(Advantage.__table__.delete())
+    await session.execute(SiteSetting.__table__.delete())
+    await session.commit()
+    print("✓ Database cleared!")
+
+
 async def seed_services(session):
     services = [
         Service(
@@ -193,7 +206,7 @@ async def seed_projects(session):
 
 async def upload_tech_icons():
     """Upload 3D tech icons to MinIO storage."""
-    icons_dir = Path(__file__).parent.parent / "voxel_tech_icons"
+    icons_dir = Path(__file__).parent / "voxel_tech_icons"
 
     if not icons_dir.exists():
         print(f"Warning: Icons directory not found at {icons_dir}")
@@ -405,6 +418,9 @@ async def main():
     await upload_tech_icons()
 
     async with async_session_maker() as session:
+        # Clear existing data
+        await clear_database(session)
+
         print("\nSeeding database...")
         print("Seeding services...")
         await seed_services(session)
