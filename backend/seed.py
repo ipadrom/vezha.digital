@@ -1,4 +1,7 @@
 import asyncio
+import os
+
+from dotenv import load_dotenv
 
 from app.core.database import async_session_maker
 from app.models import (
@@ -10,6 +13,8 @@ from app.models import (
     TechStack,
     WorkStage,
 )
+
+load_dotenv()
 
 
 async def seed_services(session):
@@ -185,10 +190,14 @@ async def seed_projects(session):
 
 
 async def seed_tech_stack(session):
+    base_url = f"{os.getenv('MINIO_PUBLIC_URL')}/{os.getenv('MINIO_BUCKET')}"
+
     tech_items = [
+        # Frontend
         TechStack(
             category=TechCategory.FRONTEND,
-            icon="react",
+            icon=f"{base_url}/voxel_tech_icons/react/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/react/react.gltf",
             name="REACT",
             subtitle_ru="UI библиотека",
             subtitle_en="UI Library",
@@ -196,7 +205,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon="vue",
+            icon=f"{base_url}/voxel_tech_icons/vue/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/vue/vue.gltf",
             name="VUE 3",
             subtitle_ru="Прогрессивный фреймворк",
             subtitle_en="Progressive Framework",
@@ -204,7 +214,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon="nextjs",
+            icon=f"{base_url}/voxel_tech_icons/nextjs/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/nextjs/nextjs.gltf",
             name="Next.js",
             subtitle_ru="React фреймворк",
             subtitle_en="React Framework",
@@ -212,7 +223,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon="typescript",
+            icon=f"{base_url}/voxel_tech_icons/typescript/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/typescript/typescript.gltf",
             name="TypeScript",
             subtitle_ru="Типизация JS",
             subtitle_en="JS Typing",
@@ -220,15 +232,19 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.FRONTEND,
-            icon="tailwind",
+            icon=f"{base_url}/voxel_tech_icons/tailwind/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/tailwind/tailwind.gltf",
             name="Tailwind",
             subtitle_ru="CSS фреймворк",
             subtitle_en="CSS Framework",
             sort_order=4,
         ),
+
+        # Backend
         TechStack(
             category=TechCategory.BACKEND,
-            icon="python",
+            icon=f"{base_url}/voxel_tech_icons/python/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/python/python.gltf",
             name="Python",
             subtitle_ru="Основной язык",
             subtitle_en="Primary Language",
@@ -236,7 +252,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.BACKEND,
-            icon="fastapi",
+            icon=f"{base_url}/voxel_tech_icons/fastapi/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/fastapi/fastapi.gltf",
             name="FastAPI",
             subtitle_ru="Веб-фреймворк",
             subtitle_en="Web Framework",
@@ -244,7 +261,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.BACKEND,
-            icon="postgresql",
+            icon=f"{base_url}/voxel_tech_icons/postgresql/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/postgresql/postgresql.gltf",
             name="PostgreSQL",
             subtitle_ru="База данных",
             subtitle_en="Database",
@@ -252,7 +270,8 @@ async def seed_tech_stack(session):
         ),
         TechStack(
             category=TechCategory.BACKEND,
-            icon="docker",
+            icon=f"{base_url}/voxel_tech_icons/docker/palette.png",
+            icon_format=f"{base_url}/voxel_tech_icons/docker/docker.gltf",
             name="Docker",
             subtitle_ru="Контейнеризация",
             subtitle_en="Containerization",

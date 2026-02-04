@@ -1,0 +1,7 @@
+/public/images/
+node_modules/
+.vscode/
+dist/
+build/
+.env
+.env.production

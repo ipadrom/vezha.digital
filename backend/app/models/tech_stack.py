@@ -20,6 +20,7 @@ class TechStack(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     category: Mapped[TechCategory] = mapped_column(SQLEnum(TechCategory), nullable=False)
     icon: Mapped[str] = mapped_column(String(500), nullable=False)
+    icon_format: Mapped[str] = mapped_column(String(500), nullable=True)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     subtitle_ru: Mapped[str] = mapped_column(String(255), nullable=True)
     subtitle_en: Mapped[str] = mapped_column(String(255), nullable=True)
