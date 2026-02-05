@@ -9,7 +9,10 @@ import { onMounted, onBeforeUnmount, ref } from 'vue'
 
 const props = defineProps<{
   modelUrl: string
+  isActive?: boolean
 }>()
+
+const isIconActive = ref(false)
 
 const containerRef = ref<HTMLDivElement | null>(null)
 
@@ -29,13 +32,12 @@ const init = () => {
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    renderer.setSize(70, 70, false)
+    renderer.setSize(47, 47, false)
     
     containerRef.value?.appendChild(renderer.domElement)
 
     const light = new THREE.AmbientLight(0xffffff, 1)
     scene.add(light)
-
 
     const loader = new GLTFLoader()
         loader.load(props.modelUrl, (gltf) => {
@@ -83,13 +85,31 @@ const init = () => {
     )
 }
 
+const rotationSpeed = 0.01
+const resetDuration = 0.5
+let targetRotationY = 0
+const fps = 60
+const resetSpeed = 1 / (resetDuration * fps)
+
 const animate = () => {
     animationFrameId = requestAnimationFrame(animate)
     if (model) {
-        model.rotation.y += 0.01
+        if(isIconActive.value) {
+          targetRotationY += rotationSpeed
+        }
+
+      model.rotation.y += (targetRotationY - model.rotation.y) * resetSpeed
     }
     renderer.render(scene, camera)
 }
+
+watch(() => props.isActive, (newVal) => {
+  isIconActive.value = newVal || false
+
+  if(!newVal) {
+    targetRotationY = 0
+  }
+})
 
 onMounted(() => {
     init()
