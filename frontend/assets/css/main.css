@@ -454,6 +454,12 @@
   margin-bottom: 30px;
 }
 
+.modal-no-scroll {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+}
+
 /* Form styling */
 form {
   display: flex;
