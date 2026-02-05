@@ -400,8 +400,8 @@ const isEmoji = (str: string) => {
   }
 
   .tech-icon-3d {
-    width: 35px;
-    height: 35px;
+    width: 15px;
+    height: 15px;
   }
 
   .tech-stack {
@@ -415,8 +415,8 @@ const isEmoji = (str: string) => {
   }
 
   .tech-icon-3d {
-    width: 35px;
-    height: 35px;
+    width: 15px;
+    height: 15px;
   }
 }
 </style>
