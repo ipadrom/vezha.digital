@@ -37,6 +37,10 @@
 </template>
 
 <script setup lang="ts">
+import {useBlockScroll} from "~/composables/useBlockScroll";
+
+const { lockScroll, unlockScroll} = useBlockScroll()
+
 const props = defineProps({
   showModal: { type: Boolean, required: true },
 })
@@ -80,12 +84,25 @@ const handleSubmit = async () => {
   }
 }
 
+watch(showModal, (isOpen) => {
+  isOpen ? lockScroll() : unlockScroll()
+})
+
 // Close modal on Escape
 onMounted(() => {
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       showModal.value = false
     }
+
+    unlockScroll()
   })
 })
 </script>
+<style scoped>
+.modal {
+  position: fixed;
+  inset: 0;
+  overflow-x: hidden;
+}
+</style>

@@ -21,6 +21,7 @@ let camera: THREE.PerspectiveCamera
 let renderer: THREE.WebGLRenderer
 let model: THREE.Object3D
 let animationFrameId: number
+let resizeObserver: ResizeObserver
 
 const init = () => {
 
@@ -32,8 +33,7 @@ const init = () => {
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    renderer.setSize(47, 47, false)
-    
+
     containerRef.value?.appendChild(renderer.domElement)
 
     const light = new THREE.AmbientLight(0xffffff, 1)
@@ -85,6 +85,16 @@ const init = () => {
     )
 }
 
+const adaptiveRenderer = () => {
+  if (!containerRef.value) return
+
+  const width = containerRef.value.clientWidth
+  const height = containerRef.value.clientHeight
+  renderer.setSize(width, height)
+  camera.aspect = width / height
+  camera.updateProjectionMatrix()
+}
+
 const rotationSpeed = 0.01
 const resetDuration = 0.5
 let targetRotationY = 0
@@ -114,10 +124,15 @@ watch(() => props.isActive, (newVal) => {
 onMounted(() => {
     init()
     animate()
+
+    resizeObserver = new ResizeObserver(adaptiveRenderer)
+    resizeObserver.observe(containerRef.value!)
+
 })
 
 onBeforeUnmount(() => {
     cancelAnimationFrame(animationFrameId)
+    resizeObserver?.disconnect()
     renderer.dispose()
     scene.clear()
 })
@@ -127,5 +142,19 @@ onBeforeUnmount(() => {
 .tech-icon-3d {
     width: 70px;
     height: 70px;
+}
+
+@media (max-width: 768px) {
+  .tech-icon-3d {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .tech-icon-3d {
+    width: 24px;
+    height: 24px;
+  }
 }
 </style>
