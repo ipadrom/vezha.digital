@@ -35,11 +35,19 @@
             <div class="stack-group">
               <h3 class="font-bold">Frontend</h3>
               <div class="tech-grid">
-                <div v-for="tech in frontendStack" :key="tech.id" class="tech-item">
+                <div
+                    v-for="tech in frontendStack"
+                    :key="tech.id"
+                    @mouseenter="isActivatedIcon = tech.id"
+                    @mouseleave="isActivatedIcon = null"
+                    class="tech-item"
+                >
                   <div class="tech-icon">
                     <TechIcon3D
                       v-if="tech.gltf"
                       :model-url="tech.gltf"
+                      :is-active="isActivatedIcon === tech.id"
+                      class="tech-icon-3d"
                     />
                     <img
                       v-else-if="tech.icon"
@@ -59,11 +67,19 @@
             <div class="stack-group">
               <h3 class="font-bold">Backend</h3>
               <div class="tech-grid">
-                <div v-for="tech in backendStack" :key="tech.id" class="tech-item">
+                <div
+                    v-for="tech in backendStack"
+                    :key="tech.id"
+                    @mouseenter="isActivatedIcon = tech.id"
+                    @mouseleave="isActivatedIcon = null"
+                    class="tech-item"
+                >
                   <div class="tech-icon">
                     <TechIcon3D
                       v-if="tech.icon_format"
                       :model-url="tech.icon_format"
+                      :is-active="isActivatedIcon === tech.id"
+                      class="tech-icon-3d"
                     />
                     <img
                       v-else-if="tech.icon"
@@ -95,6 +111,8 @@ const config = useRuntimeConfig()
 const props = defineProps<{
   techStack: any[]
 }>()
+
+const isActivatedIcon = ref<number | null>(null)
 
 const techStackData = [
   {
@@ -304,7 +322,7 @@ const isEmoji = (str: string) => {
 
 .tech-item:hover .tech-icon {
   filter: grayscale(0);
-  transform: scale(1.2) rotate(360deg);
+  transform: scale(1);
 }
 
 .tech-item h4 {
@@ -381,6 +399,11 @@ const isEmoji = (str: string) => {
     font-size: 0.85rem;
   }
 
+  .tech-icon-3d {
+    width: 50px;
+    height: 50px;
+  }
+
   .tech-stack {
     gap: 30px;
   }
@@ -389,6 +412,11 @@ const isEmoji = (str: string) => {
 @media (max-width: 480px) {
   .tech-grid {
     grid-template-columns: 1fr;
+  }
+
+  .tech-icon-3d {
+    width: 35px;
+    height: 35px;
   }
 }
 </style>
