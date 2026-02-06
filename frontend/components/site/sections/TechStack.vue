@@ -271,7 +271,7 @@ const isEmoji = (str: string) => {
 
 .stack-group h3 {
   font-family: var(--font-epilepsy);
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   color: var(--accent);
   margin-bottom: 30px;
   text-align: center;

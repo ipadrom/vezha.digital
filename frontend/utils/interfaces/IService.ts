@@ -6,4 +6,5 @@ export interface IService {
     examples: string;
     price_from: number;
     price_currency: string;
+    deadline: string;
 }

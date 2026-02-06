@@ -110,7 +110,7 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
 
 .advantage__main h3 {
   font-family: var(--font-epilepsy);
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   margin-bottom: 15px;
   color: var(--accent);
 }
