@@ -15,6 +15,7 @@
     </div>
   </section>
 </template>
+
 <script setup lang="ts">
   import type {IService} from "~/utils/interfaces/IService";
 
@@ -24,6 +25,7 @@
 
   defineEmits(['openModal'])
 </script>
+
 <style scoped>
 .service-hero {
   display: flex;
@@ -31,8 +33,6 @@
   align-items: center;
   justify-content: center;
   padding: 150px 20px 80px;
-  background: var(--bg-secondary);
-  border-bottom: 1px solid var(--border);
 }
 
 .service-hero__content {
@@ -42,7 +42,9 @@
 }
 
 .service-hero h1 {
+  font-family: var(--font-epilepsy), monospace;
   font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
   margin-bottom: 20px;
 }
 
