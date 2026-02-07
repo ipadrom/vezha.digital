@@ -15,6 +15,10 @@ class ServiceBase(BaseModel):
     description_en: str
     examples_ru: str | None = None
     examples_en: str | None = None
+    deadline_ru: str | None = None
+    deadline_en: str | None = None
+    about_ru: str | None = None
+    about_en: str | None = None
     price_from: int = 0
     price_currency: str = "₽"
     sort_order: int = 0
@@ -33,6 +37,10 @@ class ServiceUpdate(BaseModel):
     description_en: str | None = None
     examples_ru: str | None = None
     examples_en: str | None = None
+    deadline_ru: str | None = None
+    deadline_en: str | None = None
+    about_ru: str | None = None
+    about_en: str | None = None
     price_from: int | None = None
     price_currency: str | None = None
     sort_order: int | None = None
@@ -54,6 +62,8 @@ class ServicePublic(BaseModel):
     name: str
     description: str
     examples: str | None
+    deadline: str | None = None
+    about: str | None = None
     price_from: int
     price_currency: str
 

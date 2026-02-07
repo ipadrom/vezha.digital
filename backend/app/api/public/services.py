@@ -25,6 +25,8 @@ async def get_services(
             name=s.name_ru if lang == "ru" else s.name_en,
             description=s.description_ru if lang == "ru" else s.description_en,
             examples=s.examples_ru if lang == "ru" else s.examples_en,
+            deadline=s.deadline_ru if lang == "ru" else s.deadline_en,
+            about=s.about_ru if lang == "ru" else s.about_en,
             price_from=s.price_from,
             price_currency=s.price_currency,
         )
@@ -63,6 +65,8 @@ async def get_service_id(
         name=service.name_ru if lang == "ru" else service.name_en,
         description=service.description_ru if lang == "ru" else service.description_en,
         examples=service.examples_ru if lang == "ru" else service.examples_en,
+        deadline=service.deadline_ru if lang == "ru" else service.deadline_en,
+        about=service.about_ru if lang == "ru" else service.about_en,
         price_from=service.price_from,
         price_currency=service.price_currency,
         items=[
