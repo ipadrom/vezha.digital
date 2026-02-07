@@ -19,9 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import type {IService} from "~/utils/interfaces/IService";
+import type {IServices} from "~/utils/interfaces/IServices";
 defineProps<{
-  service: IService | null
+  service: IServices | null
 }>()
 </script>
 

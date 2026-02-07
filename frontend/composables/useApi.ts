@@ -1,4 +1,4 @@
-import type {IService} from "~/utils/interfaces/IService";
+import type {IServices} from "~/utils/interfaces/IServices";
 import type {IProjects} from "~/utils/interfaces/IProjects";
 import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
 import type {ITechStack} from "~/utils/interfaces/ITechStack";
@@ -45,8 +45,8 @@ export const useApi = () => {
   }
 
   // Public API
-  const getServiceId = (service_id: string) => fetchApi<IService>(`/services/${service_id}`)
-  const getServices = () => fetchApi<IService[]>('/services')
+  const getServiceId = (service_id: string) => fetchApi<IServices>(`/services/${service_id}`)
+  const getServices = () => fetchApi<IServices[]>('/services')
   const getProjects = () => fetchApi<IProjects[]>('/projects')
   const getAdvantages = () => fetchApi<IAdvantages[]>('/advantages')
   const getTechStack = () => fetchApi<ITechStack[]>('/tech-stack')

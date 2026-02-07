@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import Contacts from "~/components/site/sections/Contacts.vue";
-import type {IService} from "~/utils/interfaces/IService";
+import type {IServices} from "~/utils/interfaces/IServices";
 import ServiceHero from "~/components/site/services/ServiceHero.vue";
 import ContactModal from "~/components/modals/ContactModal.vue";
 import ServiceAbout from "~/components/site/services/ServiceAbout.vue";
@@ -54,7 +54,7 @@ const showModal = ref(false)
 
 const settings = ref<Record<string, string>>({})
 
-const {data: service} = await useAsyncData<IService>(
+const {data: service} = await useAsyncData<IServices>(
     `service-${serviceId.value}`,
     () => api.getServiceId(serviceId.value),
     {
@@ -62,7 +62,7 @@ const {data: service} = await useAsyncData<IService>(
     }
 )
 
-const mockServices: IService[] = [
+const mockServices: IServices[] = [
   {
     id: 'landing',
     icon: 'landing.svg',
