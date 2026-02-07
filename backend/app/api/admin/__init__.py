@@ -8,6 +8,7 @@ from app.api.admin import (
     projects,
     requests,
     section_visibility,
+    service_items,
     services,
     settings,
     tech_stack,
@@ -19,6 +20,7 @@ router = APIRouter()
 
 router.include_router(auth.router, prefix="/auth", tags=["Admin Auth"])
 router.include_router(services.router, prefix="/services", tags=["Admin Services"])
+router.include_router(service_items.router, prefix="/services", tags=["Admin Service Items"])
 router.include_router(projects.router, prefix="/projects", tags=["Admin Projects"])
 router.include_router(advantages.router, prefix="/advantages", tags=["Admin Advantages"])
 router.include_router(client_types.router, prefix="/client-types", tags=["Admin Client Types"])

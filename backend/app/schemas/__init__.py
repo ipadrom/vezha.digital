@@ -38,9 +38,16 @@ from app.schemas.section_visibility import (
 )
 from app.schemas.service import (
     ServiceCreate,
+    ServiceDetailPublic,
     ServicePublic,
     ServiceResponse,
     ServiceUpdate,
+)
+from app.schemas.service_item import (
+    ServiceItemCreate,
+    ServiceItemPublic,
+    ServiceItemResponse,
+    ServiceItemUpdate,
 )
 from app.schemas.setting import (
     SettingCreate,
@@ -66,6 +73,11 @@ __all__ = [
     "ServiceUpdate",
     "ServiceResponse",
     "ServicePublic",
+    "ServiceDetailPublic",
+    "ServiceItemCreate",
+    "ServiceItemUpdate",
+    "ServiceItemResponse",
+    "ServiceItemPublic",
     "ProjectCreate",
     "ProjectUpdate",
     "ProjectResponse",

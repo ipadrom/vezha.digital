@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.schemas.service_item import ServiceItemPublic
+
 
 class ServiceBase(BaseModel):
     icon: str = "code"
@@ -53,6 +55,13 @@ class ServicePublic(BaseModel):
     examples: str | None
     price_from: int
     price_currency: str
+
+    class Config:
+        from_attributes = True
+
+
+class ServiceDetailPublic(ServicePublic):
+    items: list[ServiceItemPublic]
 
     class Config:
         from_attributes = True

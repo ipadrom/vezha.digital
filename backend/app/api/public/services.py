@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 
 from app.core.deps import DbSession
-from app.models import Service
-from app.schemas import ServicePublic
+from app.models import Service, ServiceItem
+from app.schemas import ServiceDetailPublic, ServiceItemPublic, ServicePublic
 
 router = APIRouter()
 
@@ -32,23 +32,38 @@ async def get_services(
     ]
 
 
-@router.get("/{service_id}", response_model=ServicePublic)
+@router.get("/{service_id}", response_model=ServiceDetailPublic)
 async def get_service_id(
     db: DbSession,
     service_id: UUID,
     lang: str = Query("ru", pattern="^(ru|en)$"),
 ):
     result = await db.execute(select(Service).where(Service.id == service_id))
-    service_id = result.scalar_one_or_none()
-    if not service_id:
+    service = result.scalar_one_or_none()
+    if not service:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
 
-    return ServicePublic(
-        id=service_id.id,
-        icon=service_id.icon,
-        name=service_id.name_ru if lang == "ru" else service_id.name_en,
-        description=service_id.description_ru if lang == "ru" else service_id.description_en,
-        examples=service_id.examples_ru if lang == "ru" else service_id.examples_en,
-        price_from=service_id.price_from,
-        price_currency=service_id.price_currency,
+    items_result = await db.execute(
+        select(ServiceItem)
+        .where(ServiceItem.service_id == service.id, ServiceItem.is_active)
+        .order_by(ServiceItem.sort_order)
+    )
+    items = items_result.scalars().all()
+
+    return ServiceDetailPublic(
+        id=service.id,
+        icon=service.icon,
+        name=service.name_ru if lang == "ru" else service.name_en,
+        description=service.description_ru if lang == "ru" else service.description_en,
+        examples=service.examples_ru if lang == "ru" else service.examples_en,
+        price_from=service.price_from,
+        price_currency=service.price_currency,
+        items=[
+            ServiceItemPublic(
+                id=item.id,
+                title=item.title_ru if lang == "ru" else item.title_en,
+                description=item.description_ru if lang == "ru" else item.description_en,
+            )
+            for item in items
+        ],
     )
