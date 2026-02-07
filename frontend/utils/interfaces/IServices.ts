@@ -3,7 +3,7 @@ export interface IServiceFeature {
     text: string;
 }
 
-export interface IService {
+export interface IServices {
     id: string;
     icon: string;
     name: string;
