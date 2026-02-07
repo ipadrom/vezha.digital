@@ -38,9 +38,6 @@
               <h3 class="font-bold fade-item" style="--enter-delay: 0.1s">{{ advantage.title }}</h3>
               <p class="advantage__subtitle fade-item" style="--enter-delay: 0.2s">{{ advantage.subtitle || advantage.description.substring(0, 50) + '...' }}</p>
             </div>
-            <div class="advantage__details">
-              <p class="fade-item" style="--enter-delay: 0.3s">{{ advantage.description }}</p>
-            </div>
           </div>
       </TransitionGroup>
 
