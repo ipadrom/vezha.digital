@@ -3,6 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel
 
+from app.schemas.service_example import ServiceExamplePublic
 from app.schemas.service_item import ServiceItemPublic
 
 
@@ -62,6 +63,7 @@ class ServicePublic(BaseModel):
 
 class ServiceDetailPublic(ServicePublic):
     items: list[ServiceItemPublic]
+    examples_list: list[ServiceExamplePublic] = []
 
     class Config:
         from_attributes = True

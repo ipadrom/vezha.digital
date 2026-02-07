@@ -43,6 +43,12 @@ from app.schemas.service import (
     ServiceResponse,
     ServiceUpdate,
 )
+from app.schemas.service_example import (
+    ServiceExampleCreate,
+    ServiceExamplePublic,
+    ServiceExampleResponse,
+    ServiceExampleUpdate,
+)
 from app.schemas.service_item import (
     ServiceItemCreate,
     ServiceItemPublic,
@@ -74,6 +80,10 @@ __all__ = [
     "ServiceResponse",
     "ServicePublic",
     "ServiceDetailPublic",
+    "ServiceExampleCreate",
+    "ServiceExampleUpdate",
+    "ServiceExampleResponse",
+    "ServiceExamplePublic",
     "ServiceItemCreate",
     "ServiceItemUpdate",
     "ServiceItemResponse",

@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 
 from app.core.deps import DbSession
-from app.models import Service, ServiceItem
-from app.schemas import ServiceDetailPublic, ServiceItemPublic, ServicePublic
+from app.models import Service, ServiceExample, ServiceItem
+from app.schemas import ServiceDetailPublic, ServiceExamplePublic, ServiceItemPublic, ServicePublic
 
 router = APIRouter()
 
@@ -50,6 +50,13 @@ async def get_service_id(
     )
     items = items_result.scalars().all()
 
+    examples_result = await db.execute(
+        select(ServiceExample)
+        .where(ServiceExample.service_id == service.id, ServiceExample.is_active)
+        .order_by(ServiceExample.sort_order)
+    )
+    examples = examples_result.scalars().all()
+
     return ServiceDetailPublic(
         id=service.id,
         icon=service.icon,
@@ -65,5 +72,15 @@ async def get_service_id(
                 description=item.description_ru if lang == "ru" else item.description_en,
             )
             for item in items
+        ],
+        examples_list=[
+            ServiceExamplePublic(
+                id=ex.id,
+                title=ex.title_ru if lang == "ru" else ex.title_en,
+                description=ex.description_ru if lang == "ru" else ex.description_en,
+                price_from=ex.price_from,
+                price_currency=ex.price_currency,
+            )
+            for ex in examples
         ],
     )
