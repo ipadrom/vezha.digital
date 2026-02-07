@@ -12,6 +12,7 @@ from app.models.service_item import ServiceItem
 from app.models.setting import SiteSetting
 from app.models.tech_stack import TechCategory, TechStack
 from app.models.work_stage import WorkStage
+from app.models.work_stage_point import WorkStagePoint
 
 __all__ = [
     "Service",
@@ -25,6 +26,7 @@ __all__ = [
     "TechStack",
     "TechCategory",
     "WorkStage",
+    "WorkStagePoint",
     "SiteSetting",
     "ContactRequest",
     "Admin",

@@ -79,6 +79,11 @@ from app.schemas.work_stage import (
     WorkStageResponse,
     WorkStageUpdate,
 )
+from app.schemas.work_stage_point import (
+    WorkStagePointCreate,
+    WorkStagePointResponse,
+    WorkStagePointUpdate,
+)
 
 __all__ = [
     "ServiceCreate",
@@ -122,6 +127,9 @@ __all__ = [
     "WorkStageUpdate",
     "WorkStageResponse",
     "WorkStagePublic",
+    "WorkStagePointCreate",
+    "WorkStagePointUpdate",
+    "WorkStagePointResponse",
     "SettingCreate",
     "SettingUpdate",
     "SettingResponse",

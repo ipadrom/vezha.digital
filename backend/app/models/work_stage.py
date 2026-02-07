@@ -16,4 +16,8 @@ class WorkStage(Base):
     title_en: Mapped[str] = mapped_column(String(255), nullable=False)
     description_ru: Mapped[str] = mapped_column(Text, nullable=False)
     description_en: Mapped[str] = mapped_column(Text, nullable=False)
+    duration_ru: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    duration_en: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    full_description_ru: Mapped[str | None] = mapped_column(Text, nullable=True)
+    full_description_en: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)

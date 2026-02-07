@@ -15,6 +15,7 @@ from app.api.admin import (
     settings,
     tech_stack,
     upload,
+    work_stage_points,
     work_stages,
 )
 
@@ -31,6 +32,7 @@ router.include_router(client_types.router, prefix="/client-types", tags=["Admin 
 router.include_router(about_sections.router, prefix="/about-sections", tags=["Admin About Sections"])
 router.include_router(tech_stack.router, prefix="/tech-stack", tags=["Admin Tech Stack"])
 router.include_router(work_stages.router, prefix="/work-stages", tags=["Admin Work Stages"])
+router.include_router(work_stage_points.router, prefix="/work-stages", tags=["Admin Work Stage Points"])
 router.include_router(settings.router, prefix="/settings", tags=["Admin Settings"])
 router.include_router(section_visibility.router, prefix="/section-visibility", tags=["Admin Section Visibility"])
 router.include_router(requests.router, prefix="/requests", tags=["Admin Requests"])
