@@ -59,6 +59,62 @@ defineProps<{
   stages: any[]
 }>()
 
+const stages = ref([
+  {
+    id: 1,
+    step_number: 1,
+    title: 'Анализ',
+    description: 'Краткое описание стадии 1',
+    duration: '1-3 дня',
+    details: 'Детально изучаем ваш бизнес и цели проекта. Проводим анализ конкурентов и ЦА.',
+    features: [
+      'Интервью с заказчиком',
+      'Анализ требований',
+      'Техническое задание',
+      'Оценка сроков и бюджета'
+    ],
+  },
+  {
+    id: 2,
+    step_number: 2,
+    title: 'Проектирование',
+    description: 'Краткое описание стадии 2',
+    duration: '2-4 дня',
+    details: 'Создаем архитектуру проекта, прототипы и UI/UX дизайн.',
+    features: [
+      'Прототипы страниц',
+      'Архитектура системы',
+      'Дизайн макеты'
+    ],
+  },
+  {
+    id: 3,
+    step_number: 3,
+    title: 'Разработка',
+    description: 'Краткое описание стадии 3',
+    duration: '5-10 дней',
+    details: 'Программирование и интеграция с сервисами.',
+    features: [
+      'Frontend и Backend разработка',
+      'Интеграция API',
+      'Тестирование'
+    ],
+  },
+  {
+    id: 4,
+    step_number: 4,
+    title: 'Запуск',
+    description: 'Краткое описание стадии 4',
+    duration: '1 день',
+    details: 'Развертывание проекта и подготовка к эксплуатации.',
+    features: [
+      'Развертывание на сервере',
+      'Настройка CI/CD',
+      'Обучение команды'
+    ],
+  },
+])
+
 const activeStage = ref(1)
 </script>
 
@@ -126,6 +182,7 @@ const activeStage = ref(1)
   border: 3px solid var(--accent);
   padding: 25px;
   width: 350px;
+  height: 315px;
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s;
