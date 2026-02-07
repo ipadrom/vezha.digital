@@ -95,6 +95,20 @@
               <label for="is_active">Активна</label>
             </div>
 
+            <!-- Features -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <label class="block text-sm font-medium">Пункты списка</label>
+                <button type="button" @click="addFeature" class="text-sm text-blue-500 hover:underline">+ Добавить пункт</button>
+              </div>
+              <div v-for="(feature, index) in features" :key="index" class="grid md:grid-cols-2 gap-4 mb-3 relative pr-8">
+                <input v-model="feature.text_ru" type="text" placeholder="Текст (RU)" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
+                <input v-model="feature.text_en" type="text" placeholder="Текст (EN)" class="w-full px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-transparent" />
+                <button type="button" @click="removeFeature(index)" class="absolute right-0 top-2 text-red-500 hover:text-red-700 text-lg">&times;</button>
+              </div>
+              <p v-if="features.length === 0" class="text-sm text-gray-500">Нет пунктов</p>
+            </div>
+
             <div class="flex justify-end gap-2 pt-4">
               <button type="button" @click="showModal = false" class="btn-secondary">Отмена</button>
               <button type="submit" class="btn-primary">Сохранить</button>
@@ -120,6 +134,8 @@ watch(isAuthenticated, (value) => {
 const items = ref<any[]>([])
 const showModal = ref(false)
 const editingItem = ref<any>(null)
+const features = ref<{ id?: string; text_ru: string; text_en: string; sort_order: number }[]>([])
+const originalFeatureIds = ref<string[]>([])
 
 const defaultForm = {
   icon: 'code',
@@ -145,30 +161,83 @@ const fetchItems = async () => {
   }
 }
 
-const openModal = (item?: any) => {
+const openModal = async (item?: any) => {
   if (item) {
     editingItem.value = item
     Object.assign(form, item)
+    try {
+      const data = await fetchWithAuth(`/services/${item.id}/features`)
+      features.value = (data as any[]).map((f: any) => ({
+        id: f.id,
+        text_ru: f.text_ru,
+        text_en: f.text_en,
+        sort_order: f.sort_order,
+      }))
+      originalFeatureIds.value = features.value.map(f => f.id!).filter(Boolean)
+    } catch {
+      features.value = []
+      originalFeatureIds.value = []
+    }
   } else {
     editingItem.value = null
     Object.assign(form, defaultForm)
+    features.value = []
+    originalFeatureIds.value = []
   }
   showModal.value = true
 }
 
+const addFeature = () => {
+  features.value.push({ text_ru: '', text_en: '', sort_order: features.value.length })
+}
+
+const removeFeature = (index: number) => {
+  features.value.splice(index, 1)
+}
+
+const saveFeatures = async (serviceId: string) => {
+  const currentIds = features.value.filter(f => f.id).map(f => f.id!)
+  const toDelete = originalFeatureIds.value.filter(id => !currentIds.includes(id))
+
+  for (const id of toDelete) {
+    await fetchWithAuth(`/services/${serviceId}/features/${id}`, { method: 'DELETE' })
+  }
+
+  for (let i = 0; i < features.value.length; i++) {
+    const feature = features.value[i]
+    if (!feature.text_ru && !feature.text_en) continue
+
+    if (feature.id) {
+      await fetchWithAuth(`/services/${serviceId}/features/${feature.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({ text_ru: feature.text_ru, text_en: feature.text_en, sort_order: i }),
+      })
+    } else {
+      await fetchWithAuth(`/services/${serviceId}/features`, {
+        method: 'POST',
+        body: JSON.stringify({ service_id: serviceId, text_ru: feature.text_ru, text_en: feature.text_en, sort_order: i }),
+      })
+    }
+  }
+}
+
 const saveItem = async () => {
   try {
+    let serviceId: string
     if (editingItem.value) {
       await fetchWithAuth(`/services/${editingItem.value.id}`, {
         method: 'PUT',
         body: JSON.stringify(form),
       })
+      serviceId = editingItem.value.id
     } else {
-      await fetchWithAuth('/services', {
+      const created = await fetchWithAuth('/services', {
         method: 'POST',
         body: JSON.stringify(form),
-      })
+      }) as any
+      serviceId = created.id
     }
+    await saveFeatures(serviceId)
     showModal.value = false
     fetchItems()
   } catch (error) {

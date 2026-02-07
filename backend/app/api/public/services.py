@@ -4,8 +4,14 @@ from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
 
 from app.core.deps import DbSession
-from app.models import Service, ServiceExample, ServiceItem
-from app.schemas import ServiceDetailPublic, ServiceExamplePublic, ServiceItemPublic, ServicePublic
+from app.models import Service, ServiceExample, ServiceFeature, ServiceItem
+from app.schemas import (
+    ServiceDetailPublic,
+    ServiceExamplePublic,
+    ServiceFeaturePublic,
+    ServiceItemPublic,
+    ServicePublic,
+)
 
 router = APIRouter()
 
@@ -18,6 +24,17 @@ async def get_services(
     result = await db.execute(select(Service).where(Service.is_active).order_by(Service.sort_order))
     services = result.scalars().all()
 
+    service_ids = [s.id for s in services]
+    features_result = await db.execute(
+        select(ServiceFeature)
+        .where(ServiceFeature.service_id.in_(service_ids), ServiceFeature.is_active)
+        .order_by(ServiceFeature.sort_order)
+    )
+    all_features = features_result.scalars().all()
+    features_by_service: dict = {}
+    for f in all_features:
+        features_by_service.setdefault(f.service_id, []).append(f)
+
     return [
         ServicePublic(
             id=s.id,
@@ -29,6 +46,13 @@ async def get_services(
             about=s.about_ru if lang == "ru" else s.about_en,
             price_from=s.price_from,
             price_currency=s.price_currency,
+            features=[
+                ServiceFeaturePublic(
+                    id=f.id,
+                    text=f.text_ru if lang == "ru" else f.text_en,
+                )
+                for f in features_by_service.get(s.id, [])
+            ],
         )
         for s in services
     ]
@@ -59,6 +83,13 @@ async def get_service_id(
     )
     examples = examples_result.scalars().all()
 
+    features_result = await db.execute(
+        select(ServiceFeature)
+        .where(ServiceFeature.service_id == service.id, ServiceFeature.is_active)
+        .order_by(ServiceFeature.sort_order)
+    )
+    features = features_result.scalars().all()
+
     return ServiceDetailPublic(
         id=service.id,
         icon=service.icon,
@@ -69,6 +100,13 @@ async def get_service_id(
         about=service.about_ru if lang == "ru" else service.about_en,
         price_from=service.price_from,
         price_currency=service.price_currency,
+        features=[
+            ServiceFeaturePublic(
+                id=f.id,
+                text=f.text_ru if lang == "ru" else f.text_en,
+            )
+            for f in features
+        ],
         items=[
             ServiceItemPublic(
                 id=item.id,

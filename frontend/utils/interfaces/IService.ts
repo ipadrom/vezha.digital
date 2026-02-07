@@ -1,3 +1,8 @@
+export interface IServiceFeature {
+    id: string;
+    text: string;
+}
+
 export interface IService {
     id: string;
     icon: string;
@@ -7,4 +12,5 @@ export interface IService {
     price_from: number;
     price_currency: string;
     deadline: string;
+    features: IServiceFeature[];
 }

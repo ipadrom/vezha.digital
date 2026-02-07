@@ -4,6 +4,7 @@ from uuid import UUID
 from pydantic import BaseModel
 
 from app.schemas.service_example import ServiceExamplePublic
+from app.schemas.service_feature import ServiceFeaturePublic
 from app.schemas.service_item import ServiceItemPublic
 
 
@@ -66,6 +67,7 @@ class ServicePublic(BaseModel):
     about: str | None = None
     price_from: int
     price_currency: str
+    features: list[ServiceFeaturePublic] = []
 
     class Config:
         from_attributes = True

@@ -9,6 +9,7 @@ from app.api.admin import (
     requests,
     section_visibility,
     service_examples,
+    service_features,
     service_items,
     services,
     settings,
@@ -23,6 +24,7 @@ router.include_router(auth.router, prefix="/auth", tags=["Admin Auth"])
 router.include_router(services.router, prefix="/services", tags=["Admin Services"])
 router.include_router(service_items.router, prefix="/services", tags=["Admin Service Items"])
 router.include_router(service_examples.router, prefix="/services", tags=["Admin Service Examples"])
+router.include_router(service_features.router, prefix="/services", tags=["Admin Service Features"])
 router.include_router(projects.router, prefix="/projects", tags=["Admin Projects"])
 router.include_router(advantages.router, prefix="/advantages", tags=["Admin Advantages"])
 router.include_router(client_types.router, prefix="/client-types", tags=["Admin Client Types"])
