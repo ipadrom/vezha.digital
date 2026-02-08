@@ -6,19 +6,22 @@
   />
 
   <ServiceAbout
-      :service="service"
+      v-if="service?.about"
+      :service="service ? [service] : []"
   />
 
   <ServiceFeatures
-      :service="service"
+      v-if="service?.items && service.items.length"
+      :items="service?.items"
   />
 
   <ServicePricing
-      :services="mockServices"
+      v-if="service?.example_list && service.example_list.length"
+      :examples="service?.example_list || []"
   />
 
   <ServiceProjects
-      :service="service"
+      :service="service ? [service] : []"
   />
 
   <ContactModal
@@ -54,6 +57,11 @@ const showModal = ref(false)
 
 const settings = ref<Record<string, string>>({})
 
+// const {data: services} = await useAsyncData<IServices[]>(
+//     'services',
+//     () => api.getServices()
+// )
+
 const {data: service} = await useAsyncData<IServices>(
     `service-${serviceId.value}`,
     () => api.getServiceId(serviceId.value),
@@ -62,78 +70,93 @@ const {data: service} = await useAsyncData<IServices>(
     }
 )
 
-const mockServices: IServices[] = [
-  {
-    id: 'landing',
-    icon: 'landing.svg',
-    name: 'Лендинг под ключ',
-    description: 'Одностраничный сайт для презентации продукта или услуги с акцентом на конверсию.',
-    examples: 'Сайты для стартапов, маркетинговые страницы, MVP',
-    price_from: 30000,
-    price_currency: '₽',
-    deadline: '5–7 дней',
-  },
-  {
-    id: 'corporate',
-    icon: 'corporate.svg',
-    name: 'Корпоративный сайт',
-    description: 'Многостраничный сайт для компании с услугами, блогом и контактами.',
-    examples: 'IT-компании, агентства, бизнес-сайты',
-    price_from: 70000,
-    price_currency: '₽',
-    deadline: '10–14 дней',
-  },
-  {
-    id: 'shop',
-    icon: 'shop.svg',
-    name: 'Интернет-магазин',
-    description: 'Полноценный e-commerce с каталогом, корзиной и оплатой.',
-    examples: 'Магазины одежды, цифровых товаров, маркетплейсы',
-    price_from: 120000,
-    price_currency: '₽',
-    deadline: '14–21 день',
-  },
-  {
-    id: 'spa',
-    icon: 'spa.svg',
-    name: 'SPA / Web-приложение',
-    description: 'Интерактивное веб-приложение на Vue / Nuxt с API.',
-    examples: 'CRM, панели управления, личные кабинеты',
-    price_from: 150000,
-    price_currency: '₽',
-    deadline: '20–30 дней',
-  },
-  {
-    id: 'redesign',
-    icon: 'redesign.svg',
-    name: 'Редизайн сайта',
-    description: 'Обновление дизайна и UX без потери текущего контента.',
-    examples: 'Редизайн старых сайтов, улучшение UI',
-    price_from: 40000,
-    price_currency: '₽',
-    deadline: '7–10 дней',
-  },
-  // {
-  //   id: 'seo',
-  //   icon: 'seo.svg',
-  //   name: 'SEO-подготовка',
-  //   description: 'Техническая оптимизация сайта под поисковые системы.',
-  //   examples: 'Оптимизация скорости, мета-данные, структура',
-  //   price_from: 25000,
-  //   price_currency: '₽',
-  //   deadline: '3–5 дней',
-  // },
-  // {
-  //   id: 'support',
-  //   icon: 'support.svg',
-  //   name: 'Поддержка и доработка',
-  //   description: 'Поддержка проекта, исправления и развитие функционала.',
-  //   examples: 'Фиксы, новые блоки, улучшения',
-  //   price_from: 15000,
-  //   price_currency: '₽',
-  //   deadline: 'По запросу',
-  // },
-]
+// const mockServices: IServices[] = [
+//   {
+//     id: 'landing',
+//     icon: 'landing.svg',
+//     name: 'Лендинг под ключ',
+//     description: 'Одностраничный сайт для презентации продукта или услуги с акцентом на конверсию.',
+//     examples: 'Сайты для стартапов, маркетинговые страницы, MVP',
+//     price_from: 30000,
+//     price_currency: '₽',
+//     deadline: '5–7 дней',
+//     features: [],
+//     items: [],
+//     example_list: []
+//   },
+//   {
+//     id: 'corporate',
+//     icon: 'corporate.svg',
+//     name: 'Корпоративный сайт',
+//     description: 'Многостраничный сайт для компании с услугами, блогом и контактами.',
+//     examples: 'IT-компании, агентства, бизнес-сайты',
+//     price_from: 70000,
+//     price_currency: '₽',
+//     deadline: '10–14 дней',
+//     features: [],
+//     items: [],
+//     example_list: []
+//   },
+//   {
+//     id: 'shop',
+//     icon: 'shop.svg',
+//     name: 'Интернет-магазин',
+//     description: 'Полноценный e-commerce с каталогом, корзиной и оплатой.',
+//     examples: 'Магазины одежды, цифровых товаров, маркетплейсы',
+//     price_from: 120000,
+//     price_currency: '₽',
+//     deadline: '14–21 день',
+//     features: [],
+//     items: [],
+//     example_list: []
+//   },
+//   {
+//     id: 'spa',
+//     icon: 'spa.svg',
+//     name: 'SPA / Web-приложение',
+//     description: 'Интерактивное веб-приложение на Vue / Nuxt с API.',
+//     examples: 'CRM, панели управления, личные кабинеты',
+//     price_from: 150000,
+//     price_currency: '₽',
+//     deadline: '20–30 дней',
+//     features: [],
+//     items: [],
+//     example_list: []
+//   },
+//   {
+//     id: 'redesign',
+//     icon: 'redesign.svg',
+//     name: 'Редизайн сайта',
+//     description: 'Обновление дизайна и UX без потери текущего контента.',
+//     examples: 'Редизайн старых сайтов, улучшение UI',
+//     price_from: 40000,
+//     price_currency: '₽',
+//     deadline: '7–10 дней',
+//     features: [],
+//     items: [],
+//     example_list: []
+//   },
+//   // {
+//   //   id: 'seo',
+//   //   icon: 'seo.svg',
+//   //   name: 'SEO-подготовка',
+//   //   description: 'Техническая оптимизация сайта под поисковые системы.',
+//   //   examples: 'Оптимизация скорости, мета-данные, структура',
+//   //   price_from: 25000,
+//   //   price_currency: '₽',
+//   //   deadline: '3–5 дней',
+//   // },
+//   // {
+//   //   id: 'support',
+//   //   icon: 'support.svg',
+//   //   name: 'Поддержка и доработка',
+//   //   description: 'Поддержка проекта, исправления и развитие функционала.',
+//   //   examples: 'Фиксы, новые блоки, улучшения',
+//   //   price_from: 15000,
+//   //   price_currency: '₽',
+//   //   deadline: 'По запросу',
+//   // },
+// ]
 
 onMounted(async () => {
   const data = await api.getSettings();

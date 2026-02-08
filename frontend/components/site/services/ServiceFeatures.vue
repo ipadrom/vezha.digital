@@ -7,34 +7,13 @@
         <span class="bracket">/&gt;</span>
       </h2>
       <div class="features-grid">
-        <div class="feature-card">
-          <h3>Дизайн интерфейса</h3>
-          <p>Разработка UI/UX дизайна с учетом guidelines Telegram и лучших практик мобильных приложений</p>
-        </div>
-
-        <div class="feature-card">
-          <h3>Backend + Admin панель</h3>
-          <p>Серверная часть на FastAPI с базой данных PostgreSQL и удобная панель администратора</p>
-        </div>
-
-        <div class="feature-card">
-          <h3>Интеграция платежей</h3>
-          <p>Подключение Telegram Payments, ЮKassa, Stripe или других платежных систем</p>
-        </div>
-
-        <div class="feature-card">
-          <h3>Авторизация через Telegram</h3>
-          <p>Безопасная авторизация пользователей через Telegram без дополнительной регистрации</p>
-        </div>
-
-        <div class="feature-card">
-          <h3>Адаптивная верстка</h3>
-          <p>Интерфейс адаптирован под все разрешения экранов от мобильных до планшетов</p>
-        </div>
-
-        <div class="feature-card">
-          <h3>Тестирование и деплой</h3>
-          <p>Полное тестирование функционала, размещение на сервере и публикация в Telegram</p>
+        <div
+            v-for="item in items"
+            :key="item.id"
+            class="feature-card"
+        >
+          <h3>{{item.title}}</h3>
+          <p>{{item.description}}</p>
         </div>
       </div>
     </div>
@@ -42,10 +21,10 @@
 </template>
 
 <script setup lang="ts">
-import type {IServices} from "~/utils/interfaces/IServices";
+import type {IServiceItems} from "~/utils/interfaces/IServices";
 
 defineProps<{
-  service: IServices | null
+  items: IServiceItems[]
 }>()
 </script>
 

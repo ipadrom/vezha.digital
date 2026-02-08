@@ -53,7 +53,7 @@
   import type {IServices} from "~/utils/interfaces/IServices";
 
   defineProps<{
-    service: IServices | null
+    service: IServices[]
   }>()
 </script>
 
