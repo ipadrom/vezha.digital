@@ -36,7 +36,7 @@
           >
             <div class="advantage__main">
               <h3 class="font-bold fade-item" style="--enter-delay: 0.1s">{{ advantage.title }}</h3>
-              <p class="advantage__subtitle fade-item" style="--enter-delay: 0.2s">{{ advantage.subtitle || advantage.description.substring(0, 50) + '...' }}</p>
+              <p class="advantage__subtitle fade-item" style="--enter-delay: 0.2s">{{ advantage.description }}</p>
             </div>
           </div>
       </TransitionGroup>
@@ -119,7 +119,6 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
 .advantage__subtitle {
   color: #b0b0b0;
   font-size: 0.95rem;
-  font-style: italic;
 }
 
 .advantage__details {
