@@ -14,25 +14,25 @@
             appear
         >
           <div
-              v-for="(service, index) in services"
+              v-for="(example, index) in examples"
               class="service-item fade-item"
-              :class="{ active: activeService === service.id}"
+              :class="{ active: activeExample?.id === example.id}"
               :style="{'--enter-delay' : `${index * 120}ms`}"
-              @mouseenter="!isAdaptiveMobile && (activeService = service.id)"
-              @click="onServiceClick(service.id)"
+              @mouseenter="!isAdaptiveMobile && (activeExample = example)"
+              @click="onServiceClick(example)"
           >
             <div
               v-if="!isAdaptiveMobile"
               class="service-header"
               @click.stop
             >
-              <h3 class="font-bold">{{ service.name }}</h3>
+              <h3 class="font-bold">{{ example.title }}</h3>
               <div>
-                <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
-                  {{ service.price_currency }}
+                <p class="price">{{ $t('services.price_from') }} {{ formatPrice(example.price_from) }}
+                  {{ example.price_currency }}
                 </p>
                 <p class="service-deadline">
-                  {{service.deadline}}
+                  {{example.deadline}}
                 </p>
               </div>
             </div>
@@ -40,20 +40,20 @@
                 v-else
                 class="service-header"
             >
-              <h3 class="font-bold">{{ service.name }}</h3>
+              <h3 class="font-bold">{{ example.title }}</h3>
               <p class="price">
-                {{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
-                {{ service.price_currency }}
+                {{ $t('services.price_from') }} {{ formatPrice(example.price_from) }}
+                {{ example.price_currency }}
               </p>
             </div>
 
             <Transition name="expand">
-              <div v-if="activeService === service.id && isAdaptiveMobile" class="service-mobile-content">
-                <p class="desc">{{ service.description }}</p>
+              <div v-if="activeExample?.id === example.id && isAdaptiveMobile" class="service-mobile-content">
+                <p class="desc">{{ example.description }}</p>
                 <div class="service-content">
-                  <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
-                  <ul v-if="service.features && service.features.length">
-                    <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
+                  <p v-if="example.examples"><strong>Примеры:</strong> {{ example.examples }}</p>
+                  <ul v-if="example.features && example.features.length">
+                    <li v-for="(feature, idx) in example.features" :key="idx">{{ feature }}</li>
                   </ul>
                 </div>
               </div>
@@ -62,7 +62,7 @@
         </TransitionGroup>
 
         <div
-            v-if="services.length && !isAdaptiveMobile"
+            v-if="examples.length && !isAdaptiveMobile"
             class="service-details fade-item"
             style="--enter-delay: 0.1s"
         >
@@ -71,24 +71,24 @@
               appear
           >
             <div
-                v-for="service in services"
-                :key="service.id"
+                v-for="example in examples"
+                :key="example.id"
                 class="service-detail fade-item"
-                :class="{ active: activeService === service.id }"
+                :class="{ active: activeExample?.id === example.id }"
                 style="--enter-delay: 0.1s"
             >
-              <h3 class="font-bold">{{ service.name }}</h3>
-              <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
+              <h3 class="font-bold">{{ example.title }}</h3>
+              <p class="price">{{ $t('services.price_from') }} {{ formatPrice(example.price_from) }} {{ example.price_currency }}</p>
               <p class="service-deadline">
-                Срок: {{service.deadline}}
+                Срок: {{example.deadline}}
               </p>
-              <p class="desc">{{ service.description }}</p>
+              <p class="desc">{{ example.description }}</p>
               <div class="service-content fade-item" style="--enter-delay: 0.2s">
-                <p v-if="service.examples" class="">
-                  <strong>Примеры:</strong> {{ service.examples }}
+                <p v-if="example.examples" class="">
+                  <strong>Примеры:</strong> {{ example.examples }}
                 </p>
-                <ul v-if="service.features && service.features.length" style="--enter-delay: 0.8s">
-                  <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
+                <ul v-if="example.features && example.features.length" style="--enter-delay: 0.8s">
+                  <li v-for="(feature, idx) in example.features" :key="idx">{{ feature }}</li>
                 </ul>
               </div>
             </div>
@@ -100,10 +100,12 @@
 </template>
 
 <script setup lang="ts">
+import type {IServiceExampleList} from "~/utils/interfaces/IServices";
+
   const { isSectionVisible, targetRef } = useSectionVisible(0.1)
 
   const props = defineProps<{
-    services: any[];
+    examples: IServiceExampleList[];
   }>()
 
   const isAdaptiveMobile = ref(false)
@@ -112,19 +114,19 @@
     isAdaptiveMobile.value = window.innerWidth <= 992
   }
 
-  const activeService = ref<string | null>(null)
+  const activeExample = ref<IServiceExampleList | null>(null)
 
   const setActiveFirst = () => {
-    if (!props.services || !props.services.length) return
+    if (!props.examples || !props.examples.length) return
 
-    if (activeService.value === null) {
-      activeService.value = props.services[0].id
+    if (activeExample.value === null) {
+      activeExample.value = props.examples[0]
     }
   }
 
-  const onServiceClick = (id: string) => {
+  const onServiceClick = (example: IServiceExampleList) => {
     if (!isAdaptiveMobile.value) return
-    activeService.value = activeService.value === id ? null : id
+    activeExample.value = activeExample.value?.id === example.id ? null : example
   }
 
   const formatPrice = (price: number) => {
@@ -142,7 +144,7 @@
   })
 
   watch(
-      () => props.services,
+      () => props.examples,
       () => setActiveFirst(),
       { immediate: true }
   )
