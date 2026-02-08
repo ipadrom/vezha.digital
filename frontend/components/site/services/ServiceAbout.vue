@@ -51,4 +51,27 @@ defineProps<{
   font-size: 1.1rem;
   margin-bottom: 20px;
 }
+
+@media (max-width: 768px){
+  .about-service {
+    padding: 20px 20px;
+    align-items: flex-start;
+    justify-content: flex-start;
+  }
+
+  .about-service h1 {
+    font-size: clamp(1.8rem, 6vw, 2.2rem);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .about-service p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+  }
+
+  .about-service h1:hover {
+    animation: none;
+  }
+}
 </style>

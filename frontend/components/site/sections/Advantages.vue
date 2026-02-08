@@ -34,10 +34,10 @@
               class="advantage fade-item"
               :style="{ '--enter-delay': `${index * 500}ms`}"
           >
-            <div class="advantage__main">
-              <h3 class="font-bold fade-item" style="--enter-delay: 0.1s">{{ advantage.title }}</h3>
-              <p class="advantage__subtitle fade-item" style="--enter-delay: 0.2s">{{ advantage.description }}</p>
-            </div>
+            <Card
+              :title="advantage.title"
+              :description="advantage.description"
+            />
           </div>
       </TransitionGroup>
 
@@ -49,13 +49,15 @@
               v-show="activeTab === index"
               class="advantage"
           >
-            <div class="advantage__main">
-              <h3 class="font-bold">{{ advantages[activeTab]?.title }}</h3>
-              <p class="advantage__subtitle">{{ advantages[activeTab]?.subtitle }}</p>
-            </div>
-            <div class="advantage__details">
-              <p>{{ advantages[activeTab]?.description }}</p>
-            </div>
+            <Card
+              :title="advantage[activeTab]?.title"
+              :description="advantage[activeTab]?.description"
+
+            >
+              <div class="advantage__details">
+                <p>{{ advantages[activeTab]?.description }}</p>
+              </div>
+            </Card>
           </div>
       </div>
 
@@ -65,6 +67,7 @@
 
 <script setup lang="ts">
 import {useSectionVisible} from "~/composables/useSectionVisible";
+import Card from "~/components/ui/Card.vue";
 const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible( 0.1)
 
 defineProps<{
@@ -82,27 +85,6 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 30px;
-}
-
-.advantage {
-  background: var(--bg-secondary);
-  border: 3px solid var(--border);
-  border-left: 3px solid var(--accent);
-  padding: 30px;
-  transition: all 0.3s;
-  cursor: default;
-  min-height: auto;
-  color: #e0e0e0;
-  border-radius: 0;
-
-  box-shadow:
-      -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
-
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeIn 0.5s forwards;
-  animation-delay: var(--enter-delay);
 }
 
 .advantage__main h3 {

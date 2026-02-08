@@ -56,7 +56,7 @@
                   <div class="service-content">
                     <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
                     <ul v-if="service.features && service.features.length">
-                      <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
+                      <li v-for="(feature, idx) in service.features" :key="idx">{{ feature.text }}</li>
                     </ul>
                   </div>
                   <NuxtLink class="redirect-btn" :to="`/services/${service.id}`">
@@ -92,7 +92,7 @@
                     <strong>Примеры:</strong> {{ service.examples }}
                   </p>
                   <ul v-if="service.features && service.features.length" style="--enter-delay: 0.8s">
-                    <li v-for="(feature, idx) in service.features" :key="idx">{{ feature }}</li>
+                    <li v-for="(feature, idx) in service.features" :key="idx">{{ feature.text }}</li>
                   </ul>
                 </div>
               </div>
@@ -107,10 +107,12 @@
 </template>
 
 <script setup lang="ts">
+import type {IServices} from "~/utils/interfaces/IServices";
+
 const { isSectionVisible, targetRef: servicesRef } = useSectionVisible( 0.1)
 
 const props = defineProps<{
-  services: any[]
+  services: IServices[]
 }>()
 
 const isAdaptiveMobile = ref(false)
@@ -118,16 +120,16 @@ const checkIsAdaptiveMobile = () => {
   isAdaptiveMobile.value = window.innerWidth <= 992
 }
 
-const onServiceClick = (id: number) => {
+const onServiceClick = (id: string) => {
   if (!isAdaptiveMobile.value) return
   activeService.value = activeService.value === id ? null : id
 }
 
-const activeService = ref<number | null>(null)
+const activeService = ref<string | null>(null)
 
 const setActiveFirst = () => {
   if (props.services.length > 0 && !activeService.value) {
-    activeService.value = props.services[0].id
+    activeService.value = props.services[0].id ?? null
   }
 }
 
@@ -178,22 +180,38 @@ const formatPrice = (price: number) => {
 
 .service-item {
   background: var(--bg-secondary);
-  border: 3px solid var(--border);
+  border: 1px solid var(--border);
   padding: 12px;
   cursor: pointer;
   color: #e0e0e0;
-  border-left: 3px solid var(--accent);
   transition: all 0.2s ease-out;
 
   box-shadow:
-      -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
+      inset 0 0 0 3px rgba(0, 0, 0, 0.0001),
+      -10px 0 15px -5px rgba(0, 255, 65, 0.3);
+}
+
+.service-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 4px;
+  height: 0;
+
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+
+  animation: scanLineDown 0.6s ease-out forwards;
 }
 
 .service-item:hover,
 .service-item.active {
   border-color: var(--accent);
-  box-shadow: 0 0 15px var(--shadow);
+  box-shadow:
+      inset 0 0 0 3px var(--accent),
+      0 0 15px var(--accent);
 }
 
 .service-header {
@@ -232,8 +250,7 @@ const formatPrice = (price: number) => {
   max-height: 466px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  padding: 30px;
+  padding: 15px 30px;
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
@@ -241,6 +258,21 @@ const formatPrice = (price: number) => {
   box-shadow:
       -10px 0 15px -5px
       rgba(0, 255, 65, 0.3);
+}
+
+.service-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 4px;
+  height: 0;
+
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+
+  animation: scanLineDown 0.6s ease-out forwards;
 }
 
 .service-detail {
@@ -273,7 +305,7 @@ const formatPrice = (price: number) => {
   font-size: 1.1rem;
   color: #e0e0e0;
   margin-bottom: 25px;
-  line-height: 1.6;
+  line-height: 1;
 }
 
 .fade-down-enter-from {
@@ -292,7 +324,7 @@ const formatPrice = (price: number) => {
 .service-content p {
   color: #e0e0e0;
   margin-bottom: 15px;
-  line-height: 1.6;
+  line-height: 1.4;
 }
 
 .service-content ul {
@@ -420,6 +452,12 @@ const formatPrice = (price: number) => {
     opacity: 1;
     transform: translateY(0);
     clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes scanLineDown {
+  to {
+    height: 100%;
   }
 }
 
