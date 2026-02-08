@@ -17,11 +17,13 @@
             <h2 class="section-title">
               <span class="bracket">&lt;</span>Кто мы<span class="bracket">/&gt;</span>
             </h2>
-            <div class="card fade-item">
-              <h3 class="font-bold fade-item" style="--enter-delay: 0.4s">О нашей команде</h3>
-              <p class="fade-item" style="--enter-delay: 0.6s">Мы - команда опытных разработчиков, специализирующихся на создании современных веб-решений, Telegram Mini Apps и интеграции искусственного интеллекта. Наша миссия - превращать идеи в надежные цифровые продукты, используя передовые технологии и подходы.</p>
-              <p class="fade-item" style="--enter-delay: 0.8s">С 2020 года мы помогли более чем 100 клиентам реализовать их цифровую трансформацию, уделяя особое внимание качеству кода, юзабилити и скорости разработки.</p>
-            </div>
+            <Card
+                v-for="(item, index) in aboutUsData"
+                :key="index"
+                :title="item.title"
+                :description="item.description"
+                :since_description="item.since_description"
+            />
           </div>
         </TransitionGroup>
 
@@ -104,6 +106,7 @@
 <script setup lang="ts">
 import TechIcon3D from '~/components/ui/TechIcon3D.vue'
 import {useSectionVisible} from "~/composables/useSectionVisible";
+import Card from "~/components/ui/Card.vue";
 
 const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
 const config = useRuntimeConfig()
@@ -113,6 +116,14 @@ const props = defineProps<{
 }>()
 
 const isActivatedIcon = ref<number | null>(null)
+
+const aboutUsData = [
+  {
+    title: 'О нашей команде',
+    description: 'Мы - команда опытных разработчиков, специализирующихся на создании современных веб-решений, Telegram Mini Apps и интеграции искусственного интеллекта. Наша миссия - превращать идеи в надежные цифровые продукты, используя передовые технологии и подходы.',
+    since_description:'С 2020 года мы помогли более чем 100 клиентам реализовать их цифровую трансформацию, уделяя особое внимание качеству кода, юзабилити и скорости разработки.'
+  }
+]
 
 const techStackData = [
   {
@@ -205,13 +216,6 @@ const isEmoji = (str: string) => {
   transition-delay: var(--enter-delay, 0s);
 }
 
-.fade-item {
-  opacity: 0;
-  clip-path: inset(0 0 100% 0);
-  animation: cardRevealDown 0.9s ease-out forwards;
-  animation-delay: var(--enter-delay, 0s);
-}
-
 .who-we-are__right {
   height: 100%;
   display: flex;
@@ -223,35 +227,6 @@ const isEmoji = (str: string) => {
 .who-we-are__right .section-title {
   text-align: center;
   margin-bottom: 30px;
-}
-
-.card {
-  background: var(--bg-secondary);
-  border-left: 3px solid var(--accent);
-  padding: 30px;
-  border-radius: 0;
-  flex-grow: 1;
-
-  box-shadow:
-      -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
-}
-
-.card h3 {
-  font-family: var(--font-epilepsy);
-  font-size: 1.8rem;
-  margin-bottom: 20px;
-  color: var(--accent);
-}
-
-.card p {
-  color: #e0e0e0;
-  line-height: 1.8;
-  margin-bottom: 15px;
-}
-
-.card p:last-child {
-  margin-bottom: 0;
 }
 
 .tech-stack {
@@ -336,19 +311,6 @@ const isEmoji = (str: string) => {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes cardRevealDown {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px);
-    clip-path: inset(0 0 100% 0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    clip-path: inset(0 0 0 0);
   }
 }
 

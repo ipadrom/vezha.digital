@@ -184,16 +184,30 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 
 .service-item {
   background: var(--bg-secondary);
-  border: 3px solid var(--border);
+  border: 1px solid var(--border);
   padding: 12px;
   cursor: pointer;
   color: #e0e0e0;
-  border-left: 3px solid var(--accent);
   transition: all 0.2s ease-out;
 
   box-shadow:
       -10px 0 15px -5px
       rgba(0, 255, 65, 0.3);
+}
+
+.service-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 4px;
+  height: 0;
+
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+
+  animation: scanLineDown 0.6s ease-out forwards;
 }
 
 .service-item:hover,
@@ -437,6 +451,12 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
     opacity: 1;
     transform: translateY(0);
     clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes scanLineDown {
+  to {
+    height: 100%;
   }
 }
 

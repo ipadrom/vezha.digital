@@ -21,12 +21,12 @@ export interface IServiceItems{
 }
 
 export interface IServices {
-    id?: string;
+    id: string;
     icon?: string;
     name?: string;
     description?: string;
     examples?: string;
-    price_from?: number;
+    price_from: number;
     price_currency?: string;
     deadline?: string;
     about?: string;
