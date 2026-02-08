@@ -14,7 +14,7 @@ ALLOWED_EXTENSIONS = {
     # Images
     ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg",
     # 3D models
-    ".gltf", ".glb",
+    ".gltf", ".glb", ".obj",
     # Other
     ".palette",
 }
@@ -29,6 +29,7 @@ CONTENT_TYPE_MAP = {
     ".svg": "image/svg+xml",
     ".gltf": "model/gltf+json",
     ".glb": "model/gltf-binary",
+    ".obj": "model/obj",
     ".palette": "application/octet-stream",
 }
 

@@ -70,7 +70,7 @@
                   <div class="flex gap-2 mb-2">
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/*,.obj,.gltf,.glb"
                       @change="handleIconUpload"
                       class="hidden"
                       ref="iconInput"
@@ -90,7 +90,7 @@
                     placeholder="Emoji или URL иконки"
                     class="w-full px-3 py-1.5 text-sm rounded-lg border border-light-border dark:border-dark-border bg-transparent"
                   />
-                  <p class="text-xs text-gray-500 mt-1">Введите emoji (⚡) или загрузите SVG/PNG</p>
+                  <p class="text-xs text-gray-500 mt-1">Введите emoji (⚡) или загрузите изображение/3D модель (.obj, .gltf, .glb)</p>
                 </div>
               </div>
             </div>
