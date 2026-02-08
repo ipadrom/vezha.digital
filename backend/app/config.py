@@ -31,7 +31,7 @@ class Settings(BaseSettings):
 
     # Upload
     UPLOAD_DIR: str = "uploads"
-    MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
+    MAX_UPLOAD_SIZE: int = 50 * 1024 * 1024  # 50MB
 
     # MinIO
     MINIO_ENDPOINT: str = "localhost:9000"
