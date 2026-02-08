@@ -22,6 +22,12 @@ import Projects from "~/components/site/sections/Projects.vue";
 import WorkStages from "~/components/site/sections/WorkStages.vue";
 import Contacts from "~/components/site/sections/Contacts.vue";
 import ContactModal from "~/components/modals/ContactModal.vue";
+import type {IServices} from "~/utils/interfaces/IServices";
+import type {IProjects} from "~/utils/interfaces/IProjects";
+import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
+import type {ITechStack} from "~/utils/interfaces/ITechStack";
+import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
+import type {ISettings} from "~/utils/interfaces/ISettings";
 
 definePageMeta({
   layout: 'site-custom'
@@ -29,12 +35,12 @@ definePageMeta({
 
 const { getServices, getProjects, getAdvantages, getTechStack, getWorkStages, getSettings } = useApi()
 
-const services = ref<any[]>([])
-const projects = ref<any[]>([])
-const advantages = ref<any[]>([])
-const techStack = ref<any[]>([])
-const workStages = ref<any[]>([])
-const settings = ref<Record<string, string>>({})
+const services = ref<IServices[]>([])
+const projects = ref<IProjects[]>([])
+const advantages = ref<IAdvantages[]>([])
+const techStack = ref<ITechStack[]>([])
+const workStages = ref<IWorkStages[]>([])
+const settings = ref<ISettings | null>(null)
 
 const showModal = ref(false)
 

@@ -1,27 +1,24 @@
 <template>
   <section v-if="service" class="about-service">
-    <div class="container">
+    <div
+        v-for="service in service"
+        class="container"
+    >
       <h1>
         <span class="bracket">&lt;</span>
           Об услуге
         <span class="bracket">/&gt;</span></h1>
       <p>
-        Telegram Mini Apps — это веб-приложения, которые запускаются прямо внутри мессенджера Telegram без установки.
-        Они позволяют создать полноценный интернет-магазин, игру, сервис бронирования или любое другое приложение,
-        которое ваши пользователи смогут открыть в один клик из Telegram. Удобно, быстро и современно.
-      </p>
-      <p>
-        Мы разрабатываем Mini Apps под ключ: от дизайна интерфейса до запуска в Telegram. Создаем адаптивный дизайн,
-        программируем frontend и backend, интегрируем платежные системы и обеспечиваем бесперебойную работу вашего приложения.
+        {{service.about}}
       </p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import type {IService} from "~/utils/interfaces/IService";
+import type {IServices} from "~/utils/interfaces/IServices";
 defineProps<{
-  service: IService | null
+  service: IServices[]
 }>()
 </script>
 
