@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import TechIcon3D from '~/components/ui/TechIcon3D.vue'
 import {useSectionVisible} from "~/composables/useSectionVisible";
-import Card from "~/components/ui/Card.vue";
+import Card from "~/components/ui/cards/Card.vue";
 
 const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
 const config = useRuntimeConfig()
