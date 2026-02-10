@@ -213,7 +213,9 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 .service-item:hover,
 .service-item.active {
   border-color: var(--accent);
-  box-shadow: 0 0 15px var(--shadow);
+  box-shadow:
+      inset 0 0 0 3px var(--accent),
+      0 0 15px var(--accent);
 }
 
 .service-header {
@@ -258,7 +260,6 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
   max-height: 466px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
   padding: 30px;
   overflow-y: hidden;
   display: flex;
@@ -267,6 +268,21 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
   box-shadow:
       -10px 0 15px -5px
       rgba(0, 255, 65, 0.3);
+}
+
+.service-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 4px;
+  height: 0;
+
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+
+  animation: scanLineDown 0.6s ease-out forwards;
 }
 
 .service-detail {
