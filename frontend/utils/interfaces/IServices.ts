@@ -24,6 +24,7 @@ export interface IServices {
     id: string;
     icon?: string;
     name?: string;
+    title?: string;
     description?: string;
     examples?: string;
     price_from: number;

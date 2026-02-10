@@ -14,7 +14,8 @@ ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
 
 # Install dependencies
 COPY package*.json ./
-RUN yarn install
+RUN yarn install --frozen-lockfile
+RUN rm -rf .nuxt node_modules/.cache
 
 # Copy source
 COPY . .
