@@ -101,8 +101,8 @@ onMounted(() => {
 </script>
 <style scoped>
 .modal {
+  max-height: 100vh;
+  overflow-y: hidden;
   position: fixed;
-  inset: 0;
-  overflow-x: hidden;
 }
 </style>
