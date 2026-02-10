@@ -67,6 +67,10 @@ const activeItem = ref('')
   line-height: 1.6;
 }
 
+.stages-mobile {
+  display: none;
+}
+
 @media (max-width: 768px) {
   .stages-mobile {
     display: grid;
