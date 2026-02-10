@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import {useSectionVisible} from "~/composables/useSectionVisible";
-import Card from "~/components/ui/Card.vue";
+import Card from "~/components/ui/cards/Card.vue";
 const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible( 0.1)
 
 defineProps<{

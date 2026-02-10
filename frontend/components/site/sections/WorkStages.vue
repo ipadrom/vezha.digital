@@ -14,18 +14,11 @@
             <span class="bracket">&lt;</span>{{ String(stage.step_number).padStart(2, '0') }}<span class="bracket">&gt;</span>
           </div>
           <div class="stage-brief">{{ stage.description }}</div>
-          <div class="stage-overlay">
-            <div class="stage-info">
-              <p v-if="stage.duration" class="duration">Длительность: {{ stage.duration }}</p>
-              <p v-if="stage.details" class="info">{{ stage.details }}</p>
-              <div v-if="stage.features && stage.features.length">
-                <p><strong>Что входит:</strong></p>
-                <ul>
-                  <li v-for="(feature, idx) in stage.features" :key="idx">{{ feature }}</li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <StageOverlay
+              :duration="stage.duration"
+              :details="stage.details"
+              :features="stage.features"
+          />
         </div>
       </div>
     </div>
@@ -55,6 +48,8 @@
 </template>
 
 <script setup lang="ts">
+import StageOverlay from "~/components/ui/overlay/StageOverlay.vue";
+
 defineProps<{
   stages: any[]
 }>()
@@ -136,7 +131,7 @@ const activeStage = ref(1)
   flex-direction: column;
   align-items: center;
   min-width: 220px;
-  z-index: 1;
+  z-index: 0;
   flex: 0 1 auto;
 }
 
@@ -173,71 +168,13 @@ const activeStage = ref(1)
   max-width: 200px;
 }
 
-.stage-overlay {
-  position: absolute;
-  top: 100px;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--bg-secondary);
-  border: 3px solid var(--accent);
-  padding: 25px;
-  width: 350px;
-  height: 315px;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s;
-  z-index: 1000;
-  max-height: calc(100vh - 120px);
-  overflow-y: hidden;
-  color: #e0e0e0;
-  border-radius: 0;
-}
-
 .stage-wrapper:hover .stage-overlay {
   opacity: 1;
   visibility: visible;
 }
 
 .stage-wrapper:hover {
-  z-index: 1;
-}
-
-.stage-info {
-  color: #e0e0e0;
-  line-height: 1.6;
-  width: 100%;
-}
-
-.stage-info .duration {
-  font-family: var(--font-epilepsy);
-  color: var(--accent);
-  margin-bottom: 10px;
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.stage-info .info {
-  margin-bottom: 15px;
-}
-
-.stage-info ul {
-  list-style: none;
-  margin-top: 8px;
-  padding: 0;
-}
-
-.stage-info ul li {
-  color: #e0e0e0;
-  padding: 3px 0 3px 15px;
-  position: relative;
-  font-size: 0.85rem;
-}
-
-.stage-info ul li::before {
-  content: '>';
-  position: absolute;
-  left: 0;
-  color: var(--accent);
+  z-index: 10;
 }
 
 .stages-mobile {
