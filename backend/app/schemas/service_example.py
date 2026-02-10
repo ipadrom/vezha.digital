@@ -12,6 +12,8 @@ class ServiceExampleBase(BaseModel):
     description_en: str | None = None
     price_from: int = 0
     price_currency: str = "₽"
+    deadline_ru: str | None = None
+    deadline_en: str | None = None
     sort_order: int = 0
     is_active: bool = True
 
@@ -27,6 +29,8 @@ class ServiceExampleUpdate(BaseModel):
     description_en: str | None = None
     price_from: int | None = None
     price_currency: str | None = None
+    deadline_ru: str | None = None
+    deadline_en: str | None = None
     sort_order: int | None = None
     is_active: bool | None = None
 
@@ -46,6 +50,7 @@ class ServiceExamplePublic(BaseModel):
     description: str | None
     price_from: int
     price_currency: str
+    deadline: str | None = None
 
     class Config:
         from_attributes = True

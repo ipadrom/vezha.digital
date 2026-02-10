@@ -21,6 +21,8 @@ class ServiceExample(Base):
     description_en: Mapped[str | None] = mapped_column(Text, nullable=True)
     price_from: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     price_currency: Mapped[str] = mapped_column(String(10), nullable=False, default="₽")
+    deadline_ru: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    deadline_en: Mapped[str | None] = mapped_column(String(255), nullable=True)
     sort_order: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)

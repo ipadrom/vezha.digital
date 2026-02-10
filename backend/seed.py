@@ -178,6 +178,8 @@ async def seed_service_examples(session, services):
             description_en="Full-featured menu with cart, payment and delivery",
             price_from=120000,
             price_currency="₽",
+            deadline_ru="1–2 недели",
+            deadline_en="1–2 weeks",
             sort_order=0,
         ),
         ServiceExample(
@@ -188,6 +190,8 @@ async def seed_service_examples(session, services):
             description_en="Product catalog with filters, sizes and AR try-on",
             price_from=150000,
             price_currency="₽",
+            deadline_ru="2–3 недели",
+            deadline_en="2–3 weeks",
             sort_order=1,
         ),
         # Telegram боты примеры
@@ -199,6 +203,8 @@ async def seed_service_examples(session, services):
             description_en="Service booking, master selection, appointment reminders",
             price_from=90000,
             price_currency="₽",
+            deadline_ru="5–10 дней",
+            deadline_en="5–10 days",
             sort_order=0,
         ),
         ServiceExample(
@@ -209,6 +215,8 @@ async def seed_service_examples(session, services):
             description_en="Smart GPT-based bot for answering customer questions",
             price_from=130000,
             price_currency="₽",
+            deadline_ru="1–2 недели",
+            deadline_en="1–2 weeks",
             sort_order=1,
         ),
         # Веб-сайты примеры
@@ -220,6 +228,8 @@ async def seed_service_examples(session, services):
             description_en="Single-page site with lead capture form",
             price_from=50000,
             price_currency="₽",
+            deadline_ru="3–5 дней",
+            deadline_en="3–5 days",
             sort_order=0,
         ),
         ServiceExample(
@@ -230,6 +240,8 @@ async def seed_service_examples(session, services):
             description_en="Multi-page site with blog and contact form",
             price_from=120000,
             price_currency="₽",
+            deadline_ru="2–4 недели",
+            deadline_en="2–4 weeks",
             sort_order=1,
         ),
     ]

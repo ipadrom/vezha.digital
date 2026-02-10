@@ -122,6 +122,7 @@ async def get_service_id(
                 description=ex.description_ru if lang == "ru" else ex.description_en,
                 price_from=ex.price_from,
                 price_currency=ex.price_currency,
+                deadline=ex.deadline_ru if lang == "ru" else ex.deadline_en,
             )
             for ex in examples
         ],
