@@ -45,11 +45,11 @@
 import type {IServiceItems} from "~/utils/interfaces/IServices";
 import Card from "~/components/ui/cards/Card.vue";
 
-defineProps<{
+const props = defineProps<{
   items: IServiceItems[]
 }>()
 
-const activeItem = ref('')
+const activeItem = ref(props.items[0]?.title ?? '')
 </script>
 
 <style scoped>
