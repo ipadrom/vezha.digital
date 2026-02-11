@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
+import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 
 const props = defineProps<{
@@ -39,9 +39,9 @@ const init = () => {
     const light = new THREE.AmbientLight(0xffffff, 1)
     scene.add(light)
 
-    const loader = new GLTFLoader()
-        loader.load(props.modelUrl, (gltf) => {
-            model = gltf.scene
+    const loader = new OBJLoader()
+        loader.load(props.modelUrl, (object) => {
+            model = object
 
             model.traverse((obj) => {
                 if (!(obj as THREE.Mesh).isMesh) return
@@ -124,6 +124,7 @@ watch(() => props.isActive, (newVal) => {
 onMounted(() => {
     init()
     animate()
+    adaptiveRenderer()
 
     resizeObserver = new ResizeObserver(adaptiveRenderer)
     resizeObserver.observe(containerRef.value!)
