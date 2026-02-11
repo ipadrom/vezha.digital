@@ -107,12 +107,13 @@
 import TechIcon3D from '~/components/ui/TechIcon3D.vue'
 import {useSectionVisible} from "~/composables/useSectionVisible";
 import Card from "~/components/ui/cards/Card.vue";
+import type {ITechStack} from "~/utils/interfaces/ITechStack";
 
 const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
 const config = useRuntimeConfig()
 
 const props = defineProps<{
-  techStack: any[]
+  techStack: ITechStack[]
 }>()
 
 const isActivatedIcon = ref<number | null>(null)
