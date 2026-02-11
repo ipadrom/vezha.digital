@@ -125,37 +125,6 @@ const aboutUsData = [
   }
 ]
 
-const techStackData = [
-  {
-    id: 1,
-    name: "Docker",
-    category: "backend",
-    icon: "/images/voxel_tech_icons/docker/docker.png",
-    icon_format: "/images/voxel_tech_icons/docker/docker.gltf"
-  },
-  {
-    id: 2,
-    name: "FastAPI",
-    category: "backend",
-    icon: "/images/tech_icons/fastapi/palette.png",
-    icon_format: "/images/voxel_tech_icons/fastapi/fastapi.gltf"
-  },
-  {
-    id: 3,
-    name: "NextJS",
-    category: "frontend",
-    icon: "/images/voxel_tech_icons/nextjs/palette.png",
-    icon_format: "/images/voxel_tech_icons/nextjs/nextjs.gltf"
-  },
-  {
-    id: 4,
-    name: "React",
-    category: "frontend",
-    icon: "/images/voxel_tech_icons/react/palette.png",
-    icon_format: "/images/voxel_tech_icons/react/react.gltf"
-  }
-]
-
 const frontendStack = computed(() =>
   props.techStack.filter(t => t.category === 'frontend')
 )

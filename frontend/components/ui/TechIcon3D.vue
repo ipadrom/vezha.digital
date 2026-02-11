@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import * as THREE from 'three'
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 
 const props = defineProps<{
@@ -41,47 +41,46 @@ const init = () => {
 
     const loader = new OBJLoader()
         loader.load(props.modelUrl, (object) => {
-            model = object
+          console.log("Loaded:", props.modelUrl)
+          model = object
 
-            model.traverse((obj) => {
-                if (!(obj as THREE.Mesh).isMesh) return
+          model.traverse((obj) => {
+            if (!(obj as THREE.Mesh).isMesh) return
 
-                const mesh = obj as THREE.Mesh
-                const material = mesh.material as THREE.MeshStandardMaterial
+            const mesh = obj as THREE.Mesh
 
-                if (!material) return
+            if (Array.isArray(mesh.material)) {
+              mesh.material.forEach((mat) => {
+                mat.needsUpdate = true
+              })
+            } else if (mesh.material) {
+              mesh.material.needsUpdate = true
+            }
+          })
 
-                if (material.map) {
-                    material.map.anisotropy = renderer.capabilities.getMaxAnisotropy()
-                    material.map.minFilter = THREE.LinearMipMapLinearFilter
-                    material.map.magFilter = THREE.LinearFilter
-                    material.map.needsUpdate = true
-                }
-
-                material.needsUpdate = true
-
-                if ('roughness' in material) material.roughness = 0.4
-                if ('metalness' in material) material.metalness = 0.2
-        })
+          const dirLight = new THREE.DirectionalLight(0xffffff, 1)
+          dirLight.position.set(2, 2, 2)
+          scene.add(dirLight)
 
 
 
-            const box = new THREE.Box3().setFromObject(model)
-            const size = new THREE.Vector3()
-            box.getSize(size)
+          const box = new THREE.Box3().setFromObject(model)
+          const size = new THREE.Vector3()
+          box.getSize(size)
 
-            const maxAxis = Math.max(size.x, size.y, size.z)
+          const maxAxis = Math.max(size.x, size.y, size.z)
 
-            const scale = 1.23 / maxAxis
-            model.scale.setScalar(scale)
+          const scale = 1.23 / maxAxis
+          model.scale.setScalar(scale)
 
-            box.setFromObject(model)
-            const center = new THREE.Vector3()
-            box.getCenter(center)
-            model.position.sub(center)
+          box.setFromObject(model)
+          const center = new THREE.Vector3()
+          box.getCenter(center)
+          model.position.sub(center)
 
-            scene.add(model)
-        }
+          scene.add(model)
+        }, undefined,
+        (err) => console.error("Error loading model:", err)
     )
 }
 
