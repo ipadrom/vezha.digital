@@ -116,7 +116,7 @@ const props = defineProps<{
   techStack: ITechStack[]
 }>()
 
-const isActivatedIcon = ref<number | null>(null)
+const isActivatedIcon = ref<string | null>(null)
 
 const aboutUsData = [
   {
