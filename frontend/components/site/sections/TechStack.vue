@@ -46,8 +46,8 @@
                 >
                   <div class="tech-icon">
                     <TechIcon3D
-                      v-if="tech.gltf"
-                      :model-url="tech.gltf"
+                      v-if="tech.icon_format"
+                      :model-url="tech.icon_format"
                       :is-active="isActivatedIcon === tech.id"
                       class="tech-icon-3d"
                     />
