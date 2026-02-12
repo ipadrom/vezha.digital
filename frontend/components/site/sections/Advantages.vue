@@ -5,147 +5,206 @@
       ref="advantagesRef"
   >
     <div class="container-main">
-      <h2 class="section-title">
-        <span class="bracket">&lt;</span>{{ $t('advantages.title') }}<span class="bracket">/&gt;</span>
-      </h2>
+      <div class="advantages-layout">
 
-       <!-- Mobile tabs -->
-      <div class="mobile-tabs">
-        <button
-          v-for="(tab, index) in mobileTabs"
-          :key="index"
-          :class="['mobile-tab', { active: activeTab === index }]"
-          @click="activeTab = index"
-        >
-          {{ tab }}
-        </button>
-      </div>
+        <!-- Left: big title + tags -->
+        <div class="advantages-left fade-item" :style="{ '--enter-delay': '0ms' }">
+          <h2 class="section-title advantages-title">
+            <span class="bracket">&lt;</span>{{ $t('advantages.title') }}<span class="bracket">/&gt;</span>
+          </h2>
+          <p class="advantages-subtitle">{{ $t('advantages.subtitle') }}</p>
 
-      <TransitionGroup
-          v-if="isSectionVisible"
-          name="advantage"
-          tag="div"
-          class="advantages advantages-desktop"
-          appear
-      >
-          <div 
-              v-for="(advantage, index) in advantages"
-              :key="advantage.id"
-              class="advantage fade-item"
-              :style="{ '--enter-delay': `${index * 500}ms`}"
-          >
-            <Card
-              :title="advantage.title"
-              :description="advantage.description"
-            />
-          </div>
-      </TransitionGroup>
+          <!-- Tags for active card -->
+          <TransitionGroup name="tags" tag="div" class="advantages-tags">
+            <span
+              v-for="tag in activeTags"
+              :key="tag"
+              class="advantages-tag"
+            >{{ tag }}</span>
+          </TransitionGroup>
+        </div>
 
-        <!-- Mobile view - single card based on active tab -->
-      <div v-if="isSectionVisible && advantages.length" class="advantages advantages-mobile">
+        <!-- Right: always-open cards with hover -->
+        <div v-if="isSectionVisible" class="advantages-right">
           <div
-              v-for="(advantage, index) in advantages"
-              :key="advantage.id"
-              v-show="activeTab === index"
-              class="advantage"
+            v-for="(advantage, index) in advantages"
+            :key="advantage.id"
+            class="accordion-card fade-item"
+            :class="{ 'accordion-card--active': activeIndex === index }"
+            :style="{ '--enter-delay': `${(index + 1) * 200}ms` }"
+            @mouseenter="hoverCard(index)"
           >
-            <Card
-              :title="advantage[activeTab]?.title"
-              :description="advantage[activeTab]?.description"
-
-            >
-              <div class="advantage__details">
-                <p>{{ advantages[activeTab]?.description }}</p>
-              </div>
-            </Card>
+            <h3 class="accordion-card__title">{{ advantage.title }}</h3>
+            <p class="accordion-card__description">{{ advantage.description }}</p>
           </div>
-      </div>
+        </div>
 
+      </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import {useSectionVisible} from "~/composables/useSectionVisible";
-import Card from "~/components/ui/cards/Card.vue";
-const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible( 0.1)
+import { useSectionVisible } from "~/composables/useSectionVisible";
+const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible(0.1)
 
 defineProps<{
   advantages: any[]
 }>()
 
+const activeIndex = ref(0)
 
-const activeTab = ref(0)
-const mobileTabs = ['Частные клиенты', 'Малый/средний бизнес', 'Для гигантов']
+const tagsByIndex: Record<number, string[]> = {
+  0: [
+    'Лендинг для фотографа',
+    'Сайт-портфолио',
+    'Бот для записи',
+    'Мини-магазин в Telegram',
+    'Личный AI-ассистент',
+  ],
+  1: [
+    'CRM для стоматологии',
+    'Мини-апп для магазина цветов',
+    'Бот для автоматизации заявок',
+    'Интернет-магазин одежды',
+    'Система бронирования',
+  ],
+  2: [
+    'CRM-система для завода',
+    'Telegram Mini App для банка',
+    'Интерактивный лендинг',
+    'Корпоративный квест',
+    'AI-помощник для сотрудников',
+  ],
+}
 
+const activeTags = computed(() => tagsByIndex[activeIndex.value] ?? [])
+
+function hoverCard(index: number) {
+  activeIndex.value = index
+}
 </script>
 
 <style scoped>
-.advantages {
+.advantages-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
 }
 
-.advantage__main h3 {
+.advantages-left {
+  position: sticky;
+  top: 80px;
+  align-self: start;
+  /* Sticky корректно работает в CSS Grid: прилипает только внутри своей строки */
+}
+
+.advantages-title {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.advantages-subtitle {
+  color: #b0b0b0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  margin-bottom: 32px;
+}
+
+/* Tags */
+.advantages-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  position: relative;
+  min-height: 80px; /* фиксирует высоту пока старые теги уходят */
+}
+
+.advantages-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  border: 2px solid var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+  font-family: var(--font-epilepsy);
+  font-size: 0.85rem;
+}
+
+/* Tags transition */
+.tags-enter-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.tags-leave-active {
+  transition: opacity 0.15s ease;
+  position: absolute; /* убирает из потока — новые не дёргаются */
+}
+.tags-enter-from {
+  opacity: 0;
+  transform: translateY(5px);
+}
+.tags-leave-to {
+  opacity: 0;
+}
+
+/* Accordion cards */
+.advantages-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.accordion-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  padding: 24px 30px;
+  cursor: default;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.accordion-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.accordion-card--active {
+  border-color: var(--accent);
+  box-shadow: -10px 0 20px -5px rgba(0, 255, 65, 0.25);
+}
+
+.accordion-card__title {
   font-family: var(--font-epilepsy);
   font-size: 1.8rem;
-  margin-bottom: 15px;
+  font-weight: bold;
   color: var(--accent);
+  margin-bottom: 14px;
+  line-height: 1.2;
 }
 
-.advantage__main p {
-  color: #e0e0e0;
-}
-
-.advantage__subtitle {
-  color: #b0b0b0;
-  font-size: 0.95rem;
-}
-
-.advantage__details {
-  max-height: none;
-  opacity: 1;
-  overflow: visible;
-  transition: all 0.4s;
-  margin-top: 20px;
-}
-
-.advantage__details p {
+.accordion-card__description {
   color: #e0e0e0;
   line-height: 1.8;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
 }
 
+/* Appear animation */
 .fade-item {
   opacity: 0;
   clip-path: inset(0 0 100% 0);
   animation: cardRevealDown 0.9s ease-out forwards;
   animation-delay: var(--enter-delay, 0s);
-}
-
-.mobile-tabs {
-  display: none;
-}
-
-.advantages-mobile {
-  display: none;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @keyframes cardRevealDown {
@@ -161,52 +220,18 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
   }
 }
 
-@media (max-width: 768px) {
-  .advantages {
+@media (max-width: 900px) {
+  .advantages-layout {
     grid-template-columns: 1fr;
+    gap: 30px;
   }
 
-   .advantages-desktop {
-    display: none !important;
+  .advantages-left {
+    position: static;
   }
 
-  .advantages-mobile {
-    display: block;
-  }
-  
-  .mobile-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
-  }
-
-  .mobile-tab {
-    flex: 1;
-    padding: 10px 8px;
-    background: var(--bg-secondary);
-    border: 2px solid var(--border);
-    color: var(--text);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-align: center;
-    line-height: 1.2;
-  }
-
-  .mobile-tab.active {
-    background: var(--accent);
-    color: var(--bg);
-    border-color: var(--accent);
-  }
-
-  .mobile-tab:hover {
-    border-color: var(--accent);
-  }
-
-  .advantages-mobile .advantage {
-    min-height: 280px;
+  .advantages-title {
+    font-size: clamp(2rem, 8vw, 3rem);
   }
 }
 </style>

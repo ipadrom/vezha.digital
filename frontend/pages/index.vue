@@ -1,7 +1,8 @@
 <template>
   <!-- Page Sections -->
   <Hero :settings="settings" @openModal="showModal = true" />
-  <TechStack :tech-stack="techStack" />
+  <TechStack />
+  <TechStackSection :tech-stack="techStack" />
   <Services :services="services" />
   <Advantages :advantages="advantages" />
   <Projects :projects="projects" />
@@ -16,6 +17,7 @@
 import {definePageMeta} from "#imports";
 import Hero from "~/components/site/sections/Hero.vue";
 import TechStack from "~/components/site/sections/TechStack.vue";
+import TechStackSection from "~/components/site/sections/TechStackSection.vue";
 import Services from "~/components/site/sections/Services.vue";
 import Advantages from "~/components/site/sections/Advantages.vue";
 import Projects from "~/components/site/sections/Projects.vue";
