@@ -67,11 +67,12 @@ function init3DScene() {
       antialias: true
     })
 
-    const isMobile = window.innerWidth < 768
-    const rightHalfWidth = isMobile ? window.innerWidth * 0.5 : window.innerWidth / 2
-    renderer.setSize(rightHalfWidth, window.innerHeight)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
-    camera.aspect = rightHalfWidth / window.innerHeight
+    const container = canvas.parentElement as HTMLElement
+    const width = container.clientWidth
+    const height = container.clientHeight
+
+    renderer.setSize(width, height)
+    camera.aspect = width / height
     camera.updateProjectionMatrix()
     camera.position.z = 8
 
@@ -349,18 +350,28 @@ function init3DScene() {
 
 @media (max-width: 768px) {
   .hero__wrapper {
+    display: flex;
+    flex-direction: column;
     padding: 70px 15px 0;
-    grid-template-columns: 1fr 1fr;
     gap: 40px;
     text-align: center;
   }
 
+  .hero__right {
+    order: 1;
+  }
+
+  .hero__left {
+    order: 2;
+  }
+
   .hero__background {
-    width: 50%;
-    height: 100%;
-    top: auto;
-    bottom: 0;
-    left: 50%;
+    position: absolute;
+    width: 100%;
+    height: 70vh;
+    top: 0;
+    bottom: auto;
+    left: 0;
   }
 
   .hero__title {
@@ -373,6 +384,7 @@ function init3DScene() {
 
   .hero__logo-script {
     font-size: 3.5rem;
+    font-family: var(--font-epilepsy);
   }
 
   .hero__logo-digital {
@@ -390,6 +402,31 @@ function init3DScene() {
 }
 
 @media (max-width: 480px) {
+  .hero__wrapper {
+    display: flex;
+    flex-direction: column;
+    padding: 70px 15px 0;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .hero__right {
+    order: 1;
+  }
+
+  .hero__left {
+    order: 2;
+  }
+
+  .hero__background {
+    position: absolute;
+    width: 100%;
+    height: 70vh;
+    top: 0;
+    bottom: auto;
+    left: 0;
+  }
+
   .hero__title {
     font-size: 1.1rem;
   }
@@ -400,6 +437,7 @@ function init3DScene() {
 
   .hero__logo-script {
     font-size: 2.8rem;
+    font-family: var(--font-epilepsy);
   }
 
   .hero__logo-digital {
