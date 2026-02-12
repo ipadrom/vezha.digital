@@ -250,7 +250,7 @@ const formatPrice = (price: number) => {
   max-height: 466px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 15px 30px;
+  padding: 30px;
   overflow-y: hidden;
   display: flex;
   flex-direction: column;

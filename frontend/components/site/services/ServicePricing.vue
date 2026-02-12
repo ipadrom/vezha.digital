@@ -93,6 +93,9 @@
               </div>
             </div>
           </TransitionGroup>
+<!--          <NuxtLink class="call-btn" :to="`/services/${activeService}`">-->
+<!--            {{$t('services.redirect_btn')}}-->
+<!--          </NuxtLink>-->
         </div>
       </div>
     </div>
@@ -191,8 +194,8 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
   transition: all 0.2s ease-out;
 
   box-shadow:
-      -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
+      inset 0 0 0 3px rgba(0, 0, 0, 0.0001),
+      -10px 0 15px -5px rgba(0, 255, 65, 0.3);
 }
 
 .service-item::before {
@@ -321,6 +324,29 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 .service-detail .service-deadline {
   margin-bottom: 15px;
   color: var(--accent);
+}
+
+.call-btn{
+  align-self: flex-end;
+  padding: 12px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: inline-block;
+  margin-top: auto;
+}
+
+.call-btn:hover {
+  background: var(--bg);
+  color: var(--accent);
+  border: 1px solid var(--accent);
 }
 
 .fade-down-enter-from {

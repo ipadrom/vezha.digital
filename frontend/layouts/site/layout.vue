@@ -11,7 +11,7 @@
     <ParticlesCanvas/>
 
     <!-- SVG Patterns -->
-    <Garlands/>
+    <!--    <Garlands/>-->
 
     <!-- Footer -->
     <Footer :settings="settings"/>

@@ -26,7 +26,7 @@
 <style scoped>
 .stage-overlay {
   position: absolute;
-  top: 100px;
+  top: 160px;
   left: 50%;
   transform: translate(-50%, -50%);
   background: var(--bg-secondary);

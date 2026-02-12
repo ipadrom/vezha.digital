@@ -59,7 +59,7 @@ const activeItem = ref(props.items[0]?.title ?? '')
   justify-content: center;
   gap: 30px;
   margin: auto;
-  max-width: 1100px;
+  max-width: 100%;
 }
 
 .feature-card p {

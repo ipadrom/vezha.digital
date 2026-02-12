@@ -163,7 +163,3 @@ onMounted(async () => {
   settings.value = data.settings;
 });
 </script>
-
-<style scoped>
-
-</style>

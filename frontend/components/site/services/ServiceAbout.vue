@@ -29,7 +29,7 @@ defineProps<{
   align-items: center;
   justify-content: center;
   padding: 80px;
-  max-width: 1300px;
+  max-width: 100%;
   margin: 0 auto;
 }
 
