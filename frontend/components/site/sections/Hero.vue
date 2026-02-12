@@ -40,7 +40,7 @@ const heroCanvas = ref<HTMLCanvasElement | null>(null)
 const heroTitle = computed(() => {
   if(!props.settings) {
     return ''
-  };
+  }
 
   const {hero_title, hero_price} = props.settings;
   return hero_title.replace('{price}', hero_price);
