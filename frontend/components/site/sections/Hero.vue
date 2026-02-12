@@ -9,7 +9,7 @@
           <h1 class="hero__title">
             <span>{{displayedText}}</span><span class="cursor">|</span>
           </h1>
-          <p class="hero__subtitle">Запускаем проекты за 1-4 недели</p>
+          <p class="hero__subtitle">{{ props.settings?.hero_subtitle }}</p>
           <button class="btn btn-primary" @click="$emit('openModal')">
             {{ $t('hero.cta') }}
           </button>
@@ -27,21 +27,26 @@
 
 <script setup lang="ts">
 import {useTypeWriterAnimation} from "~/composables/useTypeWriterAnimation";
+import type {ISettings} from "~/utils/interfaces/ISettings";
 
-defineProps<{
-  settings?: Record<string, string>
+const props = defineProps<{
+  settings: ISettings | null
 }>()
 
 defineEmits(['openModal'])
 
 const heroCanvas = ref<HTMLCanvasElement | null>(null)
 
-const heroText = `Разработка
-веб-сайтов,
-Telegram Mini Apps
-и AI-решений`
+const heroTitle = computed(() => {
+  if(!props.settings) {
+    return ''
+  };
 
-const { displayedText } = useTypeWriterAnimation(heroText, 50, 300)
+  const {hero_title, hero_price} = props.settings;
+  return hero_title.replace('{price}', hero_price);
+})
+
+const { displayedText } = useTypeWriterAnimation(heroTitle, 50, 300)
 
 // 3D Animation with Three.js
 onMounted(() => {

@@ -1,5 +1,5 @@
 export const useTypeWriterAnimation = (
-    text: string,
+    text: Ref<string> | ComputedRef<string>,
     speed = 50,
     startDelay = 0
 ) => {
@@ -9,12 +9,17 @@ export const useTypeWriterAnimation = (
     let timeout: ReturnType<typeof setTimeout> | null = null
 
     const startAnimation = () => {
+        stopAnimation()
+        const str = unref(text)
+        displayedText.value = ''
+        index = 0
+
         timeout = setTimeout(() => {
             interval = setInterval(() => {
-                displayedText.value += text[index]
-                index++
-
-                if(index >= text.length) {
+                if (index < str.length){
+                    displayedText.value += str[index]
+                    index++
+                } else {
                     stopAnimation()
                 }
             }, speed)
@@ -24,10 +29,16 @@ export const useTypeWriterAnimation = (
     const stopAnimation = () => {
         if (interval) clearInterval(interval)
         if (timeout) clearTimeout(timeout)
+        interval = null
+        timeout = null
     }
 
     onMounted(startAnimation)
     onUnmounted(stopAnimation)
+
+    watch(text, () => {
+        startAnimation()
+    })
 
     return {
         displayedText,
