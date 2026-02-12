@@ -3,7 +3,7 @@ import type {IProjects} from "~/utils/interfaces/IProjects";
 import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
 import type {ITechStack} from "~/utils/interfaces/ITechStack";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
-import type {ISettings} from "~/utils/interfaces/ISettings";
+import type {ISettings, ISettingsResponse} from "~/utils/interfaces/ISettings";
 
 export const useApi = () => {
   const config = useRuntimeConfig()
@@ -51,7 +51,7 @@ export const useApi = () => {
   const getAdvantages = () => fetchApi<IAdvantages[]>('/advantages')
   const getTechStack = () => fetchApi<ITechStack[]>('/tech-stack')
   const getWorkStages = () => fetchApi<IWorkStages[]>('/work-stages')
-  const getSettings = () => fetchApi<ISettings>('/settings')
+  const getSettings = () => fetchApi<ISettingsResponse>('/settings')
 
   const submitContact = (data: { name: string; contact: string; message: string }) => {
     // Convert reactive to plain object
