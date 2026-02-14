@@ -7,7 +7,7 @@
       <div class="hero__wrapper">
         <div class="hero__left">
           <h1 class="hero__title">
-            <span>{{displayedText}}</span><span class="cursor">|</span>
+            <span>{{displayedText}}</span>
           </h1>
           <p class="hero__subtitle">{{ props.settings?.hero_subtitle }}</p>
           <button class="btn btn-primary" @click="$emit('openModal')">
@@ -259,7 +259,7 @@ function init3DScene() {
 }
 
 .hero__title {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 3.5rem;
   font-weight: 700;
   line-height: 1.2;
@@ -275,7 +275,7 @@ function init3DScene() {
   font-size: 1.3rem;
   color: var(--text-dim);
   margin-bottom: 40px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   opacity: 0;
   animation: fadeUp 1s ease-out 0.5s forwards;
 }

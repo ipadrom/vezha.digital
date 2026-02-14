@@ -2,7 +2,7 @@
   <section id="projects" class="section">
     <div class="container-main">
       <h2 class="section-title">
-        <span class="bracket">&lt;</span>{{ $t('projects.title') }}<span class="bracket">/&gt;</span>
+        {{ $t('projects.title') }} <span class="bracket">&gt;</span>
       </h2>
 
       <div class="projects-grid">

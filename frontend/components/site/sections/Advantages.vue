@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <section
       id="advantages"
       class="section"
@@ -10,7 +10,7 @@
         <!-- Left: big title + tags -->
         <div class="advantages-left fade-item" :style="{ '--enter-delay': '0ms' }">
           <h2 class="section-title advantages-title">
-            <span class="bracket">&lt;</span>{{ $t('advantages.title') }}<span class="bracket">/&gt;</span>
+            {{ $t('advantages.title') }} <span class="bracket">&gt;</span>
           </h2>
           <p class="advantages-subtitle">{{ $t('advantages.subtitle') }}</p>
 
@@ -104,11 +104,12 @@ function hoverCard(index: number) {
   text-align: left;
   margin-top: 0;
   margin-bottom: 16px;
+  white-space: nowrap;
 }
 
 .advantages-subtitle {
   color: #b0b0b0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.95rem;
   margin-bottom: 32px;
 }
@@ -128,7 +129,7 @@ function hoverCard(index: number) {
   border: 2px solid var(--accent);
   background: var(--accent);
   color: var(--bg);
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 0.85rem;
 }
 
@@ -180,11 +181,11 @@ function hoverCard(index: number) {
 
 .accordion-card--active {
   border-color: var(--accent);
-  box-shadow: -10px 0 20px -5px rgba(0, 255, 65, 0.25);
+  box-shadow: -10px 0 20px -5px rgba(0, 229, 255, 0.25);
 }
 
 .accordion-card__title {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.8rem;
   font-weight: bold;
   color: var(--accent);
@@ -195,7 +196,7 @@ function hoverCard(index: number) {
 .accordion-card__description {
   color: #e0e0e0;
   line-height: 1.8;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.85rem;
 }
 

@@ -1,19 +1,17 @@
-<template>
+﻿<template>
   <section
       id="contacts"
       class="section"
       ref="contactsRef"
   >
     <div class="container-main">
-      <h2 class="section-title">
-        <span class="bracket">&lt;</span>{{ $t('contacts.title') }}<span class="bracket">/&gt;</span>
-      </h2>
-
       <div class="contact">
         <!-- Left Column: Contact Info -->
         <div class="contact__left">
-          <h3 class="font-bold">Готовы начать?</h3>
-          <p>Обсудим ваш проект и рассчитаем точную стоимость</p>
+          <h2 class="section-title contacts-section-title">
+            {{ $t('contacts.title') }} <span class="bracket">&gt;</span>
+          </h2>
+          <p class="contacts-subtitle">Обсудим ваш проект и рассчитаем точную стоимость</p>
 
           <div class="contacts-list">
             <a
@@ -132,7 +130,7 @@ const copyToClipboard = (text: string) => {
       background: var(--accent);
       color: var(--bg);
       padding: 15px 25px;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: var(--font-inter);
       z-index: 10000;
       animation: fadeUp 0.3s ease-out;
     `
@@ -160,16 +158,19 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
+  margin-top: 5rem;
 }
 
-.contact__left h3 {
-  font-family: var(--font-epilepsy);
-  font-size: 2rem;
-  margin-bottom: 20px;
+.contacts-section-title {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 16px;
+  white-space: nowrap;
 }
 
-.contact__left > p {
+.contacts-subtitle {
   color: var(--text-dim);
+  font-family: var(--font-inter);
   font-size: 1.1rem;
   margin-bottom: 40px;
 }
@@ -255,7 +256,7 @@ onUnmounted(() => {
   align-items: flex-start;
   gap: 8px;
   padding: 10px 0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.78rem;
   color: #e0e0e0;
   line-height: 1.5;
@@ -276,7 +277,7 @@ onUnmounted(() => {
 }
 
 .faq-item__answer {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.72rem;
   color: var(--text-dim);
   line-height: 1.7;

@@ -73,7 +73,7 @@ defineProps<{
   padding: 60px 20px 30px;
   z-index: 100;
   width: 100%;
-  box-shadow: 0 -5px 10px rgba(0, 255, 65, 0.3);
+  box-shadow: 0 -5px 10px rgba(0, 229, 255, 0.3);
   clear: both;
 }
 

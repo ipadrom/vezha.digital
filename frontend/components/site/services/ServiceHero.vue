@@ -55,6 +55,7 @@
 }
 
 .service-hero__price {
+  font-family: var(--font-inter);
   font-size: 2rem;
   color: var(--accent);
   font-weight: 700;

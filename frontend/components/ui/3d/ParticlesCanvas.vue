@@ -21,7 +21,7 @@ function initParticles() {
 
   const particles: any[] = []
   const particleChars = ['>', '$', '_', '|', '{', '}', '<', '/', '>', '•', '·']
-  const colors = ['#00ff41', '#00ff41', '#00ff41', '#ffffff', '#a0a0a0']
+  const colors = ['#00E5FF', '#00E5FF', '#00E5FF', '#ffffff', '#a0a0a0']
 
   class Particle {
     x: number

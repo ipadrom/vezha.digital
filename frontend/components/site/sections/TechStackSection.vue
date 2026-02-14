@@ -208,7 +208,7 @@ function initThree() {
   const fill = new THREE.DirectionalLight(0x4488ff, 0.4)
   fill.position.set(-6, 4, 5)
   scene.add(fill)
-  const rim = new THREE.DirectionalLight(0x00ff41, 0.25)
+  const rim = new THREE.DirectionalLight(0x00E5FF, 0.25)
   rim.position.set(0, -5, -8)
   scene.add(rim)
 
@@ -342,7 +342,7 @@ function clearConnector() {
 function onMenuEnter(id: string) {
   hoveredTech.value = id
   Object.entries(labelEls).forEach(([lid, el]) => {
-    el.style.color = lid === id ? 'var(--accent, #00ff41)' : 'rgba(224,224,224,0.75)'
+    el.style.color = lid === id ? 'var(--accent, #00E5FF)' : 'rgba(224,224,224,0.75)'
   })
 }
 
@@ -497,7 +497,7 @@ onBeforeUnmount(() => {
 }
 
 .wm-bracket {
-  color: rgba(0, 255, 65, 0.04);
+  color: rgba(0, 229, 255, 0.04);
 }
 
 .stack-canvas {

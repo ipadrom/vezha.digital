@@ -5,7 +5,7 @@
   <TechStackSection :tech-stack="techStack" />
   <Services :services="services" />
   <Advantages :advantages="advantages" />
-  <Projects :projects="projects" />
+  <!-- <Projects :projects="projects" /> -->
   <WorkStages :stages="workStages" />
   <Contacts :settings="settings" @openModal="showModal = true" />
 

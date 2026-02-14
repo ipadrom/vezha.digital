@@ -5,8 +5,8 @@
       ref="servicesRef"
   >
     <div class="container-main">
-      <h2 class="section-title">
-        <span class="bracket">&lt;</span>{{ $t('services.title') }}<span class="bracket">/&gt;</span>
+      <h2 class="section-title" style="text-align: left;">
+        {{ $t('services.title') }} <span class="bracket">&gt;</span>
       </h2>
 
       <div v-if="isSectionVisible" class="services-new">
@@ -34,7 +34,7 @@
               >
                   <h3 class="font-bold">{{ service.name }}</h3>
                   <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
-                    {{ service.price_currency }}
+                    {{ service.price_currency }} <span class="arrow">&gt;</span>
                   </p>
               </NuxtLink>
 
@@ -45,7 +45,7 @@
                 <h3 class="font-bold">{{ service.name }}</h3>
                 <p class="price">
                   {{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
-                  {{ service.price_currency }}
+                  {{ service.price_currency }} <span class="arrow">&gt;</span>
                 </p>
               </div>
 
@@ -109,7 +109,7 @@
 <script setup lang="ts">
 import type {IServices} from "~/utils/interfaces/IServices";
 
-const { isSectionVisible, targetRef: servicesRef } = useSectionVisible( 0.1)
+const { isSectionVisible, targetRef: servicesRef } = useSectionVisible(0.1)
 
 const props = defineProps<{
   services: IServices[]
@@ -136,6 +136,11 @@ const setActiveFirst = () => {
 onMounted(() => {
   checkIsAdaptiveMobile()
   setActiveFirst()
+  window.addEventListener('resize', checkIsAdaptiveMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkIsAdaptiveMobile)
 })
 
 watch(() => props.services, () => {
@@ -184,11 +189,9 @@ const formatPrice = (price: number) => {
   padding: 12px;
   cursor: pointer;
   color: #e0e0e0;
-  transition: all 0.2s ease-out;
-
-  box-shadow:
-      inset 0 0 0 3px rgba(0, 0, 0, 0.0001),
-      -10px 0 15px -5px rgba(0, 255, 65, 0.3);
+  transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
+  position: relative;
+  overflow: hidden;
 }
 
 .service-item::before {
@@ -196,22 +199,16 @@ const formatPrice = (price: number) => {
   position: absolute;
   top: 0;
   left: 0;
-
   width: 4px;
-  height: 0;
-
+  height: 100%;
   background: var(--accent);
   box-shadow: 0 0 10px var(--accent);
-
-  animation: scanLineDown 0.6s ease-out forwards;
 }
 
 .service-item:hover,
 .service-item.active {
   border-color: var(--accent);
-  box-shadow:
-      inset 0 0 0 3px var(--accent),
-      0 0 15px var(--accent);
+  box-shadow: -10px 0 20px -5px rgba(0, 229, 255, 0.25);
 }
 
 .service-header {
@@ -219,18 +216,27 @@ const formatPrice = (price: number) => {
   justify-content: space-between;
   align-items: center;
   margin: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
 .service-item h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.1rem;
+  font-weight: 600;
   margin: 0;
   color: var(--text);
   flex: 1;
+  transition: color 0.2s;
+}
+
+.service-item:hover h3,
+.service-item.active h3 {
+  color: var(--accent);
 }
 
 .service-item .price {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 1rem;
   color: var(--accent);
   margin: 0 0 0 10px;
@@ -239,10 +245,10 @@ const formatPrice = (price: number) => {
   position: relative;
 }
 
-.service-item .price::after {
-  content: " ->";
-  font-family: var(--font-epilepsy);
-  margin-left: 5px;
+.arrow {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 4px;
 }
 
 .service-details {
@@ -254,10 +260,8 @@ const formatPrice = (price: number) => {
   overflow-y: hidden;
   display: flex;
   flex-direction: column;
-
-  box-shadow:
-      -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
 .service-details::before {
@@ -265,14 +269,10 @@ const formatPrice = (price: number) => {
   position: absolute;
   top: 0;
   left: 0;
-
   width: 4px;
-  height: 0;
-
+  height: 100%;
   background: var(--accent);
   box-shadow: 0 0 10px var(--accent);
-
-  animation: scanLineDown 0.6s ease-out forwards;
 }
 
 .service-detail {
@@ -287,25 +287,28 @@ const formatPrice = (price: number) => {
 }
 
 .service-detail h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.8rem;
   margin-bottom: 15px;
   color: var(--accent);
+  font-weight: 800;
 }
 
 .service-detail .price {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 1.5rem;
   color: var(--accent);
   margin-bottom: 15px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .service-detail .desc {
+  font-family: var(--font-inter);
   font-size: 1.1rem;
   color: #e0e0e0;
   margin-bottom: 25px;
-  line-height: 1;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .fade-down-enter-from {
@@ -322,6 +325,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-content p {
+  font-family: var(--font-inter);
   color: #e0e0e0;
   margin-bottom: 15px;
   line-height: 1.4;
@@ -333,6 +337,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-content ul li {
+  font-family: var(--font-inter);
   color: #e0e0e0;
   padding: 8px 0 8px 20px;
   position: relative;
@@ -346,10 +351,10 @@ const formatPrice = (price: number) => {
   color: var(--accent);
 }
 
-.redirect-btn{
+.redirect-btn {
   align-self: flex-end;
   padding: 12px 28px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.9rem;
   border: 1px solid var(--accent);
   background: var(--accent);
@@ -401,6 +406,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-mobile-content .desc {
+  font-family: var(--font-inter);
   font-size: 1rem;
   color: #e0e0e0;
   margin-bottom: 15px;
@@ -408,6 +414,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-mobile-content .service-content p {
+  font-family: var(--font-inter);
   color: #e0e0e0;
   margin-bottom: 12px;
   line-height: 1.6;
@@ -421,6 +428,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-mobile-content .service-content ul li {
+  font-family: var(--font-inter);
   color: #e0e0e0;
   padding: 6px 0 6px 20px;
   position: relative;
@@ -433,13 +441,6 @@ const formatPrice = (price: number) => {
   position: absolute;
   left: 0;
   color: var(--accent);
-}
-
-@keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @keyframes cardRevealDown {
@@ -456,9 +457,7 @@ const formatPrice = (price: number) => {
 }
 
 @keyframes scanLineDown {
-  to {
-    height: 100%;
-  }
+  to { height: 100%; }
 }
 
 @media (max-width: 992px) {
@@ -472,19 +471,6 @@ const formatPrice = (price: number) => {
     flex: none;
     width: 100%;
     overflow: visible;
-  }
-
-  .service-details {
-    min-height: 300px;
-  }
-
-  .service-details.mobile {
-    margin-top: 20px;
-    padding: 20px;
-  }
-
-  .service-details.mobile .service-detail {
-    display: block;
   }
 
   .service-item {

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <!-- Tall wrapper: scroll-lock effect via CSS sticky -->
   <div id="stages" class="stages-wrapper" ref="wrapperRef">
     <div class="stages-sticky" ref="sectionRef">
@@ -378,7 +378,7 @@ onBeforeUnmount(() => {
   font-family: var(--font-epilepsy);
   font-size: clamp(80px, 16vw, 220px);
   font-weight: 900;
-  color: rgba(0, 255, 65, 0.03);
+  color: rgba(0, 229, 255, 0.03);
   pointer-events: none;
   user-select: none;
   white-space: nowrap;
@@ -386,7 +386,7 @@ onBeforeUnmount(() => {
 }
 
 .wm-bracket {
-  color: rgba(0, 255, 65, 0.025);
+  color: rgba(0, 229, 255, 0.025);
 }
 
 /* ── Constellation wrapper ── */
@@ -498,12 +498,12 @@ onBeforeUnmount(() => {
   background: var(--bg-secondary);
   border: 1px solid var(--accent);
   padding: 16px 18px;
-  box-shadow: 0 0 24px rgba(0, 255, 65, 0.12), -3px 0 0 0 var(--accent);
+  box-shadow: 0 0 24px rgba(0, 229, 255, 0.12), -3px 0 0 0 var(--accent);
   pointer-events: none;
 }
 
 .c-card__desc {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.75rem;
   color: #e0e0e0;
   line-height: 1.6;
@@ -520,7 +520,7 @@ onBeforeUnmount(() => {
 }
 
 .c-card__features li {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.7rem;
   color: var(--accent);
   opacity: 0.85;
@@ -544,7 +544,7 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   height: 2px;
-  background: rgba(0, 255, 65, 0.08);
+  background: rgba(0, 229, 255, 0.08);
   z-index: 3;
 }
 
@@ -617,7 +617,7 @@ onBeforeUnmount(() => {
 
   .stage-item.active {
     border-left-color: var(--accent);
-    box-shadow: -10px 0 15px -5px rgba(0, 255, 65, 0.3);
+    box-shadow: -10px 0 15px -5px rgba(0, 229, 255, 0.3);
   }
 
   .stage-item__number {

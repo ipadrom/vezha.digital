@@ -7,9 +7,6 @@
       <slot/>
     </main>
 
-    <!-- Particles Canvas -->
-    <ParticlesCanvas/>
-
     <!-- Footer -->
     <Footer :settings="settings"/>
 
@@ -22,7 +19,6 @@
 <script setup lang="ts">
 
 import ContactModal from "~/components/modals/ContactModal.vue";
-import ParticlesCanvas from "~/components/ui/3d/ParticlesCanvas.vue";
 
 const showModal = ref(false);
 const settings = ref({})

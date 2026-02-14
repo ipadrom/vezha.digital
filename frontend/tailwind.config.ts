@@ -1,4 +1,4 @@
-import type { Config } from 'tailwindcss'
+﻿import type { Config } from 'tailwindcss'
 
 export default {
   darkMode: 'class',
@@ -28,19 +28,19 @@ export default {
           card: '#ffffff',
           border: '#e5e5e5',
         },
-        // Accent colors (maket style - green)
+        // Accent colors (cyan)
         accent: {
-          DEFAULT: '#00ff41',
-          dark: '#00ff41',
-          'dark-hover': '#00cc34',
-          light: '#00ff41',
-          'light-hover': '#00cc34',
+          DEFAULT: '#00E5FF',
+          dark: '#00E5FF',
+          'dark-hover': '#00b8cc',
+          light: '#00E5FF',
+          'light-hover': '#00b8cc',
         },
         // Text colors
         'text-dim': '#a0a0a0',
       },
       fontFamily: {
-        sans: ['JetBrains Mono', 'monospace'],
+        sans: ['Inter', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
         pixel: ['Pixelify Sans', 'monospace'],
       },

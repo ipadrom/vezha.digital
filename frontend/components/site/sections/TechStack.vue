@@ -10,7 +10,7 @@
         <!-- Left: title + text (всегда в DOM для корректного sticky) -->
         <div class="who-we-are__left">
           <h2 class="section-title who-we-are__title">
-            <span class="bracket">&lt;</span>Кто мы<span class="bracket">/&gt;</span>
+            Кто мы <span class="bracket">&gt;</span>
           </h2>
           <div class="who-we-are__text">
             <p>{{ aboutUs.description }}</p>
@@ -97,9 +97,10 @@ const stats = [
 
 .who-we-are__text p {
   color: #e0e0e0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.95rem;
   line-height: 1.8;
+  font-weight: 400;
 }
 
 /* Right: 2x2 grid */
@@ -114,7 +115,7 @@ const stats = [
   border: 1px solid var(--border);
   padding: 24px;
   position: relative;
-  box-shadow: -4px 0 0 0 var(--accent), -10px 0 15px -5px rgba(0, 255, 65, 0.2);
+  box-shadow: -4px 0 0 0 var(--accent), -10px 0 15px -5px rgba(0, 229, 255, 0.2);
 }
 
 .stat-card::before {
@@ -129,7 +130,7 @@ const stats = [
 }
 
 .stat-card__value {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.4rem;
   font-weight: bold;
   color: var(--accent);
@@ -139,7 +140,7 @@ const stats = [
 
 .stat-card__description {
   color: #e0e0e0;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.8rem;
   line-height: 1.7;
 }

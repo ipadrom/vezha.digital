@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <section class="section" ref="targetRef">
     <div class="container">
       <h2 class="section-title">
@@ -192,7 +192,7 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 
   box-shadow:
       -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
+      rgba(0, 229, 255, 0.3);
 }
 
 .service-item::before {
@@ -234,7 +234,7 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 }
 
 .service-item .price {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 1rem;
   color: var(--accent);
   margin: 0 0 0 10px;
@@ -267,7 +267,7 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 
   box-shadow:
       -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
+      rgba(0, 229, 255, 0.3);
 }
 
 .service-details::before {
@@ -304,7 +304,7 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 }
 
 .service-detail .price {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 1.5rem;
   color: var(--accent);
   margin-bottom: 15px;
