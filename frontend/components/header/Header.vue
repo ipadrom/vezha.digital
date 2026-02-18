@@ -16,14 +16,6 @@
 
         <!-- Actions -->
         <div class="header__actions">
-          <!-- Invert toggle -->
-          <button @click="toggleInvert" class="invert-btn" :title="isInverted ? 'Выключить инверсию' : 'Включить инверсию'">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 2a10 10 0 0 1 0 20V2z" :fill="isInverted ? 'currentColor' : 'none'"/>
-            </svg>
-          </button>
-
           <button
               @click="$emit('openModal')"
               class="btn btn-primary hidden sm:inline-block"
@@ -59,13 +51,6 @@ defineEmits(['openModal'])
 
 const { t } = useI18n()
 const isMenuOpen = ref(false)
-const isInverted = ref(false)
-
-const toggleInvert = () => {
-  isInverted.value = !isInverted.value
-  document.body.classList.toggle('inverted', isInverted.value)
-  localStorage.setItem('inverted', isInverted.value ? '1' : '0')
-}
 
 const navItems = computed(() => [
   { href: '/#hero', label: t('nav.home') },
@@ -76,14 +61,6 @@ const navItems = computed(() => [
   { href: '/#stages', label: t('nav.stages') },
   { href: '/#contacts', label: t('nav.contacts') },
 ])
-
-// Restore invert state
-onMounted(() => {
-  if (localStorage.getItem('inverted') === '1') {
-    isInverted.value = true
-    document.body.classList.add('inverted')
-  }
-})
 
 // Sticky header effect
 onMounted(() => {
@@ -133,6 +110,7 @@ onMounted(() => {
   font-weight: 700;
   color: var(--text);
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .nav {
@@ -146,9 +124,10 @@ onMounted(() => {
   font-family: var(--font-epilepsy);
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
   position: relative;
   transition: all 0.3s;
+  white-space: nowrap;
 }
 
 .nav a::after {
@@ -176,22 +155,6 @@ onMounted(() => {
   gap: 10px;
 }
 
-.invert-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  color: var(--text-dim);
-  cursor: pointer;
-  padding: 6px 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.invert-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
 
 .mobile-menu-btn {
   padding: 8px;

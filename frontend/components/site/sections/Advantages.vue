@@ -97,7 +97,6 @@ function hoverCard(index: number) {
   position: sticky;
   top: 80px;
   align-self: start;
-  /* Sticky корректно работает в CSS Grid: прилипает только внутри своей строки */
 }
 
 .advantages-title {
@@ -120,7 +119,7 @@ function hoverCard(index: number) {
   flex-wrap: wrap;
   gap: 10px;
   position: relative;
-  min-height: 80px; /* фиксирует высоту пока старые теги уходят */
+  min-height: 80px;
 }
 
 .advantages-tag {

@@ -301,7 +301,7 @@ function init3DScene() {
 
 .hero__logo-script {
   font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-  font-size: 5.5rem;
+  font-size: 7rem;
   font-weight: 400;
   color: #ffffff;
   text-shadow: 0 0 40px rgba(255, 255, 255, 0.5),
@@ -334,24 +334,6 @@ function init3DScene() {
   }
 }
 
-@media (max-width: 1024px) {
-  .hero__title {
-    font-size: 2.8rem;
-  }
-
-  .hero__subtitle {
-    font-size: 1.1rem;
-  }
-
-  .hero__logo-script {
-    font-size: 4.5rem;
-  }
-
-  .hero__logo-digital {
-    font-size: 2.5rem;
-    letter-spacing: 6px;
-  }
-}
 
 @media (max-width: 768px) {
   .hero__wrapper {
