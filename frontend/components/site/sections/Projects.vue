@@ -48,10 +48,12 @@
 </template>
 
 <script setup lang="ts">
+import type {IProjects} from "~/utils/interfaces/IProjects";
+
 const config = useRuntimeConfig()
 
 defineProps<{
-  projects: any[]
+  projects: IProjects[]
 }>()
 
 const activeProject = ref<number | null>(null)
