@@ -6,20 +6,8 @@
       </h2>
 
       <div class="stages-timeline stages-desktop">
-        <div v-for="stage in stages" :key="stage.id" class="stage-wrapper">
-          <div class="stage-title section-title">
-            <span class="bracket">&lt;</span>{{ stage.title }}<span class="bracket">/&gt;</span>
-          </div>
-          <div class="stage-number">
-            <span class="bracket">&lt;</span>{{ String(stage.step_number).padStart(2, '0') }}<span class="bracket">&gt;</span>
-          </div>
-          <div class="stage-brief">{{ stage.description }}</div>
-          <StageOverlay
-              :duration="stage.duration"
-              :details="stage.details"
-              :features="stage.features"
-          />
-        </div>
+        <StarfieldParallax/>
+        <WorkStagesContent/>
       </div>
     </div>
 
@@ -48,10 +36,12 @@
 </template>
 
 <script setup lang="ts">
-import StageOverlay from "~/components/ui/overlay/StageOverlay.vue";
+import WorkStagesContent from "~/components/ui/work-stages-conten/WorkStagesContent.vue";
+import StarfieldParallax from "~/components/ui/3d/StarfieldParallax.vue";
+import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
 
 defineProps<{
-  stages: any[]
+  stages: IWorkStages[]
 }>()
 
 const stages = ref([
@@ -123,49 +113,6 @@ const activeStage = ref(1)
   gap: 40px;
   overflow-x: visible;
   width: 100%;
-}
-
-.stage-wrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 220px;
-  z-index: 0;
-  flex: 0 1 auto;
-}
-
-.stage-title {
-  font-family: var(--font-epilepsy);
-  margin-bottom: 10px;
-  font-size: 1.2rem;
-  text-align: center;
-}
-
-.stage-number {
-  font-family: var(--font-epilepsy);
-  font-size: 2.5rem;
-  color: var(--accent);
-  font-weight: 700;
-  margin-bottom: 10px;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-.stage-number:hover {
-  animation: glitch 0.3s infinite;
-}
-
-.stage-brief {
-  color: var(--text-dim);
-  text-align: center;
-  margin-bottom: 15px;
-  font-size: 0.9rem;
-  line-height: 1.4;
-  max-width: 200px;
 }
 
 .stage-wrapper:hover .stage-overlay {

@@ -70,7 +70,7 @@ onMounted(() => {
   window.addEventListener('scroll', () => {
     if (window.scrollY > 50) {
       header.style.background = 'rgba(10, 10, 10, 0.98)'
-      header.style.boxShadow = '0 5px 20px rgba(0, 255, 65, 0.1)'
+      header.style.boxShadow = '0 5px 20px rgba(0, 229, 255, 0.1)'
       header.classList.add('glitch-scroll')
       setTimeout(() => {
         header.classList.remove('glitch-scroll')
@@ -110,6 +110,7 @@ onMounted(() => {
   font-weight: 700;
   color: var(--text);
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .nav {
@@ -123,9 +124,10 @@ onMounted(() => {
   font-family: var(--font-epilepsy);
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 1rem;
+  font-size: 0.95rem;
   position: relative;
   transition: all 0.3s;
+  white-space: nowrap;
 }
 
 .nav a::after {
