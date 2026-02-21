@@ -9,6 +9,15 @@
     <p class="fade-item">
       {{since_description}}
     </p>
+    <p class="fade-item">
+      {{duration}}
+    </p>
+    <p class="fade-item">
+      {{details}}
+    </p>
+    <p class="fade-item">
+      {{points}}
+    </p>
 
     <slot/>
   </div>
@@ -19,6 +28,9 @@
     title?: String,
     description?: String,
     since_description?: String,
+    duration?: String,
+    details?: String,
+    points?: String
   }>()
 </script>
 
@@ -26,7 +38,7 @@
 .card {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 30px;
+  padding: 20px;
   border-radius: 0;
   flex-grow: 1;
   height: auto;
