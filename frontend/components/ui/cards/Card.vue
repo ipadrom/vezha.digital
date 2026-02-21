@@ -78,8 +78,8 @@
 }
 
 .card h3 {
-  font-family: var(--font-epilepsy);
-  font-size: 1.8rem;
+  font-family: var(--font-inter);
+  font-size: 1.6rem;
   margin-bottom: 20px;
   color: var(--accent);
 }

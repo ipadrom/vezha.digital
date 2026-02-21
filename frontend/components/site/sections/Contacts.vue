@@ -1,40 +1,28 @@
 <template>
-  <section
-      id="contacts"
-      class="section"
-      ref="contactsRef"
-  >
+  <section id="contacts" class="section" ref="contactsRef">
     <div class="container-main">
-      <h2 class="section-title">
-        <span class="bracket">&lt;</span>{{ $t('contacts.title') }}<span class="bracket">/&gt;</span>
-      </h2>
-
       <div class="contact">
-        <!-- Left Column: Contact Info -->
+
         <div class="contact__left">
-          <h3 class="font-bold">Готовы начать?</h3>
-          <p>Обсудим ваш проект и рассчитаем точную стоимость</p>
+          <h2 class="section-title contacts-section-title">
+            {{ $t('contacts.title') }} <span class="bracket">&gt;</span>
+          </h2>
+          <p class="contacts-subtitle">Обсудим ваш проект и рассчитаем точную стоимость</p>
 
           <div class="contacts-list">
-            <a
-              v-if="settings?.contact_telegram"
-              :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
-              target="_blank"
-            >
+            <a v-if="settings?.contact_telegram"
+               :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
+               target="_blank">
               <span>📱</span> Telegram: {{ settings.contact_telegram }}
             </a>
-            <a
-              v-if="settings?.contact_email"
-              :href="`mailto:${settings.contact_email}`"
-              @click.prevent="copyToClipboard(settings.contact_email)"
-            >
+            <a v-if="settings?.contact_email"
+               :href="`mailto:${settings.contact_email}`"
+               @click.prevent="copyToClipboard(settings.contact_email)">
               <span>📧</span> Email: {{ settings.contact_email }}
             </a>
-            <a
-              v-if="settings?.contact_phone"
-              :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
-              @click.prevent="copyToClipboard(settings.contact_phone)"
-            >
+            <a v-if="settings?.contact_phone"
+               :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
+               @click.prevent="copyToClipboard(settings.contact_phone)">
               <span>📞</span> Телефон: {{ settings.contact_phone }}
             </a>
           </div>
@@ -44,36 +32,37 @@
           </button>
         </div>
 
-        <!-- Right Column: Terminal -->
-          <div 
-            class="contact__right" 
-            v-if="isSectionVisible && !isAdaptiveMobile"
-          >
-            <TransitionGroup
-                name="fade-down"
-                appear
-            >
-            <div class="terminal fade-item">
-              <div class="terminal__header fade-item" style="--enter-delay: 0.1s">contact.sh</div>
-              <div class="terminal__body fade-item">
-                <div class="terminal__line fade-item">
-                  <span class="prompt fade-item" style="--enter-delay: 0.2s">$</span> cat contact_info.json
+        <!-- Правая колонка: FAQ-терминал -->
+        <div class="contact__right" v-if="isSectionVisible && !isAdaptiveMobile">
+          <div class="terminal fade-item">
+            <div class="terminal__header">faq.sh</div>
+            <div class="terminal__body">
+              <div class="terminal__line">
+                <span class="prompt">$</span> cat faq.json
+              </div>
+              <div class="faq-list">
+                <div
+                    v-for="(item, i) in FAQ"
+                    :key="i"
+                    class="faq-item"
+                    :class="{ open: openFaq === i }"
+                    @click="openFaq = openFaq === i ? null : i"
+                >
+                  <div class="faq-item__question">
+                    <span class="faq-item__arrow">{{ openFaq === i ? '▾' : '▸' }}</span>
+                    <span class="faq-item__text">{{ item.q }}</span>
+                  </div>
+                  <Transition name="faq-expand">
+                    <div v-if="openFaq === i" class="faq-item__answer">
+                      {{ item.a }}
+                    </div>
+                  </Transition>
                 </div>
-                <pre style="--enter-delay: 0.3s">{
-  "status": "open_to_work",
-  "services": [
-    "web_development",
-    "telegram_apps",
-    "ai_integration"
-  ],
-  "location": "Moscow, Russia",
-  "response_time": "24 hours",
-  "free_consultation": true
-}</pre>
               </div>
             </div>
-            </TransitionGroup>
           </div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -85,6 +74,31 @@ const { isSectionVisible, targetRef: contactsRef } = useSectionVisible(0.1)
 defineProps<{
   settings?: Record<string, string>
 }>()
+
+const FAQ = [
+  {
+    q: 'Почему важно, чтобы над проектом работала команда?',
+    a: 'Один разработчик не может закрыть все задачи качественно. С вами работают дизайнер, копирайтер, маркетолог, разработчик и менеджер. Команда делает не просто сайт — а систему, которая приводит клиентов.',
+  },
+  {
+    q: 'Зачем нужна аналитика, если сайт и так работает?',
+    a: 'Без аналитики вы не знаете, что именно работает, а что — нет. Аналитика позволяет принимать решения на основе данных и масштабировать то, что реально приносит результат.',
+  },
+  {
+    q: 'Почему не стоит заказывать сайт у фрилансера?',
+    a: 'Фрилансер — это риск. Один человек не успеет сделать качественно дизайн, код, тексты и SEO одновременно. Команда даёт системный результат, поддержку и ответственность.',
+  },
+  {
+    q: 'Сколько стоит разработка сайта?',
+    a: 'Стоимость зависит от задачи: лендинг, корпоративный сайт или сложное веб-приложение — это разные бюджеты. Напишите нам — мы бесплатно оценим ваш проект.',
+  },
+  {
+    q: 'Как быстро вы отвечаете на запросы?',
+    a: 'Первый ответ — в течение 24 часов. На консультацию выходим в удобное для вас время.',
+  },
+]
+
+const openFaq = ref<number | null>(0)
 
 const isAdaptiveMobile = ref(false)
 const checkIsAdaptiveMobile = () => {
@@ -132,16 +146,19 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
+  margin-top: 5rem;
 }
 
-.contact__left h3 {
-  font-family: var(--font-epilepsy);
-  font-size: 2rem;
-  margin-bottom: 20px;
+.contacts-section-title {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 16px;
+  white-space: nowrap;
 }
 
-.contact__left > p {
+.contacts-subtitle {
   color: var(--text-dim);
+  font-family: var(--font-inter);
   font-size: 1.1rem;
   margin-bottom: 40px;
 }
@@ -168,6 +185,70 @@ onUnmounted(() => {
   color: var(--accent);
   border-color: var(--accent);
   padding-left: 20px;
+}
+
+.faq-list {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.faq-item {
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  cursor: pointer;
+  user-select: none;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-item__question {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 0;
+  font-family: var(--font-inter);
+  font-size: 0.78rem;
+  color: #e0e0e0;
+  line-height: 1.5;
+  transition: color 0.2s;
+}
+
+.faq-item:hover .faq-item__question,
+.faq-item.open .faq-item__question {
+  color: var(--accent);
+}
+
+.faq-item__arrow {
+  color: var(--accent);
+  font-size: 0.75rem;
+  margin-top: 1px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.faq-item__answer {
+  font-family: var(--font-inter);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  padding: 0 0 12px 16px;
+  border-left: 2px solid var(--accent);
+  margin-left: 4px;
+}
+
+/* Transition для раскрытия FAQ */
+.faq-expand-enter-active,
+.faq-expand-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  overflow: hidden;
+}
+.faq-expand-enter-from,
+.faq-expand-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
 }
 
 /* Terminal */

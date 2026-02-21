@@ -143,14 +143,6 @@ const aboutUsData = [
   margin-bottom: 30px;
 }
 
-.stack-group h3 {
-  font-family: var(--font-epilepsy);
-  font-size: 1.8rem;
-  color: var(--accent);
-  margin-bottom: 30px;
-  text-align: center;
-}
-
 .stats-grid{
   display: grid;
   grid-template-columns: repeat(2, 1fr);
