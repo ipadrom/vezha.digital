@@ -1,0 +1,278 @@
+Hero-блок
+Ru
+Разработка Telegram Mini Apps, корпоративных систем и AI-решений
+Eng
+Development of Telegram Mini Apps, enterprise systems, and AI solutions.
+Кто мы / Who we are
+Ru
+Мы небольшая команда — каждый проект ведёт конкретный человек, а не безликий менеджер. Специализируемся на Telegram Mini Apps, сайтах и Корпоративных системах. Погружаемся в задачу, предлагаем решения, а не просто выполняем ТЗ.
+Нам важно одно — чтобы то, что мы делаем, реально работало и приносило результат. Не берём проекты ради галочки и не исчезаем после сдачи.
+	Eng
+We care about one thing — that what we build actually works and delivers results. We don't take on projects just to check a box, and we don't disappear after launch.
+We're a small team — every project has a real person behind it, not a faceless account manager. We specialize in Telegram Mini Apps, websites, and enterprise systems. We dig into the problem and bring ideas to the table, not just execute specs
+Ru:
+На 20–30% дешевле других агентств
+2 дня от обсуждения до старта работы
+Полный цикл разработки от идеи до запуска
+Соответствие 152-ФЗ о персональных данных
+Поэтапная оплата, платите за результат
+Макет и ТЗ до подписания договора
+Eng:
+20–30% cheaper than other agencies
+2 days from discussion to project kickoff
+Full cycle development — from idea to launch
+Compliance with 152-FZ personal data law
+Pay as you go, pay for results
+Mockup and specs before signing the contract
+
+Услуги
+Для любых клиентов / For everyone
+Частные клиенты 
+Есть идея, но не знаешь с чего начать, не проблема. Разберёмся вместе: выясним что реально нужно, предложим подходящее решение и реализуем. Без раздутых смет, без лишних сложностей.
+Individuals 
+Got an idea but don't know where to start, no problem. We'll figure it out together: understand what you actually need, suggest the right solution and build it. No bloated budgets, no unnecessary complexity.
+Малый/средний бизнес 
+Автоматизируем процессы, выводим в онлайн, делаем инструменты которые реально используются, а не пылятся после сдачи. Погружаемся в процессы, предлагаем что имеет смысл и остаёмся на связи после запуска.
+Small / medium business 
+We automate processes, take businesses online, and build tools that actually get used, not ones that collect dust after delivery. We go deep on your workflow, suggest what makes sense and stay in touch after launch.
+Корпорации 
+Разрабатываем спецпроекты и помогаем проверять гипотезы: интерактивные лендинги, мини-игры, квесты, Telegram Mini Apps. Нестандартный формат, быстрый запуск, высокое вовлечение аудитории.
+Corporations 
+We build special projects and help test hypotheses: interactive landing pages, mini-games, quests, Telegram Mini Apps. Non-standard format, fast launch, high user engagement.
+
+Этапы работы / Stages
+Ru
+Анализ (1–3 дня) 
+Описание: Изучаем бизнес, цели и аудиторию. Составляем техническое задание.
+Что входит:
+Созвон с заказчиком
+Формулировка задачи и целей
+Оценка сроков и стоимости
+Согласование плана
+Проектирование (2–5 дней) 
+Описание: Создаем архитектуру проекта, как это будет выглядеть и работать. 
+Что входит:
+Wireframes и прототипы
+UI/UX дизайн
+Согласование с заказчиком
+Финальные макеты
+Дизайн (2–5 дней) 
+Описание: Создаём визуальный облик проекта, удобный, понятный и привлекательный. 
+Что входит:
+Разработка UI концепции
+Создание дизайн системы и компонентов
+Адаптация под мобильные устройства
+Согласование и правки с заказчиком
+Разработка (1–8 недель) 
+Описание: Пишем код, собираем всё вместе и интегрируем с сервисами. 
+Что входит:
+Frontend и backend разработка
+Интеграции с сервисами
+Тестирование
+Фикс багов
+Тестирование (3–7 дней) 
+Описание: Проверяем каждую деталь, чтобы продукт работал стабильно и без сюрпризов. 
+Что входит:
+Ручное и автоматизированное тестирование
+Проверка на разных устройствах и браузерах
+Нагрузочное тестирование
+Фикс выявленных ошибок
+Запуск (1–2 дня) 
+Описание: Выкатываем на прод, всё настраиваем и передаём заказчику. 
+Что входит:
+Деплой на сервер
+Настройка домена и SSL
+Передача доступов
+Первый месяц поддержки
+Поддержка (ongoing) 
+Описание: Сопровождаем проект после запуска, следим, обновляем, помогаем. 
+Что входит:
+Мониторинг работоспособности
+Оперативное устранение неполадок
+Обновление и доработка функционала
+Консультации и техническая поддержка
+Eng
+Analysis (1–3 days) 
+Description: We get to the bottom of the task, what needs to be done, why and for whom. 
+What's included:
+Kickoff call
+Task and goal definition
+Timeline and cost estimate
+Plan approval
+Design (2–5 days) 
+Description: We build the project architecture and design how it will look and work. 
+What's included:
+Wireframes and prototypes
+UI/UX design
+Client approval
+Final mockups
+Design (2–5 days) 
+Description: We craft the visual identity of the project: intuitive, clean and compelling. 
+What's included:
+UI concept development
+Design system and component creation
+Mobile responsive adaptation
+Client review and revisions
+Development (1–8 weeks) 
+Description: We write the code, put it all together and integrate with third party services. 
+What's included:
+Frontend and backend development
+Third party integrations
+Testing
+Bug fixes
+Testing (3–7 days) 
+Description: We check every detail to make sure the product works reliably and without surprises. 
+What's included:
+Manual and automated testing
+Cross device and cross browser checks
+Load and performance testing
+Bug fixes based on findings
+Launch (1–2 days) 
+Description: We deploy to production, set everything up and hand it over. 
+What's included:
+Server deployment
+Domain and SSL setup
+Access handover
+First month of support
+Support (ongoing) 
+Description: We stay with the project after launch, monitoring, updating and helping when needed. 
+What's included:
+Uptime and performance monitoring
+Rapid incident resolution
+Feature updates and improvements
+Consultations and technical support
+
+
+Услуги
+Telegram Mini Apps от 150 000 ₽
+Краткое описание: Разработка мини-приложений внутри Telegram, магазины, каталоги, сервисы бронирования, системы лояльности, игры и доставка.
+Примеры: Простой магазин, каталог товаров, сервис бронирования, система лояльности, доска объявлений, игровое приложение, сервис доставки
+Фичи:
+Работает прямо в Telegram без установки
+Авторизация через Telegram
+Интеграция платёжных систем
+Push уведомления через бота
+Административная панель
+Telegram Mini Apps from 150 000 ₽
+Description: Development of mini-apps inside Telegram, stores, catalogs, booking services, loyalty systems, games and delivery.
+Examples: Simple store, product catalog, booking service, loyalty system, classifieds board, game app, delivery service
+Features:
+Works directly in Telegram without installation
+Telegram authorization
+Payment system integration
+Push notifications via bot
+Admin panel
+Telegram боты от 40 000 ₽
+Краткое описание: Автоматизация бизнес-процессов через Telegram, приём заказов, запись на услуги, рассылки, AI помощники и управление группами.
+Примеры: Информационный бот, бот для опросов, AI помощник, приём заказов, рассылки, управление группой, запись на услуги, бот с оплатой
+Фичи:
+Клавиатуры (Inline и Reply)
+Работа с базой данных
+Административная панель
+Интеграция с внешними API
+Мультиязычность
+Telegram Bots from 40 000 ₽
+Description: Business process automation via Telegram, order intake, service booking, newsletters, AI assistants and group management.
+Examples: Info bot, quiz bot, AI assistant, order intake, newsletters, group management, service booking, payment bot
+Features:
+Inline and Reply keyboards
+Database integration
+Admin panel
+Third-party API integration
+Multilingual support
+Веб-сайты от 40 000 ₽
+Краткое описание: Разработка современных адаптивных сайтов, лендинги, корпоративные сайты, каталоги, блоги и промо-страницы.
+Примеры: Лендинг, сайт-визитка, промо-сайт, портфолио, корпоративный сайт, каталог услуг, блог
+Фичи:
+Адаптивный дизайн для всех устройств
+SEO оптимизация из коробки
+Интеграция с формами обратной связи
+Быстрая загрузка страниц
+Websites from 40 000 ₽
+Description: Development of modern responsive websites, landing pages, corporate sites, catalogs, blogs and promo pages.
+Examples: Landing page, business card site, promo site, portfolio, corporate website, service catalog, blog
+Features:
+Responsive design for all devices
+SEO optimization out of the box
+Contact form integration
+Fast page loading
+Интернет-магазины от 250 000 ₽
+Краткое описание: Разработка полнофункциональных интернет-магазинов, от простых до крупных площадок с каталогом, фильтрами и личным кабинетом.
+Примеры: Простой магазин до 100 товаров, средний магазин до 500 товаров, крупный магазин с аналитикой
+Фичи:
+Корзина и оформление заказа
+Интеграция платёжных систем
+Административная панель
+Личный кабинет покупателя
+Уведомления о заказах
+E-commerce from 250 000 ₽
+Description: Development of full-featured online stores, from simple to large marketplaces with catalog, filters and personal account.
+Examples: Simple store up to 100 products, medium store up to 500 products, large store with analytics
+Features:
+Cart and checkout
+Payment system integration
+Admin panel
+Customer personal account
+Order notifications
+AI и автоматизация от 100 000 ₽
+Краткое описание: Внедрение AI решений и автоматизация процессов, чат-боты, анализ данных, обработка изображений и интеграция с внешними сервисами.
+Примеры: AI чат-бот, помощник для сайта, анализ текста, система рекомендаций, обработка изображений, автоматизация бизнес-процессов
+Фичи:
+YandexGPT, GigaChat и другие модели
+Обучение на ваших данных
+Интеграция в существующие системы
+Создание кастомных AI решений
+AI & Automation from 100 000 ₽
+Description: AI solutions implementation and process automation, chatbots, data analysis, image processing and third-party service integration.
+Examples: AI chatbot, website assistant, text analysis, recommendation system, image processing, business process automation
+Features:
+YandexGPT, GigaChat and other models
+Training on your data
+Integration into existing systems
+Custom AI solutions
+Корпоративные системы от 450 000 ₽
+Краткое описание: Разработка внутренних систем для автоматизации бизнес-процессов, учёт, аналитика, управление проектами и HR.
+Примеры: Система учёта рабочего времени, внутренний портал, складская система, система аналитики, управление проектами, HR система
+Фичи:
+Интеграция с 1С и Битрикс24
+OAuth авторизация
+REST API для сторонних систем
+Уведомления через Telegram
+Административная панель
+Enterprise Systems from 450 000 ₽
+Description: Development of internal systems for business process automation, time tracking, analytics, project management and HR.
+Examples: Time tracking system, internal portal, warehouse system, analytics dashboard, project management, HR system
+Features:
+Integration with 1C and Bitrix24
+OAuth authorization
+REST API for third-party systems
+Telegram notifications
+Admin panel
+Мобильные приложения от 300 000 ₽
+Краткое описание: Разработка кроссплатформенных PWA приложений, работают на всех устройствах как нативные, без публикации в App Store и Google Play.
+Примеры: Progressive Web App с функциями нативного приложения, установка на экран, офлайн-режим, push уведомления
+Фичи:
+Работает на iOS и Android
+Установка на домашний экран
+Офлайн-режим
+Push уведомления
+Без публикации в магазинах приложений
+Mobile Applications from 300 000 ₽
+Description: Development of cross-platform PWA applications, work on all devices like native apps, without publishing to App Store and Google Play.
+Examples: Progressive Web App with native app features, home screen installation, offline mode, push notifications
+Features:
+Works on iOS and Android
+Home screen installation
+Offline mode
+Push notifications
+No app store publishing required
+faq.sh
+Ru
+Почему вы дешевле других агентств? Потому что у нас нет раздутого штата и лишних процессов. Только нужные люди на нужных задачах, поэтому и цена ниже, и скорость выше.
+С чего начать, если я не знаю, что именно мне нужно? Просто напишите. Разберёмся вместе: зададим нужные вопросы, поймём задачу и предложим подходящее решение. Без обязательств.
+Как быстро вы беретесь за проект? В течение нескольких часов в рабочее время. Оценку стоимости и сроков даём в течение 1 дня после обсуждения задачи.
+Eng
+Why are you cheaper than other agencies? Because we don't have a bloated team or unnecessary processes. Just the right people on the right tasks, which means lower prices and faster delivery.
+Where do I start if I don't know what I need? Just reach out. We'll figure it out together: ask the right questions, understand the task and suggest a solution. No commitment required.
+How soon can you start? We respond within a few hours during business hours. Cost and timeline estimates are ready within 1 day of discussing your project.
+

@@ -49,6 +49,7 @@ export const useApi = () => {
   const getServices = () => fetchApi<IServices[]>('/services')
   const getProjects = () => fetchApi<IProjects[]>('/projects')
   const getAdvantages = () => fetchApi<IAdvantages[]>('/advantages')
+  const getClientTypes = () => fetchApi<any[]>('/client-types')
   const getTechStack = () => fetchApi<ITechStack[]>('/tech-stack')
   const getWorkStages = () => fetchApi<IWorkStages[]>('/work-stages')
   const getSettings = () => fetchApi<ISettingsResponse>('/settings')
@@ -73,6 +74,7 @@ export const useApi = () => {
     getServices,
     getProjects,
     getAdvantages,
+    getClientTypes,
     getTechStack,
     getWorkStages,
     getSettings,

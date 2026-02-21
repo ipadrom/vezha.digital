@@ -4,7 +4,7 @@
   <TechStack />
   <TechStackSection :tech-stack="techStack" />
   <Services :services="services" />
-  <Advantages :advantages="advantages" />
+  <Advantages :advantages="clientTypes" />
   <!-- <Projects :projects="projects" /> -->
   <WorkStages :stages="workStages" />
   <Contacts :settings="settings" @openModal="showModal = true" />
@@ -35,11 +35,12 @@ definePageMeta({
   layout: 'site-custom'
 })
 
-const { getServices, getProjects, getAdvantages, getTechStack, getWorkStages, getSettings } = useApi()
+const { getServices, getProjects, getAdvantages, getClientTypes, getTechStack, getWorkStages, getSettings } = useApi()
 
 const services = ref<IServices[]>([])
 const projects = ref<IProjects[]>([])
 const advantages = ref<IAdvantages[]>([])
+const clientTypes = ref<any[]>([])
 const techStack = ref<ITechStack[]>([])
 const workStages = ref<IWorkStages[]>([])
 const settings = ref<ISettings | null>(null)
@@ -49,10 +50,11 @@ const showModal = ref(false)
 // Fetch all data
 onMounted(async () => {
   try {
-    const [servicesData, projectsData, advantagesData, techStackData, workStagesData, settingsData] = await Promise.all([
+    const [servicesData, projectsData, advantagesData, clientTypesData, techStackData, workStagesData, settingsData] = await Promise.all([
       getServices(),
       getProjects(),
       getAdvantages(),
+      getClientTypes(),
       getTechStack(),
       getWorkStages(),
       getSettings(),
@@ -61,6 +63,7 @@ onMounted(async () => {
     services.value = servicesData
     projects.value = projectsData
     advantages.value = advantagesData
+    clientTypes.value = clientTypesData
     techStack.value = techStackData
     workStages.value = workStagesData
     settings.value = settingsData.settings

@@ -4,7 +4,8 @@
       <div class="header__wrap">
         <!-- Logo -->
         <a href="/#hero" class="logo">
-          <span class="bracket">{</span>Vezha Digital<span class="bracket">}</span>
+          <span class="logo__script glitch" data-text="Vezha">Vezha</span>
+          <span class="logo__digital glitch" data-text="DIGITAL">DIGITAL</span>
         </a>
 
         <!-- Desktop Navigation -->
@@ -105,12 +106,33 @@ onMounted(() => {
 }
 
 .logo {
-  font-family: var(--font-epilepsy);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
   text-decoration: none;
+  line-height: 1;
   white-space: nowrap;
+}
+
+.logo__script {
+  font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-size: 2rem;
+  font-weight: 400;
+  color: #ffffff;
+  font-style: italic;
+  letter-spacing: 2px;
+  line-height: 1;
+}
+
+.logo__digital {
+  font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: #ffffff;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 .nav {
@@ -185,28 +207,6 @@ onMounted(() => {
   padding-left: 10px;
 }
 
-/* Header Glitch Effect */
-.header:hover .logo {
-  animation: glitch 0.3s infinite;
-}
-
-@keyframes glitch {
-  0% {
-    text-shadow: 2px 2px var(--accent), -2px -2px #ff00ff;
-  }
-  25% {
-    text-shadow: -2px 2px var(--accent), 2px -2px #ff00ff;
-  }
-  50% {
-    text-shadow: 2px -2px var(--accent), -2px 2px #ff00ff;
-  }
-  75% {
-    text-shadow: -2px -2px var(--accent), 2px 2px #ff00ff;
-  }
-  100% {
-    text-shadow: 2px 2px var(--accent), -2px -2px #ff00ff;
-  }
-}
 
 @media (max-width: 1024px) {
   .nav {
