@@ -8,7 +8,7 @@
     </main>
 
     <!-- Particles Canvas -->
-<!--    <ParticlesCanvas/>-->
+    <!--    <ParticlesCanvas/>-->
 
     <!-- SVG Patterns -->
     <!--    <Garlands/>-->
@@ -25,8 +25,8 @@
 <script setup lang="ts">
 
 import ContactModal from "~/components/modals/ContactModal.vue";
-import ParticlesCanvas from "~/components/ui/3d/ParticlesCanvas.vue";
-import Garlands from "~/components/ui/Garlands.vue";
+// import ParticlesCanvas from "~/components/ui/3d/ParticlesCanvas.vue";
+// import Garlands from "~/components/ui/Garlands.vue";
 
 const showModal = ref(false);
 const settings = ref({})

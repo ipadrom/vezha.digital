@@ -7,7 +7,7 @@
       <div class="hero__wrapper">
         <div class="hero__left">
           <h1 class="hero__title">
-            <span>{{displayedText}}</span><span class="cursor">|</span>
+            <span>{{displayedText}}</span>
           </h1>
           <p class="hero__subtitle">{{ props.settings?.hero_subtitle }}</p>
           <button class="btn btn-primary" @click="$emit('openModal')">
@@ -228,17 +228,6 @@ function init3DScene() {
   overflow: hidden;
 }
 
-.cursor {
-  display: inline-block;
-  margin-left: 4px;
-  animation: blink 1s infinite;
-}
-
-@keyframes blink {
-  0%, 50%, 100% { opacity: 1 }
-  25%, 75% { opacity: 0 }
-}
-
 #hero-canvas {
   width: 100%;
   height: 100%;
@@ -259,7 +248,7 @@ function init3DScene() {
 }
 
 .hero__title {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 3.5rem;
   font-weight: 700;
   line-height: 1.2;
@@ -275,7 +264,7 @@ function init3DScene() {
   font-size: 1.3rem;
   color: var(--text-dim);
   margin-bottom: 40px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   opacity: 0;
   animation: fadeUp 1s ease-out 0.5s forwards;
 }
@@ -301,7 +290,7 @@ function init3DScene() {
 
 .hero__logo-script {
   font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-  font-size: 5.5rem;
+  font-size: 7rem;
   font-weight: 400;
   color: #ffffff;
   text-shadow: 0 0 40px rgba(255, 255, 255, 0.5),
@@ -377,24 +366,6 @@ function init3DScene() {
     top: 0;
     bottom: auto;
     left: 0;
-  }
-
-  .hero__title {
-    font-size: 1.2rem;
-  }
-
-  .hero__subtitle {
-    font-size: 1rem;
-  }
-
-  .hero__logo-script {
-    font-size: 3.5rem;
-    font-family: var(--font-epilepsy);
-  }
-
-  .hero__logo-digital {
-    font-size: 2rem;
-    letter-spacing: 4px;
   }
 
   .btn-primary {
