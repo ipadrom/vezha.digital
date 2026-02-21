@@ -1,5 +1,5 @@
 <template>
-  <div class="card fade-item">
+  <div :class="['card', 'fade-item', { 'is-transparent': transparent }]">
     <h3 class="font-bold fade-item">
       {{title}}
     </h3>
@@ -30,12 +30,14 @@
     since_description?: String,
     duration?: String,
     details?: String,
-    points?: String
+    points?: String,
+    transparent?: Boolean
   }>()
 </script>
 
 <style scoped>
 .card {
+  position: relative;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   padding: 20px;
@@ -62,6 +64,17 @@
   box-shadow: 0 0 10px var(--accent);
 
   animation: scanLineDown 0.6s ease-out forwards;
+}
+
+.card.is-transparent {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0; /* Убираем внутренние отступы, чтобы выровнять текст по краю */
+}
+
+.card.is-transparent::before {
+  display: none;
 }
 
 .card h3 {

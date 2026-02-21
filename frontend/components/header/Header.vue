@@ -105,7 +105,7 @@ onMounted(() => {
 }
 
 .logo {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text);
@@ -121,7 +121,7 @@ onMounted(() => {
 }
 
 .nav a {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   color: var(--text-dim);
   text-decoration: none;
   font-size: 0.95rem;
@@ -176,7 +176,7 @@ onMounted(() => {
   color: var(--text-dim);
   text-decoration: none;
   transition: all 0.3s;
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
 }
 
 .mobile-nav a:hover {

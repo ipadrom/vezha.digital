@@ -2,6 +2,7 @@
   <!-- Page Sections -->
   <Hero :settings="settings" @openModal="showModal = true" />
   <NewTechStack :tech-stack="techStack" />
+  <WhoWeAre :tech-stack="techStack"/>
   <Services :services="services" />
   <Advantages :advantages="advantages" />
   <Projects :projects="projects" />
@@ -15,7 +16,6 @@
 <script setup lang="ts">
 import {definePageMeta} from "#imports";
 import Hero from "~/components/site/sections/Hero.vue";
-import TechStack from "~/components/site/sections/TechStack.vue";
 import Services from "~/components/site/sections/Services.vue";
 import Advantages from "~/components/site/sections/Advantages.vue";
 import Projects from "~/components/site/sections/Projects.vue";
@@ -29,6 +29,7 @@ import type {ITechStack} from "~/utils/interfaces/ITechStack";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
 import type {ISettings} from "~/utils/interfaces/ISettings";
 import NewTechStack from "~/components/site/sections/NewTechStack.vue";
+import WhoWeAre from "~/components/site/sections/WhoWeAre.vue";
 
 definePageMeta({
   layout: 'site-custom'
