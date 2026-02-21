@@ -1,7 +1,7 @@
 <template>
   <!-- Page Sections -->
   <Hero :settings="settings" @openModal="showModal = true" />
-  <TechStack :tech-stack="techStack" />
+  <NewTechStack :tech-stack="techStack" />
   <Services :services="services" />
   <Advantages :advantages="advantages" />
   <Projects :projects="projects" />
@@ -28,6 +28,7 @@ import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
 import type {ITechStack} from "~/utils/interfaces/ITechStack";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
 import type {ISettings} from "~/utils/interfaces/ISettings";
+import NewTechStack from "~/components/site/sections/NewTechStack.vue";
 
 definePageMeta({
   layout: 'site-custom'

@@ -8,7 +8,7 @@
     </main>
 
     <!-- Particles Canvas -->
-    <ParticlesCanvas/>
+<!--    <ParticlesCanvas/>-->
 
     <!-- SVG Patterns -->
     <!--    <Garlands/>-->

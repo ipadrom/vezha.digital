@@ -5,4 +5,7 @@ export interface ITechStack {
     icon_format: string
     name: string
     subtitle: string
+    orbit: number
+    color: string
+    path: string
 }
