@@ -9,7 +9,12 @@
 
         <!-- Desktop Navigation -->
         <nav class="nav">
-          <a v-for="item in navItems" :key="item.href" :href="item.href">
+          <a
+              v-for="item in navItems"
+              :key="item.href"
+              :href="item.href"
+              :class="{ active: activeSection === item.href.replace('/#', '') }"
+          >
             {{ item.label }}
           </a>
         </nav>
@@ -62,8 +67,25 @@ const navItems = computed(() => [
   { href: '/#contacts', label: t('nav.contacts') },
 ])
 
-// Sticky header effect
-onMounted(() => {
+const activeSection = ref('hero')
+
+function observeHeaderLogo() {
+  const sections = document.querySelectorAll('section[id]')
+
+  const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            activeSection.value = entry.target.id
+          }
+        })
+      },
+      {threshold: 0.4}
+  )
+  sections.forEach((section) => observer.observe(section))
+}
+
+function stickyHeaderEffect(){
   const header = document.getElementById('header')
   if (!header) return
 
@@ -80,6 +102,11 @@ onMounted(() => {
       header.style.boxShadow = 'none'
     }
   })
+}
+
+onMounted(() => {
+  observeHeaderLogo()
+  stickyHeaderEffect()
 })
 </script>
 
@@ -139,6 +166,14 @@ onMounted(() => {
   height: 2px;
   background: var(--accent);
   transition: width 0.3s;
+}
+
+.nav a.active {
+  color: var(--accent);
+}
+
+.nav a.active::after {
+  width: 100%;
 }
 
 .nav a:hover {
