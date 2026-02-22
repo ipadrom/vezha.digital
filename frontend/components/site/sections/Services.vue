@@ -164,7 +164,7 @@ const formatPrice = (price: number) => {
   flex: 0 0 450px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   overflow-y: visible;
   padding-right: 5px;
 }
@@ -259,7 +259,7 @@ const formatPrice = (price: number) => {
 
 .service-details {
   flex: 1 1 40%;
-  max-height: 466px;
+  height: auto;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   padding: 15px 30px;
