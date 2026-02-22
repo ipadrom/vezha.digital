@@ -219,11 +219,6 @@ onMounted(() => {
   padding-left: 10px;
 }
 
-/* Header Glitch Effect */
-.header:hover .logo {
-  animation: glitch 0.3s infinite;
-}
-
 @keyframes glitch {
   0% {
     text-shadow: 2px 2px var(--accent), -2px -2px #ff00ff;

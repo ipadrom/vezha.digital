@@ -289,7 +289,7 @@ function init3DScene() {
 }
 
 .hero__logo-script {
-  font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-family: var(--font-inter);
   font-size: 7rem;
   font-weight: 400;
   color: #ffffff;
@@ -301,7 +301,7 @@ function init3DScene() {
 }
 
 .hero__logo-digital {
-  font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+  font-family: var(--font-inter);
   font-size: 3rem;
   font-weight: 700;
   letter-spacing: 8px;

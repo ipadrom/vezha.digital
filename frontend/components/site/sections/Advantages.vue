@@ -1,5 +1,9 @@
 <template>
-  <section id="advantages" class="section" ref="advantagesRef">
+  <section
+      id="advantages"
+      class="section"
+      ref="advantagesRef"
+  >
     <div class="container-main">
       <div class="advantages-layout">
 
@@ -41,7 +45,7 @@
 
         <div class="mobile-tabs">
           <button
-              v-for="(tab, index) in mobileTabs"
+              v-for="(tab, index) in clientTypes"
               :key="index"
               :class="['mobile-tab', { active: activeTab === index }]"
               @click="activeTab = index; activeIndex = index"
@@ -69,10 +73,12 @@
 import {useSectionVisible} from "~/composables/useSectionVisible";
 import Card from "~/components/ui/cards/Card.vue";
 import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
+import type {IClientType} from "~/utils/interfaces/IClientTypes";
 const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible( 0.1)
 
 defineProps<{
   advantages: IAdvantages[]
+  clientTypes: IClientType[]
 }>()
 
 const activeIndex = ref(0)

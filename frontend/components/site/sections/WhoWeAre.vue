@@ -60,12 +60,12 @@
 <script setup lang="ts">
 import {useSectionVisible} from "~/composables/useSectionVisible";
 import Card from "~/components/ui/cards/Card.vue";
-import type {ITechStack} from "~/utils/interfaces/ITechStack";
+import type {IAboutSection} from "~/utils/interfaces/IAboutSection";
 
 const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
 
 const props = defineProps<{
-  techStack: ITechStack[]
+  aboutSection: IAboutSection[]
 }>()
 
 const stats = [
