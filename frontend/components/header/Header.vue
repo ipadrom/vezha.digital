@@ -19,7 +19,7 @@
         <div class="header__actions">
           <button
               @click="$emit('openModal')"
-              class="btn btn-primary hidden sm:inline-block"
+              class="btn btn-primary header-cta"
           >
             {{ $t('header.discuss_project') }}
           </button>
@@ -211,6 +211,20 @@ onMounted(() => {
 @media (max-width: 1024px) {
   .nav {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .header__wrap {
+    gap: 8px;
+  }
+
+  .header-cta {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    letter-spacing: 0;
+    min-width: auto;
+    white-space: nowrap;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <section id="projects" class="section">
     <div class="container-main">
-      <h2 class="section-title">
+      <h2 class="section-title" style="text-align: left;">
         {{ $t('projects.title') }} <span class="bracket">&gt;</span>
       </h2>
 

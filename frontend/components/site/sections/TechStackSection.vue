@@ -5,8 +5,14 @@
       <!-- Starfield parallax -->
       <canvas ref="starsCanvas" class="stack-stars"></canvas>
 
-      <!-- Ghost watermark -->
-      <div class="stack-watermark"><span class="wm-bracket">&lt;</span>Стек<span class="wm-bracket">/&gt;</span></div>
+      <!-- Section title + description -->
+      <div class="stack-info">
+        <h2 class="stack-section-title">Стек <span class="bracket">&gt;</span></h2>
+        <div class="stack-description">
+          <p>Работаем на проверенном стеке: React, Vue, Next.js на фронте, Python и FastAPI на бэке. Всё упаковываем в Docker, храним в PostgreSQL.</p>
+          <p>Не гонимся за хайповыми фреймворками — выбираем то, что надёжно работает и легко поддерживается после сдачи.</p>
+        </div>
+      </div>
 
       <!-- Three.js 3D models -->
       <canvas ref="threeCanvas" class="stack-canvas"></canvas>
@@ -28,19 +34,75 @@
         <div class="stack-scroll-bar" :style="{ width: (scrollProgressNorm * 100) + '%' }"></div>
       </div>
 
-      <!-- Right menu -->
-      <nav class="stack-menu">
-        <div
-          v-for="tech in TECHS"
-          :key="tech.id"
-          class="stack-menu-item"
-          :class="{ active: hoveredTech === tech.id }"
-          @mouseenter="onMenuEnter(tech.id)"
-          @mouseleave="onMenuLeave"
-        >
-          <span>{{ tech.label }}</span>
+      <!-- Right-side info blocks (desktop only) -->
+      <div class="stack-groups">
+        <div class="stack-group">
+          <h3 class="stack-group-title">Frontend <span class="bracket">&gt;</span></h3>
+          <p class="stack-group-desc">Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.</p>
+          <div class="stack-group-tags">
+            <span class="stack-group-tag">React</span>
+            <span class="stack-group-tag">Vue 3</span>
+            <span class="stack-group-tag">Next.js</span>
+            <span class="stack-group-tag">TypeScript</span>
+            <span class="stack-group-tag">Tailwind</span>
+          </div>
         </div>
-      </nav>
+        <div class="stack-group">
+          <h3 class="stack-group-title">Backend <span class="bracket">&gt;</span></h3>
+          <p class="stack-group-desc">Серверная часть, API, базы данных и контейнеризация для надёжной работы под нагрузкой.</p>
+          <div class="stack-group-tags">
+            <span class="stack-group-tag">Python</span>
+            <span class="stack-group-tag">FastAPI</span>
+            <span class="stack-group-tag">PostgreSQL</span>
+            <span class="stack-group-tag">Docker</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile-only layout: 3 rows -->
+      <div class="stack-mobile">
+
+        <!-- Row 1: title + description -->
+        <div class="stack-mobile-top">
+          <h2 class="stack-section-title">Стек <span class="bracket">&gt;</span></h2>
+          <div class="stack-description">
+            <p>Работаем на проверенном стеке: React, Vue, Next.js на фронте, Python и FastAPI на бэке. Всё упаковываем в Docker, храним в PostgreSQL.</p>
+            <p>Не гонимся за хайповыми фреймворками — выбираем то, что надёжно работает и легко поддерживается после сдачи.</p>
+          </div>
+        </div>
+
+        <!-- Row 2: Frontend orbit canvas (left) + Frontend info (right) -->
+        <div class="stack-mobile-row">
+          <canvas ref="frontendMiniCanvas" class="orbit-canvas"></canvas>
+          <div class="stack-mobile-info">
+            <h3 class="stack-group-title">Frontend <span class="bracket">&gt;</span></h3>
+            <p class="stack-group-desc">Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.</p>
+            <div class="stack-group-tags">
+              <span class="stack-group-tag">React</span>
+              <span class="stack-group-tag">Vue 3</span>
+              <span class="stack-group-tag">Next.js</span>
+              <span class="stack-group-tag">TypeScript</span>
+              <span class="stack-group-tag">Tailwind</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Backend info (left) + Backend orbit canvas (right) -->
+        <div class="stack-mobile-row">
+          <div class="stack-mobile-info">
+            <h3 class="stack-group-title">Backend <span class="bracket">&gt;</span></h3>
+            <p class="stack-group-desc">Серверная часть, API, базы данных и контейнеризация для надёжной работы под нагрузкой.</p>
+            <div class="stack-group-tags">
+              <span class="stack-group-tag">Python</span>
+              <span class="stack-group-tag">FastAPI</span>
+              <span class="stack-group-tag">PostgreSQL</span>
+              <span class="stack-group-tag">Docker</span>
+            </div>
+          </div>
+          <canvas ref="backendMiniCanvas" class="orbit-canvas"></canvas>
+        </div>
+
+      </div>
     </div>
   </div>
 </template>
@@ -65,9 +127,28 @@ const TECHS = [
   { id: 'docker',      label: 'Docker',     color: 0x2496ed, path: '/models/docker/docker.obj',             orbit: 4 },
 ]
 
+const MENU_GROUPS = [
+  {
+    label: 'Frontend',
+    desc: 'Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве',
+    items: TECHS.filter(t => ['react', 'vue', 'nextjs', 'typescript', 'tailwind'].includes(t.id)),
+  },
+  {
+    label: 'Backend',
+    desc: 'Серверная часть, API и базы данных для надёжной работы под нагрузкой',
+    items: TECHS.filter(t => ['python', 'fastapi', 'postgresql'].includes(t.id)),
+  },
+  {
+    label: 'DevOps',
+    desc: 'Контейнеризация и автоматический деплой для стабильной инфраструктуры',
+    items: TECHS.filter(t => ['docker'].includes(t.id)),
+  },
+]
+
 const ORBIT_RADII  = [2.2, 3.6, 5.0, 6.4, 7.8]
 const ORBIT_TILTS  = [0, 8, -5, 10, -8].map(d => d * Math.PI / 180)
-const BASE_SPEEDS  = [0.0004, 0.00032, 0.00025, 0.0002, 0.00016]
+// Уменьшена скорость в 2 раза
+const BASE_SPEEDS  = [0.0002, 0.00016, 0.000125, 0.0001, 0.00008]
 
 // ── REFS ──────────────────────────────────────────────────────────
 const sectionRef      = ref<HTMLElement | null>(null)
@@ -76,6 +157,10 @@ const threeCanvas     = ref<HTMLCanvasElement | null>(null)
 const connectorLine   = ref<SVGPolylineElement | null>(null)
 const labelsContainer = ref<HTMLDivElement | null>(null)
 const hoveredTech     = ref<string | null>(null)
+
+// Mini orbit canvases (mobile)
+const frontendMiniCanvas = ref<HTMLCanvasElement | null>(null)
+const backendMiniCanvas  = ref<HTMLCanvasElement | null>(null)
 
 // ── INTERNALS ─────────────────────────────────────────────────────
 let stars: { x: number; y: number; r: number; depth: number; alpha: number }[] = []
@@ -90,6 +175,8 @@ interface Planet {
   angle: number
   speed: number
   r: number
+  rotSpeed: number
+  selfAngle: number   // accumulated in-plane spin (for billboard effect)
 }
 
 let renderer: THREE.WebGLRenderer | null = null
@@ -196,21 +283,37 @@ function initThree() {
   renderer.setClearColor(0x000000, 0)
 
   scene  = new THREE.Scene()
-  camera = new THREE.PerspectiveCamera(52, 1, 0.1, 200)
-  camera.position.set(0, 4, 18)
+  camera = new THREE.PerspectiveCamera(48, 1, 0.1, 200)
+  camera.position.set(0, 22, 1)
   camera.lookAt(0, 0, 0)
 
-  // Lights
-  scene.add(new THREE.AmbientLight(0xffffff, 0.5))
-  const sun = new THREE.PointLight(0xffffff, 2, 40)
-  sun.position.set(0, 0, 0)
+  // Lights — optimized for top-down view
+  scene.add(new THREE.AmbientLight(0xffffff, 0.7))
+  const topLight = new THREE.DirectionalLight(0xffffff, 1.2)
+  topLight.position.set(0, 20, 0)
+  scene.add(topLight)
+  const sun = new THREE.PointLight(0xffffff, 1.5, 40)
+  sun.position.set(0, 5, 0)
   scene.add(sun)
-  const fill = new THREE.DirectionalLight(0x4488ff, 0.4)
-  fill.position.set(-6, 4, 5)
+  const fill = new THREE.DirectionalLight(0x4488ff, 0.3)
+  fill.position.set(-6, 10, 5)
   scene.add(fill)
-  const rim = new THREE.DirectionalLight(0x00E5FF, 0.25)
-  rim.position.set(0, -5, -8)
+  const rim = new THREE.DirectionalLight(0x00E5FF, 0.2)
+  rim.position.set(6, 10, -5)
   scene.add(rim)
+
+  // Sun in center
+  const sunCoreMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 20, 20),
+    new THREE.MeshStandardMaterial({ color: 0xffe566, emissive: 0xff8800, emissiveIntensity: 2.2, metalness: 0, roughness: 1 })
+  )
+  scene.add(sunCoreMesh)
+  // Outer glow halo
+  const sunGlowMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.62, 20, 20),
+    new THREE.MeshBasicMaterial({ color: 0xff9900, transparent: true, opacity: 0.07, side: THREE.BackSide })
+  )
+  scene.add(sunGlowMesh)
 
   // Orbit rings
   const orbitGroup = new THREE.Group()
@@ -250,6 +353,9 @@ function initThree() {
     const carrier = new THREE.Group()
     orbitPlane.add(carrier)
 
+    // Unique self-spin speed + random initial rotation per planet
+    const rotSpeed = 0.001 + Math.random() * 0.003
+
     const addFallback = () => {
       const geo  = new THREE.IcosahedronGeometry(0.45, 1)
       const mat  = new THREE.MeshStandardMaterial({
@@ -259,7 +365,7 @@ function initThree() {
       })
       const mesh = new THREE.Mesh(geo, mat)
       carrier.add(mesh)
-      planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r })
+      planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r, rotSpeed, selfAngle: Math.random() * Math.PI * 2 })
     }
 
     fetch(tech.path)
@@ -275,7 +381,7 @@ function initThree() {
         })
         const mesh = new THREE.Mesh(geo, mat)
         carrier.add(mesh)
-        planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r })
+        planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r, rotSpeed, selfAngle: Math.random() * Math.PI * 2 })
       })
       .catch(addFallback)
   })
@@ -369,7 +475,15 @@ function animate() {
   planets.forEach(p => {
     p.angle += p.speed
     p.mesh.position.set(Math.cos(p.angle) * p.r, 0, Math.sin(p.angle) * p.r)
-    if (p.obj) (p.obj as THREE.Mesh).rotation.y += 0.003
+    if (p.obj) {
+      const mesh = p.obj as THREE.Mesh
+      // Billboard: always face top-down camera, spin in-plane only
+      // rotation.x = -PI/2 → local Z axis points up (toward camera)
+      // rotateZ(selfAngle) → spins the face in the camera plane, no tilting
+      mesh.rotation.set(-Math.PI / 2, 0, 0)
+      mesh.rotateZ(p.selfAngle)
+      p.selfAngle += p.rotSpeed
+    }
 
     const wp = new THREE.Vector3()
     p.mesh.getWorldPosition(wp)
@@ -385,7 +499,7 @@ function animate() {
   const ty = -(mouseY / H - 0.5) * 1.2
   if (camera) {
     camera.position.x += (tx - camera.position.x) * 0.03
-    camera.position.y += (ty + 4 - camera.position.y) * 0.03
+    camera.position.y += (ty + 22 - camera.position.y) * 0.03
     camera.lookAt(0, 0, 0)
   }
 
@@ -411,6 +525,160 @@ function onScroll() {
   scrollProgressNorm.value = total > 0
     ? Math.min(1, Math.max(0, scrolled / total))
     : 0
+}
+
+// ── MINI ORBIT (mobile) ───────────────────────────────────────────
+// Techs distributed across 3 orbits (inner=0, middle=1, outer=2)
+const MINI_FRONTEND_TECHS = [
+  { color: 0x61dafb, path: '/models/react/react.obj',           orbit: 0 }, // React
+  { color: 0x42b883, path: '/models/vue/vue.obj',               orbit: 0 }, // Vue 3
+  { color: 0xdddddd, path: '/models/nextjs/nextjs.obj',         orbit: 1 }, // Next.js
+  { color: 0x3178c6, path: '/models/typescript/typescript.obj', orbit: 1 }, // TypeScript
+  { color: 0x38bdf8, path: '/models/tailwind/tailwind.obj',     orbit: 2 }, // Tailwind
+]
+
+const MINI_BACKEND_TECHS = [
+  { color: 0xffd43b, path: '/models/python/python.obj',         orbit: 0 }, // Python
+  { color: 0x009688, path: '/models/fastapi/fastapi.obj',       orbit: 1 }, // FastAPI
+  { color: 0x336791, path: '/models/postgresql/postgresql.obj', orbit: 1 }, // PostgreSQL
+  { color: 0x2496ed, path: '/models/docker/docker.obj',         orbit: 2 }, // Docker
+]
+
+interface MiniCleanup { cancel: () => void; dispose: () => void }
+let miniCleanups: MiniCleanup[] = []
+
+function initMiniOrbit(
+  canvas: HTMLCanvasElement,
+  techs: { color: number; path: string; orbit: number }[],
+  reverse: boolean
+): MiniCleanup {
+  const SIZE = 120
+  const dpr  = Math.min(window.devicePixelRatio, 2)
+  canvas.width  = SIZE * dpr
+  canvas.height = SIZE * dpr
+  canvas.style.width  = SIZE + 'px'
+  canvas.style.height = SIZE + 'px'
+
+  const miniRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
+  miniRenderer.setPixelRatio(dpr)
+  miniRenderer.setSize(SIZE, SIZE, false)
+  miniRenderer.setClearColor(0x000000, 0)
+
+  const miniScene = new THREE.Scene()
+
+  // Top-down orthographic camera
+  const d = 2.7
+  const miniCam = new THREE.OrthographicCamera(-d, d, d, -d, 0.1, 100)
+  miniCam.position.set(0, 10, 0)
+  miniCam.lookAt(0, 0, 0)
+
+  // Lights — top-down
+  miniScene.add(new THREE.AmbientLight(0xffffff, 0.9))
+  const dirL = new THREE.DirectionalLight(0xffffff, 1.4)
+  dirL.position.set(0, 10, 0)
+  miniScene.add(dirL)
+  const fillL = new THREE.DirectionalLight(0x4488ff, 0.5)
+  fillL.position.set(-5, 5, 5)
+  miniScene.add(fillL)
+
+  // Center glow dot
+  const centerGeo = new THREE.SphereGeometry(0.07, 8, 8)
+  const centerMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff })
+  miniScene.add(new THREE.Mesh(centerGeo, centerMat))
+
+  // 3 concentric circular orbits, viewed from top
+  const ORBIT_DEFS = [
+    { rx: 0.90, rz: 0.90, tilt: 0, speed: 0.005  }, // inner
+    { rx: 1.55, rz: 1.55, tilt: 0, speed: 0.0038 }, // middle
+    { rx: 2.15, rz: 2.15, tilt: 0, speed: 0.003  }, // outer
+  ]
+
+  // Create orbit groups + circular rings for all 3 orbits
+  const orbitGroups: THREE.Group[] = ORBIT_DEFS.map(def => {
+    const group = new THREE.Group()
+    miniScene.add(group)
+
+    const ringPts: THREE.Vector3[] = []
+    for (let i = 0; i <= 128; i++) {
+      const a = (i / 128) * Math.PI * 2
+      ringPts.push(new THREE.Vector3(Math.cos(a) * def.rx, 0, Math.sin(a) * def.rz))
+    }
+    group.add(new THREE.LineLoop(
+      new THREE.BufferGeometry().setFromPoints(ringPts),
+      new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.22 })
+    ))
+    return group
+  })
+
+  // Count techs per orbit to spread them evenly
+  const orbitCounts: Record<number, number> = {}
+  const orbitProgress: Record<number, number> = {}
+  techs.forEach(t => { orbitCounts[t.orbit] = (orbitCounts[t.orbit] ?? 0) + 1 })
+
+  // rotSpeed: each planet spins at its own pace (desynchronized)
+  interface MiniPlanet { mesh: THREE.Mesh; orbitIdx: number; baseAngle: number; rotSpeed: number }
+  const miniPlanets: (MiniPlanet | null)[] = new Array(techs.length).fill(null)
+
+  techs.forEach((tech, i) => {
+    const oi  = tech.orbit
+    const def = ORBIT_DEFS[oi]
+    const count = orbitCounts[oi] ?? 1
+    orbitProgress[oi] = orbitProgress[oi] ?? 0
+    const baseAngle = (orbitProgress[oi]++ / count) * Math.PI * 2
+    // Each planet: random initial rotation + unique spin speed
+    const rotSpeed = 0.004 + Math.random() * 0.012
+
+    const place = (mesh: THREE.Mesh) => {
+      mesh.rotation.y = Math.random() * Math.PI * 2  // random start angle
+      mesh.position.set(Math.cos(baseAngle) * def.rx, 0, Math.sin(baseAngle) * def.rz)
+      orbitGroups[oi].add(mesh)
+      miniPlanets[i] = { mesh, orbitIdx: oi, baseAngle, rotSpeed }
+    }
+
+    const addFallback = () => {
+      const geo = new THREE.IcosahedronGeometry(0.25, 1)
+      const mat = new THREE.MeshStandardMaterial({ color: tech.color, metalness: 0.2, roughness: 0.5 })
+      place(new THREE.Mesh(geo, mat))
+    }
+
+    fetch(tech.path)
+      .then(res => { if (!res.ok) throw new Error(String(res.status)); return res.text() })
+      .then(text => {
+        const geo = parseOBJ(text)
+        const mat = new THREE.MeshStandardMaterial({ vertexColors: true, metalness: 0.3, roughness: 0.55 })
+        const mesh = new THREE.Mesh(geo, mat)
+        mesh.scale.setScalar(1.1)
+        mesh.rotation.x = -Math.PI / 2  // face top-down camera
+        place(mesh)
+      })
+      .catch(addFallback)
+  })
+
+  const dir = reverse ? -1 : 1
+  let raf = 0
+  let frame = 0
+
+  function loop() {
+    raf = requestAnimationFrame(loop)
+    frame++
+    miniPlanets.forEach(planet => {
+      if (!planet) return
+      const def = ORBIT_DEFS[planet.orbitIdx]
+      const a = planet.baseAngle + frame * def.speed * dir
+      planet.mesh.position.set(Math.cos(a) * def.rx, 0, Math.sin(a) * def.rz)
+      planet.mesh.rotation.y += planet.rotSpeed  // unique speed per planet
+    })
+    miniRenderer.render(miniScene, miniCam)
+  }
+  loop()
+
+  return {
+    cancel:  () => cancelAnimationFrame(raf),
+    dispose: () => {
+      cancelAnimationFrame(raf)
+      miniRenderer.dispose()
+    },
+  }
 }
 
 // ── LIFECYCLE ─────────────────────────────────────────────────────
@@ -443,6 +711,16 @@ onMounted(() => {
   observer.observe(section)
 
   setTimeout(() => { onResize(); animate() }, 120)
+
+  // Init mini orbit canvases — only on mobile
+  if (window.innerWidth <= 768) {
+    if (frontendMiniCanvas.value) {
+      miniCleanups.push(initMiniOrbit(frontendMiniCanvas.value, MINI_FRONTEND_TECHS, false))
+    }
+    if (backendMiniCanvas.value) {
+      miniCleanups.push(initMiniOrbit(backendMiniCanvas.value, MINI_BACKEND_TECHS, true))
+    }
+  }
 })
 
 onBeforeUnmount(() => {
@@ -450,6 +728,9 @@ onBeforeUnmount(() => {
   window.removeEventListener('resize', onResize)
   window.removeEventListener('scroll', onScroll)
   renderer?.dispose()
+  // Cleanup mini orbit renderers
+  miniCleanups.forEach(c => c.dispose())
+  miniCleanups = []
 })
 </script>
 
@@ -458,15 +739,15 @@ onBeforeUnmount(() => {
 .stack-wrapper {
   position: relative;
   width: 100%;
-  height: 300vh; /* 3 экрана = ~"5 скроллов" задержки */
+  height: 200vh;
 }
 
-/* ── Sticky: прилипает к верху, занимает весь экран ── */
+/* ── Sticky: прилипает под хедером, занимает видимую область ── */
 .stack-sticky {
   position: sticky;
-  top: 0;
+  top: 84px;
   width: 100%;
-  height: 100vh;
+  height: calc(100vh - 84px);
   overflow: hidden;
   background: #060610;
 }
@@ -480,24 +761,37 @@ onBeforeUnmount(() => {
   z-index: 0;
 }
 
-.stack-watermark {
+.stack-info {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-epilepsy);
-  font-size: clamp(8rem, 20vw, 18rem);
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.03);
-  letter-spacing: 0.05em;
+  top: 50%;
+  left: 60px;
+  transform: translateY(-50%);
+  z-index: 11;
   pointer-events: none;
-  z-index: 1;
-  user-select: none;
+  max-width: 340px;
 }
 
-.wm-bracket {
-  color: rgba(0, 229, 255, 0.04);
+.stack-section-title {
+  font-family: var(--font-inter);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: bold;
+  color: #fff;
+  margin: 0 0 20px 0;
+}
+
+.stack-description {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stack-description p {
+  color: #e0e0e0;
+  font-family: var(--font-inter);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  font-weight: 400;
+  margin: 0;
 }
 
 .stack-canvas {
@@ -535,55 +829,52 @@ onBeforeUnmount(() => {
   filter: drop-shadow(0 0 4px var(--accent));
 }
 
-/* Right side menu */
-.stack-menu {
+/* Right-side info blocks */
+.stack-groups {
   position: absolute;
-  right: 40px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 30px;
+  bottom: 50px;
+  right: 60px;
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  pointer-events: auto;
+  justify-content: space-between;
+  width: 280px;
+  pointer-events: none;
 }
 
-.stack-menu-item {
+.stack-group-title {
+  font-family: var(--font-inter);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: bold;
+  color: #fff;
+  margin: 0 0 16px 0;
+}
+
+.stack-group-desc {
+  color: #e0e0e0;
+  font-family: var(--font-inter);
+  font-size: 0.85rem;
+  line-height: 1.7;
+  font-weight: 400;
+  margin: 0 0 12px 0;
+}
+
+.stack-group-tags {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  cursor: pointer;
-  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-.stack-menu-item span {
-  font-family: var(--font-epilepsy);
-  font-size: 1rem;
-  color: var(--text-dim);
-  transition: color 0.3s;
-  letter-spacing: 0.05em;
-}
-
-.stack-menu-item::after {
-  content: '';
-  display: block;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-dim);
-  flex-shrink: 0;
-  transition: background 0.3s, box-shadow 0.3s;
-}
-
-.stack-menu-item:hover span,
-.stack-menu-item.active span {
-  color: var(--accent);
-}
-
-.stack-menu-item:hover::after,
-.stack-menu-item.active::after {
+.stack-group-tag {
+  display: inline-block;
+  padding: 5px 14px;
+  border: 2px solid var(--accent);
   background: var(--accent);
-  box-shadow: 0 0 8px var(--accent);
+  color: var(--bg);
+  font-family: var(--font-inter);
+  font-size: 0.75rem;
+  font-weight: 600;
 }
 
 /* Scroll progress bar */
@@ -605,13 +896,97 @@ onBeforeUnmount(() => {
   width: 0%;
 }
 
+/* ── Mobile layout ── */
+.stack-mobile { display: none; }
+
 @media (max-width: 768px) {
-  .stack-menu {
-    right: 12px;
-    gap: 12px;
+  /* Disable scroll-lock, keep relative for absolute children */
+  .stack-wrapper { height: auto; }
+  .stack-sticky {
+    position: relative;
+    height: auto;
+    overflow: hidden;
+    background: #060610;
+    padding: 0 16px 40px;
   }
-  .stack-menu-item span {
-    font-size: 0.75rem;
+
+  /* Hide desktop-only overlay elements */
+  .stack-connector-svg,
+  .stack-labels,
+  .stack-scroll-hint,
+  .stack-groups,
+  .stack-info { display: none !important; }
+
+  /* Stars and 3D canvas stay as background */
+  .stack-stars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+  }
+  .stack-canvas {
+    display: none !important;
+  }
+
+  /* Show mobile layout above canvas */
+  .stack-mobile {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  /* Row 1: title + description */
+  .stack-mobile-top .stack-section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin: 16px 0 12px;
+  }
+  .stack-mobile-top .stack-description {
+    gap: 8px;
+  }
+  .stack-mobile-top .stack-description p {
+    font-size: 0.83rem;
+    color: #b0b0b0;
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  /* Rows 2 & 3 */
+  .stack-mobile-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .stack-mobile-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .stack-mobile-info .stack-group-title {
+    font-size: 1.3rem;
+    margin-bottom: 8px;
+  }
+  .stack-mobile-info .stack-group-desc {
+    font-size: 0.78rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .stack-mobile-info .stack-group-tags {
+    gap: 5px;
+  }
+  .stack-mobile-info .stack-group-tag {
+    padding: 3px 10px;
+    font-size: 0.68rem;
+  }
+
+  /* Mini Three.js orbit canvas */
+  .orbit-canvas {
+    flex-shrink: 0;
+    width: 120px;
+    height: 120px;
+    display: block;
   }
 }
 </style>

@@ -7,7 +7,9 @@
       <div class="hero__wrapper">
         <div class="hero__left">
           <h1 class="hero__title">
-            <span>{{displayedText}}</span>
+            <!-- Ghost text reserves full height, preventing layout shift during typewriter -->
+            <span class="hero__title-ghost" aria-hidden="true">{{ heroTitle }}</span>
+            <span class="hero__title-typed">{{ displayedText }}</span>
           </h1>
           <p class="hero__subtitle">{{ props.settings?.hero_subtitle }}</p>
           <button class="btn btn-primary" @click="$emit('openModal')">
@@ -193,10 +195,11 @@ function init3DScene() {
     animate()
 
     window.addEventListener('resize', () => {
-      const newWidth = window.innerWidth / 2
-      camera.aspect = newWidth / window.innerHeight
+      const newWidth = container.clientWidth
+      const newHeight = container.clientHeight
+      camera.aspect = newWidth / newHeight
       camera.updateProjectionMatrix()
-      renderer.setSize(newWidth, window.innerHeight)
+      renderer.setSize(newWidth, newHeight)
     })
   }
   document.head.appendChild(script)
@@ -269,6 +272,23 @@ function init3DScene() {
   text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
   opacity: 0;
   animation: fadeUp 1s ease-out 0.3s forwards;
+  position: relative;
+}
+
+/* Ghost: invisible, reserves full final height so layout never shifts */
+.hero__title-ghost {
+  visibility: hidden;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Typed text overlays the ghost */
+.hero__title-typed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
 }
 
 .hero__subtitle {
@@ -336,37 +356,51 @@ function init3DScene() {
 
 
 @media (max-width: 768px) {
+  .hero {
+    padding-top: 0;
+    align-items: flex-start;
+  }
+
   .hero__wrapper {
     display: flex;
     flex-direction: column;
-    padding: 70px 15px 0;
-    gap: 40px;
-    text-align: center;
+    padding: 0;
+    gap: 0;
+    text-align: left;
   }
 
   .hero__right {
     order: 1;
+    height: 55vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .hero__left {
     order: 2;
+    padding: 0 0 40px;
   }
 
   .hero__background {
     position: absolute;
     width: 100%;
-    height: 70vh;
+    height: 55vh;
     top: 0;
     bottom: auto;
     left: 0;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.35);
+    box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
   }
 
   .hero__title {
-    font-size: 1.2rem;
+    font-size: 2rem;
+    margin-bottom: 16px;
   }
 
   .hero__subtitle {
     font-size: 1rem;
+    margin-bottom: 0;
   }
 
   .hero__logo-script {
@@ -380,42 +414,51 @@ function init3DScene() {
   }
 
   .btn-primary {
-    padding: 10px 20px;
-    font-size: 0.9rem;
-    min-width: auto;
-    opacity: 0;
-    animation: fadeUp 1s ease-out 0.7s forwards;
+    display: none;
   }
 }
 
 @media (max-width: 480px) {
+  .hero {
+    padding-top: 0;
+    align-items: flex-start;
+  }
+
   .hero__wrapper {
     display: flex;
     flex-direction: column;
-    padding: 70px 15px 0;
-    gap: 40px;
-    text-align: center;
+    padding: 0;
+    gap: 0;
+    text-align: left;
   }
 
   .hero__right {
     order: 1;
+    height: 55vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .hero__left {
     order: 2;
+    padding: 0 0 40px;
   }
 
   .hero__background {
     position: absolute;
     width: 100%;
-    height: 70vh;
+    height: 55vh;
     top: 0;
     bottom: auto;
     left: 0;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.35);
+    box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
   }
 
   .hero__title {
-    font-size: 1.1rem;
+    font-size: 1.8rem;
+    margin-bottom: 16px;
   }
 
   .hero__subtitle {

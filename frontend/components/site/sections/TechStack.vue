@@ -195,11 +195,27 @@ const aboutUs = {
   }
 
   .who-we-are__title {
-    text-align: center;
+    text-align: left;
   }
 
   .icon-cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .icon-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .icon-card__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .icon-card__label {
+    font-size: 0.78rem;
+    line-height: 1.4;
   }
 }
 </style>

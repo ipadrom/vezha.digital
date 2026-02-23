@@ -6,10 +6,8 @@
       <!-- Starfield parallax canvas -->
       <canvas ref="starsCanvas" class="stages-stars"></canvas>
 
-      <!-- Ghost watermark -->
-      <div class="stages-watermark">
-        <span class="wm-bracket">&lt;</span>Этапы<span class="wm-bracket">/&gt;</span>
-      </div>
+      <!-- Section title -->
+      <h2 class="stages-section-title">Этапы работы <span class="bracket">&gt;</span></h2>
 
       <!-- Desktop: constellation -->
       <div class="constellation-wrap stages-desktop" ref="svgWrap">
@@ -347,8 +345,8 @@ onBeforeUnmount(() => {
 
 .stages-sticky {
   position: sticky;
-  top: 0;
-  height: 100vh;
+  top: 84px;
+  height: calc(100vh - 84px);
   width: 100%;
   overflow: hidden;
   background: #060610;
@@ -368,25 +366,18 @@ onBeforeUnmount(() => {
   z-index: 0;
 }
 
-/* ── Watermark ── */
-.stages-watermark {
+/* ── Section title ── */
+.stages-section-title {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-epilepsy);
-  font-size: clamp(80px, 16vw, 220px);
-  font-weight: 900;
-  color: rgba(0, 229, 255, 0.03);
+  top: 16px;
+  left: 60px;
+  font-family: var(--font-inter);
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: bold;
+  color: #fff;
+  z-index: 11;
   pointer-events: none;
-  user-select: none;
-  white-space: nowrap;
-  z-index: 0;
-}
-
-.wm-bracket {
-  color: rgba(0, 229, 255, 0.025);
+  margin: 0;
 }
 
 /* ── Constellation wrapper ── */
@@ -574,70 +565,114 @@ onBeforeUnmount(() => {
   /* On mobile: no scroll-lock, normal flow */
   .stages-wrapper {
     height: auto;
+    margin-bottom: 50px;
   }
   .stages-sticky {
     position: static;
     height: auto;
-    min-height: 100vh;
-    padding: 60px 0 40px;
+    min-height: auto;
+    padding: 0;
     justify-content: flex-start;
+    gap: 20px;
+    background: var(--bg);
+    overflow: visible;
+  }
+
+  /* Hide starfield on mobile */
+  .stages-stars {
+    display: none;
+  }
+
+  /* Title: in flow on mobile, not absolute */
+  .stages-section-title {
+    position: static;
+    top: auto;
+    left: auto;
+    font-size: clamp(2rem, 4vw, 3rem);
+    text-align: left;
+    padding: 0 16px;
+    margin: 0 0 16px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .stages-desktop {
     display: none !important;
   }
 
+  .stages-scroll-hint {
+    display: none;
+  }
+
   .stages-mobile {
     display: grid;
-    grid-template-columns: 40% 60%;
-    gap: 15px;
-    min-height: 300px;
-    margin-top: 20px;
-    padding: 0 20px;
+    grid-template-columns: auto 1fr;
+    align-items: stretch;
+    gap: 12px;
+    min-height: auto;
+    margin-top: 0;
+    padding: 0 16px;
     width: 100%;
     position: relative;
     z-index: 2;
+    box-sizing: border-box;
   }
 
   .stages-list {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
   }
 
   .stage-item {
     border-left: 3px solid transparent;
-    padding: 10px 0 10px 15px;
+    padding: 8px 0 8px 10px;
     cursor: pointer;
     transition: all 0.3s;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
   }
 
   .stage-item.active {
     border-left-color: var(--accent);
-    box-shadow: -10px 0 15px -5px rgba(0, 229, 255, 0.3);
+    box-shadow: -8px 0 12px -5px rgba(0, 229, 255, 0.3);
   }
 
   .stage-item__number {
-    font-family: var(--font-epilepsy);
-    font-size: 2rem;
-    color: var(--accent);
-    font-weight: 700;
+    display: none;
   }
 
   .stage-item__title {
-    font-family: var(--font-epilepsy);
-    font-size: 0.85rem;
+    font-family: var(--font-inter);
+    font-size: 0.8rem;
     color: #e0e0e0;
     font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .stage-item.active .stage-item__title {
+    color: var(--accent);
   }
 
   .stages-description {
     background: var(--bg-secondary);
-    border: 2px solid var(--border);
-    padding: 20px;
+    border: 1px solid var(--border);
+    padding: 14px 16px 14px 20px;
+    align-self: stretch;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stages-description::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
   }
 
   .description-content {
