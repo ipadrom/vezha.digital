@@ -48,7 +48,7 @@
 
   box-shadow:
       -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
+      rgba(0, 229, 255, 0.15);
 }
 
 .card::before {

@@ -236,7 +236,7 @@ const formatPrice = (price: number) => {
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
-  color: var(--text);
+  color: var(--accent);
   flex: 1;
   transition: color 0.2s;
 }

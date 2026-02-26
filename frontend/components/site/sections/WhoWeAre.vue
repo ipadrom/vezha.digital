@@ -88,7 +88,7 @@ const aboutUsData = [
 .who-we-are {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 30px;
   height: 100%;
 }
 
@@ -145,9 +145,8 @@ const aboutUsData = [
 
 .stats-grid{
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  width: 100%;
-  gap: 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .stat-card {
@@ -188,15 +187,9 @@ const aboutUsData = [
 
   .tech-item h4 {
     white-space: nowrap;
-    overflow: hidden;       
-    text-overflow: ellipsis; 
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.85rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>
