@@ -37,7 +37,7 @@
       <!-- Right-side info blocks (desktop only) -->
       <div class="stack-groups">
         <div class="stack-group">
-          <h3 class="stack-group-title">Frontend <span class="bracket">&gt;</span></h3>
+          <h3 class="stack-group-title">Frontend</h3>
           <p class="stack-group-desc">Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.</p>
           <div class="stack-group-tags">
             <span class="stack-group-tag">React</span>
@@ -48,7 +48,7 @@
           </div>
         </div>
         <div class="stack-group">
-          <h3 class="stack-group-title">Backend <span class="bracket">&gt;</span></h3>
+          <h3 class="stack-group-title">Backend</h3>
           <p class="stack-group-desc">Серверная часть, API, базы данных и контейнеризация для надёжной работы под нагрузкой.</p>
           <div class="stack-group-tags">
             <span class="stack-group-tag">Python</span>
@@ -75,7 +75,7 @@
         <div class="stack-mobile-row">
           <canvas ref="frontendMiniCanvas" class="orbit-canvas"></canvas>
           <div class="stack-mobile-info">
-            <h3 class="stack-group-title">Frontend <span class="bracket">&gt;</span></h3>
+            <h3 class="stack-group-title">Frontend</h3>
             <p class="stack-group-desc">Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.</p>
             <div class="stack-group-tags">
               <span class="stack-group-tag">React</span>
@@ -90,7 +90,7 @@
         <!-- Row 3: Backend info (left) + Backend orbit canvas (right) -->
         <div class="stack-mobile-row">
           <div class="stack-mobile-info">
-            <h3 class="stack-group-title">Backend <span class="bracket">&gt;</span></h3>
+            <h3 class="stack-group-title">Backend</h3>
             <p class="stack-group-desc">Серверная часть, API, базы данных и контейнеризация для надёжной работы под нагрузкой.</p>
             <div class="stack-group-tags">
               <span class="stack-group-tag">Python</span>
@@ -846,8 +846,8 @@ onBeforeUnmount(() => {
 .stack-group-title {
   font-family: var(--font-inter);
   font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: bold;
-  color: #fff;
+  font-weight: 800;
+  color: var(--accent);
   margin: 0 0 16px 0;
 }
 
