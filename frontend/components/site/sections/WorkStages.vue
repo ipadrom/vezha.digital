@@ -39,7 +39,7 @@
 
 <script setup lang="ts">
 import WorkStagesContent from "~/components/ui/work-stages-content/WorkStagesContent.vue";
-import StarfieldParallax from "~/components/ui/3d/StarfieldParallax.vue";
+import StarfieldParallax from "~/components/ui/3d/canvas/StarfieldParallax.vue";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
 
 defineProps<{

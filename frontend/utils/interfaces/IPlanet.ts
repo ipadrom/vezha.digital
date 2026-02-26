@@ -9,4 +9,6 @@ export interface IPlanet {
     angle: number
     speed: number
     r: number
+    rotSpeed: number
+    selfAngle: number
 }

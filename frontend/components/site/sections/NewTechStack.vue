@@ -21,6 +21,8 @@
         :hoveredTech="hoveredTech"
         @update:hoveredTech="hoveredTech = $event"
       />
+
+      <TechStackMobileView/>
     </div>
   </div>
 </template>
@@ -28,10 +30,11 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref } from 'vue'
 import type { ITechStack } from '~/utils/interfaces/ITechStack'
-import StarfieldParallax from "~/components/ui/3d/StarfieldParallax.vue";
+import StarfieldParallax from "~/components/ui/3d/canvas/StarfieldParallax.vue";
 import RightStackMenu from "~/components/ui/RightStackMenu.vue";
 import ScrollProgressIndicator from "~/components/ui/ScrollProgressIndicator.vue";
-import OrbitCanvas from "~/components/ui/3d/OrbitCanvas.vue";
+import OrbitCanvas from "~/components/ui/3d/canvas/OrbitCanvas.vue";
+import TechStackMobileView from "~/components/mobile-view/TechStackMobileView.vue";
 
 const props = defineProps<{
   techStack: ITechStack[]
@@ -117,12 +120,23 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 768px) {
-  .stack-menu {
-    right: 12px;
-    gap: 12px;
+  /* Disable scroll-lock, keep relative for absolute children */
+  .stack-wrapper { height: auto; }
+  .stack-sticky {
+    position: relative;
+    height: auto;
+    overflow: hidden;
+    background: #060610;
+    padding: 0 16px 40px;
   }
-  .stack-menu-item span {
-    font-size: 0.75rem;
+
+  /* Stars and 3D canvas stay as background */
+  .stack-stars {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
   }
 }
 </style>

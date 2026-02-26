@@ -85,4 +85,10 @@ function onMenuLeave() {
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent);
 }
+
+@media (max-width: 768px) {
+  .stack-menu {
+    display: none;
+  }
+}
 </style>

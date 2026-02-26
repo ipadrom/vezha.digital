@@ -289,4 +289,12 @@ onBeforeUnmount(() => {
   transition: opacity 0.25s;
   filter: drop-shadow(0 0 4px var(--accent, #00ff41));
 }
+
+@media (max-width: 768px) {
+  .orbit-wrapper,
+  .stack-connector-svg,
+  .stack-connector-svg,
+  .stack-labels
+  { display: none !important; }
+}
 </style>
