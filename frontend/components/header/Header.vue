@@ -101,8 +101,8 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 0;
-  gap: 40px;
+  padding: 1vw 0;
+  gap: 2vw;
 }
 
 .logo {
@@ -117,7 +117,7 @@ onMounted(() => {
 
 .logo__script {
   font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-  font-size: 2rem;
+  font-size: 1.7vw;
   font-weight: 400;
   color: #ffffff;
   font-style: italic;
@@ -127,7 +127,7 @@ onMounted(() => {
 
 .logo__digital {
   font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
-  font-size: 0.75rem;
+  font-size: 0.65vw;
   font-weight: 700;
   letter-spacing: 6px;
   color: #ffffff;
@@ -137,16 +137,17 @@ onMounted(() => {
 
 .nav {
   display: flex;
-  gap: 30px;
+  gap: 1.6vw;
   flex: 1;
   justify-content: center;
 }
 
 .nav a {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   color: var(--text-dim);
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 1.2vw;
+  font-weight: 400;
   position: relative;
   transition: all 0.3s;
   white-space: nowrap;
@@ -174,9 +175,8 @@ onMounted(() => {
 .header__actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 0.5vw;
 }
-
 
 .mobile-menu-btn {
   padding: 8px;

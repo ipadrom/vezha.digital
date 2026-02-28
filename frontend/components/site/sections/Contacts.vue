@@ -49,9 +49,6 @@
             <div class="terminal fade-item">
               <div class="terminal__header">faq.sh</div>
               <div class="terminal__body">
-                <div class="terminal__line">
-                  <span class="prompt">$</span> cat faq.json
-                </div>
                 <div class="faq-list">
                   <div
                     v-for="(item, i) in FAQ"
@@ -147,8 +144,8 @@ onUnmounted(() => {
 .contact {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  margin-top: 5rem;
+  gap: 3.125vw;
+  margin-top: 4vw;
   padding: 0 3.125vw;
 }
 
@@ -160,9 +157,11 @@ onUnmounted(() => {
 }
 
 .contacts-subtitle {
-  color: var(--text-dim);
+  color: #e0e0e0;
   font-family: var(--font-inter);
-  font-size: 1.1rem;
+  font-size: 1.5vw;
+  font-weight: 400;
+  line-height: 1.8;
   margin-bottom: 40px;
 }
 
@@ -180,8 +179,11 @@ onUnmounted(() => {
   color: var(--text);
   text-decoration: none;
   transition: all 0.3s;
-  padding: 10px;
+  padding: 0.5vw;
   border: 1px solid transparent;
+  font-family: var(--font-inter);
+  font-size: 1.2vw;
+  font-weight: 400;
 }
 
 .contacts-list a:hover {
@@ -199,14 +201,15 @@ onUnmounted(() => {
 
 .terminal__header {
   background: var(--bg-tertiary);
-  padding: 10px 15px;
+  padding: 0.5vw 0.8vw;
   border-bottom: 1px solid var(--border);
   color: var(--text-dim);
-  font-size: 0.9rem;
+  font-size: 0.9vw;
+  font-family: var(--font-inter);
 }
 
 .terminal__body {
-  padding: 20px;
+  padding: 1vw;
 }
 
 .terminal__line {
@@ -220,7 +223,7 @@ onUnmounted(() => {
 .terminal__body pre {
   color: var(--text-dim);
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
+  font-size: 0.9vw;
   line-height: 1.8;
 }
 
@@ -246,9 +249,10 @@ onUnmounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 10px 0;
+  padding: 0.5vw 0;
   font-family: var(--font-inter);
-  font-size: 0.78rem;
+  font-size: 1.2vw;
+  font-weight: 400;
   color: #e0e0e0;
   line-height: 1.5;
   transition: color 0.2s;
@@ -261,7 +265,7 @@ onUnmounted(() => {
 
 .faq-item__arrow {
   color: var(--accent);
-  font-size: 0.75rem;
+  font-size: 1.2vw;
   margin-top: 1px;
   flex-shrink: 0;
   transition: transform 0.2s;
@@ -269,10 +273,11 @@ onUnmounted(() => {
 
 .faq-item__answer {
   font-family: var(--font-inter);
-  font-size: 0.72rem;
+  font-size: 1.2vw;
+  font-weight: 400;
   color: var(--text-dim);
   line-height: 1.7;
-  padding: 0 0 12px 16px;
+  padding: 0 0 0.6vw 0.8vw;
   border-left: 2px solid var(--accent);
   margin-left: 4px;
 }

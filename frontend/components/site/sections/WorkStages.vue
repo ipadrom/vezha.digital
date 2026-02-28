@@ -274,8 +274,8 @@ function onScroll() {
 // ── HOVER ─────────────────────────────────────────────────────────
 const hoveredIdx = ref<number | null>(0)
 
-const CARD_W = 220
-const CARD_H = 170
+const getCardW = () => window.innerWidth * 0.16
+const getCardH = () => window.innerWidth * 0.12
 
 function cardLineEnd(i: number) {
   const goUp = NODES[i].y > SVG_H / 2
@@ -291,10 +291,13 @@ function cardStyle(i: number): Record<string, string> {
   const py = NODES[i].y * scale
 
   const goUp = NODES[i].y > SVG_H / 2
-  const cardTop = goUp ? py - CARD_H - 70 : py + 70
+  const gap = Math.round(65 * scale)
+  const cardH = getCardH()
+  const cardTop = goUp ? py - cardH - gap : py + gap
 
-  let cardLeft = px - CARD_W / 2
-  cardLeft = Math.max(8, Math.min(wW - CARD_W - 8, cardLeft))
+  const cardW = getCardW()
+  let cardLeft = px - cardW / 2
+  cardLeft = Math.max(8, Math.min(wW - cardW - 8, cardLeft))
 
   return {
     left:      `${cardLeft}px`,
@@ -385,8 +388,7 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 2;
   width: 100%;
-  max-width: 1200px;
-  padding: 0 20px;
+  padding: 0 3.125vw;
 }
 
 .constellation-svg {
@@ -459,8 +461,8 @@ onBeforeUnmount(() => {
 }
 
 .c-number {
-  font-family: var(--font-epilepsy);
-  font-size: 14px;
+  font-family: var(--font-inter);
+  font-size: 0.7vw;
   fill: var(--accent);
   opacity: 0.7;
   transition: opacity 0.3s;
@@ -470,8 +472,8 @@ onBeforeUnmount(() => {
 }
 
 .c-label {
-  font-family: var(--font-epilepsy);
-  font-size: 16px;
+  font-family: var(--font-inter);
+  font-size: 0.7vw;
   fill: #e0e0e0;
   opacity: 0.8;
   transition: opacity 0.3s, fill 0.3s;
@@ -484,11 +486,11 @@ onBeforeUnmount(() => {
 /* ── Hover card ── */
 .c-card {
   position: absolute;
-  width: 220px;
+  width: 16vw;
   z-index: 10;
   background: var(--bg-secondary);
   border: 1px solid var(--accent);
-  padding: 16px 18px;
+  padding: 0.85vw 1vw;
   box-shadow: 0 0 24px rgba(0, 229, 255, 0.12), -3px 0 0 0 var(--accent);
   pointer-events: none;
 }
@@ -513,7 +515,7 @@ onBeforeUnmount(() => {
 
 .c-card__features li {
   font-family: var(--font-inter);
-  font-size: 0.7rem;
+  font-size: 1vw;
   color: var(--accent);
   opacity: 0.85;
 }
@@ -523,8 +525,8 @@ onBeforeUnmount(() => {
 }
 
 .c-card__duration {
-  font-family: var(--font-epilepsy);
-  font-size: 0.85rem;
+  font-family: var(--font-inter);
+  font-size: 1vw;
   color: var(--accent);
   opacity: 0.75;
 }

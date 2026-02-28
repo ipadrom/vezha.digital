@@ -113,9 +113,9 @@ const aboutUs = {
 .who-we-are__text p {
   color: #e0e0e0;
   font-family: var(--font-inter);
-  font-size: 1.2vw;
+  font-size: 1.5vw;
   line-height: 1.8;
-  font-weight: 600;
+  font-weight: 400;
 }
 
 /* Right: icon cards grid */

@@ -76,14 +76,15 @@
 
 @layer components {
   .container-main {
-    @apply max-w-[1200px] mx-auto px-5;
+    width: 100%;
+    padding: 0 3.125vw;
   }
 
   /* Button styles matching site10 */
   .btn {
-    padding: 12px 28px;
+    padding: 0.625vw 1.45vw;
     font-family: var(--font-inter);
-    font-size: 0.9rem;
+    font-size: 0.9vw;
     border: 2px solid var(--accent);
     background: var(--accent);
     color: var(--bg);
@@ -118,9 +119,9 @@
   }
 
   .btn-primary {
-    padding: 10px 28px;
+    padding: 0.625vw 1.45vw;
     font-family: var(--font-inter);
-    font-size: 1.3rem;
+    font-size: 1vw;
     border: 2px solid var(--accent);
     background: var(--accent);
     color: var(--bg);
@@ -138,13 +139,13 @@
   }
 
   .btn-large {
-    padding: 10px 42px;
-    font-size: 1rem;
+    padding: 0.5vw 2.2vw;
+    font-size: 1vw;
   }
 
   .btn-small {
-    padding: 8px 20px;
-    font-size: 0.85rem;
+    padding: 0.4vw 1vw;
+    font-size: 0.85vw;
   }
 
   .btn-full {
@@ -542,7 +543,7 @@ form {
 
 @media (max-width: 768px) {
   .container-main {
-    @apply px-4;
+    padding: 0 20px;
   }
 }
 

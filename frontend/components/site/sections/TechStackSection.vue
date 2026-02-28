@@ -768,7 +768,7 @@ onBeforeUnmount(() => {
   transform: translateY(-50%);
   z-index: 11;
   pointer-events: none;
-  max-width: 20vw;
+  max-width: 25vw;
 }
 
 .stack-section-title {
@@ -840,7 +840,7 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 20vw;
+  width: 25vw;
   pointer-events: none;
 }
 
@@ -870,12 +870,12 @@ onBeforeUnmount(() => {
 
 .stack-group-tag {
   display: inline-block;
-  padding: 5px 14px;
+  padding: 0.3vw 0.7vw;
   border: 2px solid var(--accent);
   background: var(--accent);
   color: var(--bg);
   font-family: var(--font-inter);
-  font-size: 0.7vw;
+  font-size: 0.9vw;
   font-weight: 600;
 }
 

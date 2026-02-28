@@ -163,6 +163,7 @@ const formatPrice = (price: number) => {
   display: flex;
   gap: 30px;
   height: 37vw;
+  align-items: stretch;
 }
 
 .services-list {
@@ -292,7 +293,7 @@ const formatPrice = (price: number) => {
 
 .service-detail h3 {
   font-family: var(--font-inter);
-  font-size: 3vw;
+  font-size: 2.5vw;
   margin-bottom: 15px;
   color: var(--accent);
   font-weight: 800;
@@ -300,7 +301,7 @@ const formatPrice = (price: number) => {
 
 .service-detail .price {
   font-family: var(--font-inter);
-  font-size: 2vw;
+  font-size: 1.8vw;
   color: var(--accent);
   margin-bottom: 15px;
   font-weight: 700;
@@ -308,7 +309,7 @@ const formatPrice = (price: number) => {
 
 .service-detail .desc {
   font-family: var(--font-inter);
-  font-size: 1.5vw;
+  font-size: 1.2vw;
   color: #e0e0e0;
   margin-bottom: 25px;
   line-height: 1.8;
@@ -342,7 +343,7 @@ const formatPrice = (price: number) => {
 
 .service-content ul li {
   font-family: var(--font-inter);
-  font-size: 1.5vw;
+  font-size: 1.2vw;
   font-weight: 600;
   color: #e0e0e0;
   padding: 0.5vw 0 0.5vw 1.5vw;
@@ -358,7 +359,6 @@ const formatPrice = (price: number) => {
 }
 
 .redirect-btn {
-  align-self: flex-end;
   padding: 12px 28px;
   font-family: var(--font-inter);
   font-size: 0.9rem;
@@ -366,12 +366,13 @@ const formatPrice = (price: number) => {
   background: var(--accent);
   color: var(--bg);
   cursor: pointer;
-  position: relative;
+  position: absolute;
+  bottom: 1vw;
+  right: 2vw;
   overflow: hidden;
   transition: all 0.3s;
   text-decoration: none;
   display: inline-block;
-  margin-top: auto;
 }
 
 .redirect-btn:hover {
@@ -475,13 +476,13 @@ const formatPrice = (price: number) => {
 
 .service-example-tag {
   display: inline-block;
-  padding: 4px 12px;
+  padding: 0.3vw 0.7vw;
   border: 1px solid var(--accent);
   background: var(--accent);
   color: #0a0a0a;
   font-family: var(--font-inter);
-  font-size: 1.2vw;
-  font-weight: 400;
+  font-size: 0.9vw;
+  font-weight: 600;
 }
 
 @media (max-width: 992px) {

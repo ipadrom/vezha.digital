@@ -70,7 +70,7 @@ defineProps<{
 .footer {
   background: var(--bg-secondary);
   border-top: 2px solid var(--accent);
-  padding: 60px 20px 30px;
+  padding: 3vw 0 1.5vw;
   z-index: 100;
   width: 100%;
   box-shadow: 0 -5px 10px rgba(0, 229, 255, 0.3);
@@ -80,14 +80,15 @@ defineProps<{
 .footer__content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
-  margin-bottom: 40px;
+  gap: 2vw;
+  margin-bottom: 2vw;
 }
 
 .footer__col h4 {
-  font-family: var(--font-epilepsy);
-  font-size: 1.1rem;
-  margin-bottom: 20px;
+  font-family: var(--font-inter);
+  font-size: 1.1vw;
+  font-weight: 700;
+  margin-bottom: 1vw;
 }
 
 .footer__col ul {
@@ -97,14 +98,15 @@ defineProps<{
 }
 
 .footer__col ul li {
-  margin-bottom: 12px;
+  margin-bottom: 0.6vw;
 }
 
 .footer__col a {
   color: var(--text-dim);
   text-decoration: none;
   transition: all 0.3s;
-  font-size: 0.9rem;
+  font-family: var(--font-inter);
+  font-size: 0.9vw;
 }
 
 .footer__col a:hover {
@@ -114,13 +116,14 @@ defineProps<{
 
 .footer__bottom {
   text-align: center;
-  padding-top: 30px;
+  padding-top: 1.5vw;
   border-top: 1px solid var(--border);
 }
 
 .footer__bottom p {
   color: var(--text-dim);
-  font-size: 0.9rem;
+  font-family: var(--font-inter);
+  font-size: 0.9vw;
 }
 
 @media (max-width: 768px) {

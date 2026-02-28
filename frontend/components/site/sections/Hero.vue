@@ -210,7 +210,7 @@ function init3DScene() {
   min-height: 100vh;
   align-items: center;
   justify-content: center;
-  padding: 120px 0 0;
+  padding: 6.25vw 0 0;
   position: relative;
   overflow: hidden;
   background: #0a0a0a;
@@ -263,11 +263,11 @@ function init3DScene() {
 
 .hero__title {
   font-family: var(--font-inter);
-  font-size: 6vw;
+  font-size: 5vw;
   font-weight: 700;
   line-height: 1.2;
   color: #ffffff;
-  margin-bottom: 30px;
+  margin-bottom: 1.5vw;
   text-transform: uppercase;
   text-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
   opacity: 0;
@@ -292,9 +292,9 @@ function init3DScene() {
 }
 
 .hero__subtitle {
-  font-size: 1.3rem;
+  font-size: 1.5vw;
   color: var(--text-dim);
-  margin-bottom: 40px;
+  margin-bottom: 2vw;
   font-family: var(--font-inter);
   opacity: 0;
   animation: fadeUp 1s ease-out 0.5s forwards;
@@ -313,7 +313,7 @@ function init3DScene() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 0.5vw;
   position: relative;
   z-index: 10;
   text-align: center;
@@ -321,7 +321,7 @@ function init3DScene() {
 
 .hero__logo-script {
   font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
-  font-size: 7rem;
+  font-size: 5.8vw;
   font-weight: 400;
   color: #ffffff;
   text-shadow: 0 0 40px rgba(255, 255, 255, 0.5),
@@ -333,7 +333,7 @@ function init3DScene() {
 
 .hero__logo-digital {
   font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
-  font-size: 3rem;
+  font-size: 2.5vw;
   font-weight: 700;
   letter-spacing: 8px;
   color: #ffffff;
