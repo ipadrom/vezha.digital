@@ -764,19 +764,20 @@ onBeforeUnmount(() => {
 .stack-info {
   position: absolute;
   top: 50%;
-  left: 60px;
+  left: 3.125vw;
   transform: translateY(-50%);
   z-index: 11;
   pointer-events: none;
-  max-width: 340px;
+  max-width: 20vw;
 }
 
 .stack-section-title {
   font-family: var(--font-inter);
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: bold;
+  font-size: 4.5vw;
+  font-weight: 700;
   color: #fff;
   margin: 0 0 20px 0;
+  white-space: nowrap;
 }
 
 .stack-description {
@@ -788,8 +789,8 @@ onBeforeUnmount(() => {
 .stack-description p {
   color: #e0e0e0;
   font-family: var(--font-inter);
-  font-size: 0.85rem;
-  line-height: 1.7;
+  font-size: 1.2vw;
+  line-height: 1.8;
   font-weight: 400;
   margin: 0;
 }
@@ -834,28 +835,29 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 30px;
   bottom: 50px;
-  right: 60px;
+  right: 3.125vw;
   z-index: 10;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 280px;
+  width: 20vw;
   pointer-events: none;
 }
 
 .stack-group-title {
   font-family: var(--font-inter);
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: 3vw;
   font-weight: 800;
   color: var(--accent);
   margin: 0 0 16px 0;
+  white-space: nowrap;
 }
 
 .stack-group-desc {
   color: #e0e0e0;
   font-family: var(--font-inter);
-  font-size: 0.85rem;
-  line-height: 1.7;
+  font-size: 1.2vw;
+  line-height: 1.8;
   font-weight: 400;
   margin: 0 0 12px 0;
 }
@@ -873,7 +875,7 @@ onBeforeUnmount(() => {
   background: var(--accent);
   color: var(--bg);
   font-family: var(--font-inter);
-  font-size: 0.75rem;
+  font-size: 0.7vw;
   font-weight: 600;
 }
 

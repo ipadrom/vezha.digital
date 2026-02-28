@@ -181,8 +181,8 @@
   }
 
   .section-title {
-    font-weight: bold;
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    font-size: 4.5vw;
     text-align: center;
     margin-bottom: 2rem;
     margin-top: 5rem;
@@ -545,3 +545,4 @@ form {
     @apply px-4;
   }
 }
+

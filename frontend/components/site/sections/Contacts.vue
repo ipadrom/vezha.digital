@@ -4,8 +4,7 @@
       class="section"
       ref="contactsRef"
   >
-    <div class="container-main">
-      <div class="contact">
+    <div class="contact">
         <!-- Left Column: Contact Info -->
         <div class="contact__left">
           <h2 class="section-title contacts-section-title">
@@ -75,7 +74,6 @@
               </div>
             </div>
           </div>
-      </div>
     </div>
   </section>
 </template>
@@ -151,6 +149,7 @@ onUnmounted(() => {
   grid-template-columns: 1fr 1fr;
   gap: 60px;
   margin-top: 5rem;
+  padding: 0 3.125vw;
 }
 
 .contacts-section-title {
@@ -339,7 +338,7 @@ onUnmounted(() => {
     justify-content: center;
     gap: 30px;
     font-size: 1rem;
-
+    padding: 0 20px;
   }
 
   .contact__left h3 {

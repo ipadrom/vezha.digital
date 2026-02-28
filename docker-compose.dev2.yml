@@ -10,7 +10,7 @@ services:
       - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
       - TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME}
       - ADMIN_TELEGRAM_IDS=${ADMIN_TELEGRAM_IDS}
-      - CORS_ORIGINS=http://localhost:3001,http://localhost:3000,https://vezha.digital
+      - CORS_ORIGINS=http://localhost:3001,http://127.0.0.1:3001,http://localhost:3000,http://127.0.0.1:3000,https://vezha.digital
       - MINIO_ENDPOINT=minio:9000
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}

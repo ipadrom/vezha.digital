@@ -4,8 +4,7 @@
       class="section"
       ref="techStackRef"
   >
-    <div class="container-main">
-      <div class="who-we-are">
+    <div class="who-we-are">
 
         <!-- Left: title + text (всегда в DOM для корректного sticky) -->
         <div class="who-we-are__left">
@@ -67,7 +66,6 @@
           </div>
         </div>
 
-      </div>
     </div>
   </section>
 </template>
@@ -88,8 +86,9 @@ const aboutUs = {
 .who-we-are {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: clamp(30px, 3.125vw, 80px);
   align-items: start;
+  padding: 0 3.125vw;
 }
 
 /* Left */
@@ -102,7 +101,7 @@ const aboutUs = {
 .who-we-are__title {
   text-align: left;
   margin-top: 0;
-  margin-bottom: 24px;
+  margin-bottom: clamp(16px, 1.25vw, 32px);
 }
 
 .who-we-are__text {
@@ -114,25 +113,25 @@ const aboutUs = {
 .who-we-are__text p {
   color: #e0e0e0;
   font-family: var(--font-inter);
-  font-size: 0.95rem;
+  font-size: 1.2vw;
   line-height: 1.8;
-  font-weight: 400;
+  font-weight: 600;
 }
 
 /* Right: icon cards grid */
 .icon-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16px;
+  gap: clamp(10px, 0.83vw, 24px);
 }
 
 .icon-card {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: clamp(12px, 1.04vw, 28px);
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 20px 24px;
+  padding: 1vw 1.5vw;
   position: relative;
   box-shadow: -10px 0 15px -5px rgba(0, 229, 255, 0.15);
   opacity: 0;
@@ -167,10 +166,10 @@ const aboutUs = {
 
 .icon-card__label {
   font-family: var(--font-inter);
-  font-size: 0.9rem;
+  font-size: 1.2vw;
   font-weight: 600;
   color: #e0e0e0;
-  line-height: 1.5;
+  line-height: 1.8;
 }
 
 @keyframes iconFadeUp {
@@ -188,6 +187,7 @@ const aboutUs = {
   .who-we-are {
     grid-template-columns: 1fr;
     gap: 30px;
+    padding: 0 20px;
   }
 
   .who-we-are__left {

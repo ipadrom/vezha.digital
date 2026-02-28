@@ -4,7 +4,7 @@
       class="section"
       ref="servicesRef"
   >
-    <div class="container-main">
+    <div class="services-container">
       <h2 class="section-title" style="text-align: left;">
         {{ $t('services.title') }} <span class="bracket">&gt;</span>
       </h2>
@@ -54,7 +54,9 @@
                 <div v-if="activeService === service.id && isAdaptiveMobile" class="service-mobile-content">
                   <p class="desc">{{ service.description }}</p>
                   <div class="service-content">
-                    <p v-if="service.examples"><strong>Примеры:</strong> {{ service.examples }}</p>
+                    <div v-if="service.examples" class="service-example-tags">
+                      <span v-for="tag in service.examples.split(',')" :key="tag" class="service-example-tag">{{ tag.trim() }}</span>
+                    </div>
                     <ul v-if="service.features && service.features.length">
                       <li v-for="(feature, idx) in service.features" :key="idx">{{ feature.text }}</li>
                     </ul>
@@ -88,9 +90,9 @@
                 <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
                 <p class="desc">{{ service.description }}</p>
                 <div class="service-content fade-item" style="--enter-delay: 0.2s">
-                  <p v-if="service.examples" class="">
-                    <strong>Примеры:</strong> {{ service.examples }}
-                  </p>
+                  <div v-if="service.examples" class="service-example-tags">
+                    <span v-for="tag in service.examples.split(',')" :key="tag" class="service-example-tag">{{ tag.trim() }}</span>
+                  </div>
                   <ul v-if="service.features && service.features.length" style="--enter-delay: 0.8s">
                     <li v-for="(feature, idx) in service.features" :key="idx">{{ feature.text }}</li>
                   </ul>
@@ -153,14 +155,18 @@ const formatPrice = (price: number) => {
 </script>
 
 <style scoped>
+.services-container {
+  padding: 0 3.125vw;
+}
+
 .services-new {
   display: flex;
   gap: 30px;
-  max-height: 466px;
+  height: 37vw;
 }
 
 .services-list {
-  flex: 0 0 450px;
+  flex: 0 0 35vw;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -186,7 +192,7 @@ const formatPrice = (price: number) => {
 .service-item {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 12px;
+  padding: 1vw 1vw;
   cursor: pointer;
   color: #e0e0e0;
   transition: border-color 0.2s ease-out, box-shadow 0.2s ease-out;
@@ -222,8 +228,8 @@ const formatPrice = (price: number) => {
 
 .service-item h3 {
   font-family: var(--font-inter);
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.5vw;
+  font-weight: 800;
   margin: 0;
   color: var(--text);
   flex: 1;
@@ -237,10 +243,10 @@ const formatPrice = (price: number) => {
 
 .service-item .price {
   font-family: var(--font-inter);
-  font-size: 1rem;
+  font-size: 1.5vw;
   color: var(--accent);
   margin: 0 0 0 10px;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   position: relative;
 }
@@ -253,11 +259,9 @@ const formatPrice = (price: number) => {
 
 .service-details {
   flex: 1 1 40%;
-  max-height: 466px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 15px 30px;
-  overflow-y: hidden;
+  padding: 1vw 2vw;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -288,7 +292,7 @@ const formatPrice = (price: number) => {
 
 .service-detail h3 {
   font-family: var(--font-inter);
-  font-size: 1.8rem;
+  font-size: 3vw;
   margin-bottom: 15px;
   color: var(--accent);
   font-weight: 800;
@@ -296,7 +300,7 @@ const formatPrice = (price: number) => {
 
 .service-detail .price {
   font-family: var(--font-inter);
-  font-size: 1.5rem;
+  font-size: 2vw;
   color: var(--accent);
   margin-bottom: 15px;
   font-weight: 700;
@@ -304,11 +308,11 @@ const formatPrice = (price: number) => {
 
 .service-detail .desc {
   font-family: var(--font-inter);
-  font-size: 1.1rem;
+  font-size: 1.5vw;
   color: #e0e0e0;
   margin-bottom: 25px;
-  line-height: 1.5;
-  font-weight: 500;
+  line-height: 1.8;
+  font-weight: 400;
 }
 
 .fade-down-enter-from {
@@ -338,8 +342,10 @@ const formatPrice = (price: number) => {
 
 .service-content ul li {
   font-family: var(--font-inter);
+  font-size: 1.5vw;
+  font-weight: 600;
   color: #e0e0e0;
-  padding: 8px 0 8px 20px;
+  padding: 0.5vw 0 0.5vw 1.5vw;
   position: relative;
   line-height: 1.5;
 }
@@ -460,7 +466,29 @@ const formatPrice = (price: number) => {
   to { height: 100%; }
 }
 
+.service-example-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.service-example-tag {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #0a0a0a;
+  font-family: var(--font-inter);
+  font-size: 1.2vw;
+  font-weight: 400;
+}
+
 @media (max-width: 992px) {
+  .services-container {
+    padding: 0 20px;
+  }
+
   .services-new {
     display: block;
     flex-direction: column;

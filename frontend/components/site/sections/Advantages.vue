@@ -4,8 +4,7 @@
       class="section"
       ref="advantagesRef"
   >
-    <div class="container-main">
-      <div class="advantages-layout">
+    <div class="advantages-layout">
 
         <!-- Left: big title + tags -->
         <div class="advantages-left fade-item" :style="{ '--enter-delay': '0ms' }">
@@ -66,7 +65,6 @@
           </Transition>
         </div>
 
-      </div>
     </div>
   </section>
 </template>
@@ -118,6 +116,7 @@ function hoverCard(index: number) {
   grid-template-columns: 1fr 1fr;
   gap: 60px;
   align-items: start;
+  padding: 0 3.125vw;
 }
 
 .advantages-left {
@@ -144,6 +143,7 @@ function hoverCard(index: number) {
 .advantages-tags {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start;
   gap: 10px;
   position: relative;
   min-height: 80px;
@@ -156,7 +156,8 @@ function hoverCard(index: number) {
   background: var(--accent);
   color: var(--bg);
   font-family: var(--font-inter);
-  font-size: 0.85rem;
+  font-size: 1.2vw;
+  font-weight: 600;
 }
 
 /* Tags transition */
@@ -185,7 +186,7 @@ function hoverCard(index: number) {
 .accordion-card {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 24px 30px;
+  padding: 1vw 2vw;
   cursor: default;
   position: relative;
   overflow: hidden;
@@ -212,8 +213,8 @@ function hoverCard(index: number) {
 
 .accordion-card__title {
   font-family: var(--font-inter);
-  font-size: 1.8rem;
-  font-weight: bold;
+  font-size: 3vw;
+  font-weight: 800;
   color: var(--accent);
   margin-bottom: 14px;
   line-height: 1.2;
@@ -223,7 +224,8 @@ function hoverCard(index: number) {
   color: #e0e0e0;
   line-height: 1.8;
   font-family: var(--font-inter);
-  font-size: 0.85rem;
+  font-size: 1.2vw;
+  font-weight: 400;
 }
 
 /* Appear animation */
@@ -255,6 +257,7 @@ function hoverCard(index: number) {
   .advantages-layout {
     grid-template-columns: 1fr;
     gap: 20px;
+    padding: 0 20px;
   }
 
   .advantages-left {
@@ -265,6 +268,7 @@ function hoverCard(index: number) {
     font-size: clamp(2rem, 4vw, 3rem);
     text-align: left;
     white-space: normal;
+    margin-bottom: 16px;
   }
 
   /* Hide tags on left column on mobile (tags shown below card) */

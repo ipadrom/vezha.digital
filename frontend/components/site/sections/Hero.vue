@@ -3,8 +3,7 @@
     <div class="hero__background">
       <canvas ref="heroCanvas" id="hero-canvas"></canvas>
     </div>
-    <div class="container-main">
-      <div class="hero__wrapper">
+    <div class="hero__wrapper">
         <div class="hero__left">
           <h1 class="hero__title">
             <!-- Ghost text reserves full height, preventing layout shift during typewriter -->
@@ -22,7 +21,6 @@
             <span class="hero__logo-digital glitch" data-text="DIGITAL">DIGITAL</span>
           </div>
         </div>
-      </div>
     </div>
   </section>
 </template>
@@ -208,11 +206,11 @@ function init3DScene() {
 
 <style scoped>
 .hero {
-  min-height: 100vh;
   display: flex;
+  min-height: 100vh;
   align-items: center;
   justify-content: center;
-  padding: 120px 20px 0;
+  padding: 120px 0 0;
   position: relative;
   overflow: hidden;
   background: #0a0a0a;
@@ -251,19 +249,21 @@ function init3DScene() {
 .hero__wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  gap: 5vw;
   align-items: center;
   position: relative;
   z-index: 1;
+  width: 100%;
 }
 
 .hero__left {
   animation: none;
+  padding-left: 3.125vw;
 }
 
 .hero__title {
   font-family: var(--font-inter);
-  font-size: 3.5rem;
+  font-size: 6vw;
   font-weight: 700;
   line-height: 1.2;
   color: #ffffff;
@@ -357,7 +357,7 @@ function init3DScene() {
 
 @media (max-width: 768px) {
   .hero {
-    padding-top: 0;
+    padding: 0 20px;
     align-items: flex-start;
   }
 
@@ -420,7 +420,7 @@ function init3DScene() {
 
 @media (max-width: 480px) {
   .hero {
-    padding-top: 0;
+    padding: 0 16px;
     align-items: flex-start;
   }
 

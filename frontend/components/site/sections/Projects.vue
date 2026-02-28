@@ -1,6 +1,6 @@
 <template>
   <section id="projects" class="section">
-    <div class="container-main">
+    <div class="projects-container">
       <h2 class="section-title" style="text-align: left;">
         {{ $t('projects.title') }} <span class="bracket">&gt;</span>
       </h2>
@@ -78,6 +78,10 @@ const toggleProject = (project: any) => {
 </script>
 
 <style scoped>
+.projects-container {
+  padding: 0 3.125vw;
+}
+
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -169,7 +173,10 @@ const toggleProject = (project: any) => {
 
 .project__hover .desc {
   color: #e0e0e0;
-  line-height: 1.6;
+  font-family: var(--font-inter);
+  font-size: 1.2vw;
+  font-weight: 600;
+  line-height: 1.8;
   margin-bottom: 20px;
   flex: 1;
 }
@@ -189,6 +196,10 @@ const toggleProject = (project: any) => {
 }
 
 @media (max-width: 768px) {
+  .projects-container {
+    padding: 0 20px;
+  }
+
   .projects-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 14px;

@@ -370,10 +370,10 @@ onBeforeUnmount(() => {
 .stages-section-title {
   position: absolute;
   top: 16px;
-  left: 60px;
+  left: 3.125vw;
   font-family: var(--font-inter);
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: bold;
+  font-size: 4.5vw;
+  font-weight: 700;
   color: #fff;
   z-index: 11;
   pointer-events: none;
@@ -495,9 +495,10 @@ onBeforeUnmount(() => {
 
 .c-card__desc {
   font-family: var(--font-inter);
-  font-size: 0.75rem;
+  font-size: 1.2vw;
   color: #e0e0e0;
-  line-height: 1.6;
+  line-height: 1.8;
+  font-weight: 600;
   margin-bottom: 10px;
 }
 
