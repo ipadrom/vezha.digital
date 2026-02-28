@@ -31,7 +31,8 @@
     duration?: String,
     details?: String,
     points?: String,
-    transparent?: Boolean
+    transparent?: Boolean,
+    icon?: String,
   }>()
 </script>
 

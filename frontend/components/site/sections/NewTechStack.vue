@@ -22,7 +22,9 @@
         @update:hoveredTech="hoveredTech = $event"
       />
 
-      <TechStackMobileView/>
+      <TechStackMobileView
+        :is-mobile-view="true"
+      />
     </div>
   </div>
 </template>

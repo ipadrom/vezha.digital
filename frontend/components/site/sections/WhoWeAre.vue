@@ -46,6 +46,7 @@
                 <Card
                   :title="stat.value"
                   :description="stat.description"
+                  :icon="stat.icon"
                 />
               </div>
             </div>
@@ -69,17 +70,44 @@ const props = defineProps<{
 }>()
 
 const stats = [
-  { value: 'с 2016 года', description: '...' },
-  { value: '95% проектов — «под ключ»', description: '...' },
-  { value: 'от 14 до 45 дней', description: '...' },
-  { value: 'в 2–5 раз', description: '...' },
+  {
+    value: 'с 2016 года',
+    description: 'Разрабатываем цифровые продукты и масштабируем бизнес клиентов',
+    icon: '/icons/chevrons-up.svg'
+  },
+  {
+    value: '95% проектов — «под ключ»',
+    description: 'Берём на себя полный цикл: от идеи до запуска и поддержки',
+    icon: '/icons/file-lock.svg'
+  },
+  {
+    value: 'от 14 до 45 дней',
+    description: 'Средний срок разработки MVP или полноценного веб-сервиса',
+    icon: '/icons/notepad-text-dashed.svg'
+  },
+  {
+    value: 'в 2–5 раз',
+    description: 'Помогаем увеличивать конверсию и оптимизировать расходы',
+    icon: '/icons/percent.svg'
+  }
 ]
 
 const aboutUsData = [
   {
-    title: 'О нашей команде',
-    description: 'Мы - команда опытных разработчиков, специализирующихся на создании современных веб-решений, Telegram Mini Apps и интеграции искусственного интеллекта. Наша миссия - превращать идеи в надежные цифровые продукты, используя передовые технологии и подходы.',
-    since_description:'С 2020 года мы помогли более чем 100 клиентам реализовать их цифровую трансформацию, уделяя особое внимание качеству кода, юзабилити и скорости разработки.'
+    title: 'Современные технологии',
+    description:
+        'Мы — команда разработчиков, создающих веб-сервисы, Telegram Mini Apps и AI-решения для бизнеса.',
+    since_description:
+        'Работаем по современным стандартам архитектуры и уделяем особое внимание производительности и безопасности.',
+    icon: '/icons/refresh-cw.svg'
+  },
+  {
+    title: 'Ориентация на результат',
+    description:
+        'Наша цель — не просто написать код, а создать продукт, который приносит прибыль и масштабируется.',
+    since_description:
+        'Мы глубоко погружаемся в бизнес-логику и предлагаем оптимальные технологические решения.',
+    icon: '/icons/hand-coins.svg'
   }
 ]
 </script>
@@ -175,15 +203,13 @@ const aboutUsData = [
 
   .who-we-are__left .section-title,
   .who-we-are__right .section-title {
-    text-align: center;
+    text-align: start;
   }
 
   .stack-group h3 {
     margin-bottom: 15px;
     text-align: center;
   }
-
-
 
   .tech-item h4 {
     white-space: nowrap;

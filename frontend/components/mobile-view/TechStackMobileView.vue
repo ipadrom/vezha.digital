@@ -1,6 +1,6 @@
 <template>
   <!-- Mobile-only layout: 3 rows -->
-  <div class="stack-mobile">
+  <div class="stack-mobile" v-if="!isMobileView">
 
     <!-- Row 1: title + description -->
     <div class="stack-mobile-top">
@@ -52,6 +52,10 @@
 </template>
 <script setup lang="ts">
   import MiniOrbitsCanvas from "~/components/ui/3d/canvas/MiniOrbitsCanvas.vue";
+
+  defineProps<{
+    isMobileView: boolean;
+  }>()
 
   const MINI_FRONTEND_TECHS = [
     { color: 0x61dafb, path: '/models/react/react.obj',           orbit: 0 }, // React
