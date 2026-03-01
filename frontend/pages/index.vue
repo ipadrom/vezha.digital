@@ -4,10 +4,10 @@
       :settings="settings"
       @openModal="showModal = true"
   />
-  <NewTechStack
+  <WhoWeAre
       :tech-stack="techStack"
   />
-  <WhoWeAre
+  <NewTechStack
       :tech-stack="techStack"
   />
   <Services
