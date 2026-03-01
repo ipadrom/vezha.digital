@@ -1,55 +1,102 @@
 <template>
   <div :class="['card', 'fade-item', { 'is-transparent': transparent }]">
-    <h3 class="font-bold fade-item">
-      {{title}}
-    </h3>
-    <p class="fade-item">
-      {{description}}
-    </p>
-    <p class="fade-item">
-      {{since_description}}
-    </p>
-    <p class="fade-item">
-      {{duration}}
-    </p>
-    <p class="fade-item">
-      {{details}}
-    </p>
-    <p class="fade-item">
-      {{points}}
-    </p>
+    <img
+        v-if="icon"
+        :src="icon"
+        alt=""
+        class="card-icon"
+    />
 
-    <slot/>
+    <div class="card-body">
+      <h3 v-if="title" class="font-bold">
+        {{ title }}
+      </h3>
+
+      <div class="card-texts">
+        <p v-if="description"
+        >
+          {{ description }}
+        </p>
+        <p v-if="since_description"
+        >
+          {{ since_description }}
+        </p>
+        <p v-if="duration"
+        >
+          {{ duration }}
+        </p>
+        <p v-if="details"
+        >
+          {{ details }}
+        </p>
+        <p v-if="points"
+        >
+          {{ points }}
+        </p>
+      </div>
+
+      <slot/>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-  defineProps<{
-    title?: String,
-    description?: String,
-    since_description?: String,
-    duration?: String,
-    details?: String,
-    points?: String,
-    transparent?: Boolean,
-    icon?: String,
-  }>()
+defineProps<{
+  title?: string,
+  description?: string,
+  since_description?: string,
+  duration?: string,
+  details?: string,
+  points?: string,
+  transparent?: boolean,
+  icon?: string,
+}>()
 </script>
 
 <style scoped>
 .card {
   position: relative;
+  display: flex;
+  flex-direction: column; /* На десктопе иконка сверху */
+  gap: 20px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 20px;
-  border-radius: 0;
-  flex-grow: 1;
-  height: auto;
-  width: auto;
+  padding: 24px;
+  height: 100%;
+  box-shadow: -10px 0 15px -5px rgba(0, 229, 255, 0.15);
+}
 
-  box-shadow:
-      -10px 0 15px -5px
-      rgba(0, 229, 255, 0.15);
+.card-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  object-fit: contain;
+  color: var(--accent);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card h3 {
+  font-family: var(--font-inter);
+  font-size: 1.5rem;
+  margin-bottom: 12px;
+  color: var(--accent);
+  line-height: 1.2;
+}
+
+.card p {
+  color: #e0e0e0;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  font-size: 0.95rem;
+}
+
+.card p:last-child {
+  margin-bottom: 0;
 }
 
 .card::before {
@@ -57,13 +104,10 @@
   position: absolute;
   top: 0;
   left: 0;
-
-  width: 4px;
+  width: 3px;
   height: 0;
-
   background: var(--accent);
   box-shadow: 0 0 10px var(--accent);
-
   animation: scanLineDown 0.6s ease-out forwards;
 }
 
@@ -71,40 +115,21 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  padding: 0; /* Убираем внутренние отступы, чтобы выровнять текст по краю */
+  padding: 0;
 }
 
 .card.is-transparent::before {
   display: none;
 }
 
-.card h3 {
-  font-family: var(--font-inter);
-  font-size: 1.6rem;
-  margin-bottom: 20px;
-  color: var(--accent);
-}
-
-.card p {
-  color: #e0e0e0;
-  line-height: 1.8;
-  margin-bottom: 15px;
-}
-
-.card p:last-child {
-  margin-bottom: 0;
-}
-
 @keyframes cardRevealDown {
   0% {
     opacity: 0;
-    transform: translateY(-20px);
-    clip-path: inset(0 0 100% 0);
+    transform: translateY(-15px);
   }
   100% {
     opacity: 1;
     transform: translateY(0);
-    clip-path: inset(0 0 0 0);
   }
 }
 
@@ -115,9 +140,32 @@
 }
 
 .fade-item {
-  opacity: 0;
-  clip-path: inset(0 0 100% 0);
-  animation: cardRevealDown 0.9s ease-out forwards;
-  animation-delay: var(--enter-delay, 0s);
+  animation: cardRevealDown 0.8s ease-out forwards;
+}
+
+@media (max-width: 768px) {
+  .card {
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    gap: 16px;
+    padding: 10px;
+  }
+
+  .card p {
+    line-height: 1.4;
+    font-size: 0.75rem;
+  }
+
+  .card-icon {
+    width: 32px;
+    height: 32px;
+    margin-top: 4px;
+    align-items: center;
+  }
+
+  .card h3 {
+    display: none;
+  }
 }
 </style>

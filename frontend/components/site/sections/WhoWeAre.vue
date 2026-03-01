@@ -62,7 +62,12 @@
 import {useSectionVisible} from "~/composables/useSectionVisible";
 import Card from "~/components/ui/cards/Card.vue";
 import type {IAboutSection} from "~/utils/interfaces/IAboutSection";
-
+import chevronsUp from '~/assets/icons/chevrons-up.svg?url'
+import fileLock from '~/assets/icons/file-lock.svg?url'
+import notepadText from '~/assets/icons/notepad-text-dashed.svg?url'
+import percent from '~/assets/icons/percent.svg?url'
+import refreshCw from '~/assets/icons/refresh-cw.svg?url'
+import handCoins from '~/assets/icons/hand-coins.svg?url'
 const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
 
 const props = defineProps<{
@@ -73,22 +78,32 @@ const stats = [
   {
     value: 'с 2016 года',
     description: 'Разрабатываем цифровые продукты и масштабируем бизнес клиентов',
-    icon: '/icons/chevrons-up.svg'
+    icon: chevronsUp
   },
   {
     value: '95% проектов — «под ключ»',
     description: 'Берём на себя полный цикл: от идеи до запуска и поддержки',
-    icon: '/icons/file-lock.svg'
+    icon: fileLock
   },
   {
     value: 'от 14 до 45 дней',
     description: 'Средний срок разработки MVP или полноценного веб-сервиса',
-    icon: '/icons/notepad-text-dashed.svg'
+    icon: notepadText
   },
   {
     value: 'в 2–5 раз',
     description: 'Помогаем увеличивать конверсию и оптимизировать расходы',
-    icon: '/icons/percent.svg'
+    icon: percent
+  },
+  {
+    value: '24/7 Поддержка',
+    description: 'Обеспечиваем бесперебойную работу и оперативное обновление системы',
+    icon: refreshCw
+  },
+  {
+    value: 'Прозрачный бюджет',
+    description: 'Фиксируем стоимость на старте и работаем без скрытых платежей',
+    icon: handCoins
   }
 ]
 
@@ -99,7 +114,7 @@ const aboutUsData = [
         'Мы — команда разработчиков, создающих веб-сервисы, Telegram Mini Apps и AI-решения для бизнеса.',
     since_description:
         'Работаем по современным стандартам архитектуры и уделяем особое внимание производительности и безопасности.',
-    icon: '/icons/refresh-cw.svg'
+    icon: refreshCw
   },
   {
     title: 'Ориентация на результат',
@@ -107,7 +122,7 @@ const aboutUsData = [
         'Наша цель — не просто написать код, а создать продукт, который приносит прибыль и масштабируется.',
     since_description:
         'Мы глубоко погружаемся в бизнес-логику и предлагаем оптимальные технологические решения.',
-    icon: '/icons/hand-coins.svg'
+    icon: handCoins
   }
 ]
 </script>
