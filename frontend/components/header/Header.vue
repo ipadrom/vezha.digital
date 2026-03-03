@@ -29,12 +29,21 @@
           </button>
 
           <!-- Mobile Menu Button -->
-          <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <div class="mobile-menu-btn-container">
+            <div class="mobile-discuss-btn">
+              <button @click="$emit('openModal'); isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
+                {{ $t('header.discuss_project') }}
+              </button>
+            </div>
+            <div>
+              <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                  <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -43,9 +52,6 @@
         <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
           {{ item.label }}
         </a>
-        <button @click="$emit('openModal'); isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
-          {{ $t('header.discuss_project') }}
-        </button>
       </nav>
     </div>
   </header>
@@ -188,6 +194,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.mobile-menu-btn-container{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-discuss-btn{
+  margin-right: 20px;
 }
 
 .mobile-menu-btn {
