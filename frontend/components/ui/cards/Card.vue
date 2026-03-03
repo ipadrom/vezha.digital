@@ -1,11 +1,12 @@
 <template>
   <div :class="['card', 'fade-item', { 'is-transparent': transparent }]">
-    <img
-        v-if="icon"
-        :src="icon"
-        alt=""
-        class="card-icon"
-    />
+    <div v-if="icon" class="card-icon-container">
+      <img
+          :src="icon"
+          alt=""
+          class="card-icon"
+      />
+    </div>
 
     <div class="card-body">
       <h3 v-if="title" class="font-bold">
@@ -57,13 +58,20 @@ defineProps<{
 .card {
   position: relative;
   display: flex;
-  flex-direction: column; /* На десктопе иконка сверху */
+  flex-direction: row;
   gap: 20px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   padding: 24px;
   height: 100%;
   box-shadow: -10px 0 15px -5px rgba(0, 229, 255, 0.15);
+}
+
+.card-icon-container {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .card-icon {

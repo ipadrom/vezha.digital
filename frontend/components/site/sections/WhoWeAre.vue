@@ -15,12 +15,11 @@
         >
           <div class="who-we-are__left">
             <h2 class="section-title who-we-are__title">
-              <span class="bracket"></span>Кто мы<span class="bracket">&gt;</span>
+              <span class="bracket"></span>Кто мы <span class="bracket">&gt;</span>
             </h2>
             <Card
                 v-for="(item, index) in aboutUsData"
                 :key="index"
-                :title="item.title"
                 :description="item.description"
                 :since_description="item.since_description"
                 :transparent="true"
@@ -44,9 +43,9 @@
                   :style="{ '--enter-delay': `${index * 150}ms` }"
               >
                 <Card
-                  :title="stat.value"
                   :description="stat.description"
                   :icon="stat.icon"
+                  class="who-we-are-card"
                 />
               </div>
             </div>
@@ -76,40 +75,33 @@ const props = defineProps<{
 
 const stats = [
   {
-    value: 'с 2016 года',
-    description: 'Разрабатываем цифровые продукты и масштабируем бизнес клиентов',
-    icon: chevronsUp
-  },
-  {
-    value: '95% проектов — «под ключ»',
-    description: 'Берём на себя полный цикл: от идеи до запуска и поддержки',
-    icon: fileLock
-  },
-  {
-    value: 'от 14 до 45 дней',
-    description: 'Средний срок разработки MVP или полноценного веб-сервиса',
-    icon: notepadText
-  },
-  {
-    value: 'в 2–5 раз',
-    description: 'Помогаем увеличивать конверсию и оптимизировать расходы',
+    description: 'На 20-30% дешевле других агенств',
     icon: percent
   },
   {
-    value: '24/7 Поддержка',
-    description: 'Обеспечиваем бесперебойную работу и оперативное обновление системы',
+    description: '2 дня от обсуждения до старта работы',
+    icon: chevronsUp
+  },
+  {
+    description: 'Полный цикл разработки от идеи до запуска',
     icon: refreshCw
   },
   {
-    value: 'Прозрачный бюджет',
-    description: 'Фиксируем стоимость на старте и работаем без скрытых платежей',
+    description: 'Соответствие 152-ФЗ о персональных данных',
+    icon: fileLock
+  },
+  {
+    description: 'Поэтапная оплата, платите за результат',
     icon: handCoins
-  }
+  },
+  {
+    description: 'Макет и ТЗ до подписания договора',
+    icon: notepadText
+  },
 ]
 
 const aboutUsData = [
   {
-    title: 'Современные технологии',
     description:
         'Мы — команда разработчиков, создающих веб-сервисы, Telegram Mini Apps и AI-решения для бизнеса.',
     since_description:
@@ -117,7 +109,6 @@ const aboutUsData = [
     icon: refreshCw
   },
   {
-    title: 'Ориентация на результат',
     description:
         'Наша цель — не просто написать код, а создать продукт, который приносит прибыль и масштабируется.',
     since_description:
@@ -132,12 +123,13 @@ const aboutUsData = [
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30px;
-  height: 100%;
+  align-items: stretch;
 }
 
 .who-we-are__left-wrapper {
   width: 100%;
   display: block;
+  padding: 0;
 }
 
 .who-we-are > * {
@@ -147,15 +139,12 @@ const aboutUsData = [
 .who-we-are__left {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  justify-content: flex-end;
 }
 
-.who-we-are__left :deep(.card) {
-  background: transparent !important;
-  border: none !important;
-  box-shadow: none !important;
-  padding-left: 0;
+.who-we-are__title {
+  margin-top: 0;
+  margin-bottom: 30px;
+  line-height: 1;
 }
 
 .fade-down-enter-from{
@@ -174,10 +163,14 @@ const aboutUsData = [
 }
 
 .who-we-are__right {
-  height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: flex-start;
+}
+
+.who-we-are__right :deep(.card){
+  min-width: 325px !important;
+  max-height: 150px !important;
 }
 
 .who-we-are__left .section-title,
