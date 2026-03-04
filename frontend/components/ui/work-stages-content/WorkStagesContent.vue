@@ -30,9 +30,11 @@
         :style="getStepStyle(index)"
         @mouseenter="activeIndex = index"
     >
+      <div class="step__num">
+        <span class="num">{{ stage.step_number }}</span>
+      </div>
       <div class="dot"></div>
       <div class="step__content">
-        <span class="num">{{ stage.step_number }}</span>
         <span class="label">{{ stage.title }}</span>
       </div>
 
@@ -172,6 +174,13 @@ onBeforeUnmount(() => {
 .step:hover .dot {
   border-width: 2.5px;
   box-shadow: 0 0 12px var(--accent, #00eaff);
+}
+
+.step__num{
+  position: absolute;
+  bottom: 50px;
+  left: 30%;
+  text-align: center;
 }
 
 .step__content {

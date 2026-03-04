@@ -207,6 +207,11 @@ const aboutUsData = [
   .who-we-are {
     grid-template-columns: 1fr;
     gap: 30px;
+    padding: 0 20px;
+  }
+
+  .who-we-are__left {
+    position: static;
   }
 
   .who-we-are__left .section-title,
@@ -224,6 +229,17 @@ const aboutUsData = [
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 0.85rem;
+  }
+
+  .stats-grid{
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .who-we-are__right :deep(.card){
+    min-width: 160px !important;
+    max-height: 90px !important;
+    padding: 8px;
   }
 }
 </style>

@@ -9,12 +9,7 @@
 
         <!-- Desktop Navigation -->
         <nav class="nav">
-          <a
-              v-for="item in navItems"
-              :key="item.href"
-              :href="item.href"
-              :class="{ active: activeSection === item.href.replace('/#', '') }"
-          >
+          <a v-for="item in navItems" :key="item.href" :href="item.href">
             {{ item.label }}
           </a>
         </nav>
@@ -23,27 +18,18 @@
         <div class="header__actions">
           <button
               @click="$emit('openModal')"
-              class="btn btn-primary hidden sm:inline-block"
+              class="btn btn-primary sm:inline-block"
           >
             {{ $t('header.discuss_project') }}
           </button>
 
           <!-- Mobile Menu Button -->
-          <div class="mobile-menu-btn-container">
-            <div class="mobile-discuss-btn">
-              <button @click="$emit('openModal'); isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
-                {{ $t('header.discuss_project') }}
-              </button>
-            </div>
-            <div>
-              <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                  <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
+          <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
       </div>
 
@@ -52,6 +38,9 @@
         <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
           {{ item.label }}
         </a>
+        <button @click="$emit('openModal'); isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
+          {{ $t('header.discuss_project') }}
+        </button>
       </nav>
     </div>
   </header>
@@ -257,6 +246,14 @@ onMounted(() => {
 @media (max-width: 1024px) {
   .nav {
     display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-primary {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    letter-spacing: 0;
   }
 }
 </style>

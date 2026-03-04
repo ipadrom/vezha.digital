@@ -2,7 +2,7 @@
   <section id="stages" class="section">
     <div class="container-main">
       <h2 class="section-title">
-        <span class="bracket"></span>{{ $t('stages.title') }}<span class="bracket">&gt;</span>
+        <span class="bracket"></span>{{ $t('stages.title') }} <span class="bracket">&gt;</span>
       </h2>
 
       <div class="stages-timeline stages-desktop">
