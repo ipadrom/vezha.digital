@@ -23,33 +23,46 @@
     </svg>
 
     <div
-        v-for="(step, index) in steps"
-        :key="index"
+        v-for="(stage, index) in props.stages"
+        :key="stage.id"
         class="step"
         :class="{ active: index === activeIndex }"
         :style="getStepStyle(index)"
         @mouseenter="activeIndex = index"
     >
+      <div class="step__num">
+        <span class="num">{{ stage.step_number }}</span>
+      </div>
       <div class="dot"></div>
       <div class="step__content">
-        <span class="num">{{ step.number }}</span>
-        <span class="label">{{ step.label }}</span>
+        <span class="label">{{ stage.title }}</span>
       </div>
 
       <div v-if="activeIndex === index" class="tooltip">
-        <p class="tooltip__title">{{ step.label }}</p>
-        <span class="time">Этап {{ index + 1 }}</span>
+        <Card
+          :title="stage.title"
+          :description="stage.description"
+          :duration="stage.duration"
+          :details="stage.details"
+          :features="stage.features"
+        />
       </div>
     </div>
   </section>
 </template>
 
-<script setup>
-import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
+<script setup lang="ts">
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import Card from "~/components/ui/cards/Card.vue";
+import IWorkStages from "~/utils/interfaces/IWorkStages.js";
 
 const container = ref(null);
 const activeIndex = ref(0);
 const scale = ref(1);
+
+const props = defineProps<{
+  stages: IWorkStages[]
+}>();
 
 const coords = [
   { x: 80, y: 190 },
@@ -61,15 +74,7 @@ const coords = [
   { x: 1030, y: 185 }
 ];
 
-const steps = [
-  { number: "01", label: "Анализ" },
-  { number: "02", label: "Проектирование" },
-  { number: "03", label: "Дизайн" },
-  { number: "04", label: "Разработка" },
-  { number: "05", label: "Тестирование" },
-  { number: "06", label: "Запуск" },
-  { number: "07", label: "Поддержка" },
-];
+const stages = ref([]);
 
 const updateScale = () => {
   if (container.value) {
@@ -171,6 +176,13 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 12px var(--accent, #00eaff);
 }
 
+.step__num{
+  position: absolute;
+  bottom: 50px;
+  left: 30%;
+  text-align: center;
+}
+
 .step__content {
   position: absolute;
   top: 50px;
@@ -199,11 +211,16 @@ onBeforeUnmount(() => {
   bottom: 40px;
   left: 50%;
   transform: translateX(-50%);
-  width: 200px;
-  background: #0b1c2f;
-  border: 1px solid #00eaff;
-  padding: 15px;
+  width: 250px;
   z-index: 10;
   pointer-events: none;
+}
+
+.tooltip :deep(h3) {
+  font-size: 0.9rem;
+}
+
+.tooltip :deep(p){
+  font-size: 0.75rem;
 }
 </style>

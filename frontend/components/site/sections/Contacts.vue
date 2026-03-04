@@ -1,40 +1,28 @@
 <template>
-  <section
-      id="contacts"
-      class="section"
-      ref="contactsRef"
-  >
+  <section id="contacts" class="section" ref="contactsRef">
     <div class="container-main">
-      <h2 class="section-title">
-        <span class="bracket">&lt;</span>{{ $t('contacts.title') }}<span class="bracket">/&gt;</span>
-      </h2>
-
       <div class="contact">
-        <!-- Left Column: Contact Info -->
+
         <div class="contact__left">
-          <h3 class="font-bold">Готовы начать?</h3>
-          <p>Обсудим ваш проект и рассчитаем точную стоимость</p>
+          <h2 class="section-title contacts-section-title">
+            {{ $t('contacts.title') }} <span class="bracket">&gt;</span>
+          </h2>
+          <p class="contacts-subtitle">Обсудим ваш проект и рассчитаем точную стоимость</p>
 
           <div class="contacts-list">
-            <a
-              v-if="settings?.contact_telegram"
-              :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
-              target="_blank"
-            >
+            <a v-if="settings?.contact_telegram"
+               :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
+               target="_blank">
               <span>📱</span> Telegram: {{ settings.contact_telegram }}
             </a>
-            <a
-              v-if="settings?.contact_email"
-              :href="`mailto:${settings.contact_email}`"
-              @click.prevent="copyToClipboard(settings.contact_email)"
-            >
+            <a v-if="settings?.contact_email"
+               :href="`mailto:${settings.contact_email}`"
+               @click.prevent="copyToClipboard(settings.contact_email)">
               <span>📧</span> Email: {{ settings.contact_email }}
             </a>
-            <a
-              v-if="settings?.contact_phone"
-              :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
-              @click.prevent="copyToClipboard(settings.contact_phone)"
-            >
+            <a v-if="settings?.contact_phone"
+               :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
+               @click.prevent="copyToClipboard(settings.contact_phone)">
               <span>📞</span> Телефон: {{ settings.contact_phone }}
             </a>
           </div>
@@ -44,47 +32,44 @@
           </button>
         </div>
 
-        <!-- Right Column: Terminal -->
-          <div 
-            class="contact__right" 
-            v-if="isSectionVisible && !isAdaptiveMobile"
-          >
-            <TransitionGroup
-                name="fade-down"
-                appear
-            >
-            <div class="terminal fade-item">
-              <div class="terminal__header fade-item" style="--enter-delay: 0.1s">contact.sh</div>
-              <div class="terminal__body fade-item">
-                <div class="terminal__line fade-item">
-                  <span class="prompt fade-item" style="--enter-delay: 0.2s">$</span> cat contact_info.json
-                </div>
-                <pre style="--enter-delay: 0.3s">{
-  "status": "open_to_work",
-  "services": [
-    "web_development",
-    "telegram_apps",
-    "ai_integration"
-  ],
-  "location": "Moscow, Russia",
-  "response_time": "24 hours",
-  "free_consultation": true
-}</pre>
-              </div>
-            </div>
-            </TransitionGroup>
-          </div>
+        <ContactTerminal
+            :faq="FAQ"
+        />
+
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-const { isSectionVisible, targetRef: contactsRef } = useSectionVisible(0.1)
+import ContactTerminal from "~/components/ui/terminal/ContactTerminal.vue";
 
 defineProps<{
   settings?: Record<string, string>
 }>()
+
+const FAQ = [
+  {
+    q: 'Почему важно, чтобы над проектом работала команда?',
+    a: 'Один разработчик не может закрыть все задачи качественно. С вами работают дизайнер, копирайтер, маркетолог, разработчик и менеджер. Команда делает не просто сайт — а систему, которая приводит клиентов.',
+  },
+  {
+    q: 'Зачем нужна аналитика, если сайт и так работает?',
+    a: 'Без аналитики вы не знаете, что именно работает, а что — нет. Аналитика позволяет принимать решения на основе данных и масштабировать то, что реально приносит результат.',
+  },
+  {
+    q: 'Почему не стоит заказывать сайт у фрилансера?',
+    a: 'Фрилансер — это риск. Один человек не успеет сделать качественно дизайн, код, тексты и SEO одновременно. Команда даёт системный результат, поддержку и ответственность.',
+  },
+  {
+    q: 'Сколько стоит разработка сайта?',
+    a: 'Стоимость зависит от задачи: лендинг, корпоративный сайт или сложное веб-приложение — это разные бюджеты. Напишите нам — мы бесплатно оценим ваш проект.',
+  },
+  {
+    q: 'Как быстро вы отвечаете на запросы?',
+    a: 'Первый ответ — в течение 24 часов. На консультацию выходим в удобное для вас время.',
+  },
+]
 
 const isAdaptiveMobile = ref(false)
 const checkIsAdaptiveMobile = () => {
@@ -132,16 +117,19 @@ onUnmounted(() => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 60px;
+  margin-top: 5rem;
 }
 
-.contact__left h3 {
-  font-family: var(--font-epilepsy);
-  font-size: 2rem;
-  margin-bottom: 20px;
+.contacts-section-title {
+  text-align: left;
+  margin-top: 0;
+  margin-bottom: 16px;
+  white-space: nowrap;
 }
 
-.contact__left > p {
+.contacts-subtitle {
   color: var(--text-dim);
+  font-family: var(--font-inter);
   font-size: 1.1rem;
   margin-bottom: 40px;
 }
@@ -170,79 +158,10 @@ onUnmounted(() => {
   padding-left: 20px;
 }
 
-/* Terminal */
-.terminal {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  overflow: hidden;
-}
-
-.terminal__header {
-  background: var(--bg-tertiary);
-  padding: 10px 15px;
-  border-bottom: 1px solid var(--border);
-  color: var(--text-dim);
-  font-size: 0.9rem;
-}
-
-.terminal__body {
-  padding: 20px;
-}
-
-.terminal__line {
-  margin-bottom: 15px;
-}
-
-.terminal__line .prompt {
-  color: var(--accent);
-}
-
-.terminal__body pre {
-  color: var(--text-dim);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.9rem;
-  line-height: 1.8;
-}
-
-.fade-down-enter-from{
-  opacity: 0;
-  transform: translateY(-15px);
-}
-
-.fade-down-enter-to{
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.fade-down-enter-active{
-  transition: all 0.5s ease-out;
-  transition-delay: var(--enter-delay, 0s);
-}
-
-.fade-item {
-  opacity: 0;
-  clip-path: inset(0 0 100% 0);
-  animation: cardRevealDown 0.9s ease-out forwards;
-  animation-delay: var(--enter-delay, 0s);
-}
-
 @keyframes fadeInUp {
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes cardRevealDown {
-  0% {
-    opacity: 0;
-    transform: translateY(-20px);
-    clip-path: inset(0 0 100% 0);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    clip-path: inset(0 0 0 0);
   }
 }
 

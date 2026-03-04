@@ -18,7 +18,7 @@
         <div class="header__actions">
           <button
               @click="$emit('openModal')"
-              class="btn btn-primary hidden sm:inline-block"
+              class="btn btn-primary sm:inline-block"
           >
             {{ $t('header.discuss_project') }}
           </button>
@@ -62,8 +62,25 @@ const navItems = computed(() => [
   { href: '/#contacts', label: t('nav.contacts') },
 ])
 
-// Sticky header effect
-onMounted(() => {
+const activeSection = ref('hero')
+
+function observeHeaderLogo() {
+  const sections = document.querySelectorAll('section[id]')
+
+  const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            activeSection.value = entry.target.id
+          }
+        })
+      },
+      {threshold: 0.4}
+  )
+  sections.forEach((section) => observer.observe(section))
+}
+
+function stickyHeaderEffect(){
   const header = document.getElementById('header')
   if (!header) return
 
@@ -80,6 +97,11 @@ onMounted(() => {
       header.style.boxShadow = 'none'
     }
   })
+}
+
+onMounted(() => {
+  observeHeaderLogo()
+  stickyHeaderEffect()
 })
 </script>
 
@@ -105,7 +127,7 @@ onMounted(() => {
 }
 
 .logo {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text);
@@ -121,7 +143,7 @@ onMounted(() => {
 }
 
 .nav a {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   color: var(--text-dim);
   text-decoration: none;
   font-size: 0.95rem;
@@ -141,6 +163,14 @@ onMounted(() => {
   transition: width 0.3s;
 }
 
+.nav a.active {
+  color: var(--accent);
+}
+
+.nav a.active::after {
+  width: 100%;
+}
+
 .nav a:hover {
   color: var(--accent);
 }
@@ -153,6 +183,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.mobile-menu-btn-container{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-discuss-btn{
+  margin-right: 20px;
 }
 
 .mobile-menu-btn {
@@ -176,17 +217,12 @@ onMounted(() => {
   color: var(--text-dim);
   text-decoration: none;
   transition: all 0.3s;
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
 }
 
 .mobile-nav a:hover {
   color: var(--accent);
   padding-left: 10px;
-}
-
-/* Header Glitch Effect */
-.header:hover .logo {
-  animation: glitch 0.3s infinite;
 }
 
 @keyframes glitch {
@@ -210,6 +246,14 @@ onMounted(() => {
 @media (max-width: 1024px) {
   .nav {
     display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .btn-primary {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+    letter-spacing: 0;
   }
 }
 </style>

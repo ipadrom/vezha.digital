@@ -6,7 +6,7 @@
   >
     <div class="container-main">
       <h2 class="section-title">
-        <span class="bracket">&lt;</span>{{ $t('services.title') }}<span class="bracket">/&gt;</span>
+        {{ $t('services.title') }} <span class="bracket">&gt;</span>
       </h2>
 
       <div v-if="isSectionVisible" class="services-new">
@@ -45,7 +45,7 @@
                 <h3 class="font-bold">{{ service.name }}</h3>
                 <p class="price">
                   {{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
-                  {{ service.price_currency }}
+                  {{ service.price_currency }} <span class="arrow">&gt;</span>
                 </p>
               </div>
 
@@ -136,6 +136,12 @@ const setActiveFirst = () => {
 onMounted(() => {
   checkIsAdaptiveMobile()
   setActiveFirst()
+
+  window.addEventListener('resize', checkIsAdaptiveMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkIsAdaptiveMobile)
 })
 
 watch(() => props.services, () => {
@@ -158,7 +164,7 @@ const formatPrice = (price: number) => {
   flex: 0 0 450px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   overflow-y: visible;
   padding-right: 5px;
 }
@@ -185,6 +191,8 @@ const formatPrice = (price: number) => {
   cursor: pointer;
   color: #e0e0e0;
   transition: all 0.2s ease-out;
+  position: relative;
+  overflow: hidden;
 
   box-shadow:
       inset 0 0 0 3px rgba(0, 0, 0, 0.0001),
@@ -219,18 +227,22 @@ const formatPrice = (price: number) => {
   justify-content: space-between;
   align-items: center;
   margin: 0;
+  text-decoration: none;
+  color: inherit;
 }
 
 .service-item h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.1rem;
+  font-weight: 600;
   margin: 0;
-  color: var(--text);
+  color: var(--accent);
   flex: 1;
+  transition: color 0.2s;
 }
 
 .service-item .price {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 1rem;
   color: var(--accent);
   margin: 0 0 0 10px;
@@ -239,25 +251,22 @@ const formatPrice = (price: number) => {
   position: relative;
 }
 
-.service-item .price::after {
-  content: " ->";
-  font-family: var(--font-epilepsy);
-  margin-left: 5px;
+.arrow {
+  color: var(--accent);
+  font-weight: 700;
+  margin-left: 4px;
 }
 
 .service-details {
   flex: 1 1 40%;
-  max-height: 466px;
+  height: auto;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 30px;
-  overflow-y: hidden;
+  padding: 15px 30px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-
-  box-shadow:
-      -10px 0 15px -5px
-      rgba(0, 255, 65, 0.3);
+  position: relative;
 }
 
 .service-details::before {
@@ -287,25 +296,28 @@ const formatPrice = (price: number) => {
 }
 
 .service-detail h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
   font-size: 1.8rem;
   margin-bottom: 15px;
   color: var(--accent);
+  font-weight: 800;
 }
 
 .service-detail .price {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 1.5rem;
   color: var(--accent);
   margin-bottom: 15px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .service-detail .desc {
+  font-family: var(--font-inter);
   font-size: 1.1rem;
   color: #e0e0e0;
   margin-bottom: 25px;
-  line-height: 1;
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .fade-down-enter-from {
@@ -322,6 +334,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-content p {
+  font-family: var(--font-inter);
   color: #e0e0e0;
   margin-bottom: 15px;
   line-height: 1.4;
@@ -333,6 +346,7 @@ const formatPrice = (price: number) => {
 }
 
 .service-content ul li {
+  font-family: var(--font-inter);
   color: #e0e0e0;
   padding: 8px 0 8px 20px;
   position: relative;
@@ -349,7 +363,7 @@ const formatPrice = (price: number) => {
 .redirect-btn{
   align-self: flex-end;
   padding: 12px 28px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-inter);
   font-size: 0.9rem;
   border: 1px solid var(--accent);
   background: var(--accent);

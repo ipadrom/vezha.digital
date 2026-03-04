@@ -1,5 +1,5 @@
 <template>
-  <canvas ref="starsCanvas" class="stages-stars"></canvas>
+    <canvas ref="starsCanvas" class="stages-stars"></canvas>
 </template>
 <script lang="ts" setup>
   const starsCanvas = ref<HTMLCanvasElement>();
@@ -77,6 +77,6 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 0;
+  z-index: 2;
 }
 </style>

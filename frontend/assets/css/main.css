@@ -1,5 +1,6 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Pixelify+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 /* Epilepsy Sans Font Declaration */
 @font-face {
@@ -12,6 +13,13 @@
 @font-face {
   font-family: 'Epilepsy Sans';
   src: url('/fonts/EpilepsySansBold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter-Regular.ttf') format('truetype');
   font-weight: bold;
   font-style: normal;
 }
@@ -31,6 +39,7 @@
   --shadow: rgba(0, 255, 65, 0.1);
   --font-pixel: 'Pixelify Sans', monospace;
   --font-epilepsy: 'Epilepsy Sans', monospace;
+  --font-inter: 'Inter', monospace;
 }
 
 .container {
@@ -90,6 +99,7 @@
     transition: all 0.3s;
     text-decoration: none;
     display: inline-block;
+    white-space: nowrap;
   }
 
   .btn::before {
@@ -116,7 +126,7 @@
 
   .btn-primary {
     padding: 10px 28px;
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-inter);
     font-size: 1.3rem;
     border: 2px solid var(--accent);
     background: var(--accent);
@@ -180,17 +190,13 @@
   .section-title {
     font-weight: bold;
     font-size: clamp(2rem, 4vw, 3rem);
-    text-align: center;
-    margin-bottom: 2rem;
+    text-align: left;
+    margin-bottom: 2.5rem;
     margin-top: 5rem;
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-inter);
     position: relative;
     display: inline-block;
     width: 100%;
-  }
-
-  .section-title:hover {
-    animation: glitch 0.3s infinite;
   }
 
   .bracket {
@@ -353,6 +359,12 @@
   flex-shrink: 0;
   transform: scaleY(1.2);
   transform-origin: center;
+}
+
+/*Service styling*/
+.service-item:hover h3,
+.service-item.active h3 {
+  color: var(--accent);
 }
 
 /* Terminal styling */

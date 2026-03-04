@@ -1,12 +1,31 @@
 <template>
   <!-- Page Sections -->
-  <Hero :settings="settings" @openModal="showModal = true" />
-  <TechStack :tech-stack="techStack" />
-  <Services :services="services" />
-  <Advantages :advantages="advantages" />
-  <Projects :projects="projects" />
-  <WorkStages :stages="workStages" />
-  <Contacts :settings="settings" @openModal="showModal = true" />
+  <Hero
+      :settings="settings"
+      @openModal="showModal = true"
+  />
+  <WhoWeAre
+      :tech-stack="techStack"
+  />
+  <NewTechStack
+      :tech-stack="techStack"
+  />
+  <Services
+      :services="services"
+  />
+  <Advantages
+      :advantages="advantages"
+  />
+  <Projects
+      :projects="projects"
+  />
+  <WorkStages
+      :stages="workStages"
+  />
+  <Contacts
+      :settings="settings"
+      @openModal="showModal = true"
+  />
 
   <!-- Contact Modal -->
   <ContactModal v-model:showModal="showModal"/>
@@ -15,7 +34,6 @@
 <script setup lang="ts">
 import {definePageMeta} from "#imports";
 import Hero from "~/components/site/sections/Hero.vue";
-import TechStack from "~/components/site/sections/TechStack.vue";
 import Services from "~/components/site/sections/Services.vue";
 import Advantages from "~/components/site/sections/Advantages.vue";
 import Projects from "~/components/site/sections/Projects.vue";
@@ -28,18 +46,24 @@ import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
 import type {ITechStack} from "~/utils/interfaces/ITechStack";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
 import type {ISettings} from "~/utils/interfaces/ISettings";
+import NewTechStack from "~/components/site/sections/NewTechStack.vue";
+import WhoWeAre from "~/components/site/sections/WhoWeAre.vue";
+import type {IClientType} from "~/utils/interfaces/IClientTypes";
+import type {IAboutSection} from "~/utils/interfaces/IAboutSection";
 
 definePageMeta({
   layout: 'site-custom'
 })
 
-const { getServices, getProjects, getAdvantages, getTechStack, getWorkStages, getSettings } = useApi()
+const { getServices, getProjects, getAdvantages, getTechStack, getWorkStages, getSettings, getClientTypes, getAboutSection } = useApi()
 
 const services = ref<IServices[]>([])
 const projects = ref<IProjects[]>([])
 const advantages = ref<IAdvantages[]>([])
 const techStack = ref<ITechStack[]>([])
 const workStages = ref<IWorkStages[]>([])
+const clientTypes = ref<IClientType[]>([])
+const aboutSection = ref<IAboutSection[]>([])
 const settings = ref<ISettings | null>(null)
 
 const showModal = ref(false)
@@ -47,13 +71,18 @@ const showModal = ref(false)
 // Fetch all data
 onMounted(async () => {
   try {
-    const [servicesData, projectsData, advantagesData, techStackData, workStagesData, settingsData] = await Promise.all([
+    const [
+        servicesData, projectsData, advantagesData, techStackData, workStagesData, settingsData, clientTypeData,
+        aboutSectionData,
+    ] = await Promise.all([
       getServices(),
       getProjects(),
       getAdvantages(),
       getTechStack(),
       getWorkStages(),
       getSettings(),
+      getClientTypes(),
+      getAboutSection()
     ])
 
     services.value = servicesData
@@ -62,6 +91,8 @@ onMounted(async () => {
     techStack.value = techStackData
     workStages.value = workStagesData
     settings.value = settingsData.settings
+    clientTypes.value = clientTypeData
+    aboutSection.value = aboutSectionData
   } catch (error) {
     console.error('Failed to fetch data:', error)
   }
