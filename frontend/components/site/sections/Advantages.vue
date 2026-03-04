@@ -268,9 +268,6 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
 }
 
 @media (max-width: 900px) {
-  .advantages-desktop{
-    display: none;
-  }
 
   .mobile-tabs {
     display: flex;
