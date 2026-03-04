@@ -307,11 +307,11 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-accent rounded;
+  @apply bg-[#00E5FF] rounded;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #00cc34;
+  background: var(--accent);
 }
 
 /* Particles Canvas */
