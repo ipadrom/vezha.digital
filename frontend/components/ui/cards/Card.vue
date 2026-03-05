@@ -113,7 +113,7 @@ defineProps<{
   top: 0;
   left: 0;
   width: 3px;
-  height: 0;
+  height: 100%;
   background: var(--accent);
   box-shadow: 0 0 10px var(--accent);
   animation: scanLineDown 0.6s ease-out forwards;
@@ -128,23 +128,6 @@ defineProps<{
 
 .card.is-transparent::before {
   display: none;
-}
-
-@keyframes cardRevealDown {
-  0% {
-    opacity: 0;
-    transform: translateY(-15px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scanLineDown {
-  to {
-    height: 100%;
-  }
 }
 
 .fade-item {

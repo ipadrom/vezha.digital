@@ -23,7 +23,7 @@
             <li><a href="/#hero">Главная</a></li>
             <li><a href="/#services">{{ $t('nav.services') }}</a></li>
             <li><a href="/#advantages">{{ $t('nav.why_us') }}</a></li>
-            <li><a href="/#projects">{{ $t('nav.projects') }}</a></li>
+<!--            <li><a href="/#projects">{{ $t('nav.projects') }}</a></li>-->
             <li><a href="/#stack">{{ $t('nav.stack') }}</a></li>
             <li><a href="/#stages">{{ $t('nav.stages') }}</a></li>
             <li><a href="/#contacts">{{ $t('nav.contacts') }}</a></li>

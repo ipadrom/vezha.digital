@@ -17,6 +17,7 @@
       :advantages="advantages"
   />
   <Projects
+      v-if="false"
       :projects="projects"
   />
   <WorkStages

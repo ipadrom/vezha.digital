@@ -56,8 +56,8 @@ const TECHS: ITechStack[] = props.techStack && [
 ]
 
 // ── REFS ──────────────────────────────────────────────────────────
-const sectionRef      = ref<HTMLElement | null>(null)
-const hoveredTech     = ref<string | null>(null)
+const sectionRef = ref<HTMLElement | null>(null)
+const hoveredTech = ref<string | null>(null)
 
 // ── INTERNALS ─────────────────────────────────────────────────────
 let rafId = 0

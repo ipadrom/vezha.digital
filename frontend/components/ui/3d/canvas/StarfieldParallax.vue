@@ -1,8 +1,11 @@
 <template>
+  <div class="stars-wrapper" ref="wrapperRef">
     <canvas ref="starsCanvas" class="stages-stars"></canvas>
+  </div>
 </template>
 <script lang="ts" setup>
   const starsCanvas = ref<HTMLCanvasElement>();
+  const wrapperRef = ref<HTMLDivElement>();
 
   let starsCtx: CanvasRenderingContext2D | null = null;
   let starsData: { x: number; y: number; r: number; depth: number; alpha: number }[] = []
@@ -12,11 +15,12 @@
 
   function initStars() {
     const c = starsCanvas.value
+    const wrapper = wrapperRef.value
 
-    if(!c) return
+    if(!c || !wrapper) return
 
-    const W = c.offsetWidth || window.innerWidth;
-    const H = c.offsetHeight || window.innerHeight;
+    const W = wrapper.clientWidth
+    const H = wrapper.clientHeight
     c.width = W;
     c.height = H;
 
@@ -58,7 +62,7 @@
   }
 
   onMounted(() => {
-    setTimeout(initStars, 50);
+    nextTick(initStars);
     drawStars();
 
     window.addEventListener('mousemove', onMouseMove);
@@ -71,6 +75,12 @@
   })
 </script>
 <style scoped>
+.stars-wrapper{
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
 .stages-stars {
   position: absolute;
   inset: 0;

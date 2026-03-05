@@ -52,13 +52,7 @@ const activeStage = ref(1)
 <style scoped>
 .stages-timeline {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: center;
   position: relative;
-  gap: 40px;
-  overflow-x: visible;
-  width: 100%;
 }
 
 .stage-wrapper:hover .stage-overlay {

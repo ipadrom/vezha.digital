@@ -57,7 +57,7 @@ const navItems = computed(() => [
   { href: '/#stack', label: t('nav.stack') },
   { href: '/#services', label: t('nav.services') },
   { href: '/#advantages', label: t('nav.why_us') },
-  { href: '/#projects', label: t('nav.projects') },
+  // { href: '/#projects', label: t('nav.projects') },
   { href: '/#stages', label: t('nav.stages') },
   { href: '/#contacts', label: t('nav.contacts') },
 ])

@@ -21,6 +21,7 @@
   />
 
   <ServiceProjects
+      v-if="false"
       :service="service ? [service] : []"
   />
 

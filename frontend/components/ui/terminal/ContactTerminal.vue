@@ -22,7 +22,7 @@
               <span class="faq-item__text">{{ item.q }}</span>
             </div>
             <Transition name="faq-expand">
-              <div v-if="openFaq === i" class="faq-item__answer">
+              <div v-show="openFaq === i" class="faq-item__answer">
                 {{ item.a }}
               </div>
             </Transition>
@@ -106,18 +106,30 @@ onUnmounted(() => {
   padding: 0 0 12px 16px;
   border-left: 2px solid var(--accent);
   margin-left: 4px;
+
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
 }
 
-/* Transition для раскрытия FAQ */
+.faq-list {
+  overflow-anchor: none;
+}
+
 .faq-expand-enter-active,
 .faq-expand-leave-active {
   transition: opacity 0.25s ease, transform 0.25s ease;
-  overflow: hidden;
 }
+
 .faq-expand-enter-from,
 .faq-expand-leave-to {
   opacity: 0;
   transform: translateY(-6px);
+}
+
+.faq-expand-enter-to,
+.faq-expand-leave-from {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* Terminal */
@@ -137,7 +149,8 @@ onUnmounted(() => {
 
 .terminal__body {
   padding: 20px;
-  height: 388px;
+  min-height: 388px;
+  overflow-y: auto;
 }
 
 .terminal__line {

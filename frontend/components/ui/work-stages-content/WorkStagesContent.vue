@@ -8,7 +8,10 @@
       <defs>
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="blur"/>
-          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
         </filter>
       </defs>
 
@@ -27,7 +30,10 @@
         :key="stage.id"
         class="step"
         :class="{ active: index === activeIndex }"
-        :style="getStepStyle(index)"
+        :style="{
+           ...getStepStyle(index),
+           zIndex: activeIndex === index ? 100 : 2
+        }"
         @mouseenter="activeIndex = index"
     >
       <div class="step__num">
@@ -40,11 +46,11 @@
 
       <div v-if="activeIndex === index" class="tooltip">
         <Card
-          :title="stage.title"
-          :description="stage.description"
-          :duration="stage.duration"
-          :details="stage.details"
-          :features="stage.features"
+            :title="stage.title"
+            :description="stage.description"
+            :duration="stage.duration"
+            :details="stage.details"
+            :features="stage.features"
         />
       </div>
     </div>
@@ -52,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import {ref, onMounted, onBeforeUnmount} from "vue";
 import Card from "~/components/ui/cards/Card.vue";
 import IWorkStages from "~/utils/interfaces/IWorkStages.js";
 
@@ -65,13 +71,13 @@ const props = defineProps<{
 }>();
 
 const coords = [
-  { x: 80, y: 190 },
-  { x: 250, y: 100 },
-  { x: 410, y: 210 },
-  { x: 550, y: 90 },
-  { x: 710, y: 200 },
-  { x: 870, y: 95 },
-  { x: 1030, y: 185 }
+  {x: 80, y: 190},
+  {x: 250, y: 100},
+  {x: 410, y: 210},
+  {x: 550, y: 90},
+  {x: 710, y: 200},
+  {x: 870, y: 95},
+  {x: 1030, y: 185}
 ];
 
 const stages = ref([]);
@@ -176,7 +182,7 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 12px var(--accent, #00eaff);
 }
 
-.step__num{
+.step__num {
   position: absolute;
   bottom: 50px;
   left: 30%;
@@ -220,7 +226,7 @@ onBeforeUnmount(() => {
   font-size: 0.9rem;
 }
 
-.tooltip :deep(p){
+.tooltip :deep(p) {
   font-size: 0.75rem;
 }
 </style>
