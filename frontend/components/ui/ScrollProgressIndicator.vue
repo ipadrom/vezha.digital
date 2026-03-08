@@ -24,6 +24,6 @@
   background: var(--accent);
   box-shadow: 0 0 8px var(--accent);
   transition: width 0.25s ease;
-  width: 0%;
+  width: 0;
 }
 </style>

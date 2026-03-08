@@ -1,58 +1,106 @@
 <template>
-  <section id="stages" class="section">
-    <div class="container-main">
-      <h2 class="section-title">
-        <span class="bracket"></span>{{ $t('stages.title') }} <span class="bracket">&gt;</span>
-      </h2>
+  <div class="container-main">
+    <h2 class="section-title">
+      <span class="bracket"></span>{{ $t('stages.title') }} <span class="bracket">&gt;</span>
+    </h2>
+  </div>
 
-      <div class="stages-timeline stages-desktop">
-        <StarfieldParallax/>
-        <WorkStagesContent
+  <!-- Канвас во всю ширину секции -->
+  <div class="stages-timeline-wrapper" ref="wrapperRef">
+    <div class="stages-timeline stages-desktop">
+      <StarfieldParallax class="stack-stars"/>
+      <WorkStagesContent
           :stages="stages"
-        />
-      </div>
-    </div>
+      />
 
-    <!-- Mobile view -->
-    <div class="stages-mobile">
-      <div class="stages-list">
-        <div
-            v-for="stage in stages"
-            :key="stage.id"
-            :class="['stage-item', { active: activeStage === stage.step_number }]"
-            @click="activeStage = stage.step_number"
-        >
-          <div class="stage-item__number">{{ String(stage.step_number).padStart(2, '0') }}</div>
-          <div class="stage-item__title">{{ stage.title }}</div>
-        </div>
-      </div>
-      <div class="stages-description">
-        <Transition name="fade" mode="out-in">
-          <div :key="activeStage" class="description-content">
-            <p>{{ stages.find(s => s.step_number === activeStage)?.description }}</p>
-          </div>
-        </Transition>
+      <!-- Scroll progress indicator -->
+      <ScrollProgressIndicator
+          :progress="scrollProgressNorm"
+      />
+    </div>
+  </div>
+
+  <!-- Mobile view -->
+  <div class="stages-mobile">
+    <div class="stages-list">
+      <div
+          v-for="stage in stages"
+          :key="stage.id"
+          :class="['stage-item', { active: activeStage === stage.step_number }]"
+          @click="activeStage = stage.step_number"
+      >
+        <div class="stage-item__number">{{ String(stage.step_number).padStart(2, '0') }}</div>
+        <div class="stage-item__title">{{ stage.title }}</div>
       </div>
     </div>
-  </section>
+    <div class="stages-description">
+      <Transition name="fade" mode="out-in">
+        <div :key="activeStage" class="description-content">
+          <p>{{ stages.find(s => s.step_number === activeStage)?.description }}</p>
+        </div>
+      </Transition>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import WorkStagesContent from "~/components/ui/work-stages-content/WorkStagesContent.vue";
 import StarfieldParallax from "~/components/ui/3d/canvas/StarfieldParallax.vue";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
+import ScrollProgressIndicator from "~/components/ui/ScrollProgressIndicator.vue";
+import {onBeforeUnmount, ref} from "vue";
 
 defineProps<{
   stages: IWorkStages[]
 }>()
 
 const activeStage = ref(1)
+const scrollProgressNorm = ref(0)
+const wrapperRef = ref<HTMLElement | null>(null)
+
+function onScroll() {
+  const wrapper = wrapperRef.value
+  if (!wrapper) return
+  const rect     = wrapper.getBoundingClientRect()
+  const viewH    = window.innerHeight
+  const scrolled = -rect.top
+  const total    = wrapper.offsetHeight - viewH
+  scrollProgressNorm.value = total > 0
+      ? Math.min(1, Math.max(0, scrolled / total))
+      : 0
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onScroll)
+})
 </script>
 
 <style scoped>
-.stages-timeline {
-  display: flex;
+.stages-timeline-wrapper{
   position: relative;
+  width: 100%;
+  height: 200vh;
+}
+
+.stages-timeline {
+  top: 12rem;
+  position: sticky;
+  width: 100%;
+  overflow: hidden;
+  background: #060610;
+}
+
+.stack-stars {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .stage-wrapper:hover .stage-overlay {

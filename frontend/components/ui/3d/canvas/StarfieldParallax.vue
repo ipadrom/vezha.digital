@@ -1,6 +1,6 @@
 <template>
   <div class="stars-wrapper" ref="wrapperRef">
-    <canvas ref="starsCanvas" class="stages-stars"></canvas>
+    <canvas ref="starsCanvas" class="stars-canvas"></canvas>
   </div>
 </template>
 <script lang="ts" setup>
@@ -14,6 +14,8 @@
   let rafId = 0;
 
   function initStars() {
+    if (!starsCanvas.value) return;
+
     const c = starsCanvas.value
     const wrapper = wrapperRef.value
 
@@ -78,15 +80,16 @@
 .stars-wrapper{
   position: absolute;
   inset: 0;
-  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-.stages-stars {
+stars-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
   z-index: 2;
 }
 </style>
