@@ -20,27 +20,10 @@
     </div>
   </div>
 
-  <!-- Mobile view -->
-  <div class="stages-mobile">
-    <div class="stages-list">
-      <div
-          v-for="stage in stages"
-          :key="stage.id"
-          :class="['stage-item', { active: activeStage === stage.step_number }]"
-          @click="activeStage = stage.step_number"
-      >
-        <div class="stage-item__number">{{ String(stage.step_number).padStart(2, '0') }}</div>
-        <div class="stage-item__title">{{ stage.title }}</div>
-      </div>
-    </div>
-    <div class="stages-description">
-      <Transition name="fade" mode="out-in">
-        <div :key="activeStage" class="description-content">
-          <p>{{ stages.find(s => s.step_number === activeStage)?.description }}</p>
-        </div>
-      </Transition>
-    </div>
-  </div>
+    <WorkStagesMobile
+        :stages="stages"
+        class="stages-mobile"
+    />
 </template>
 
 <script setup lang="ts">
@@ -49,12 +32,12 @@ import StarfieldParallax from "~/components/ui/3d/canvas/StarfieldParallax.vue";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
 import ScrollProgressIndicator from "~/components/ui/ScrollProgressIndicator.vue";
 import {onBeforeUnmount, ref} from "vue";
+import WorkStagesMobile from "~/components/mobile-view/WorkStagesMobile.vue";
 
 defineProps<{
   stages: IWorkStages[]
 }>()
 
-const activeStage = ref(1)
 const scrollProgressNorm = ref(0)
 const wrapperRef = ref<HTMLElement | null>(null)
 
@@ -167,6 +150,14 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 768px) {
+  .stages-timeline-wrapper {
+    display: none;
+  }
+
+  .stages-mobile {
+    display: block;
+  }
+
   .stages-timeline {
     flex-direction: column;
     gap: 20px;
@@ -179,71 +170,6 @@ onBeforeUnmount(() => {
 
   .stages-desktop {
     display: none !important;
-  }
-
-  .stages-mobile {
-    display: grid;
-    grid-template-columns: 40% 60%;
-    gap: 15px;
-    min-height: 300px;
-  }
-
-  .stages-list {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .stage-item {
-    background: transparent;
-    border: none;
-    border-left: 3px solid transparent;
-    padding: 10px 0 10px 15px;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .stage-item.active {
-    border-left-color: var(--accent);
-    box-shadow: -10px 0 15px -5px rgba(0, 255, 65, 0.3);
-  }
-
-  .stage-item:hover {
-    border-left-color: var(--accent);
-  }
-
-  .stage-item__number {
-    font-family: var(--font-epilepsy);
-    font-size: 2rem;
-    color: var(--accent);
-    font-weight: 700;
-    text-align: left;
-  }
-
-  .stage-item__title {
-    font-family: var(--font-epilepsy);
-    font-size: 0.85rem;
-    line-height: 1.3;
-    color: #e0e0e0;
-    text-align: left;
-    font-weight: 700;
-  }
-
-  .stages-description {
-    background: var(--bg-secondary);
-    border: 2px solid var(--border);
-    padding: 20px;
-    display: flex;
-    align-items: flex-start;
-  }
-
-  .description-content {
-    color: #e0e0e0;
-    line-height: 1.6;
-    font-size: 0.9rem;
   }
 
   .description-content p {

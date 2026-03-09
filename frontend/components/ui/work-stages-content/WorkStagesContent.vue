@@ -49,8 +49,6 @@
             :title="stage.title"
             :description="stage.description"
             :duration="stage.duration"
-            :details="stage.details"
-            :features="stage.features"
         />
       </div>
     </div>
@@ -60,7 +58,7 @@
 <script setup lang="ts">
 import {ref, onMounted, onBeforeUnmount} from "vue";
 import Card from "~/components/ui/cards/Card.vue";
-import IWorkStages from "~/utils/interfaces/IWorkStages.js";
+import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
 
 const container = ref(null);
 const activeIndex = ref(0);

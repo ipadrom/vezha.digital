@@ -22,7 +22,7 @@
         @update:hoveredTech="hoveredTech = $event"
       />
 
-      <TechStackMobileView
+      <TechStackMobile
         :is-mobile-view="true"
       />
     </div>
@@ -36,7 +36,7 @@ import StarfieldParallax from "~/components/ui/3d/canvas/StarfieldParallax.vue";
 import RightStackMenu from "~/components/ui/RightStackMenu.vue";
 import ScrollProgressIndicator from "~/components/ui/ScrollProgressIndicator.vue";
 import OrbitCanvas from "~/components/ui/3d/canvas/OrbitCanvas.vue";
-import TechStackMobileView from "~/components/mobile-view/TechStackMobileView.vue";
+import TechStackMobile from "~/components/mobile-view/TechStackMobile.vue";
 
 const props = defineProps<{
   techStack: ITechStack[]
