@@ -43,26 +43,7 @@
           </div>
         </TransitionGroup>
 
-        <div class="mobile-tabs">
-          <button
-              v-for="(tab, index) in clientTypes"
-              :key="index"
-              :class="['mobile-tab', { active: activeTab === index }]"
-              @click="activeTab = index; activeIndex = index"
-          >
-            {{ tab }}
-          </button>
-        </div>
-
-        <div v-if="isSectionVisible && advantages.length" class="advantages-mobile">
-          <div class="advantage">
-            <Card
-                :title="advantages[activeTab]?.title"
-                :description="advantages[activeTab]?.description"
-                class="advantages-card-custom accordion-card--active"
-            />
-          </div>
-        </div>
+        <AdvantagesMobile/>
 
       </div>
     </div>
@@ -74,10 +55,11 @@ import {useSectionVisible} from "~/composables/useSectionVisible";
 import Card from "~/components/ui/cards/Card.vue";
 import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
 import type {IClientType} from "~/utils/interfaces/IClientTypes";
+import AdvantagesMobile from "~/components/mobile-view/AdvantagesMobile.vue";
 const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible( 0.1)
 
 defineProps<{
-  advantages: IAdvantages[]
+  advantages: IAdvantages[],
   clientTypes: IClientType[]
 }>()
 
@@ -108,10 +90,6 @@ const tagsByIndex: Record<number, string[]> = {
 }
 
 const activeTags = computed(() => tagsByIndex[activeIndex.value] ?? [])
-
-const activeTab = ref(0)
-const mobileTabs = ['Частные клиенты', 'Малый/средний бизнес', 'Для гигантов']
-
 </script>
 
 <style scoped>
@@ -121,6 +99,10 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
   gap: 60px;
   align-items: start;
   margin-top: 10rem;
+}
+
+.advantages-mobile{
+  display: none;
 }
 
 .advantages-right {
@@ -229,14 +211,6 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
   animation-delay: var(--enter-delay, 0s);
 }
 
-.mobile-tabs {
-  display: none;
-}
-
-.advantages-mobile {
-  display: none;
-}
-
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;
@@ -268,11 +242,20 @@ const mobileTabs = ['Частные клиенты', 'Малый/средний 
 }
 
 @media (max-width: 900px) {
+  .advantages-desktop {
+    display: none;
+  }
 
-  .mobile-tabs {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
+  .advantages-subtitle{
+    display: none;
+  }
+
+  .advantages-tags{
+    display: none;
+  }
+
+  .advantages-mobile {
+    display: block;
   }
 
   .advantages-layout {
