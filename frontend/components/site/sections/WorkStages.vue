@@ -132,21 +132,6 @@ onBeforeUnmount(() => {
     flex-wrap: wrap;
     gap: 30px;
   }
-
-  .stage-wrapper {
-    min-width: calc(50% - 30px);
-  }
-
-  .stage-overlay {
-    position: relative;
-    top: 0;
-    left: 0;
-    transform: none;
-    width: 100%;
-    margin-top: 15px;
-    opacity: 1;
-    visibility: visible;
-  }
 }
 
 @media (max-width: 768px) {
@@ -155,17 +140,17 @@ onBeforeUnmount(() => {
   }
 
   .stages-mobile {
-    display: block;
+    display: grid;
+    grid-template-columns: 40% 60%;
+    gap: 15px;
+    min-height: 300px;
+    width: 100%;
+    align-items: start;
   }
 
   .stages-timeline {
     flex-direction: column;
     gap: 20px;
-  }
-
-  .stage-wrapper {
-    width: 100%;
-    min-width: auto;
   }
 
   .stages-desktop {

@@ -2,6 +2,7 @@
   <!-- Mobile view -->
   <div class="stages-mobile">
     <div class="stages-list">
+<!--      Сюда надо брать карточный компонент-->
       <div
           v-for="stage in stages"
           :key="stage.id"
@@ -14,9 +15,12 @@
     </div>
     <div class="stages-description">
       <Transition name="fade" mode="out-in">
-        <div :key="activeStage" class="description-content">
-          <p>{{ stages.find(s => s.step_number === activeStage)?.description }}</p>
-        </div>
+        <Card
+            :key="activeStage"
+            :title="stages.find(s => s.step_number === activeStage)?.title"
+            :description="stages.find(s => s.step_number === activeStage)?.description"
+            class="description-card"
+        />
       </Transition>
     </div>
   </div>
@@ -25,6 +29,7 @@
 <script setup lang="ts">
 import {ref} from "vue";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
+import Card from "~/components/ui/cards/Card.vue";
 
 const activeStage = ref(1)
 
@@ -41,11 +46,12 @@ defineProps<{
     grid-template-columns: 40% 60%;
     gap: 15px;
     min-height: 300px;
+    width: 100%;
+    align-items: stretch;
   }
 
   .stages-list {
-    display: flex;
-    flex-direction: column;
+    display: block;
     gap: 15px;
   }
 
@@ -88,11 +94,8 @@ defineProps<{
   }
 
   .stages-description {
-    background: var(--bg-secondary);
-    border: 2px solid var(--border);
-    padding: 20px;
-    display: flex;
-    align-items: flex-start;
+    position: relative;
+    width: 100%;
   }
 
   .description-content {
