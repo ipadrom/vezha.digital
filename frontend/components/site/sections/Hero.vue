@@ -359,6 +359,10 @@ function init3DScene() {
   .hero {
     padding: 0 20px;
     align-items: flex-start;
+    min-height: unset;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.35);
+    box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
+    margin-bottom: 16px;
   }
 
   .hero__wrapper {
@@ -371,7 +375,7 @@ function init3DScene() {
 
   .hero__right {
     order: 1;
-    height: 55vh;
+    height: 45vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -379,28 +383,28 @@ function init3DScene() {
 
   .hero__left {
     order: 2;
-    padding: 0 0 40px;
+    padding: 0 0 20px;
+    position: relative;
+    z-index: 2;
+    margin-top: -50px;
   }
 
   .hero__background {
     position: absolute;
     width: 100%;
-    height: 55vh;
+    height: 45vh;
     top: 0;
     bottom: auto;
     left: 0;
-    border-bottom: 1px solid rgba(0, 229, 255, 0.35);
-    box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
   }
 
   .hero__title {
-    font-size: 2rem;
-    margin-bottom: 16px;
+    font-size: 1.8rem;
+    margin-bottom: 0;
   }
 
   .hero__subtitle {
-    font-size: 1rem;
-    margin-bottom: 0;
+    display: none;
   }
 
   .hero__logo-script {
@@ -422,6 +426,9 @@ function init3DScene() {
   .hero {
     padding: 0 16px;
     align-items: flex-start;
+    min-height: unset;
+    border-bottom: 1px solid rgba(0, 229, 255, 0.35);
+    box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
   }
 
   .hero__wrapper {
@@ -434,7 +441,7 @@ function init3DScene() {
 
   .hero__right {
     order: 1;
-    height: 55vh;
+    height: 45vh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -442,27 +449,28 @@ function init3DScene() {
 
   .hero__left {
     order: 2;
-    padding: 0 0 40px;
+    padding: 0 0 20px;
+    position: relative;
+    z-index: 2;
+    margin-top: -50px;
   }
 
   .hero__background {
     position: absolute;
     width: 100%;
-    height: 55vh;
+    height: 45vh;
     top: 0;
     bottom: auto;
     left: 0;
-    border-bottom: 1px solid rgba(0, 229, 255, 0.35);
-    box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
   }
 
   .hero__title {
     font-size: 1.8rem;
-    margin-bottom: 16px;
+    margin-bottom: 0;
   }
 
   .hero__subtitle {
-    font-size: 0.9rem;
+    display: none;
   }
 
   .hero__logo-script {

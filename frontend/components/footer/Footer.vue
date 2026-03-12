@@ -2,20 +2,6 @@
   <footer class="footer">
     <div class="container-main">
       <div class="footer__content">
-        <!-- Services Column -->
-        <div class="footer__col">
-          <h4>Услуги</h4>
-          <ul>
-            <li><a href="/#services">ВЕБ-САЙТЫ</a></li>
-            <li><a href="/#services">ИНТЕРНЕТ МАГАЗИНЫ</a></li>
-            <li><a href="/#services">TELEGRAM MINI APPS</a></li>
-            <li><a href="/#services">TELEGRAM БОТЫ</a></li>
-            <li><a href="/#services">КОРПОРАТИВНЫЕ СИСТЕМЫ</a></li>
-            <li><a href="/#services">AI И АВТОМАТИЗАЦИЯ</a></li>
-            <li><a href="/#services">МОБИЛЬНЫЕ ПРИЛОЖЕНИЯ</a></li>
-          </ul>
-        </div>
-
         <!-- Company Column -->
         <div class="footer__col">
           <h4>Компания</h4>
@@ -30,23 +16,37 @@
           </ul>
         </div>
 
+        <!-- Services Column -->
+        <div class="footer__col">
+          <h4>Услуги</h4>
+          <ul>
+            <li><a href="/#services">Веб-сайты</a></li>
+            <li><a href="/#services">Интернет магазины</a></li>
+            <li><a href="/#services">Telegram Mini Apps</a></li>
+            <li><a href="/#services">Telegram боты</a></li>
+            <li><a href="/#services">Корпоративные системы</a></li>
+            <li><a href="/#services">AI и автоматизация</a></li>
+            <li><a href="/#services">Мобильные приложения</a></li>
+          </ul>
+        </div>
+
         <!-- Contacts Column -->
         <div class="footer__col">
           <h4>Контакты</h4>
           <ul>
-            <li v-if="settings?.contact_telegram">
-              <a :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`" target="_blank">
-                Telegram: {{ settings.contact_telegram }}
+            <li>
+              <a :href="`https://t.me/${(settings?.contact_telegram || '@company_manager').replace('@', '')}`" target="_blank">
+                {{ settings?.contact_telegram || '@company_manager' }}
               </a>
             </li>
-            <li v-if="settings?.contact_email">
-              <a :href="`mailto:${settings.contact_email}`">
-                Email: {{ settings.contact_email }}
+            <li>
+              <a :href="`mailto:${settings?.contact_email || 'hello@vezha.digital'}`">
+                {{ settings?.contact_email || 'hello@vezha.digital' }}
               </a>
             </li>
-            <li v-if="settings?.contact_phone">
-              <a :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`">
-                Телефон: {{ settings.contact_phone }}
+            <li>
+              <a :href="`tel:${(settings?.contact_phone || '+7 (777) 777-77-77').replace(/\D/g, '')}`">
+                {{ settings?.contact_phone || '+7 (777) 777-77-77' }}
               </a>
             </li>
           </ul>
@@ -127,11 +127,64 @@ defineProps<{
 }
 
 @media (max-width: 768px) {
+  .footer {
+    padding: 24px 0 16px;
+  }
+
   .footer .container-main {
     max-width: 100%;
     margin: 0;
     padding-left: 20px;
     padding-right: 20px;
+  }
+
+  .footer__content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .footer__col h4 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .footer__col ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+
+  .footer__col:last-child ul {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .footer__col ul li {
+    margin-bottom: 0;
+  }
+
+  .footer__col a {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+  }
+
+  .footer__col a:hover {
+    padding-left: 0;
+  }
+
+  .footer__bottom {
+    padding-top: 16px;
+  }
+
+  .footer__bottom p {
+    font-size: 0.8rem;
   }
 }
 </style>

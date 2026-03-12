@@ -1,6 +1,6 @@
 <template>
   <!-- Высокий wrapper: пользователь "скроллит сквозь" него, а sticky-контент стоит на месте -->
-  <div id="tech-stack" class="stack-wrapper" ref="wrapperRef">
+  <div id="tech-stack" class="stack-wrapper section" ref="wrapperRef">
     <div class="stack-sticky" ref="sectionRef">
       <!-- Starfield parallax -->
       <canvas ref="starsCanvas" class="stack-stars"></canvas>
@@ -903,13 +903,19 @@ onBeforeUnmount(() => {
 
 @media (max-width: 768px) {
   /* Disable scroll-lock, keep relative for absolute children */
-  .stack-wrapper { height: auto; }
+  .stack-wrapper { height: auto; margin-bottom: 0 !important; }
   .stack-sticky {
     position: relative;
+    top: 0;
     height: auto;
     overflow: hidden;
-    background: #060610;
-    padding: 0 16px 40px;
+    background: var(--bg);
+    padding: 0 20px 20px;
+  }
+
+  .stack-stars {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%);
   }
 
   /* Hide desktop-only overlay elements */
@@ -943,14 +949,14 @@ onBeforeUnmount(() => {
   /* Row 1: title + description */
   .stack-mobile-top .stack-section-title {
     font-size: clamp(2rem, 4vw, 3rem);
-    margin: 16px 0 12px;
+    margin: 0 0 12px;
   }
   .stack-mobile-top .stack-description {
     gap: 8px;
   }
   .stack-mobile-top .stack-description p {
     font-size: 0.83rem;
-    color: #b0b0b0;
+    color: #e0e0e0;
     line-height: 1.65;
     margin: 0;
   }

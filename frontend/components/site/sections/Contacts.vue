@@ -366,5 +366,12 @@ onUnmounted(() => {
     padding: 6px 8px;
     gap: 10px;
   }
+
+  .btn-large {
+    width: 100%;
+    text-align: center;
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
+  }
 }
 </style>

@@ -211,6 +211,28 @@
   }
 }
 
+@media (max-width: 768px) {
+  .btn-primary {
+    padding: 12px 24px !important;
+    font-size: 1rem !important;
+  }
+
+  .btn-large {
+    padding: 14px 28px !important;
+    font-size: 1rem !important;
+  }
+
+  .section {
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+}
+
 /* Glitch effect */
 .glitch {
   position: relative;

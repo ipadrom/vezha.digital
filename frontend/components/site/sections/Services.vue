@@ -52,6 +52,7 @@
               <!-- Mobile Service Details -->
               <Transition name="expand">
                 <div v-if="activeService === service.id && isAdaptiveMobile" class="service-mobile-content">
+                  <div class="service-mobile-divider"></div>
                   <p class="desc">{{ service.description }}</p>
                   <div class="service-content">
                     <div v-if="service.examples" class="service-example-tags">
@@ -412,6 +413,13 @@ const formatPrice = (price: number) => {
   transition: grid-template-rows 0.3s ease;
 }
 
+.service-mobile-divider {
+  height: 1px;
+  background: var(--accent);
+  opacity: 0.3;
+  margin: 10px 0;
+}
+
 .service-mobile-content .desc {
   font-family: var(--font-inter);
   font-size: 1rem;
@@ -487,12 +495,13 @@ const formatPrice = (price: number) => {
 
 @media (max-width: 992px) {
   .services-container {
-    padding: 0 20px;
+    padding: 0 20px 0;
   }
 
   .services-new {
     display: block;
     flex-direction: column;
+    height: auto;
     max-height: none;
   }
 
@@ -502,9 +511,71 @@ const formatPrice = (price: number) => {
     overflow: visible;
   }
 
+  .service-details {
+    min-height: 300px;
+  }
+
+  .service-details.mobile {
+    margin-top: 20px;
+    padding: 20px;
+  }
+
+  .service-details.mobile .service-detail {
+    display: block;
+  }
+
   .service-item {
     width: 100%;
     box-sizing: border-box;
+  }
+
+  .service-item h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .service-item .price {
+    font-size: 1rem;
+    font-weight: 600;
+  }
+
+  .service-item {
+    padding: 12px 12px 12px 20px;
+    box-shadow:
+        inset 0 0 0 3px rgba(0, 0, 0, 0.0001),
+        -10px 0 15px -5px rgba(0, 255, 65, 0.3);
+  }
+
+  .service-item:hover,
+  .service-item.active {
+    box-shadow:
+        inset 0 0 0 3px var(--accent),
+        0 0 15px var(--accent);
+  }
+
+  .redirect-btn {
+    position: static;
+    align-self: flex-end;
+    margin-top: auto;
+    margin-left: -8px;
+    width: calc(100% + 8px);
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border: 2px solid var(--accent);
+    text-align: center;
+  }
+
+  .service-example-tags {
+    max-height: 3.2em;
+    overflow: hidden;
+    margin-bottom: 15px;
+  }
+
+  .service-example-tag {
+    padding: 2px 6px;
+    font-size: 0.65rem;
   }
 }
 </style>

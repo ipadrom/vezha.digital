@@ -53,6 +53,7 @@
           <Transition name="fade" mode="out-in">
             <div :key="activeIndex" class="adv-card">
               <h3 class="adv-card__title">{{ advantages[activeIndex]?.title }}</h3>
+              <div class="adv-card__divider"></div>
               <p class="adv-card__desc">{{ advantages[activeIndex]?.description }}</p>
               <div class="adv-mobile-tags">
                 <span
@@ -332,6 +333,13 @@ function hoverCard(index: number) {
     font-weight: bold;
     color: var(--accent);
     margin: 0 0 10px 0;
+  }
+
+  .adv-card__divider {
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.3;
+    margin-bottom: 10px;
   }
 
   .adv-card__desc {

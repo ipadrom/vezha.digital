@@ -184,9 +184,13 @@ const aboutUs = {
 }
 
 @media (max-width: 900px) {
+  .section {
+    margin-bottom: 20px;
+  }
+
   .who-we-are {
     grid-template-columns: 1fr;
-    gap: 30px;
+    gap: 20px;
     padding: 0 20px;
   }
 
@@ -196,6 +200,11 @@ const aboutUs = {
 
   .who-we-are__title {
     text-align: left;
+  }
+
+  .who-we-are__text p {
+    font-size: 0.95rem;
+    line-height: 1.8;
   }
 
   .icon-cards {

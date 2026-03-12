@@ -104,11 +104,20 @@
         <div class="stages-description">
           <Transition name="fade" mode="out-in">
             <div :key="activeStage" class="description-content">
+              <div class="description-header">
+                <h3 class="description-title">{{ STAGES[activeStage].title }}</h3>
+              </div>
+              <div class="description-divider"></div>
               <p>{{ STAGES[activeStage].description }}</p>
               <ul>
                 <li v-for="f in STAGES[activeStage].features" :key="f">{{ f }}</li>
               </ul>
-              <span class="c-card__duration">{{ STAGES[activeStage].duration }}</span>
+              <div class="duration-wrapper">
+                <div class="c-card__duration">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="duration-icon"><path d="M12 2a10 10 0 0 1 7.38 16.75"/><path d="M12 6v6l4 2"/><path d="M2.5 8.875a10 10 0 0 0-.5 3"/><path d="M2.83 16a10 10 0 0 0 2.43 3.4"/><path d="M4.636 5.235a10 10 0 0 1 .891-.857"/><path d="M8.644 21.42a10 10 0 0 0 7.631-.38"/></svg>
+                  {{ STAGES[activeStage].duration }}
+                </div>
+              </div>
             </div>
           </Transition>
         </div>
@@ -568,7 +577,7 @@ onBeforeUnmount(() => {
   /* On mobile: no scroll-lock, normal flow */
   .stages-wrapper {
     height: auto;
-    margin-bottom: 50px;
+    margin-bottom: 20px;
   }
   .stages-sticky {
     position: static;
@@ -593,7 +602,7 @@ onBeforeUnmount(() => {
     left: auto;
     font-size: clamp(2rem, 4vw, 3rem);
     text-align: left;
-    padding: 0 16px;
+    padding: 0 20px;
     margin: 0 0 16px;
     width: 100%;
     box-sizing: border-box;
@@ -614,7 +623,7 @@ onBeforeUnmount(() => {
     gap: 12px;
     min-height: auto;
     margin-top: 0;
-    padding: 0 16px;
+    padding: 0 20px;
     width: 100%;
     position: relative;
     z-index: 2;
@@ -624,7 +633,9 @@ onBeforeUnmount(() => {
   .stages-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 0;
+    align-self: stretch;
+    justify-content: space-between;
   }
 
   .stage-item {
@@ -665,6 +676,7 @@ onBeforeUnmount(() => {
     align-self: stretch;
     position: relative;
     overflow: hidden;
+    min-height: 368px;
   }
 
   .stages-description::before {
@@ -678,18 +690,95 @@ onBeforeUnmount(() => {
     box-shadow: 0 0 10px var(--accent);
   }
 
+  .description-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .description-title {
+    font-family: var(--font-inter);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 0;
+  }
+
+  .description-number {
+    font-family: var(--font-inter);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    opacity: 0.15;
+    line-height: 1;
+  }
+
+  .description-divider {
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.3;
+    margin-bottom: 10px;
+  }
+
   .description-content {
     color: #e0e0e0;
     font-size: 0.85rem;
     line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
   }
 
   .description-content ul {
     margin-top: 10px;
-    padding-left: 16px;
+    padding-left: 0;
+    list-style: none;
     display: flex;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .description-content ul li {
+    padding: 4px 0 4px 18px;
+    position: relative;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e0e0e0;
+    line-height: 1.5;
+  }
+
+  .description-content ul li::before {
+    content: '>';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .description-content .duration-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 10px;
+  }
+
+  .description-content .c-card__duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(0, 229, 255, 0.3);
+    font-family: var(--font-inter);
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.5;
+  }
+
+  .description-content .c-card__duration .duration-icon {
+    flex-shrink: 0;
+    color: var(--accent);
   }
 }
 </style>

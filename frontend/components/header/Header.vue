@@ -219,9 +219,18 @@ onMounted(() => {
     gap: 8px;
   }
 
+  .logo__script {
+    font-size: 1.4rem;
+  }
+
+  .logo__digital {
+    font-size: 0.45rem;
+    letter-spacing: 4px;
+  }
+
   .header-cta {
-    padding: 6px 12px;
-    font-size: 0.75rem;
+    padding: 6px 12px !important;
+    font-size: 0.75rem !important;
     letter-spacing: 0;
     min-width: auto;
     white-space: nowrap;
