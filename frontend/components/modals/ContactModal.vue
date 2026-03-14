@@ -3,8 +3,8 @@
     <div class="modal__overlay" @click="showModal = false"></div>
     <div class="modal__box">
       <button class="modal__close" @click="showModal = false">&times;</button>
-      <h2>
-        <span class="bracket">&lt;</span>{{ $t('cta.title') }}<span class="bracket">/&gt;</span>
+      <h2 class="section-title modal-title">
+        {{ $t('cta.title') }} <span class="bracket">&gt;</span>
       </h2>
       <form @submit.prevent="handleSubmit">
         <div class="field">
@@ -21,7 +21,7 @@
         </div>
         <div class="checkbox">
           <input v-model="agreed" type="checkbox" id="agree" required />
-          <label for="agree">Я согласен на обработку персональных данных</label>
+          <label for="agree">Я согласен на <a href="/privacy" target="_blank" class="privacy-link">обработку персональных данных</a></label>
         </div>
 
         <p v-if="status" :class="['text-sm', status === 'success' ? 'text-accent' : 'text-red-500']">
@@ -104,5 +104,27 @@ onMounted(() => {
   max-height: 100vh;
   overflow-y: hidden;
   position: fixed;
+}
+
+.modal-title {
+  font-family: var(--font-inter) !important;
+  font-size: clamp(1.4rem, 5vw, 2rem);
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  text-align: left;
+  width: auto;
+}
+
+.modal__box label,
+.modal__box input,
+.modal__box textarea,
+.modal__box button,
+.modal__box .checkbox label {
+  font-family: var(--font-inter);
+}
+
+.privacy-link {
+  color: var(--accent);
+  text-decoration: underline;
 }
 </style>

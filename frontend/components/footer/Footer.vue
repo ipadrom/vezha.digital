@@ -2,15 +2,15 @@
   <footer class="footer">
     <div class="container-main">
       <div class="footer__content">
-        <!-- Company Column -->
+        <!-- Site Column -->
         <div class="footer__col">
-          <h4>Компания</h4>
+          <h4>Сайт</h4>
           <ul>
             <li><a href="/#hero">Главная</a></li>
+            <li><a href="/#stack">{{ $t('nav.stack') }}</a></li>
+            <li><a href="/#tech-stack">{{ $t('nav.tech_stack') }}</a></li>
             <li><a href="/#services">{{ $t('nav.services') }}</a></li>
             <li><a href="/#advantages">{{ $t('nav.why_us') }}</a></li>
-            <li><a href="/#projects">{{ $t('nav.projects') }}</a></li>
-            <li><a href="/#stack">{{ $t('nav.stack') }}</a></li>
             <li><a href="/#stages">{{ $t('nav.stages') }}</a></li>
             <li><a href="/#contacts">{{ $t('nav.contacts') }}</a></li>
           </ul>
@@ -20,35 +20,26 @@
         <div class="footer__col">
           <h4>Услуги</h4>
           <ul>
-            <li><a href="/#services">Веб-сайты</a></li>
-            <li><a href="/#services">Интернет магазины</a></li>
             <li><a href="/#services">Telegram Mini Apps</a></li>
             <li><a href="/#services">Telegram боты</a></li>
-            <li><a href="/#services">Корпоративные системы</a></li>
+            <li><a href="/#services">Веб-сайты</a></li>
+            <li><a href="/#services">Интернет-магазины</a></li>
             <li><a href="/#services">AI и автоматизация</a></li>
+            <li><a href="/#services">Корпоративные системы</a></li>
             <li><a href="/#services">Мобильные приложения</a></li>
           </ul>
         </div>
 
-        <!-- Contacts Column -->
-        <div class="footer__col">
-          <h4>Контакты</h4>
+        <!-- Legal Column -->
+        <div class="footer__col footer__col--legal">
+          <h4>О компании</h4>
           <ul>
-            <li>
-              <a :href="`https://t.me/${(settings?.contact_telegram || '@company_manager').replace('@', '')}`" target="_blank">
-                {{ settings?.contact_telegram || '@company_manager' }}
-              </a>
-            </li>
-            <li>
-              <a :href="`mailto:${settings?.contact_email || 'hello@vezha.digital'}`">
-                {{ settings?.contact_email || 'hello@vezha.digital' }}
-              </a>
-            </li>
-            <li>
-              <a :href="`tel:${(settings?.contact_phone || '+7 (777) 777-77-77').replace(/\D/g, '')}`">
-                {{ settings?.contact_phone || '+7 (777) 777-77-77' }}
-              </a>
-            </li>
+            <li>ИП Анищенко Дмитрий Александрович</li>
+            <li>ОГРНИП 326774600075626</li>
+            <li>ИНН 773421830976</li>
+            <li>г. Москва</li>
+            <li><a href="mailto:contact@vezha.digital">contact@vezha.digital</a></li>
+            <li><a href="/privacy">Политика обработки данных</a></li>
           </ul>
         </div>
       </div>
@@ -114,6 +105,12 @@ defineProps<{
   padding-left: 5px;
 }
 
+.footer__col--legal ul li {
+  color: var(--text-dim);
+  font-family: var(--font-inter);
+  font-size: 0.9vw;
+}
+
 .footer__bottom {
   text-align: center;
   padding-top: 1.5vw;
@@ -160,10 +157,15 @@ defineProps<{
     gap: 6px 12px;
   }
 
-  .footer__col:last-child ul {
+  .footer__col--legal ul {
     flex-direction: column;
     flex-wrap: nowrap;
     gap: 6px;
+  }
+
+  .footer__col--legal ul li {
+    font-size: 0.75rem;
+    color: var(--text-dim);
   }
 
   .footer__col ul li {

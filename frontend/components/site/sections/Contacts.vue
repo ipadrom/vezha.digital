@@ -61,11 +61,9 @@
                       <span class="faq-item__arrow">{{ openFaq === i ? '▾' : '▸' }}</span>
                       <span class="faq-item__text">{{ item.q }}</span>
                     </div>
-                    <Transition name="faq-expand">
-                      <div v-if="openFaq === i" class="faq-item__answer">
-                        {{ item.a }}
-                      </div>
-                    </Transition>
+                    <div v-if="openFaq === i" class="faq-item__answer">
+                      {{ item.a }}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -282,17 +280,6 @@ onUnmounted(() => {
   margin-left: 4px;
 }
 
-/* ── FAQ transition ── */
-.faq-expand-enter-active,
-.faq-expand-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  overflow: hidden;
-}
-.faq-expand-enter-from,
-.faq-expand-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
-}
 
 .fade-down-enter-from{
   opacity: 0;

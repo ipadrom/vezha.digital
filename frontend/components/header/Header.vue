@@ -10,7 +10,7 @@
 
         <!-- Desktop Navigation -->
         <nav class="nav">
-          <a v-for="item in navItems" :key="item.href" :href="item.href">
+          <a v-for="item in navItems" :key="item.href" :href="item.href" :class="{ active: activeSection === item.id }">
             {{ item.label }}
           </a>
         </nav>
@@ -54,16 +54,18 @@ const { t } = useI18n()
 const isMenuOpen = ref(false)
 
 const navItems = computed(() => [
-  { href: '/#hero', label: t('nav.home') },
-  { href: '/#stack', label: t('nav.stack') },
-  { href: '/#services', label: t('nav.services') },
-  { href: '/#advantages', label: t('nav.why_us') },
-  { href: '/#projects', label: t('nav.projects') },
-  { href: '/#stages', label: t('nav.stages') },
-  { href: '/#contacts', label: t('nav.contacts') },
+  { href: '/#hero', id: 'hero', label: t('nav.home') },
+  { href: '/#stack', id: 'stack', label: t('nav.stack') },
+  { href: '/#tech-stack', id: 'tech-stack', label: t('nav.tech_stack') },
+  { href: '/#services', id: 'services', label: t('nav.services') },
+  { href: '/#advantages', id: 'advantages', label: t('nav.why_us') },
+  { href: '/#stages', id: 'stages', label: t('nav.stages') },
+  { href: '/#contacts', id: 'contacts', label: t('nav.contacts') },
 ])
 
-// Sticky header effect
+const activeSection = ref('hero')
+
+// Sticky header effect + active section tracking
 onMounted(() => {
   const header = document.getElementById('header')
   if (!header) return
@@ -80,6 +82,20 @@ onMounted(() => {
       header.style.background = 'rgba(10, 10, 10, 0.95)'
       header.style.boxShadow = 'none'
     }
+  })
+
+  const sectionIds = navItems.value.map(i => i.id)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        activeSection.value = entry.target.id
+      }
+    })
+  }, { threshold: 0.3 })
+
+  sectionIds.forEach(id => {
+    const el = document.getElementById(id)
+    if (el) observer.observe(el)
   })
 })
 </script>
@@ -164,11 +180,13 @@ onMounted(() => {
   transition: width 0.3s;
 }
 
-.nav a:hover {
+.nav a:hover,
+.nav a.active {
   color: var(--accent);
 }
 
-.nav a:hover::after {
+.nav a:hover::after,
+.nav a.active::after {
   width: 100%;
 }
 

@@ -6,6 +6,10 @@
       <!-- Starfield parallax canvas -->
       <canvas ref="starsCanvas" class="stages-stars"></canvas>
 
+      <!-- Edge fade overlays (desktop only) -->
+      <div class="stages-fade-top"></div>
+      <div class="stages-fade-bottom"></div>
+
       <!-- Section title -->
       <h2 class="stages-section-title">Этапы работы <span class="bracket">&gt;</span></h2>
 
@@ -28,7 +32,7 @@
             :class="{ visible: visibleCount > seg.after }"
           />
 
-          <!-- Hover connector line from node to card -->
+          <!-- Connector line from active node to card -->
           <line
             v-if="hoveredIdx !== null"
             :x1="NODES[hoveredIdx].x"
@@ -45,7 +49,6 @@
             class="c-node-group"
             :class="{ visible: visibleCount > i, hovered: hoveredIdx === i }"
             @mouseenter="hoveredIdx = i"
-            @mouseleave="hoveredIdx = null"
             style="cursor:pointer"
           >
             <!-- Glow ring -->
@@ -66,7 +69,7 @@
           </g>
         </svg>
 
-        <!-- Hover cards (absolutely positioned) -->
+        <!-- Active card (absolutely positioned) -->
         <div
           v-for="(node, i) in NODES"
           v-show="hoveredIdx === i"
@@ -269,6 +272,7 @@ function onMouseMove(e: MouseEvent) {
 // ── SCROLL PROGRESS ───────────────────────────────────────────────
 const scrollProgressNorm = ref(0)
 
+
 function onScroll() {
   const wrapper = wrapperRef.value
   if (!wrapper) return
@@ -349,10 +353,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* ── Scroll-lock wrapper (200vh = modest scroll lock) ── */
+/* ── Scroll-lock wrapper ── */
 .stages-wrapper {
   position: relative;
-  height: 200vh;
+  height: 140vh;
 }
 
 .stages-sticky {
@@ -368,11 +372,34 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
+/* ── Edge fade overlays ── */
+.stages-fade-top,
+.stages-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.stages-fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, #060610, transparent);
+}
+
+.stages-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, #060610, transparent);
+}
+
 /* ── Starfield ── */
 .stages-stars {
   position: absolute;
   inset: 0;
   width: 100%;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
   height: 100%;
   pointer-events: none;
   z-index: 0;
@@ -590,8 +617,10 @@ onBeforeUnmount(() => {
     overflow: visible;
   }
 
-  /* Hide starfield on mobile */
-  .stages-stars {
+  /* Hide starfield and fade overlays on mobile */
+  .stages-stars,
+  .stages-fade-top,
+  .stages-fade-bottom {
     display: none;
   }
 

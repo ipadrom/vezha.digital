@@ -29,6 +29,10 @@
       <!-- Labels container (populated by JS) -->
       <div ref="labelsContainer" class="stack-labels"></div>
 
+      <!-- Edge fade overlays (desktop only, above canvas but below text) -->
+      <div class="stack-fade-top"></div>
+      <div class="stack-fade-bottom"></div>
+
       <!-- Scroll progress indicator -->
       <div class="stack-scroll-hint">
         <div class="stack-scroll-bar" :style="{ width: (scrollProgressNorm * 100) + '%' }"></div>
@@ -146,7 +150,7 @@ const MENU_GROUPS = [
 ]
 
 const ORBIT_RADII  = [2.2, 3.6, 5.0, 6.4, 7.8]
-const ORBIT_TILTS  = [0, 8, -5, 10, -8].map(d => d * Math.PI / 180)
+const ORBIT_TILTS  = [0, 0, 0, 0, 0].map(d => d * Math.PI / 180)
 // Уменьшена скорость в 2 раза
 const BASE_SPEEDS  = [0.0002, 0.00016, 0.000125, 0.0001, 0.00008]
 
@@ -177,6 +181,7 @@ interface Planet {
   r: number
   rotSpeed: number
   selfAngle: number   // accumulated in-plane spin (for billboard effect)
+  rotAxis: THREE.Vector3
 }
 
 let renderer: THREE.WebGLRenderer | null = null
@@ -332,12 +337,17 @@ function initThree() {
     orbitGroup.add(ring)
   })
 
-  // Pre-calculate start angles so items on same orbit are spread evenly
+  // Random per-orbit offset so planets don't line up on the same axis
+  const orbitRandomOffset: Record<number, number> = {}
+  ORBIT_RADII.forEach((_, i) => { orbitRandomOffset[i] = Math.random() * Math.PI * 2 })
+
+  // Pre-calculate start angles so items on same orbit are spread evenly + random orbit offset
   const orbitCounters: Record<number, number> = {}
   const techAngles = TECHS.map(t => {
     orbitCounters[t.orbit] = orbitCounters[t.orbit] ?? 0
     const count = TECHS.filter(x => x.orbit === t.orbit).length
-    return ((orbitCounters[t.orbit]++) / count) * Math.PI * 2
+    const evenAngle = ((orbitCounters[t.orbit]++) / count) * Math.PI * 2
+    return evenAngle + orbitRandomOffset[t.orbit]
   })
 
   TECHS.forEach((tech, i) => {
@@ -353,8 +363,15 @@ function initThree() {
     const carrier = new THREE.Group()
     orbitPlane.add(carrier)
 
-    // Unique self-spin speed + random initial rotation per planet
-    const rotSpeed = 0.001 + Math.random() * 0.003
+    // Random self-spin speed with wide variation
+    const rotSpeed = (0.002 + Math.random() * 0.008) / 2.5
+    const initRotY = Math.random() * Math.PI * 2
+    // Random rotation axis (normalized) for non-planar spin
+    const rotAxis = new THREE.Vector3(
+      Math.random() * 0.6 - 0.3,
+      0.5 + Math.random() * 0.5,
+      Math.random() * 0.6 - 0.3
+    ).normalize()
 
     const addFallback = () => {
       const geo  = new THREE.IcosahedronGeometry(0.45, 1)
@@ -364,8 +381,9 @@ function initThree() {
         emissiveIntensity: 0.3,
       })
       const mesh = new THREE.Mesh(geo, mat)
+      mesh.rotation.set(-Math.PI / 2, initRotY, 0)
       carrier.add(mesh)
-      planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r, rotSpeed, selfAngle: Math.random() * Math.PI * 2 })
+      planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r, rotSpeed, selfAngle: initRotY, rotAxis })
     }
 
     fetch(tech.path)
@@ -380,8 +398,9 @@ function initThree() {
           roughness: 0.55,
         })
         const mesh = new THREE.Mesh(geo, mat)
+        mesh.rotation.set(-Math.PI / 2, initRotY, 0)
         carrier.add(mesh)
-        planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r, rotSpeed, selfAngle: Math.random() * Math.PI * 2 })
+        planets.push({ id: tech.id, label: tech.label, mesh: carrier, obj: mesh, orbitPlane, angle, speed, r, rotSpeed, selfAngle: initRotY, rotAxis })
       })
       .catch(addFallback)
   })
@@ -477,12 +496,7 @@ function animate() {
     p.mesh.position.set(Math.cos(p.angle) * p.r, 0, Math.sin(p.angle) * p.r)
     if (p.obj) {
       const mesh = p.obj as THREE.Mesh
-      // Billboard: always face top-down camera, spin in-plane only
-      // rotation.x = -PI/2 → local Z axis points up (toward camera)
-      // rotateZ(selfAngle) → spins the face in the camera plane, no tilting
-      mesh.rotation.set(-Math.PI / 2, 0, 0)
-      mesh.rotateZ(p.selfAngle)
-      p.selfAngle += p.rotSpeed
+      mesh.rotateOnAxis(p.rotAxis, p.rotSpeed)
     }
 
     const wp = new THREE.Vector3()
@@ -756,9 +770,31 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   width: 100%;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
   height: 100%;
   pointer-events: none;
   z-index: 0;
+}
+
+.stack-fade-top,
+.stack-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 10%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.stack-fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, #060610, transparent);
+}
+
+.stack-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, #060610, transparent);
 }
 
 .stack-info {
@@ -923,6 +959,8 @@ onBeforeUnmount(() => {
   .stack-labels,
   .stack-scroll-hint,
   .stack-groups,
+  .stack-fade-top,
+  .stack-fade-bottom,
   .stack-info { display: none !important; }
 
   /* Stars and 3D canvas stay as background */

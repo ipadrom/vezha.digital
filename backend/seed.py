@@ -814,18 +814,18 @@ async def seed_settings(session):
         ),
         SiteSetting(
             key="contact_telegram",
-            value_ru="@company_manager",
-            value_en="@company_manager",
+            value_ru="@vezha_digital",
+            value_en="@vezha_digital",
         ),
         SiteSetting(
             key="contact_email",
-            value_ru="hello@vezha.digital",
-            value_en="hello@vezha.digital",
+            value_ru="contact@vezha.digital",
+            value_en="contact@vezha.digital",
         ),
         SiteSetting(
             key="contact_phone",
-            value_ru="+7 (777) 777-77-77",
-            value_en="+7 (777) 777-77-77",
+            value_ru="+7 (993) 900 23-66",
+            value_en="+7 (993) 900 23-66",
         ),
         SiteSetting(
             key="footer_copyright",
