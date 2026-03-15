@@ -113,6 +113,7 @@
 import type {IServices} from "~/utils/interfaces/IServices";
 
 const { isSectionVisible, targetRef: servicesRef } = useSectionVisible(0.1)
+const route = useRoute()
 
 const props = defineProps<{
   services: IServices[]
@@ -140,6 +141,18 @@ onMounted(() => {
   checkIsAdaptiveMobile()
   setActiveFirst()
   window.addEventListener('resize', checkIsAdaptiveMobile)
+  if (route.query.service) {
+    activeService.value = route.query.service as string
+  }
+})
+
+watch(() => route.query.service, (id) => {
+  if (id) {
+    activeService.value = id as string
+    nextTick(() => {
+      document.querySelector('#services')?.scrollIntoView({ behavior: 'smooth' })
+    })
+  }
 })
 
 onUnmounted(() => {

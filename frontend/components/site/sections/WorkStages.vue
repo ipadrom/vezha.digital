@@ -6,12 +6,14 @@
       <!-- Starfield parallax canvas -->
       <canvas ref="starsCanvas" class="stages-stars"></canvas>
 
-      <!-- Edge fade overlays (desktop only) -->
-      <div class="stages-fade-top"></div>
-      <div class="stages-fade-bottom"></div>
-
       <!-- Section title -->
       <h2 class="stages-section-title">Этапы работы <span class="bracket">&gt;</span></h2>
+
+      <!-- Top-right info block (desktop only) -->
+      <div class="stages-top-right stages-desktop">
+        <h3 class="stages-top-right__title">Полный контроль</h3>
+        <p class="stages-top-right__desc">Вы в курсе каждого шага — фиксированные сроки, регулярные отчёты и согласование на каждом этапе. Никаких сюрпризов, только предсказуемый результат.</p>
+      </div>
 
       <!-- Desktop: constellation -->
       <div class="constellation-wrap stages-desktop" ref="svgWrap">
@@ -183,17 +185,17 @@ const STAGES = [
 
 // ── SVG LAYOUT ────────────────────────────────────────────────────
 const SVG_W = 1100
-const SVG_H = 300
+const SVG_H = 380
 
-// Wider spacing, larger vertical wave
+// Wider spacing, larger vertical wave — shifted down by 80px
 const NODES = [
-  { x:  80,  y: 190 },
-  { x: 250,  y: 100 },
-  { x: 410,  y: 210 },
-  { x: 550,  y:  90 },
-  { x: 710,  y: 200 },
-  { x: 870,  y:  95 },
-  { x: 1030, y: 185 },
+  { x:  80,  y: 270 },
+  { x: 250,  y: 180 },
+  { x: 410,  y: 290 },
+  { x: 550,  y: 170 },
+  { x: 710,  y: 280 },
+  { x: 870,  y: 175 },
+  { x: 1030, y: 265 },
 ]
 
 const segments = NODES.slice(0, -1).map((n, i) => ({
@@ -290,9 +292,11 @@ const hoveredIdx = ref<number | null>(0)
 const getCardW = () => window.innerWidth * 0.16
 const getCardH = () => window.innerWidth * 0.12
 
+const CARD_DOWN_INDICES = new Set([3, 5])
+
 function cardLineEnd(i: number) {
-  const goUp = NODES[i].y > SVG_H / 2
-  return { x: NODES[i].x, y: NODES[i].y + (goUp ? -65 : 65) }
+  const goDown = CARD_DOWN_INDICES.has(i)
+  return { x: NODES[i].x, y: NODES[i].y + (goDown ? 65 : -65) }
 }
 
 function cardStyle(i: number): Record<string, string> {
@@ -303,14 +307,17 @@ function cardStyle(i: number): Record<string, string> {
   const px = NODES[i].x * scale
   const py = NODES[i].y * scale
 
-  const goUp = NODES[i].y > SVG_H / 2
-  const gap = Math.round(65 * scale)
+  const goDown = CARD_DOWN_INDICES.has(i)
+  const downGap = i === 5 ? -30 : 15
+  const gap = Math.round((goDown ? downGap : 40) * scale)
   const cardH = getCardH()
-  const cardTop = goUp ? py - cardH - gap : py + gap
+  const cardTop = goDown
+    ? Math.min(py + gap, wrap.clientHeight - cardH - 8)
+    : Math.max(8, py - cardH - gap)
 
   const cardW = getCardW()
   let cardLeft = px - cardW / 2
-  cardLeft = Math.max(8, Math.min(wW - cardW - 8, cardLeft))
+  cardLeft = Math.max(40, Math.min(wW - cardW - 40, cardLeft))
 
   return {
     left:      `${cardLeft}px`,
@@ -372,25 +379,31 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
-/* ── Edge fade overlays ── */
-.stages-fade-top,
-.stages-fade-bottom {
+/* ── Top-right info block ── */
+.stages-top-right {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 10%;
+  top: 30px;
+  right: 6vw;
+  z-index: 10;
+  max-width: 38vw;
   pointer-events: none;
-  z-index: 3;
 }
 
-.stages-fade-top {
-  top: 0;
-  background: linear-gradient(to bottom, #060610, transparent);
+.stages-top-right__title {
+  font-family: var(--font-inter);
+  font-size: 3vw;
+  font-weight: 800;
+  color: var(--accent);
+  margin: 0 0 16px 0;
+  white-space: nowrap;
 }
 
-.stages-fade-bottom {
-  bottom: 0;
-  background: linear-gradient(to top, #060610, transparent);
+.stages-top-right__desc {
+  color: #e0e0e0;
+  font-family: var(--font-inter);
+  font-size: 1.2vw;
+  line-height: 1.8;
+  margin: 0;
 }
 
 /* ── Starfield ── */
@@ -424,6 +437,7 @@ onBeforeUnmount(() => {
   position: relative;
   z-index: 2;
   width: 100%;
+  margin-top: 10vh;
   padding: 0 3.125vw;
 }
 
@@ -599,6 +613,14 @@ onBeforeUnmount(() => {
   opacity: 0;
 }
 
+/* ── Desktop fade ── */
+@media (min-width: 769px) {
+  .stages-sticky {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 6%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 6%);
+  }
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   /* On mobile: no scroll-lock, normal flow */
@@ -617,10 +639,9 @@ onBeforeUnmount(() => {
     overflow: visible;
   }
 
-  /* Hide starfield and fade overlays on mobile */
+  /* Hide desktop-only elements on mobile */
   .stages-stars,
-  .stages-fade-top,
-  .stages-fade-bottom {
+  .stages-top-right {
     display: none;
   }
 

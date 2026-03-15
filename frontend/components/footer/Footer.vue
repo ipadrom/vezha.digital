@@ -20,13 +20,13 @@
         <div class="footer__col">
           <h4>Услуги</h4>
           <ul>
-            <li><a href="/#services">Telegram Mini Apps</a></li>
-            <li><a href="/#services">Telegram боты</a></li>
-            <li><a href="/#services">Веб-сайты</a></li>
-            <li><a href="/#services">Интернет-магазины</a></li>
-            <li><a href="/#services">AI и автоматизация</a></li>
-            <li><a href="/#services">Корпоративные системы</a></li>
-            <li><a href="/#services">Мобильные приложения</a></li>
+            <li><NuxtLink :to="{ path: '/', hash: '#services', query: { service: '9f4de2f2-4f22-4ae3-8eaf-34a7cff3196a' } }">Telegram Mini Apps</NuxtLink></li>
+            <li><NuxtLink :to="{ path: '/', hash: '#services', query: { service: '57a38935-072c-4351-a7dc-44cb1f6f68e1' } }">Telegram боты</NuxtLink></li>
+            <li><NuxtLink :to="{ path: '/', hash: '#services', query: { service: 'fe742571-652f-4545-b675-2df2099b9be8' } }">Веб-сайты</NuxtLink></li>
+            <li><NuxtLink :to="{ path: '/', hash: '#services', query: { service: 'e982c9ab-576e-4496-9932-d55075073cd9' } }">Интернет-магазины</NuxtLink></li>
+            <li><NuxtLink :to="{ path: '/', hash: '#services', query: { service: 'dfa1fe02-fa60-42de-aae9-cf5127dbf20a' } }">AI и автоматизация</NuxtLink></li>
+            <li><NuxtLink :to="{ path: '/', hash: '#services', query: { service: '389d9b7c-0d47-49dc-9eac-aaf257545ccd' } }">Корпоративные системы</NuxtLink></li>
+            <li><NuxtLink :to="{ path: '/', hash: '#services', query: { service: '86ca5e9c-7e2c-4351-ae1e-ae900b7e644e' } }">Мобильные приложения</NuxtLink></li>
           </ul>
         </div>
 

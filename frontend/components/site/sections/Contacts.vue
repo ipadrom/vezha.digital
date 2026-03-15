@@ -47,7 +47,14 @@
             v-if="isSectionVisible && !isAdaptiveMobile"
           >
             <div class="terminal fade-item">
-              <div class="terminal__header">faq.sh</div>
+              <div class="terminal__header">
+                <span class="terminal__dots">
+                  <span class="terminal__dot terminal__dot--close"></span>
+                  <span class="terminal__dot terminal__dot--min"></span>
+                  <span class="terminal__dot terminal__dot--max"></span>
+                </span>
+                <span class="terminal__title">faq.sh</span>
+              </div>
               <div class="terminal__body">
                 <div class="faq-list">
                   <div
@@ -82,16 +89,20 @@ defineProps<{
 
 const FAQ = [
   {
-    q: 'Почему вы дешевле других агентств?',
-    a: 'Потому что у нас нет раздутого штата и лишних процессов. Только нужные люди на нужных задачах, поэтому и цена ниже, и скорость выше.',
-  },
-  {
     q: 'С чего начать, если я не знаю, что именно мне нужно?',
-    a: 'Просто напишите. Разберёмся вместе: зададим нужные вопросы, поймём задачу и предложим подходящее решение. Без обязательств.',
+    a: 'Просто напишите. Разберёмся вместе: зададим нужные вопросы, поймём задачу и предложим решение. Без обязательств.',
   },
   {
     q: 'Как быстро вы беретесь за проект?',
     a: 'В течение нескольких часов в рабочее время. Оценку стоимости и сроков даём в течение 1 дня после обсуждения задачи.',
+  },
+  {
+    q: 'Как устроена оплата и что я получу до подписания договора?',
+    a: 'Макет и ТЗ согласовываем до подписания договора. Оплата в два этапа: аванс на старте и финальный платёж после сдачи.',
+  },
+  {
+    q: 'Вы соблюдаете сроки?',
+    a: 'Да. Закладываем время с запасом и сдаём в срок. Сроки фиксируем в договоре.',
   },
 ]
 
@@ -144,7 +155,7 @@ onUnmounted(() => {
   grid-template-columns: 1fr 1fr;
   gap: 3.125vw;
   margin-top: 4vw;
-  padding: 0 3.125vw;
+  padding: 0 3.125vw 70px;
 }
 
 .contacts-section-title {
@@ -194,7 +205,6 @@ onUnmounted(() => {
 .terminal {
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  overflow: hidden;
 }
 
 .terminal__header {
@@ -204,10 +214,41 @@ onUnmounted(() => {
   color: var(--text-dim);
   font-size: 0.9vw;
   font-family: var(--font-inter);
+  display: flex;
+  align-items: center;
+  gap: 0.6vw;
+}
+
+.terminal__dots {
+  display: flex;
+  gap: 0.35vw;
+}
+
+.terminal__dot {
+  width: 0.65vw;
+  height: 0.65vw;
+  border-radius: 50%;
+}
+
+.terminal__dot--close {
+  background: #0a4a50;
+}
+
+.terminal__dot--min {
+  background: #064e5c;
+}
+
+.terminal__dot--max {
+  background: var(--accent);
+}
+
+.terminal__title {
+  font-size: 0.9vw;
 }
 
 .terminal__body {
   padding: 1vw;
+  min-height: 24vw;
 }
 
 .terminal__line {
@@ -231,12 +272,14 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  position: relative;
 }
 
 .faq-item {
   border-bottom: 1px solid rgba(255,255,255,0.06);
   cursor: pointer;
   user-select: none;
+  position: relative;
 }
 
 .faq-item:last-child {
@@ -249,7 +292,7 @@ onUnmounted(() => {
   gap: 8px;
   padding: 0.5vw 0;
   font-family: var(--font-inter);
-  font-size: 1.2vw;
+  font-size: 1.5vw;
   font-weight: 400;
   color: #e0e0e0;
   line-height: 1.5;
@@ -263,21 +306,28 @@ onUnmounted(() => {
 
 .faq-item__arrow {
   color: var(--accent);
-  font-size: 1.2vw;
+  font-size: 1.5vw;
   margin-top: 1px;
   flex-shrink: 0;
   transition: transform 0.2s;
 }
 
 .faq-item__answer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--bg-secondary);
   font-family: var(--font-inter);
   font-size: 1.2vw;
   font-weight: 400;
-  color: var(--text-dim);
+  color: #e0e0e0;
   line-height: 1.7;
-  padding: 0 0 0.6vw 0.8vw;
+  padding: 0.4vw 0 0.8vw 0.8vw;
   border-left: 2px solid var(--accent);
   margin-left: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 

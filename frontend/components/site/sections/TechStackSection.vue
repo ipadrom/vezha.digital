@@ -29,10 +29,6 @@
       <!-- Labels container (populated by JS) -->
       <div ref="labelsContainer" class="stack-labels"></div>
 
-      <!-- Edge fade overlays (desktop only, above canvas but below text) -->
-      <div class="stack-fade-top"></div>
-      <div class="stack-fade-bottom"></div>
-
       <!-- Scroll progress indicator -->
       <div class="stack-scroll-hint">
         <div class="stack-scroll-bar" :style="{ width: (scrollProgressNorm * 100) + '%' }"></div>
@@ -770,31 +766,9 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   width: 100%;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%);
   height: 100%;
   pointer-events: none;
   z-index: 0;
-}
-
-.stack-fade-top,
-.stack-fade-bottom {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 10%;
-  pointer-events: none;
-  z-index: 3;
-}
-
-.stack-fade-top {
-  top: 0;
-  background: linear-gradient(to bottom, #060610, transparent);
-}
-
-.stack-fade-bottom {
-  bottom: 0;
-  background: linear-gradient(to top, #060610, transparent);
 }
 
 .stack-info {
@@ -937,6 +911,14 @@ onBeforeUnmount(() => {
 /* ── Mobile layout ── */
 .stack-mobile { display: none; }
 
+/* ── Desktop fade ── */
+@media (min-width: 769px) {
+  .stack-sticky {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 6%);
+    mask-image: linear-gradient(to bottom, transparent 0%, black 6%);
+  }
+}
+
 @media (max-width: 768px) {
   /* Disable scroll-lock, keep relative for absolute children */
   .stack-wrapper { height: auto; margin-bottom: 0 !important; }
@@ -959,8 +941,6 @@ onBeforeUnmount(() => {
   .stack-labels,
   .stack-scroll-hint,
   .stack-groups,
-  .stack-fade-top,
-  .stack-fade-bottom,
   .stack-info { display: none !important; }
 
   /* Stars and 3D canvas stay as background */
