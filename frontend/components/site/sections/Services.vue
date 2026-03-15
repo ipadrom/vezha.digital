@@ -62,9 +62,9 @@
                       <li v-for="(feature, idx) in service.features" :key="idx">{{ feature.text }}</li>
                     </ul>
                   </div>
-                  <NuxtLink class="redirect-btn" :to="`/services/${service.id}`">
+                  <button class="redirect-btn" @click.stop="openServiceModal(service.name)">
                     {{$t('services.redirect_btn')}}
-                  </NuxtLink>
+                  </button>
                 </div>
               </Transition>
             </div>
@@ -100,9 +100,9 @@
                 </div>
               </div>
             </TransitionGroup>
-            <NuxtLink class="redirect-btn" :to="`/services/${activeService}`">
+            <button class="redirect-btn" @click="openServiceModal(services.find(s => s.id === activeService)?.name || '')">
               {{$t('services.redirect_btn')}}
-            </NuxtLink>
+            </button>
           </div>
       </div>
     </div>
@@ -114,6 +114,11 @@ import type {IServices} from "~/utils/interfaces/IServices";
 
 const { isSectionVisible, targetRef: servicesRef } = useSectionVisible(0.1)
 const route = useRoute()
+const modalRequest = useState<{ open: boolean; message: string }>('modalRequest', () => ({ open: false, message: '' }))
+
+const openServiceModal = (serviceName: string) => {
+  modalRequest.value = { open: true, message: `Интересует услуга: ${serviceName}` }
+}
 
 const props = defineProps<{
   services: IServices[]

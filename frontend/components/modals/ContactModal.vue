@@ -43,6 +43,7 @@ const { lockScroll, unlockScroll} = useBlockScroll()
 
 const props = defineProps({
   showModal: { type: Boolean, required: true },
+  initialMessage: { type: String, default: '' },
 })
 
 const emit = defineEmits(['update:showModal'])
@@ -57,6 +58,18 @@ const form = reactive({
   name: '',
   contact: '',
   message: '',
+})
+
+watch(() => props.showModal, (val) => {
+  if (val && props.initialMessage) {
+    form.message = props.initialMessage
+  }
+  if (!val) {
+    form.message = ''
+    form.name = ''
+    form.contact = ''
+    agreed.value = false
+  }
 })
 const isSubmitting = ref(false)
 const status = ref<'success' | 'error' | null>(null)

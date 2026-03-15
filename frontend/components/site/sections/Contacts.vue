@@ -10,35 +10,37 @@
           <h2 class="section-title contacts-section-title">
             {{ $t('contacts.title') }} <span class="bracket">&gt;</span>
           </h2>
-          <p class="contacts-subtitle">Обсудим ваш проект и рассчитаем точную стоимость</p>
+          <div class="contact__cta-group">
+            <p class="contacts-subtitle">Обсудим ваш проект и рассчитаем точную стоимость</p>
 
-          <div class="contacts-list">
-            <a
-              v-if="settings?.contact_telegram"
-              :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
-              target="_blank"
-            >
-              <span>📱</span> Telegram: {{ settings.contact_telegram }}
-            </a>
-            <a
-              v-if="settings?.contact_email"
-              :href="`mailto:${settings.contact_email}`"
-              @click.prevent="copyToClipboard(settings.contact_email)"
-            >
-              <span>📧</span> Email: {{ settings.contact_email }}
-            </a>
-            <a
-              v-if="settings?.contact_phone"
-              :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
-              @click.prevent="copyToClipboard(settings.contact_phone)"
-            >
-              <span>📞</span> Телефон: {{ settings.contact_phone }}
-            </a>
+            <div class="contacts-list">
+              <a
+                v-if="settings?.contact_telegram"
+                :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
+                target="_blank"
+              >
+                <span>📱</span> Telegram: {{ settings.contact_telegram }}
+              </a>
+              <a
+                v-if="settings?.contact_email"
+                :href="`mailto:${settings.contact_email}`"
+                @click.prevent="copyToClipboard(settings.contact_email)"
+              >
+                <span>📧</span> Email: {{ settings.contact_email }}
+              </a>
+              <a
+                v-if="settings?.contact_phone"
+                :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
+                @click.prevent="copyToClipboard(settings.contact_phone)"
+              >
+                <span>📞</span> Телефон: {{ settings.contact_phone }}
+              </a>
+            </div>
+
+            <button class="btn btn-primary btn-large" @click="$emit('openModal')">
+              {{ $t('cta.submit') }}
+            </button>
           </div>
-
-          <button class="btn btn-primary btn-large" @click="$emit('openModal')">
-            {{ $t('cta.submit') }}
-          </button>
         </div>
 
         <!-- Right Column: Terminal -->
@@ -151,11 +153,20 @@ onUnmounted(() => {
 
 <style scoped>
 .contact {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3.125vw;
   margin-top: 4vw;
   padding: 0 3.125vw 70px;
+}
+
+.contact__right {
+  position: absolute;
+  top: 0;
+  right: 3.125vw;
+  width: calc(50% - 1.5625vw);
+  z-index: 10;
 }
 
 .contacts-section-title {
@@ -165,19 +176,27 @@ onUnmounted(() => {
   white-space: nowrap;
 }
 
+.contact__cta-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
 .contacts-subtitle {
   color: #e0e0e0;
   font-family: var(--font-inter);
   font-size: 1.5vw;
   font-weight: 400;
   line-height: 1.8;
-  margin-bottom: 40px;
+  margin-bottom: 0;
+  white-space: nowrap;
 }
 
 .contacts-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  margin-top: 40px;
   margin-bottom: 40px;
 }
 
@@ -248,7 +267,6 @@ onUnmounted(() => {
 
 .terminal__body {
   padding: 1vw;
-  min-height: 24vw;
 }
 
 .terminal__line {

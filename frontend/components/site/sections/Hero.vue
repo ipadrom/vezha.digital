@@ -10,10 +10,12 @@
             <span class="hero__title-ghost" aria-hidden="true">{{ heroTitle }}</span>
             <span class="hero__title-typed">{{ displayedText }}</span>
           </h1>
-          <p class="hero__subtitle">{{ props.settings?.hero_subtitle }}</p>
-          <button class="btn btn-primary" @click="$emit('openModal')">
-            {{ $t('hero.cta') }}
-          </button>
+          <div class="hero__cta-group">
+            <p class="hero__subtitle">{{ props.settings?.hero_subtitle }}</p>
+            <button class="btn btn-primary" @click="$emit('openModal')">
+              {{ $t('hero.cta') }}
+            </button>
+          </div>
         </div>
         <div class="hero__right">
           <div class="hero__logo">
@@ -291,13 +293,22 @@ function init3DScene() {
   right: 0;
 }
 
+.hero__cta-group {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  opacity: 0;
+  animation: fadeUp 1s ease-out 0.5s forwards;
+}
+
 .hero__subtitle {
   font-size: 1.5vw;
   color: var(--text-dim);
   margin-bottom: 2vw;
   font-family: var(--font-inter);
-  opacity: 0;
-  animation: fadeUp 1s ease-out 0.5s forwards;
+  white-space: nowrap;
+  opacity: 1;
+  animation: none;
 }
 
 .hero__right {
@@ -403,7 +414,7 @@ function init3DScene() {
     margin-bottom: 0;
   }
 
-  .hero__subtitle {
+  .hero__cta-group {
     display: none;
   }
 
@@ -415,10 +426,6 @@ function init3DScene() {
   .hero__logo-digital {
     font-size: 2rem;
     letter-spacing: 4px;
-  }
-
-  .btn-primary {
-    display: none;
   }
 }
 
@@ -469,10 +476,6 @@ function init3DScene() {
     margin-bottom: 0;
   }
 
-  .hero__subtitle {
-    display: none;
-  }
-
   .hero__logo-script {
     font-size: 2.8rem;
     font-family: var(--font-epilepsy);
@@ -481,12 +484,6 @@ function init3DScene() {
   .hero__logo-digital {
     font-size: 1.5rem;
     letter-spacing: 3px;
-  }
-
-  .btn-primary {
-    padding: 8px 16px;
-    font-size: 0.8rem;
-    letter-spacing: 0;
   }
 }
 </style>

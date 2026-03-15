@@ -87,7 +87,7 @@ const aboutUs = {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(30px, 3.125vw, 80px);
-  align-items: start;
+  align-items: end;
   padding: 0 3.125vw;
 }
 
@@ -122,7 +122,7 @@ const aboutUs = {
 .icon-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: clamp(10px, 0.83vw, 24px);
+  gap: clamp(12px, 1.3vw, 32px);
 }
 
 .icon-card {
@@ -162,6 +162,11 @@ const aboutUs = {
   align-items: center;
   justify-content: center;
   filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.4));
+}
+
+.icon-card__icon svg {
+  width: 1.5vw;
+  height: 1.5vw;
 }
 
 .icon-card__label {
@@ -218,8 +223,8 @@ const aboutUs = {
   }
 
   .icon-card__icon svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
   }
 
   .icon-card__label {
