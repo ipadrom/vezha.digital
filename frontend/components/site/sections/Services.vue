@@ -26,17 +26,15 @@
                 @mouseenter="!isAdaptiveMobile && (activeService = service.id)"
                 @click="onServiceClick(service.id)"
             >
-              <NuxtLink
+              <div
                   v-if="!isAdaptiveMobile"
-                  :to="`/services/${service.id}`"
                   class="service-header"
-                  @click.stop
               >
                   <h3 class="font-bold">{{ service.name }}</h3>
                   <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }}
                     {{ service.price_currency }} <span class="arrow">&gt;</span>
                   </p>
-              </NuxtLink>
+              </div>
 
               <div
                   v-else
@@ -93,10 +91,12 @@
                     <li v-for="(feature, idx) in service.features" :key="idx">{{ feature.text }}</li>
                   </ul>
                 </div>
+                <div class="redirect-btn-wrapper">
+                  <button class="redirect-btn" @click="openServiceModal(service.name)">
+                    {{$t('services.redirect_btn')}}
+                  </button>
+                </div>
               </div>
-            <button class="redirect-btn" @click="openServiceModal(services.find(s => s.id === activeService)?.name || '')">
-              {{$t('services.redirect_btn')}}
-            </button>
           </div>
       </div>
     </div>
@@ -124,8 +124,12 @@ const checkIsAdaptiveMobile = () => {
 }
 
 const onServiceClick = (id: string) => {
-  if (!isAdaptiveMobile.value) return
-  activeService.value = activeService.value === id ? null : id
+  if (isAdaptiveMobile.value) {
+    activeService.value = activeService.value === id ? null : id
+  } else {
+    const service = props.services.find(s => s.id === id)
+    if (service) openServiceModal(service.name)
+  }
 }
 
 const activeService = ref<string | null>(null)
@@ -172,10 +176,13 @@ const formatPrice = (price: number) => {
   padding: 0 3.125vw;
 }
 
+.services-container :deep(.section-title) {
+  margin-top: 0;
+}
+
 .services-new {
   display: flex;
   gap: 30px;
-  height: 37vw;
   align-items: stretch;
 }
 
@@ -275,11 +282,12 @@ const formatPrice = (price: number) => {
   flex: 1 1 40%;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
-  padding: 1vw 2vw;
+  padding: 0;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  align-self: stretch;
 }
 
 .service-details::before {
@@ -296,13 +304,19 @@ const formatPrice = (price: number) => {
 .service-detail {
   display: none;
   color: #e0e0e0;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1vw 2vw 1vw;
+  overflow: hidden;
 }
 
 .service-detail.active {
   display: block;
-  padding-bottom: 20px;
 }
+
 
 .service-detail h3 {
   font-family: var(--font-inter);
@@ -371,21 +385,25 @@ const formatPrice = (price: number) => {
   color: var(--accent);
 }
 
+.redirect-btn-wrapper {
+  position: absolute;
+  bottom: 2vw;
+  right: 2vw;
+}
+
 .redirect-btn {
-  padding: 12px 28px;
+  padding: clamp(8px, 0.625vw, 14px) clamp(14px, 1.45vw, 26px);
   font-family: var(--font-inter);
-  font-size: 0.9rem;
-  border: 1px solid var(--accent);
+  font-size: clamp(0.8rem, 1vw, 1.1rem);
+  font-weight: 400;
+  border: 2px solid var(--accent);
   background: var(--accent);
   color: var(--bg);
   cursor: pointer;
-  position: absolute;
-  bottom: 1vw;
-  right: 2vw;
-  overflow: hidden;
   transition: all 0.3s;
   text-decoration: none;
-  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
 }
 
 .redirect-btn:hover {

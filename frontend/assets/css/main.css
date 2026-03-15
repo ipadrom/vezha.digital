@@ -71,6 +71,13 @@
   }
 }
 
+/* Scroll offset for fixed header */
+.section,
+.stack-wrapper,
+.stages-wrapper {
+  scroll-margin-top: 100px;
+}
+
 @layer components {
   .container-main {
     width: 100%;

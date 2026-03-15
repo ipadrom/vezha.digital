@@ -10,7 +10,11 @@ export const useBlockScroll = () => {
         const scrollY = Number(document.body.dataset.scrollY || 0)
         document.body.classList.remove('modal-no-scroll')
         document.body.style.top = ''
+        document.documentElement.style.scrollBehavior = 'auto'
         window.scrollTo(0, scrollY)
+        requestAnimationFrame(() => {
+            document.documentElement.style.scrollBehavior = ''
+        })
     }
 
     return {lockScroll, unlockScroll}

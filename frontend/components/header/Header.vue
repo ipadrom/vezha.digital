@@ -35,7 +35,7 @@
       </div>
     </div>
 
-    <!-- Mobile Navigation (outside container — right-aligned panel) -->
+    <!-- Mobile Navigation -->
     <nav v-if="isMenuOpen" class="mobile-nav">
       <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
         {{ item.label }}
@@ -205,11 +205,12 @@ onMounted(() => {
   position: absolute;
   right: 0;
   top: 100%;
+  min-width: auto;
   background: rgba(10, 10, 10, 0.98);
   backdrop-filter: blur(10px);
   border-left: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
-  padding: 8px 20px 14px;
+  padding: 8px 20px 14px 40px;
   display: flex;
   flex-direction: column;
   gap: 0;

@@ -107,8 +107,6 @@ onMounted(() => {
     if (e.key === 'Escape') {
       showModal.value = false
     }
-
-    unlockScroll()
   })
 })
 </script>
