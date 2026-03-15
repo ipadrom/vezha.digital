@@ -76,30 +76,24 @@
               class="service-details fade-item"
               style="--enter-delay: 0.1s"
           >
-            <TransitionGroup
-              name="fade-down"
-              appear
-            >
               <div
                   v-for="service in services"
                   :key="service.id"
-                  class="service-detail fade-item"
+                  class="service-detail"
                   :class="{ active: activeService === service.id }"
-                  style="--enter-delay: 0.1s"
               >
                 <h3 class="font-bold">{{ service.name }}</h3>
                 <p class="price">{{ $t('services.price_from') }} {{ formatPrice(service.price_from) }} {{ service.price_currency }}</p>
                 <p class="desc">{{ service.description }}</p>
-                <div class="service-content fade-item" style="--enter-delay: 0.2s">
+                <div class="service-content">
                   <div v-if="service.examples" class="service-example-tags">
                     <span v-for="tag in service.examples.split(',')" :key="tag" class="service-example-tag">{{ tag.trim() }}</span>
                   </div>
-                  <ul v-if="service.features && service.features.length" style="--enter-delay: 0.8s">
+                  <ul v-if="service.features && service.features.length">
                     <li v-for="(feature, idx) in service.features" :key="idx">{{ feature.text }}</li>
                   </ul>
                 </div>
               </div>
-            </TransitionGroup>
             <button class="redirect-btn" @click="openServiceModal(services.find(s => s.id === activeService)?.name || '')">
               {{$t('services.redirect_btn')}}
             </button>

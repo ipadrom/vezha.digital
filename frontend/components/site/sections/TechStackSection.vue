@@ -9,8 +9,8 @@
       <div class="stack-info">
         <h2 class="stack-section-title">Стек <span class="bracket">&gt;</span></h2>
         <div class="stack-description">
-          <p>Работаем на проверенном стеке: React, Vue, Next.js на фронте, Python и FastAPI на бэке. Всё упаковываем в Docker, храним в PostgreSQL.</p>
-          <p>Не гонимся за хайповыми фреймворками — выбираем то, что надёжно работает и легко поддерживается после сдачи.</p>
+          <p>Стек подбирается под задачу, а не по трендам.</p>
+          <p>Каждый инструмент в нашем арсенале прошёл проверку в реальных проектах: он предсказуем в поведении, хорошо документирован и не создаёт проблем при поддержке и масштабировании.</p>
         </div>
       </div>
 
@@ -49,7 +49,7 @@
         </div>
         <div class="stack-group">
           <h3 class="stack-group-title">Backend</h3>
-          <p class="stack-group-desc">Серверная часть, API, базы данных и контейнеризация для надёжной работы под нагрузкой.</p>
+          <p class="stack-group-desc">Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.</p>
           <div class="stack-group-tags">
             <span class="stack-group-tag">Python</span>
             <span class="stack-group-tag">FastAPI</span>
@@ -91,7 +91,7 @@
         <div class="stack-mobile-row">
           <div class="stack-mobile-info">
             <h3 class="stack-group-title">Backend</h3>
-            <p class="stack-group-desc">Серверная часть, API, базы данных и контейнеризация для надёжной работы под нагрузкой.</p>
+            <p class="stack-group-desc">Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.</p>
             <div class="stack-group-tags">
               <span class="stack-group-tag">Python</span>
               <span class="stack-group-tag">FastAPI</span>
@@ -966,7 +966,7 @@ onBeforeUnmount(() => {
 
   /* Row 1: title + description */
   .stack-mobile-top .stack-section-title {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: 1.8rem;
     margin: 0 0 12px;
   }
   .stack-mobile-top .stack-description {

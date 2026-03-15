@@ -10,7 +10,7 @@
             <span class="hero__title-ghost" aria-hidden="true">{{ heroTitle }}</span>
             <span class="hero__title-typed">{{ displayedText }}</span>
           </h1>
-          <div class="hero__cta-group">
+          <div class="hero__cta-group" :class="{ 'hero__cta-group--visible': isCompleted }">
             <p class="hero__subtitle">{{ props.settings?.hero_subtitle }}</p>
             <button class="btn btn-primary" @click="$emit('openModal')">
               {{ $t('hero.cta') }}
@@ -48,7 +48,7 @@ const heroTitle = computed(() => {
   return hero_title.replace('{price}', hero_price);
 })
 
-const { displayedText } = useTypeWriterAnimation(heroTitle, 50, 300)
+const { displayedText, isCompleted } = useTypeWriterAnimation(heroTitle, 50, 300)
 
 // 3D Animation with Three.js
 onMounted(() => {
@@ -229,6 +229,13 @@ function init3DScene() {
   justify-content: center;
   pointer-events: none;
   overflow: hidden;
+  opacity: 0;
+  animation: fadeIn 2s ease-out 0.5s forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .cursor {
@@ -298,7 +305,13 @@ function init3DScene() {
   flex-direction: column;
   align-items: stretch;
   opacity: 0;
-  animation: fadeUp 1s ease-out 0.5s forwards;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.hero__cta-group--visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero__subtitle {
@@ -370,7 +383,7 @@ function init3DScene() {
   .hero {
     padding: 0 20px;
     align-items: flex-start;
-    min-height: unset;
+    min-height: calc(45vh + 80px);
     border-bottom: 1px solid rgba(0, 229, 255, 0.35);
     box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
     margin-bottom: 16px;
@@ -433,7 +446,7 @@ function init3DScene() {
   .hero {
     padding: 0 16px;
     align-items: flex-start;
-    min-height: unset;
+    min-height: calc(45vh + 80px);
     border-bottom: 1px solid rgba(0, 229, 255, 0.35);
     box-shadow: 0 4px 24px rgba(0, 229, 255, 0.12);
   }

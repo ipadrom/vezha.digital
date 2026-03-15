@@ -12,7 +12,8 @@
             Кто мы <span class="bracket">&gt;</span>
           </h2>
           <div class="who-we-are__text">
-            <p>{{ aboutUs.description }}</p>
+            <p>{{ aboutUs.description_1 }}</p>
+            <p>{{ aboutUs.description_2 }}</p>
             <p>{{ aboutUs.since_description }}</p>
           </div>
         </div>
@@ -76,8 +77,9 @@ import { useSectionVisible } from "~/composables/useSectionVisible";
 const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
 
 const aboutUs = {
-  description: 'Мы небольшая команда — каждый проект ведёт конкретный человек, а не безликий менеджер. Специализируемся на Telegram Mini Apps, сайтах и корпоративных системах. Погружаемся в задачу, предлагаем решения, а не просто выполняем ТЗ.',
-  since_description: 'Нам важно одно — чтобы то, что мы делаем, реально работало и приносило результат. Не берём проекты ради галочки и не исчезаем после сдачи.'
+  description_1: 'Мы — команда полного цикла без субподряда и лишних звеньев.',
+  description_2: 'Каждый проект ведёт конкретный человек: от первого разговора до запуска. Вникаем в задачу, предлагаем решения, а не просто закрываем ТЗ.',
+  since_description: 'Нам важно, чтобы то, что мы делаем, реально работало в вашем бизнесе, а не выглядело красиво на сдаче и пылилось после.'
 }
 
 </script>
@@ -87,7 +89,7 @@ const aboutUs = {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: clamp(30px, 3.125vw, 80px);
-  align-items: end;
+  align-items: center;
   padding: 0 3.125vw;
 }
 

@@ -33,17 +33,14 @@
           </button>
         </div>
       </div>
-
-      <!-- Mobile Navigation -->
-      <nav v-if="isMenuOpen" class="mobile-nav lg:hidden">
-        <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
-          {{ item.label }}
-        </a>
-        <button @click="$emit('openModal'); isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
-          {{ $t('header.discuss_project') }}
-        </button>
-      </nav>
     </div>
+
+    <!-- Mobile Navigation (outside container — right-aligned panel) -->
+    <nav v-if="isMenuOpen" class="mobile-nav">
+      <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
+        {{ item.label }}
+      </a>
+    </nav>
   </header>
 </template>
 
@@ -205,24 +202,39 @@ onMounted(() => {
 }
 
 .mobile-nav {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: rgba(10, 10, 10, 0.98);
+  backdrop-filter: blur(10px);
+  border-left: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 20px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 16px 0;
-  border-top: 1px solid var(--border);
+  gap: 0;
+  z-index: 999;
 }
 
 .mobile-nav a {
-  padding: 8px 0;
+  padding: 9px 0;
   color: var(--text-dim);
   text-decoration: none;
-  transition: all 0.3s;
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-inter);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+  transition: color 0.2s;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.mobile-nav a:last-child {
+  border-bottom: none;
 }
 
 .mobile-nav a:hover {
   color: var(--accent);
-  padding-left: 10px;
 }
 
 
@@ -239,6 +251,8 @@ onMounted(() => {
 
   .logo__script {
     font-size: 1.4rem;
+    font-family: var(--font-epilepsy);
+    font-style: normal;
   }
 
   .logo__digital {

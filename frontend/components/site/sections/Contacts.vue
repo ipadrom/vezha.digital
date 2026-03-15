@@ -19,21 +19,30 @@
                 :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`"
                 target="_blank"
               >
-                <span>📱</span> Telegram: {{ settings.contact_telegram }}
+                <span class="contact-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>
+                </span>
+                Telegram: {{ settings.contact_telegram }}
               </a>
               <a
                 v-if="settings?.contact_email"
                 :href="`mailto:${settings.contact_email}`"
                 @click.prevent="copyToClipboard(settings.contact_email)"
               >
-                <span>📧</span> Email: {{ settings.contact_email }}
+                <span class="contact-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
+                </span>
+                Email: {{ settings.contact_email }}
               </a>
               <a
                 v-if="settings?.contact_phone"
                 :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`"
                 @click.prevent="copyToClipboard(settings.contact_phone)"
               >
-                <span>📞</span> Телефон: {{ settings.contact_phone }}
+                <span class="contact-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg>
+                </span>
+                Телефон: {{ settings.contact_phone }}
               </a>
             </div>
 
@@ -64,7 +73,7 @@
                     :key="i"
                     class="faq-item"
                     :class="{ open: openFaq === i }"
-                    @click="openFaq = openFaq === i ? null : i"
+                    @click="openFaq = i"
                   >
                     <div class="faq-item__question">
                       <span class="faq-item__arrow">{{ openFaq === i ? '▾' : '▸' }}</span>
@@ -141,6 +150,7 @@ const copyToClipboard = (text: string) => {
   })
 }
 
+
 onMounted(() => {
   checkIsAdaptiveMobile()
   window.addEventListener('resize', checkIsAdaptiveMobile)
@@ -153,20 +163,19 @@ onUnmounted(() => {
 
 <style scoped>
 .contact {
-  position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 3.125vw;
   margin-top: 4vw;
   padding: 0 3.125vw 70px;
+  align-items: center;
+}
+
+.contact__left {
+  align-self: start;
 }
 
 .contact__right {
-  position: absolute;
-  top: 0;
-  right: 3.125vw;
-  width: calc(50% - 1.5625vw);
-  z-index: 10;
 }
 
 .contacts-section-title {
@@ -218,6 +227,20 @@ onUnmounted(() => {
   color: var(--accent);
   border-color: var(--accent);
   padding-left: 20px;
+}
+
+.contact-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.4));
+}
+
+.contact-icon svg {
+  width: 1.5vw;
+  height: 1.5vw;
 }
 
 /* Terminal */
@@ -297,7 +320,6 @@ onUnmounted(() => {
   border-bottom: 1px solid rgba(255,255,255,0.06);
   cursor: pointer;
   user-select: none;
-  position: relative;
 }
 
 .faq-item:last-child {
@@ -331,12 +353,6 @@ onUnmounted(() => {
 }
 
 .faq-item__answer {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  z-index: 50;
-  background: var(--bg-secondary);
   font-family: var(--font-inter);
   font-size: 1.2vw;
   font-weight: 400;
@@ -345,7 +361,6 @@ onUnmounted(() => {
   padding: 0.4vw 0 0.8vw 0.8vw;
   border-left: 2px solid var(--accent);
   margin-left: 4px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
 
@@ -411,6 +426,11 @@ onUnmounted(() => {
     margin-bottom: 20px;
   }
 
+  .contacts-subtitle {
+    font-size: 0.95rem;
+    white-space: normal;
+  }
+
   .contacts-list {
     gap: 12px;
     margin-bottom: 20px;
@@ -420,6 +440,11 @@ onUnmounted(() => {
     font-size: 0.85rem;
     padding: 6px 8px;
     gap: 10px;
+  }
+
+  .contact-icon svg {
+    width: 18px;
+    height: 18px;
   }
 
   .btn-large {

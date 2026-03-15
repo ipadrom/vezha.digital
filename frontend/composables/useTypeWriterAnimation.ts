@@ -4,6 +4,7 @@ export const useTypeWriterAnimation = (
     startDelay = 0
 ) => {
     const displayedText = ref('')
+    const isCompleted = ref(false)
     let index = 0
     let interval: ReturnType<typeof setInterval> | null = null
     let timeout: ReturnType<typeof setTimeout> | null = null
@@ -12,6 +13,7 @@ export const useTypeWriterAnimation = (
         stopAnimation()
         const str = unref(text)
         displayedText.value = ''
+        isCompleted.value = false
         index = 0
 
         timeout = setTimeout(() => {
@@ -21,6 +23,7 @@ export const useTypeWriterAnimation = (
                     index++
                 } else {
                     stopAnimation()
+                    isCompleted.value = true
                 }
             }, speed)
         }, startDelay)
@@ -42,6 +45,7 @@ export const useTypeWriterAnimation = (
 
     return {
         displayedText,
+        isCompleted,
         startAnimation,
         stopAnimation
     }

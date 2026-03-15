@@ -49,21 +49,26 @@
             >{{ advantage.title }}</button>
           </div>
 
-          <!-- Active card with tags inside -->
-          <Transition name="fade" mode="out-in">
-            <div :key="activeIndex" class="adv-card">
-              <h3 class="adv-card__title">{{ advantages[activeIndex]?.title }}</h3>
+          <!-- Cards: all rendered, only active visible — height fixed to tallest -->
+          <div class="adv-cards-wrapper">
+            <div
+              v-for="(advantage, index) in advantages"
+              :key="advantage.id"
+              class="adv-card"
+              :class="{ 'adv-card--hidden': activeIndex !== index }"
+            >
+              <h3 class="adv-card__title">{{ advantage.title }}</h3>
               <div class="adv-card__divider"></div>
-              <p class="adv-card__desc">{{ advantages[activeIndex]?.description }}</p>
+              <p class="adv-card__desc">{{ advantage.description }}</p>
               <div class="adv-mobile-tags">
                 <span
-                  v-for="tag in activeTags.slice(0, 3)"
+                  v-for="tag in tagsByIndex[index]?.slice(0, 3)"
                   :key="tag"
                   class="adv-mobile-tag"
                 >{{ tag }}</span>
               </div>
             </div>
-          </Transition>
+          </div>
         </div>
 
     </div>
@@ -266,7 +271,7 @@ function hoverCard(index: number) {
   }
 
   .advantages-title {
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: 1.8rem;
     text-align: left;
     white-space: normal;
     margin-bottom: 16px;
@@ -307,6 +312,17 @@ function hoverCard(index: number) {
     color: var(--bg);
   }
 
+  /* Cards wrapper — stacks all cards, height = tallest */
+  .adv-cards-wrapper {
+    display: grid;
+    grid-template-rows: 1fr;
+  }
+
+  .adv-cards-wrapper .adv-card {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
   /* Content card */
   .adv-card {
     background: var(--bg-secondary);
@@ -314,6 +330,10 @@ function hoverCard(index: number) {
     padding: 18px 20px 18px 24px;
     position: relative;
     overflow: hidden;
+  }
+
+  .adv-card--hidden {
+    visibility: hidden;
   }
 
   .adv-card::before {
@@ -369,8 +389,5 @@ function hoverCard(index: number) {
     font-weight: 600;
   }
 
-  /* Fade transition */
-  .fade-enter-active, .fade-leave-active { transition: opacity 0.2s; }
-  .fade-enter-from, .fade-leave-to { opacity: 0; }
 }
 </style>

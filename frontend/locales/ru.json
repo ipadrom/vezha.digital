@@ -21,7 +21,7 @@
   "services": {
     "title": "Услуги",
     "price_from": "от",
-    "redirect_btn": "Перейти на страницу услуги",
+    "redirect_btn": "Заказать услугу",
     "discuss_project": "Обсудить проект"
   },
   "advantages": {

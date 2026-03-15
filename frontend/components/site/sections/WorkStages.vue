@@ -107,24 +107,22 @@
           </div>
         </div>
         <div class="stages-description">
-          <Transition name="fade" mode="out-in">
-            <div :key="activeStage" class="description-content">
-              <div class="description-header">
-                <h3 class="description-title">{{ STAGES[activeStage].title }}</h3>
-              </div>
-              <div class="description-divider"></div>
-              <p>{{ STAGES[activeStage].description }}</p>
-              <ul>
-                <li v-for="f in STAGES[activeStage].features" :key="f">{{ f }}</li>
-              </ul>
-              <div class="duration-wrapper">
-                <div class="c-card__duration">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="duration-icon"><path d="M12 2a10 10 0 0 1 7.38 16.75"/><path d="M12 6v6l4 2"/><path d="M2.5 8.875a10 10 0 0 0-.5 3"/><path d="M2.83 16a10 10 0 0 0 2.43 3.4"/><path d="M4.636 5.235a10 10 0 0 1 .891-.857"/><path d="M8.644 21.42a10 10 0 0 0 7.631-.38"/></svg>
-                  {{ STAGES[activeStage].duration }}
-                </div>
+          <div class="description-content">
+            <div class="description-header">
+              <h3 class="description-title">{{ STAGES[activeStage].title }}</h3>
+            </div>
+            <div class="description-divider"></div>
+            <p>{{ STAGES[activeStage].description }}</p>
+            <ul>
+              <li v-for="f in STAGES[activeStage].features" :key="f">{{ f }}</li>
+            </ul>
+            <div class="duration-wrapper">
+              <div class="c-card__duration">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="duration-icon"><path d="M12 2a10 10 0 0 1 7.38 16.75"/><path d="M12 6v6l4 2"/><path d="M2.5 8.875a10 10 0 0 0-.5 3"/><path d="M2.83 16a10 10 0 0 0 2.43 3.4"/><path d="M4.636 5.235a10 10 0 0 1 .891-.857"/><path d="M8.644 21.42a10 10 0 0 0 7.631-.38"/></svg>
+                {{ STAGES[activeStage].duration }}
               </div>
             </div>
-          </Transition>
+          </div>
         </div>
       </div>
 
@@ -604,15 +602,6 @@ onBeforeUnmount(() => {
   display: none;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
 /* ── Desktop fade ── */
 @media (min-width: 769px) {
   .stages-sticky {
@@ -650,7 +639,7 @@ onBeforeUnmount(() => {
     position: static;
     top: auto;
     left: auto;
-    font-size: clamp(2rem, 4vw, 3rem);
+    font-size: 1.8rem;
     text-align: left;
     padding: 0 20px;
     margin: 0 0 16px;
