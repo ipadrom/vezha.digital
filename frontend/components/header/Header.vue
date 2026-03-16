@@ -10,7 +10,7 @@
 
         <!-- Desktop Navigation -->
         <nav class="nav">
-          <a v-for="item in navItems" :key="item.href" :href="item.href" :class="{ active: activeSection === item.id }">
+          <a v-for="item in navItems" :key="item.href" :href="item.href" :class="{ active: activeSection === item.id }" @click.prevent="scrollToSection(item.id)">
             {{ item.label }}
           </a>
         </nav>
@@ -37,7 +37,7 @@
 
     <!-- Mobile Navigation -->
     <nav v-if="isMenuOpen" class="mobile-nav">
-      <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
+      <a v-for="item in navItems" :key="item.href" :href="item.href" @click.prevent="scrollToSection(item.id); isMenuOpen = false">
         {{ item.label }}
       </a>
     </nav>
@@ -61,6 +61,16 @@ const navItems = computed(() => [
 ])
 
 const activeSection = ref('hero')
+
+const scrollToSection = (id: string) => {
+  const el = document.getElementById(id)
+  if (!el) return
+  const header = document.getElementById('header')
+  const headerHeight = header ? header.offsetHeight : 0
+  const offset = headerHeight + 20
+  const top = el.getBoundingClientRect().top + window.scrollY - offset
+  window.scrollTo({ top, behavior: 'smooth' })
+}
 
 // Sticky header effect + active section tracking
 onMounted(() => {

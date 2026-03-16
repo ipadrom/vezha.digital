@@ -92,7 +92,7 @@
 </template>
 
 <script setup lang="ts">
-const { isSectionVisible, targetRef: contactsRef } = useSectionVisible(0.1)
+const { isSectionVisible, targetRef: contactsRef } = useSectionVisible()
 
 defineProps<{
   settings?: Record<string, string>

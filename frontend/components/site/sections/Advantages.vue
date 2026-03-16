@@ -77,7 +77,7 @@
 
 <script setup lang="ts">
 import { useSectionVisible } from "~/composables/useSectionVisible";
-const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible(0.1)
+const { isSectionVisible, targetRef: advantagesRef } = useSectionVisible()
 
 defineProps<{
   advantages: any[]

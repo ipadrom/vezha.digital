@@ -106,7 +106,7 @@
 <script setup lang="ts">
 import type {IServices} from "~/utils/interfaces/IServices";
 
-const { isSectionVisible, targetRef: servicesRef } = useSectionVisible(0.1)
+const { isSectionVisible, targetRef: servicesRef } = useSectionVisible()
 const route = useRoute()
 const modalRequest = useState<{ open: boolean; message: string }>('modalRequest', () => ({ open: false, message: '' }))
 

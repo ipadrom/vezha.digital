@@ -717,7 +717,7 @@ onMounted(() => {
       if (entry.isIntersecting) animate()
       else cancelAnimationFrame(rafId)
     })
-  }, { threshold: 0.01 })
+  }, { threshold: 0.3 })
   observer.observe(section)
 
   setTimeout(() => { onResize(); animate() }, 120)

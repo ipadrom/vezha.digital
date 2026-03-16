@@ -74,7 +74,7 @@
 <script setup lang="ts">
 import { useSectionVisible } from "~/composables/useSectionVisible";
 
-const { isSectionVisible, targetRef: techStackRef } = useSectionVisible(0.1)
+const { isSectionVisible, targetRef: techStackRef } = useSectionVisible()
 
 const aboutUs = {
   description_1: 'Мы — команда полного цикла без субподряда и лишних звеньев.',
