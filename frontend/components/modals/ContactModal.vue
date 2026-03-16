@@ -77,24 +77,33 @@ const status = ref<'success' | 'error' | null>(null)
 const handleSubmit = async () => {
   if (!agreed.value) return
 
-  isSubmitting.value = true
-  status.value = null
+  // TODO: раскомментировать после регистрации в РКН
+  // isSubmitting.value = true
+  // status.value = null
+  // try {
+  //   await submitContact(form)
+  //   status.value = 'success'
+  //   form.name = ''
+  //   form.contact = ''
+  //   form.message = ''
+  //   setTimeout(() => {
+  //     showModal.value = false
+  //     status.value = null
+  //   }, 2000)
+  // } catch {
+  //   status.value = 'error'
+  // } finally {
+  //   isSubmitting.value = false
+  // }
 
-  try {
-    await submitContact(form)
-    status.value = 'success'
-    form.name = ''
-    form.contact = ''
-    form.message = ''
-    setTimeout(() => {
-      showModal.value = false
-      status.value = null
-    }, 2000)
-  } catch {
-    status.value = 'error'
-  } finally {
-    isSubmitting.value = false
-  }
+  status.value = 'success'
+  form.name = ''
+  form.contact = ''
+  form.message = ''
+  setTimeout(() => {
+    showModal.value = false
+    status.value = null
+  }, 2000)
 }
 
 watch(showModal, (isOpen) => {
