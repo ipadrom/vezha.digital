@@ -165,6 +165,7 @@ const backendMiniCanvas  = ref<HTMLCanvasElement | null>(null)
 // ── INTERNALS ─────────────────────────────────────────────────────
 let stars: { x: number; y: number; r: number; depth: number; alpha: number }[] = []
 let mouseX = 0, mouseY = 0
+let smoothParallaxY = 0  // lerped vertical parallax for mobile stars
 
 interface Planet {
   id: string
@@ -189,25 +190,60 @@ let rafId = 0
 let starsCtx: CanvasRenderingContext2D | null = null
 
 // ── STARFIELD ─────────────────────────────────────────────────────
+let prevStarsW = 0, prevStarsH = 0
+
 function initStars(W: number, H: number) {
   const c = starsCanvas.value!
   c.width = W; c.height = H
   starsCtx = c.getContext('2d')
-  stars = Array.from({ length: 260 }, () => ({
-    x:     Math.random() * W,
-    y:     Math.random() * H,
-    r:     Math.random() * 1.2 + 0.2,
-    depth: Math.random() * 3 + 1,
-    alpha: Math.random() * 0.55 + 0.25,
-  }))
+  // Initialize mouse to center so no shift on mobile
+  mouseX = W / 2
+  mouseY = H / 2
+
+  if (stars.length > 0 && prevStarsW > 0 && prevStarsH > 0) {
+    // Resize: scale existing star positions instead of regenerating
+    const sx = W / prevStarsW
+    const sy = H / prevStarsH
+    for (const s of stars) {
+      s.x *= sx
+      s.y *= sy
+    }
+  } else {
+    // First init: generate new stars (smaller & dimmer on mobile)
+    const isMobile = W <= 768
+    stars = Array.from({ length: 260 }, () => ({
+      x:     Math.random() * W,
+      y:     Math.random() * H,
+      r:     Math.random() * 1.2 + 0.2,
+      depth: Math.random() * 3 + 1,
+      alpha: isMobile ? Math.random() * 0.3 + 0.15 : Math.random() * 0.55 + 0.25,
+    }))
+  }
+  prevStarsW = W
+  prevStarsH = H
 }
 
 function drawStars() {
   if (!starsCtx || !starsCanvas.value) return
   const W = starsCanvas.value.width, H = starsCanvas.value.height
   starsCtx.clearRect(0, 0, W, H)
-  const cx = mouseX / (W || 1) - 0.5
-  const cy = mouseY / (H || 1) - 0.5
+  let cx: number, cy: number
+  if (window.innerWidth <= 768) {
+    // Mobile: vertical parallax based on section position in viewport
+    const section = sectionRef.value
+    if (section) {
+      const rect = section.getBoundingClientRect()
+      const viewH = window.innerHeight
+      // How far section center is from viewport center, normalized to ~-0.5..+0.5
+      const targetY = (rect.top + rect.height / 2 - viewH / 2) / viewH
+      smoothParallaxY += (targetY - smoothParallaxY) * 0.08
+    }
+    cx = 0
+    cy = smoothParallaxY * 0.15
+  } else {
+    cx = mouseX / (W || 1) - 0.5
+    cy = mouseY / (H || 1) - 0.5
+  }
   for (const s of stars) {
     const px = ((s.x + cx * s.depth * 20) % W + W) % W
     const py = ((s.y + cy * s.depth * 20) % H + H) % H
@@ -480,6 +516,9 @@ function onResize() {
   const H = section.clientHeight || 700
   renderer?.setSize(W, H, false)
   if (camera) { camera.aspect = W / H; camera.updateProjectionMatrix() }
+
+  // On mobile, skip star reinit if only height changed (address bar hide/show)
+  if (window.innerWidth <= 768 && prevStarsW === W && prevStarsH > 0) return
   initStars(W, H)
 }
 
@@ -702,7 +741,8 @@ onMounted(() => {
     el.dataset.id = TECHS[i]?.id ?? ''
   })
 
-  section.addEventListener('mousemove', (e: MouseEvent) => {
+  section.addEventListener('pointermove', (e: PointerEvent) => {
+    if (e.pointerType === 'touch') return  // ignore touch on mobile
     const r = section.getBoundingClientRect()
     mouseX = e.clientX - r.left
     mouseY = e.clientY - r.top
