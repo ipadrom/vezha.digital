@@ -48,7 +48,6 @@
               </div>
 
               <!-- Mobile Service Details -->
-              <Transition name="expand">
                 <div v-if="activeService === service.id && isAdaptiveMobile" class="service-mobile-content">
                   <div class="service-mobile-divider"></div>
                   <p class="desc">{{ service.description }}</p>
@@ -64,7 +63,6 @@
                     {{$t('services.redirect_btn')}}
                   </button>
                 </div>
-              </Transition>
             </div>
         </TransitionGroup>
 
@@ -388,13 +386,15 @@ const formatPrice = (price: number) => {
 .redirect-btn-wrapper {
   position: absolute;
   bottom: 2vw;
+  left: 50%;
   right: 2vw;
 }
 
 .redirect-btn {
-  padding: clamp(8px, 0.625vw, 14px) clamp(14px, 1.45vw, 26px);
+  width: 100%;
+  padding: 0.625vw 0;
   font-family: var(--font-inter);
-  font-size: clamp(0.8rem, 1vw, 1.1rem);
+  font-size: 1vw;
   font-weight: 400;
   border: 2px solid var(--accent);
   background: var(--accent);
@@ -421,7 +421,7 @@ const formatPrice = (price: number) => {
 
 .expand-enter-active,
 .expand-leave-active {
-  transition: all 0.3s ease;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
   overflow: hidden;
 }
 
@@ -438,9 +438,8 @@ const formatPrice = (price: number) => {
 }
 
 .service-mobile-content {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .service-mobile-divider {
@@ -586,15 +585,18 @@ const formatPrice = (price: number) => {
 
   .redirect-btn {
     position: static;
-    align-self: flex-end;
-    margin-top: auto;
+    align-self: stretch;
+    margin-top: 12px;
     margin-left: -8px;
     width: calc(100% + 8px);
     padding: 6px 12px;
     font-size: 0.75rem;
     font-weight: 600;
     border: 2px solid var(--accent);
+    box-sizing: border-box;
     text-align: center;
+    transition: none !important;
+    animation: none !important;
   }
 
   .service-example-tags {

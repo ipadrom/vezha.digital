@@ -4,8 +4,8 @@
       <div class="header__wrap">
         <!-- Logo -->
         <a href="/#hero" class="logo">
-          <span class="logo__script glitch" data-text="Vezha">Vezha</span>
-          <span class="logo__digital glitch" data-text="DIGITAL">DIGITAL</span>
+          <span class="logo__script layered" data-text="Vezha">Vezha</span>
+          <span class="logo__digital layered" data-text="DIGITAL">DIGITAL</span>
         </a>
 
         <!-- Desktop Navigation -->
@@ -139,20 +139,20 @@ onMounted(() => {
 }
 
 .logo__script {
-  font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-family: 'Lucida Handwriting', cursive;
   font-size: 1.7vw;
   font-weight: 400;
   color: #ffffff;
   font-style: italic;
-  letter-spacing: 2px;
+  letter-spacing: 0.01em;
   line-height: 1;
 }
 
 .logo__digital {
-  font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+  font-family: 'Manrope', sans-serif;
   font-size: 0.65vw;
   font-weight: 700;
-  letter-spacing: 6px;
+  letter-spacing: 0.15em;
   color: #ffffff;
   text-transform: uppercase;
   line-height: 1;
@@ -262,13 +262,14 @@ onMounted(() => {
 
   .logo__script {
     font-size: 1.4rem;
-    font-family: var(--font-epilepsy);
-    font-style: normal;
+    font-family: 'Lucida Handwriting', cursive;
+    font-style: italic;
   }
 
   .logo__digital {
+    font-family: 'Manrope', sans-serif;
     font-size: 0.45rem;
-    letter-spacing: 4px;
+    letter-spacing: 0.15em;
   }
 
   .header-cta {

@@ -344,26 +344,22 @@ function init3DScene() {
 }
 
 .hero__logo-script {
-  font-family: 'Brush Script MT', 'Lucida Handwriting', cursive;
+  font-family: 'Lucida Handwriting', cursive;
   font-size: 5.8vw;
   font-weight: 400;
   color: #ffffff;
-  text-shadow: 0 0 40px rgba(255, 255, 255, 0.5),
-               0 0 80px rgba(255, 255, 255, 0.3);
   font-style: italic;
-  letter-spacing: 2px;
+  letter-spacing: 0.01em;
   line-height: 1;
 }
 
 .hero__logo-digital {
-  font-family: 'Pixelify Sans', 'Press Start 2P', monospace;
+  font-family: 'Manrope', sans-serif;
   font-size: 2.5vw;
   font-weight: 700;
-  letter-spacing: 8px;
+  letter-spacing: 0.15em;
   color: #ffffff;
   text-transform: uppercase;
-  text-shadow: 0 0 30px rgba(255, 255, 255, 0.4),
-               0 0 60px rgba(255, 255, 255, 0.2);
   line-height: 1;
 }
 
@@ -491,12 +487,13 @@ function init3DScene() {
 
   .hero__logo-script {
     font-size: 2.8rem;
-    font-family: var(--font-epilepsy);
+    font-family: 'Lucida Handwriting', cursive;
   }
 
   .hero__logo-digital {
+    font-family: 'Manrope', sans-serif;
     font-size: 1.5rem;
-    letter-spacing: 3px;
+    letter-spacing: 0.15em;
   }
 }
 </style>
