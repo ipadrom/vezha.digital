@@ -45,7 +45,7 @@
       </div>
 
       <div class="footer__bottom">
-        <p><span class="bracket">{</span>Vezha Digital<span class="bracket">}</span> · Создано с ♥</p>
+        <p>Vezha Digital · Создано с ♥</p>
       </div>
     </div>
   </footer>

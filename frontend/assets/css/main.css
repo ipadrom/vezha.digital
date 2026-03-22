@@ -606,3 +606,25 @@ form {
   }
 }
 
+/* Desktop: modal on vw */
+@media (min-width: 769px) {
+  .modal__box {
+    border-width: 0.2vw;
+    max-width: 35vw;
+    padding: 2.5vw;
+  }
+
+  .modal__close {
+    top: 1vw;
+    right: 1vw;
+    font-size: 1.8vw;
+    width: 2.5vw;
+    height: 2.5vw;
+  }
+
+  .modal__box h2 {
+    font-size: 1.8vw;
+    margin-bottom: 1.5vw;
+  }
+}
+

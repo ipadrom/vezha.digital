@@ -21,7 +21,7 @@
         </div>
         <div class="checkbox">
           <input v-model="agreed" type="checkbox" id="agree" required />
-          <label for="agree">Я согласен на <a href="/privacy" target="_blank" class="privacy-link">обработку персональных данных</a></label>
+          <label for="agree">Я согласен на <a href="/privacy" class="privacy-link" @click.prevent="goToPrivacy">обработку персональных данных</a></label>
         </div>
 
         <p v-if="status" :class="['text-sm', status === 'success' ? 'text-accent' : 'text-red-500']">
@@ -54,6 +54,7 @@ const showModal = computed({
 })
 const { submitContact } = useApi()
 const agreed = ref(false)
+const navigatingToPrivacy = ref(false)
 const form = reactive({
   name: '',
   contact: '',
@@ -64,7 +65,7 @@ watch(() => props.showModal, (val) => {
   if (val && props.initialMessage) {
     form.message = props.initialMessage
   }
-  if (!val) {
+  if (!val && !navigatingToPrivacy.value) {
     form.message = ''
     form.name = ''
     form.contact = ''
@@ -110,8 +111,36 @@ watch(showModal, (isOpen) => {
   isOpen ? lockScroll() : unlockScroll()
 })
 
-// Close modal on Escape
+// Save form data and navigate to privacy page in same tab
+const goToPrivacy = () => {
+  sessionStorage.setItem('contactFormData', JSON.stringify({
+    name: form.name,
+    contact: form.contact,
+    message: form.message,
+    agreed: agreed.value,
+  }))
+  navigatingToPrivacy.value = true
+  showModal.value = false
+  nextTick(() => navigateTo('/privacy'))
+}
+
+// Restore form data if returning from privacy page
 onMounted(() => {
+  const saved = sessionStorage.getItem('contactFormData')
+  if (saved) {
+    try {
+      const data = JSON.parse(saved)
+      form.name = data.name || ''
+      form.contact = data.contact || ''
+      form.message = data.message || ''
+      agreed.value = data.agreed || false
+      sessionStorage.removeItem('contactFormData')
+      // Reopen modal
+      showModal.value = true
+    } catch {}
+  }
+
+  // Close modal on Escape
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       showModal.value = false
@@ -146,5 +175,22 @@ onMounted(() => {
 .privacy-link {
   color: var(--accent);
   text-decoration: underline;
+}
+
+@media (min-width: 769px) {
+  .modal-title {
+    font-size: 1.8vw;
+    margin-bottom: 1.2vw;
+  }
+
+  .modal__box :deep(form) { gap: 1.2vw; }
+  .modal__box :deep(.field) { gap: 0.4vw; }
+  .modal__box :deep(.field label) { font-size: 0.85vw; }
+  .modal__box :deep(.field input),
+  .modal__box :deep(.field textarea) { padding: 0.7vw; font-size: 0.85vw; }
+  .modal__box :deep(.checkbox) { gap: 0.6vw; }
+  .modal__box :deep(.checkbox input) { width: 1.1vw; height: 1.1vw; }
+  .modal__box :deep(.checkbox label) { font-size: 0.8vw; }
+  .modal__box :deep(.btn-primary) { padding: 0.7vw 1.5vw; font-size: 0.9vw; }
 }
 </style>

@@ -8,8 +8,8 @@
           <span class="logo__digital layered" data-text="DIGITAL">DIGITAL</span>
         </a>
 
-        <!-- Desktop Navigation -->
-        <nav class="nav">
+        <!-- Desktop Navigation (only on homepage) -->
+        <nav v-if="!isPrivacyPage" class="nav">
           <a v-for="item in navItems" :key="item.href" :href="item.href" :class="{ active: activeSection === item.id }" @click.prevent="scrollToSection(item.id)">
             {{ item.label }}
           </a>
@@ -17,26 +17,33 @@
 
         <!-- Actions -->
         <div class="header__actions">
-          <button
-              @click="$emit('openModal')"
-              class="btn btn-primary header-cta"
-          >
-            {{ $t('header.discuss_project') }}
-          </button>
+          <!-- Privacy page: back button -->
+          <button v-if="isPrivacyPage" @click="closeOrGoHome" class="btn btn-primary header-cta header-back-desktop">Вернуться на главную</button>
+          <button v-if="isPrivacyPage" @click="closeOrGoHome" class="btn btn-primary header-cta header-back-mobile">Назад</button>
 
-          <!-- Mobile Menu Button -->
-          <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <!-- Homepage: CTA + burger -->
+          <template v-if="!isPrivacyPage">
+            <button
+                @click="$emit('openModal')"
+                class="btn btn-primary header-cta"
+            >
+              {{ $t('header.discuss_project') }}
+            </button>
+
+            <!-- Mobile Menu Button -->
+            <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </template>
         </div>
       </div>
     </div>
 
-    <!-- Mobile Navigation -->
-    <nav v-if="isMenuOpen" class="mobile-nav">
+    <!-- Mobile Navigation (only on homepage) -->
+    <nav v-if="isMenuOpen && !isPrivacyPage" class="mobile-nav">
       <a v-for="item in navItems" :key="item.href" :href="item.href" @click.prevent="scrollToSection(item.id); isMenuOpen = false">
         {{ item.label }}
       </a>
@@ -48,7 +55,18 @@
 defineEmits(['openModal'])
 
 const { t } = useI18n()
+const route = useRoute()
 const isMenuOpen = ref(false)
+const isPrivacyPage = computed(() => route.path === '/privacy')
+
+// Go back to previous page, or home if no history
+const closeOrGoHome = () => {
+  if (window.history.length > 1) {
+    window.history.back()
+  } else {
+    window.location.href = '/'
+  }
+}
 
 const navItems = computed(() => [
   { href: '/#hero', id: 'hero', label: t('nav.home') },
@@ -249,9 +267,27 @@ onMounted(() => {
 }
 
 
+.header-back-desktop {
+  display: inline-block;
+}
+
+.header-back-mobile {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .nav {
     display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .header-back-desktop {
+    display: none;
+  }
+
+  .header-back-mobile {
+    display: inline-block;
   }
 }
 
