@@ -15,12 +15,6 @@ async def send_contact_notification(
 
     text = f"""📬 Новая заявка с сайта!
 
-👤 Имя: {name}
-📞 Контакт: {contact}
-
-💬 Сообщение:
-{message}
-
 🕐 {datetime.now().strftime("%d.%m.%Y %H:%M")}"""
 
     url = f"https://api.telegram.org/bot{settings.TELEGRAM_BOT_TOKEN}/sendMessage"

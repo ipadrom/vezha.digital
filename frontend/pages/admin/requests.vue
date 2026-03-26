@@ -26,7 +26,7 @@
                 </button>
               </div>
             </div>
-            <p class="text-gray-600 dark:text-gray-400 whitespace-pre-wrap">{{ item.message }}</p>
+            <p class="text-gray-600 dark:text-gray-400 whitespace-pre-wrap break-words">{{ item.message }}</p>
             <p class="text-xs text-gray-500 mt-2">{{ formatDate(item.created_at) }}</p>
           </div>
         </div>

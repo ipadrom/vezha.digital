@@ -1,6 +1,6 @@
 <template>
   <section class="hero" id="hero">
-    <div class="hero__background">
+    <div class="hero__background" :class="{ 'hero__background--visible': sceneReady }">
       <canvas ref="heroCanvas" id="hero-canvas"></canvas>
     </div>
     <div class="hero__wrapper">
@@ -38,6 +38,7 @@ const props = defineProps<{
 defineEmits(['openModal'])
 
 const heroCanvas = ref<HTMLCanvasElement | null>(null)
+const sceneReady = ref(false)
 
 const heroTitle = computed(() => {
   if(!props.settings) {
@@ -193,6 +194,7 @@ function init3DScene() {
     }
 
     animate()
+    sceneReady.value = true
 
     window.addEventListener('resize', () => {
       const newWidth = container.clientWidth
@@ -230,12 +232,11 @@ function init3DScene() {
   pointer-events: none;
   overflow: hidden;
   opacity: 0;
-  animation: fadeIn 2s ease-out 0.5s forwards;
+  transition: opacity 1.5s ease-out;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.hero__background--visible {
+  opacity: 1;
 }
 
 .cursor {
@@ -305,13 +306,16 @@ function init3DScene() {
   flex-direction: column;
   align-items: stretch;
   opacity: 0;
+  visibility: hidden;
   transform: translateY(20px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0s linear 0.6s;
 }
 
 .hero__cta-group--visible {
   opacity: 1;
+  visibility: visible;
   transform: translateY(0);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0s linear 0s;
 }
 
 .hero__subtitle {
