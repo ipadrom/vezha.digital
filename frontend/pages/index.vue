@@ -398,8 +398,7 @@ const displayStages = computed<DisplayStage[]>(() => {
 
 const contactEmail = computed(() => settings.value?.contact_email || "contact@vezha.digital");
 const heroPriceLabel = computed(() => {
-  const price = settings.value?.hero_price?.trim();
-  if (!price) return "От 40 000 ₽";
+  const price = settings.value?.hero_price?.trim() || "50,000";
   if (price.toLowerCase().startsWith("от ")) return price;
   return `От ${price}${price.includes("₽") ? "" : " ₽"}`;
 });
@@ -435,8 +434,6 @@ function runIntro() {
 }
 
 onMounted(async () => {
-  runIntro();
-
   try {
     const [
       servicesData,

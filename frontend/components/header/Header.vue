@@ -99,7 +99,7 @@ onMounted(() => {
   gap: 30px;
   max-width: 1240px;
   margin: 0 auto;
-  padding: 18px 40px;
+  padding: 14px 40px;
 }
 
 .vz-header__logo {
@@ -216,7 +216,7 @@ onMounted(() => {
 
 .vz-mobile-nav {
   position: fixed;
-  top: 69px;
+  top: 67px;
   right: 0;
   bottom: 0;
   left: 0;
