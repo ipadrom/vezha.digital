@@ -2,33 +2,32 @@
   <div ref="rootRef" class="vz-min" :data-theme="theme">
     <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
       <div class="vz-preloader__top">
-        <span>2026 / Загрузка</span>
+        <span>{{ copy.preloader.loading }}</span>
         <span>Vezha / Digital</span>
       </div>
       <div class="vz-preloader__bottom">
         <div class="vz-preloader__count"><span>{{ introProgress.toString().padStart(2, "0") }}</span><span>%</span></div>
-        <div class="vz-preloader__meta">Пространство 000<br />Base · Moscow</div>
+        <div class="vz-preloader__meta">{{ copy.preloader.meta[0] }}<br />{{ copy.preloader.meta[1] }}</div>
       </div>
     </div>
 
-    <nav class="vz-nav" aria-label="Основная навигация">
+    <nav class="vz-nav" :aria-label="copy.nav.aria">
       <a class="vz-logo" href="#hero" aria-label="VEZHA Digital">
         <span>VEZHA</span>
         <small>Digital</small>
       </a>
       <div class="vz-nav__links" data-nav-links>
-        <a href="#about">Кто мы</a>
-        <a href="#stack">Стек</a>
-        <a href="#services">Услуги</a>
-        <a href="#stages">Этапы</a>
-        <a href="#contacts">Контакты</a>
+        <a v-for="item in navItems" :key="item.href" :href="item.href">{{ item.label }}</a>
       </div>
       <div class="vz-nav__actions">
-        <button class="vz-icon-button" type="button" aria-label="Сменить тему" @click="toggleTheme">
+        <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
           {{ theme === "dark" ? "☀" : "☾" }}
         </button>
-        <a class="vz-nav__cta" href="#contacts" data-nav-cta>Обсудить проект</a>
-        <button class="vz-menu-button" type="button" aria-label="Открыть меню" data-nav-toggle @click="isMenuOpen = true">
+        <button class="vz-lang-button" type="button" :aria-label="copy.nav.langAria" @click="toggleLocale">
+          {{ currentLocale === "ru" ? "EN" : "RU" }}
+        </button>
+        <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
+        <button class="vz-menu-button" type="button" :aria-label="copy.nav.menuOpen" data-nav-toggle @click="isMenuOpen = true">
           <span></span>
           <span></span>
         </button>
@@ -41,15 +40,23 @@
           <span>VEZHA</span>
           <small>Digital</small>
         </div>
-        <button class="vz-icon-button" type="button" aria-label="Закрыть меню" @click="isMenuOpen = false">✕</button>
+        <div class="vz-mobile-menu__controls">
+          <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
+            {{ theme === "dark" ? "☀" : "☾" }}
+          </button>
+          <button class="vz-lang-button" type="button" :aria-label="copy.nav.langAria" @click="toggleLocale">
+            {{ currentLocale === "ru" ? "EN" : "RU" }}
+          </button>
+          <button class="vz-icon-button" type="button" :aria-label="copy.nav.menuClose" @click="isMenuOpen = false">✕</button>
+        </div>
       </div>
       <div class="vz-mobile-menu__links">
         <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">{{ item.label }}</a>
       </div>
-      <a class="vz-mobile-menu__cta" href="#contacts" @click="isMenuOpen = false">Обсудить проект →</a>
+      <a class="vz-mobile-menu__cta" href="#contacts" @click="isMenuOpen = false">{{ copy.nav.mobileCta }}</a>
       <div class="vz-mobile-menu__bottom">
-        <span>2026 / Веб-студия</span>
-        <span>Base / Moscow</span>
+        <span>{{ copy.hero.meta[0] }}</span>
+        <span>{{ copy.hero.meta[1] }}</span>
       </div>
     </div>
 
@@ -67,41 +74,33 @@
 
       <div class="vz-hero__inner">
         <div class="vz-hero__meta" data-hero-meta>
-          <span>2026 / Веб-студия</span>
-          <span>Base / Moscow</span>
+          <span>{{ copy.hero.meta[0] }}</span>
+          <span>{{ copy.hero.meta[1] }}</span>
         </div>
         <div class="vz-hero__kicker">
           <span>✦</span>
-          <span>Engineering clarity through code</span>
+          <span>{{ copy.hero.kicker }}</span>
         </div>
         <h1>
-          <span><span data-reveal>Продукты,</span></span>
-          <span><span data-reveal>которые работают</span></span>
-          <span><span data-reveal>в вашем бизнесе</span></span>
+          <span v-for="line in copy.hero.title" :key="line"><span data-reveal>{{ line }}</span></span>
         </h1>
         <div class="vz-hero__grid" data-hero-grid>
-          <p>
-            Telegram Mini Apps, боты, сайты, интернет-магазины, AI и корпоративные системы.
-            Команда полного цикла — без субподряда и лишних звеньев.
-          </p>
+          <p>{{ copy.hero.text }}</p>
           <div class="vz-hero__actions">
-            <a class="vz-button vz-button--dark" href="#contacts">Обсудить проект →</a>
-            <a class="vz-button-link" href="#stack">Смотреть стек <span aria-hidden="true">↓</span></a>
+            <a class="vz-button vz-button--dark" href="#contacts">{{ copy.hero.cta }}</a>
+            <a class="vz-button-link" href="#stack">{{ copy.hero.stackLink }} <span aria-hidden="true">↓</span></a>
           </div>
         </div>
         <div class="vz-hero__stats" data-hero-stats>
-          <span>От 40 000 ₽</span>
-          <span>/</span>
-          <span>Запуск 1–4 недели</span>
-          <span>/</span>
-          <span>Полный цикл</span>
-          <span>/</span>
-          <span>Без субподряда</span>
+          <template v-for="(stat, index) in copy.hero.stats" :key="stat">
+            <span v-if="index > 0">/</span>
+            <span>{{ stat }}</span>
+          </template>
         </div>
       </div>
     </section>
 
-    <div class="vz-marquee" aria-label="Направления разработки">
+    <div class="vz-marquee" :aria-label="copy.marqueeAria">
       <div>
         <span v-for="item in marqueeItems" :key="`a-${item}`">{{ item }} <i>✦</i></span>
         <span v-for="item in marqueeItems" :key="`b-${item}`" aria-hidden="true">{{ item }} <i>✦</i></span>
@@ -111,17 +110,14 @@
     <section id="about" class="vz-about">
       <div class="vz-about__grid">
         <div class="vz-section-label">
-          <span>Кто мы</span>
+          <span>{{ copy.about.label }}</span>
           <i>/</i>
           <span data-secnum>01</span>
         </div>
         <div class="vz-about__copy">
-          <p class="vz-about__lead">
-            Мы — команда полного цикла. Каждый проект ведёт конкретный человек: от первого разговора до запуска.
-          </p>
+          <p class="vz-about__lead">{{ copy.about.lead }}</p>
           <div class="vz-about__cols">
-            <p>Вникаем в задачу и предлагаем решения, а не просто закрываем ТЗ. Никакого субподряда и лишних звеньев между вами и результатом.</p>
-            <p>Нам важно, чтобы продукт реально работал в вашем бизнесе, а не выглядел красиво на сдаче и пылился после запуска.</p>
+            <p v-for="paragraph in copy.about.paragraphs" :key="paragraph">{{ paragraph }}</p>
           </div>
         </div>
       </div>
@@ -133,15 +129,15 @@
           <div class="vz-sec-head" data-sec-head>
             <div>
               <div class="vz-section-label">
-                <span>Стек</span>
+                <span>{{ copy.stack.label }}</span>
                 <i>/</i>
                 <span data-secnum>02</span>
               </div>
-              <h2>Стек подбирается под задачу, а не по трендам</h2>
+              <h2>{{ copy.stack.title }}</h2>
             </div>
             <div class="vz-sec-meta" data-sec-meta>
               <div><span data-stack-counter>01</span><i> / {{ toNumber(displayStackGroups.length) }}</i></div>
-              <p>Каждый инструмент проверен в реальных проектах и предсказуем в поддержке.</p>
+              <p>{{ copy.stack.meta }}</p>
             </div>
           </div>
 
@@ -168,9 +164,9 @@
           </div>
 
           <div class="vz-scroll-hint" data-stack-hint>
-            <span>Скролл</span>
+            <span>{{ copy.stack.hint[0] }}</span>
             <span>↓</span>
-            <span>категории подсвечиваются по очереди</span>
+            <span>{{ copy.stack.hint[1] }}</span>
           </div>
         </div>
       </div>
@@ -182,11 +178,11 @@
           <div class="vz-sec-head" data-sec-head>
             <div>
               <div class="vz-section-label">
-                <span>Услуги</span>
+                <span>{{ copy.services.label }}</span>
                 <i>/</i>
                 <span data-secnum>03</span>
               </div>
-              <h2><span><span data-reveal>Что мы делаем</span></span></h2>
+              <h2><span><span data-reveal>{{ copy.services.title }}</span></span></h2>
             </div>
             <div class="vz-services__counter"><span data-serv-counter>01 / 07</span></div>
           </div>
@@ -337,9 +333,9 @@ struct CatalogView: View {
 
           <div class="vz-services__bar"><span data-serv-bar></span></div>
           <div class="vz-scroll-hint" data-serv-hint>
-            <span>Авто</span>
+            <span>{{ copy.services.hint[0] }}</span>
             <span>→</span>
-            <span>услуги листаются сами</span>
+            <span>{{ copy.services.hint[1] }}</span>
           </div>
         </div>
       </div>
@@ -349,11 +345,11 @@ struct CatalogView: View {
       <div class="vz-clients__grid" data-clients-grid>
         <div>
           <div class="vz-section-label">
-            <span>Для любых клиентов</span>
+            <span>{{ copy.clients.label }}</span>
             <i>/</i>
             <span>✦</span>
           </div>
-          <h2><span><span data-reveal>От частного специалиста до компании</span></span></h2>
+          <h2><span><span data-reveal>{{ copy.clients.title }}</span></span></h2>
         </div>
         <div class="vz-client-tags">
           <span v-for="client in displayClients" :key="client">{{ client }}</span>
@@ -401,12 +397,12 @@ final class ProjectStore {
       <div class="vz-wrap">
         <div class="vz-stages__head">
           <div class="vz-section-label">
-            <span>Этапы</span>
+            <span>{{ copy.stages.label }}</span>
             <i>/</i>
             <span data-secnum>04</span>
           </div>
-          <h2><span><span data-reveal>Анатомия разработки</span></span></h2>
-          <p>«Понятный процесс, где каждый этап приближает вас к продукту, который работает в вашем бизнесе»</p>
+          <h2><span><span data-reveal>{{ copy.stages.title }}</span></span></h2>
+          <p>{{ copy.stages.text }}</p>
         </div>
         <div class="vz-stage-cards" data-stages-cards>
           <article
@@ -434,13 +430,13 @@ final class ProjectStore {
       </div>
       <div class="vz-contacts__inner">
         <div class="vz-section-label">
-          <span>Контакты</span>
+          <span>{{ copy.contacts.label }}</span>
           <i>/</i>
           <span data-secnum>05</span>
         </div>
-        <h2><span><span data-reveal>Обсудим проект и рассчитаем точную стоимость</span></span></h2>
+        <h2><span><span data-reveal>{{ copy.contacts.title }}</span></span></h2>
         <div class="vz-contacts__buttons" data-contacts-btns>
-          <a class="vz-button vz-button--dark" :href="`mailto:${contactEmail}`">Написать нам</a>
+          <a class="vz-button vz-button--dark" :href="`mailto:${contactEmail}`">{{ copy.contacts.emailCta }}</a>
           <a class="vz-button vz-button--light" :href="`mailto:${contactEmail}`">{{ contactEmail }}</a>
         </div>
       </div>
@@ -448,8 +444,8 @@ final class ProjectStore {
 
     <footer class="vz-footer">
       <div class="vz-footer__top" data-footer-top>
-        <span>Всё по проекту. В одном месте. Спокойно.</span>
-        <a href="#hero">Конец полотна ↑ В начало</a>
+        <span>{{ copy.footer.tagline }}</span>
+        <a href="#hero">{{ copy.footer.topLink }}</a>
       </div>
       <div class="vz-footer__cols" data-footer-cols>
         <div>
@@ -458,7 +454,7 @@ final class ProjectStore {
         </div>
         <div>
           <span>Base</span>
-          <p>Москва<br />Россия</p>
+          <p>{{ copy.footer.base[0] }}<br />{{ copy.footer.base[1] }}</p>
         </div>
         <div>
           <span>Contact</span>
@@ -468,12 +464,9 @@ final class ProjectStore {
           </nav>
         </div>
         <div>
-          <span>Навигация</span>
+          <span>{{ copy.footer.navLabel }}</span>
           <nav>
-            <a href="#about">Кто мы</a>
-            <a href="#stack">Стек</a>
-            <a href="#services">Услуги</a>
-            <a href="#stages">Этапы</a>
+            <a v-for="item in footerNavItems" :key="item.href" :href="item.href">{{ item.label }}</a>
           </nav>
         </div>
       </div>
@@ -486,7 +479,7 @@ final class ProjectStore {
       </div>
       <div class="vz-footer__legal" data-footer-legal>
         <span>© 2026 · VEZHA DIGITAL</span>
-        <span>ИП Анищенко Д. А. · ОГРНИП 326774600075626 · ИНН 773421830976</span>
+        <span>{{ copy.footer.legal }}</span>
       </div>
     </footer>
   </div>
@@ -525,6 +518,91 @@ type DisplayStage = {
   dur: string;
 };
 
+type LocaleCode = "ru" | "en";
+type ThemeMode = "light" | "dark";
+type NavItem = {
+  href: string;
+  label: string;
+};
+
+type LandingCopy = {
+  preloader: {
+    loading: string;
+    meta: [string, string];
+  };
+  nav: {
+    aria: string;
+    themeAria: string;
+    langAria: string;
+    menuOpen: string;
+    menuClose: string;
+    cta: string;
+    mobileCta: string;
+    items: NavItem[];
+  };
+  hero: {
+    meta: [string, string];
+    kicker: string;
+    title: string[];
+    text: string;
+    cta: string;
+    stackLink: string;
+    stats: string[];
+  };
+  marqueeAria: string;
+  marqueeItems: string[];
+  about: {
+    label: string;
+    lead: string;
+    paragraphs: string[];
+  };
+  stack: {
+    label: string;
+    title: string;
+    meta: string;
+    hint: [string, string];
+    groups: StackGroup[];
+  };
+  services: {
+    label: string;
+    title: string;
+    hint: [string, string];
+    fallback: DisplayService[];
+    fallbackTitle: string;
+    fallbackDesc: string;
+  };
+  clients: {
+    label: string;
+    title: string;
+    tags: string[];
+  };
+  stages: {
+    label: string;
+    title: string;
+    text: string;
+    fallback: DisplayStage[];
+    fallbackDuration: string;
+  };
+  contacts: {
+    label: string;
+    title: string;
+    emailCta: string;
+  };
+  footer: {
+    tagline: string;
+    topLink: string;
+    base: [string, string];
+    navLabel: string;
+    legal: string;
+  };
+  head: {
+    title: string;
+    description: string;
+    ogTitle: string;
+    ogDescription: string;
+  };
+};
+
 const {
   getServices,
   getProjects,
@@ -534,12 +612,13 @@ const {
   getSettings,
   getClientTypes,
 } = useApi();
+const { locale, setLocale } = useI18n();
 
 const rootRef = ref<HTMLElement | null>(null);
 const preloaderRef = ref<HTMLElement | null>(null);
 const showPreloader = ref(true);
 const introProgress = ref(0);
-const theme = ref("light");
+const theme = ref<ThemeMode>("light");
 const isMenuOpen = ref(false);
 const activeServiceIndex = ref(0);
 
@@ -551,33 +630,238 @@ const workStages = ref<IWorkStages[]>([]);
 const clientTypes = ref<IClientType[]>([]);
 const settings = ref<ISettings | null>(null);
 
-const navItems = [
-  { href: "#about", label: "Кто мы" },
-  { href: "#stack", label: "Стек" },
-  { href: "#services", label: "Услуги" },
-  { href: "#stages", label: "Этапы" },
-  { href: "#contacts", label: "Контакты" },
-];
-
-const marqueeItems = [
-  "Веб-разработка под ключ",
-  "Telegram Mini Apps",
-  "Telegram боты",
-  "Веб-сайты",
-  "Интернет-магазины",
-  "AI и автоматизация",
-  "Корпоративные системы",
-];
-
-const fallbackServices: DisplayService[] = [
-  { n: "01", title: "Telegram Mini Apps", desc: "Полноценные приложения внутри Telegram: каталог, профиль, оплата.", meta: ["Каталог", "Оплата", "Профиль"] },
-  { n: "02", title: "Telegram боты", desc: "Автоматизация продаж, записи и поддержки прямо в чате.", meta: ["Продажи", "Запись", "Поддержка"] },
-  { n: "03", title: "Веб-сайты", desc: "Лендинги и корпоративные сайты, которые быстро грузятся и продают.", meta: ["Лендинги", "Корпоративные", "SEO"] },
-  { n: "04", title: "Интернет-магазины", desc: "Каталог, корзина, оплата и интеграции со складом и CRM.", meta: ["Корзина", "Оплата", "CRM"] },
-  { n: "05", title: "AI и автоматизация", desc: "Ассистенты и обработка заявок на стороне ИИ — меньше рутины.", meta: ["Ассистенты", "Заявки", "Интеграции"] },
-  { n: "06", title: "Корпоративные системы", desc: "Внутренние порталы, CRM и учётные системы под ваши процессы.", meta: ["CRM", "Порталы", "Учёт"] },
-  { n: "07", title: "Мобильные приложения", desc: "Нативные и кроссплатформенные приложения для iOS и Android.", meta: ["iOS", "Android", "PWA"] },
-];
+const landingCopy: Record<LocaleCode, LandingCopy> = {
+  ru: {
+    preloader: {
+      loading: "2026 / Загрузка",
+      meta: ["Пространство 000", "Base · Moscow"],
+    },
+    nav: {
+      aria: "Основная навигация",
+      themeAria: "Сменить тему",
+      langAria: "Switch to English",
+      menuOpen: "Открыть меню",
+      menuClose: "Закрыть меню",
+      cta: "Обсудить проект",
+      mobileCta: "Обсудить проект →",
+      items: [
+        { href: "#about", label: "Кто мы" },
+        { href: "#stack", label: "Стек" },
+        { href: "#services", label: "Услуги" },
+        { href: "#stages", label: "Этапы" },
+        { href: "#contacts", label: "Контакты" },
+      ],
+    },
+    hero: {
+      meta: ["2026 / Веб-студия", "Base / Moscow"],
+      kicker: "Engineering clarity through code",
+      title: ["Продукты,", "которые работают", "в вашем бизнесе"],
+      text: "Telegram Mini Apps, боты, сайты, интернет-магазины, AI и корпоративные системы. Команда полного цикла — без субподряда и лишних звеньев.",
+      cta: "Обсудить проект →",
+      stackLink: "Смотреть стек",
+      stats: ["От 40 000 ₽", "Запуск 1–4 недели", "Полный цикл", "Без субподряда"],
+    },
+    marqueeAria: "Направления разработки",
+    marqueeItems: [
+      "Веб-разработка под ключ",
+      "Telegram Mini Apps",
+      "Telegram боты",
+      "Веб-сайты",
+      "Интернет-магазины",
+      "AI и автоматизация",
+      "Корпоративные системы",
+    ],
+    about: {
+      label: "Кто мы",
+      lead: "Мы — команда полного цикла. Каждый проект ведёт конкретный человек: от первого разговора до запуска.",
+      paragraphs: [
+        "Вникаем в задачу и предлагаем решения, а не просто закрываем ТЗ. Никакого субподряда и лишних звеньев между вами и результатом.",
+        "Нам важно, чтобы продукт реально работал в вашем бизнесе, а не выглядел красиво на сдаче и пылился после запуска.",
+      ],
+    },
+    stack: {
+      label: "Стек",
+      title: "Стек подбирается под задачу, а не по трендам",
+      meta: "Каждый инструмент проверен в реальных проектах и предсказуем в поддержке.",
+      hint: ["Скролл", "категории подсвечиваются по очереди"],
+      groups: [
+        { title: "Frontend", description: "Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
+        { title: "Backend", description: "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
+        { title: "DevOps", description: "Стабильный деплой и мониторинг: предсказуемые релизы и аптайм без сюрпризов.", items: ["Docker", "Nginx", "CI/CD", "Linux"] },
+        { title: "Mobile", description: "Мобильные приложения и PWA с нативным ощущением на iOS и Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
+      ],
+    },
+    services: {
+      label: "Услуги",
+      title: "Что мы делаем",
+      hint: ["Авто", "услуги листаются сами"],
+      fallbackTitle: "Услуга",
+      fallbackDesc: "Проектируем и запускаем продукт под задачу бизнеса.",
+      fallback: [
+        { n: "01", title: "Telegram Mini Apps", desc: "Полноценные приложения внутри Telegram: каталог, профиль, оплата.", meta: ["Каталог", "Оплата", "Профиль"] },
+        { n: "02", title: "Telegram боты", desc: "Автоматизация продаж, записи и поддержки прямо в чате.", meta: ["Продажи", "Запись", "Поддержка"] },
+        { n: "03", title: "Веб-сайты", desc: "Лендинги и корпоративные сайты, которые быстро грузятся и продают.", meta: ["Лендинги", "Корпоративные", "SEO"] },
+        { n: "04", title: "Интернет-магазины", desc: "Каталог, корзина, оплата и интеграции со складом и CRM.", meta: ["Корзина", "Оплата", "CRM"] },
+        { n: "05", title: "AI и автоматизация", desc: "Ассистенты и обработка заявок на стороне ИИ — меньше рутины.", meta: ["Ассистенты", "Заявки", "Интеграции"] },
+        { n: "06", title: "Корпоративные системы", desc: "Внутренние порталы, CRM и учётные системы под ваши процессы.", meta: ["CRM", "Порталы", "Учёт"] },
+        { n: "07", title: "Мобильные приложения", desc: "Нативные и кроссплатформенные приложения для iOS и Android.", meta: ["iOS", "Android", "PWA"] },
+      ],
+    },
+    clients: {
+      label: "Для любых клиентов",
+      title: "От частного специалиста до компании",
+      tags: ["Лендинг для фотографа", "Сайт-портфолио", "Бот для записи", "Мини-магазин в Telegram", "Личный AI-ассистент"],
+    },
+    stages: {
+      label: "Этапы",
+      title: "Анатомия разработки",
+      text: "Понятный процесс, где каждый этап приближает вас к продукту, который работает в вашем бизнесе.",
+      fallbackDuration: "По плану",
+      fallback: [
+        { n: "01", title: "Анализ", desc: "Изучаем бизнес, цели и аудиторию, фиксируем техническое задание.", dur: "1–3 дня" },
+        { n: "02", title: "Проектирование", desc: "Прототипы экранов, архитектура системы и UX-логика продукта.", dur: "2–4 дня" },
+        { n: "03", title: "Дизайн", desc: "Визуальная концепция, UI Kit и адаптив под устройства.", dur: "3–7 дней" },
+        { n: "04", title: "Разработка", desc: "Frontend, Backend, API-интеграции и code review.", dur: "7–21 день" },
+        { n: "05", title: "Тестирование", desc: "Функциональное и нагрузочное тестирование, фикс багов.", dur: "2–5 дней" },
+        { n: "06", title: "Запуск", desc: "Деплой на сервер, настройка CI/CD и мониторинга.", dur: "1–2 дня" },
+        { n: "07", title: "Поддержка", desc: "Мониторинг, обновления, доработки и консультации.", dur: "Ongoing" },
+      ],
+    },
+    contacts: {
+      label: "Контакты",
+      title: "Обсудим проект и рассчитаем точную стоимость",
+      emailCta: "Написать нам",
+    },
+    footer: {
+      tagline: "Всё по проекту. В одном месте. Спокойно.",
+      topLink: "Конец полотна ↑ В начало",
+      base: ["Москва", "Россия"],
+      navLabel: "Навигация",
+      legal: "ИП Анищенко Д. А. · ОГРНИП 326774600075626 · ИНН 773421830976",
+    },
+    head: {
+      title: "VEZHA Digital - Веб-разработка под ключ",
+      description: "Разработка Telegram Mini Apps, ботов, веб-сайтов, интернет-магазинов, AI и корпоративных систем.",
+      ogTitle: "VEZHA Digital - продукты, которые работают в бизнесе",
+      ogDescription: "Команда полного цикла для Telegram, web, AI и корпоративных систем.",
+    },
+  },
+  en: {
+    preloader: {
+      loading: "2026 / Loading",
+      meta: ["Workspace 000", "Base · Moscow"],
+    },
+    nav: {
+      aria: "Main navigation",
+      themeAria: "Switch theme",
+      langAria: "Переключить на русский",
+      menuOpen: "Open menu",
+      menuClose: "Close menu",
+      cta: "Discuss a project",
+      mobileCta: "Discuss a project →",
+      items: [
+        { href: "#about", label: "About" },
+        { href: "#stack", label: "Stack" },
+        { href: "#services", label: "Services" },
+        { href: "#stages", label: "Process" },
+        { href: "#contacts", label: "Contacts" },
+      ],
+    },
+    hero: {
+      meta: ["2026 / Web studio", "Base / Moscow"],
+      kicker: "Engineering clarity through code",
+      title: ["Products", "that work", "inside your business"],
+      text: "Telegram Mini Apps, bots, websites, online stores, AI and corporate systems. A full-cycle team with no subcontractors or extra layers.",
+      cta: "Discuss a project →",
+      stackLink: "View stack",
+      stats: ["From $500", "Launch in 1-4 weeks", "Full cycle", "No subcontractors"],
+    },
+    marqueeAria: "Development directions",
+    marqueeItems: [
+      "Full-cycle web development",
+      "Telegram Mini Apps",
+      "Telegram bots",
+      "Websites",
+      "Online stores",
+      "AI and automation",
+      "Corporate systems",
+    ],
+    about: {
+      label: "About",
+      lead: "We are a full-cycle team. One responsible person leads each project from the first call to launch.",
+      paragraphs: [
+        "We dig into the task and propose solutions instead of only closing a brief. No subcontractors or extra layers between you and the result.",
+        "The product has to work in your business, not just look good at handoff and sit unused after launch.",
+      ],
+    },
+    stack: {
+      label: "Stack",
+      title: "The stack fits the task, not the trend",
+      meta: "Every tool is tested in real projects and predictable in support.",
+      hint: ["Scroll", "categories highlight one by one"],
+      groups: [
+        { title: "Frontend", description: "Interfaces that load fast and feel natural on any device.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
+        { title: "Backend", description: "Reliable server logic that handles load and scales cleanly.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
+        { title: "DevOps", description: "Stable deployment and monitoring with predictable releases and uptime.", items: ["Docker", "Nginx", "CI/CD", "Linux"] },
+        { title: "Mobile", description: "Mobile apps and PWAs with a native feel on iOS and Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
+      ],
+    },
+    services: {
+      label: "Services",
+      title: "What we build",
+      hint: ["Auto", "services rotate on their own"],
+      fallbackTitle: "Service",
+      fallbackDesc: "We design and launch a product around the business task.",
+      fallback: [
+        { n: "01", title: "Telegram Mini Apps", desc: "Full-featured apps inside Telegram: catalog, profile, payments.", meta: ["Catalog", "Payments", "Profile"] },
+        { n: "02", title: "Telegram bots", desc: "Sales, booking and support automation directly in chat.", meta: ["Sales", "Booking", "Support"] },
+        { n: "03", title: "Websites", desc: "Landing pages and corporate websites that load fast and sell clearly.", meta: ["Landing", "Corporate", "SEO"] },
+        { n: "04", title: "Online stores", desc: "Catalog, cart, payment and integrations with warehouse and CRM.", meta: ["Cart", "Payments", "CRM"] },
+        { n: "05", title: "AI and automation", desc: "Assistants and AI-side request processing to cut routine work.", meta: ["Assistants", "Requests", "Integrations"] },
+        { n: "06", title: "Corporate systems", desc: "Internal portals, CRMs and accounting systems built around your process.", meta: ["CRM", "Portals", "Accounting"] },
+        { n: "07", title: "Mobile apps", desc: "Native and cross-platform apps for iOS and Android.", meta: ["iOS", "Android", "PWA"] },
+      ],
+    },
+    clients: {
+      label: "For any client",
+      title: "From solo specialists to companies",
+      tags: ["Photographer landing page", "Portfolio website", "Booking bot", "Telegram mini-store", "Personal AI assistant"],
+    },
+    stages: {
+      label: "Process",
+      title: "Development anatomy",
+      text: "A clear process where each stage moves you closer to a product that works inside your business.",
+      fallbackDuration: "Planned",
+      fallback: [
+        { n: "01", title: "Discovery", desc: "We study the business, goals and audience, then lock the technical brief.", dur: "1-3 days" },
+        { n: "02", title: "Architecture", desc: "Screen prototypes, system architecture and product UX logic.", dur: "2-4 days" },
+        { n: "03", title: "Design", desc: "Visual concept, UI kit and responsive layouts for devices.", dur: "3-7 days" },
+        { n: "04", title: "Development", desc: "Frontend, backend, API integrations and code review.", dur: "7-21 days" },
+        { n: "05", title: "Testing", desc: "Functional and load testing, bug fixing and release checks.", dur: "2-5 days" },
+        { n: "06", title: "Launch", desc: "Server deployment, CI/CD setup and monitoring.", dur: "1-2 days" },
+        { n: "07", title: "Support", desc: "Monitoring, updates, improvements and consultation.", dur: "Ongoing" },
+      ],
+    },
+    contacts: {
+      label: "Contacts",
+      title: "Let's discuss the project and calculate the exact cost",
+      emailCta: "Email us",
+    },
+    footer: {
+      tagline: "Everything about the project. In one place. Calmly.",
+      topLink: "End of page ↑ Back to top",
+      base: ["Moscow", "Russia"],
+      navLabel: "Navigation",
+      legal: "Individual entrepreneur D. A. Anishchenko · OGRNIP 326774600075626 · INN 773421830976",
+    },
+    head: {
+      title: "VEZHA Digital - Full-cycle web development",
+      description: "Telegram Mini Apps, bots, websites, online stores, AI and corporate systems development.",
+      ogTitle: "VEZHA Digital - products that work inside business",
+      ogDescription: "A full-cycle team for Telegram, web, AI and corporate systems.",
+    },
+  },
+};
 
 const serviceScreens = [
   { type: "miniapp" },
@@ -589,46 +873,31 @@ const serviceScreens = [
   { type: "mobile" },
 ];
 
-const fallbackStackGroups: StackGroup[] = [
-  { title: "Frontend", description: "Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
-  { title: "Backend", description: "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
-  { title: "DevOps", description: "Стабильный деплой и мониторинг: предсказуемые релизы и аптайм без сюрпризов.", items: ["Docker", "Nginx", "CI/CD", "Linux"] },
-  { title: "Mobile", description: "Мобильные приложения и PWA с нативным ощущением на iOS и Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
-];
-
 const devOpsTechNames = new Set(["docker", "nginx", "ci/cd", "ci cd", "linux", "kubernetes", "github actions", "gitlab ci"]);
 
-const fallbackClients = [
-  "Лендинг для фотографа",
-  "Сайт-портфолио",
-  "Бот для записи",
-  "Мини-магазин в Telegram",
-  "Личный AI-ассистент",
-];
-
-const fallbackStages: DisplayStage[] = [
-  { n: "01", title: "Анализ", desc: "Изучаем бизнес, цели и аудиторию, фиксируем техническое задание.", dur: "1–3 дня" },
-  { n: "02", title: "Проектирование", desc: "Прототипы экранов, архитектура системы и UX-логика продукта.", dur: "2–4 дня" },
-  { n: "03", title: "Дизайн", desc: "Визуальная концепция, UI Kit и адаптив под устройства.", dur: "3–7 дней" },
-  { n: "04", title: "Разработка", desc: "Frontend, Backend, API-интеграции и code review.", dur: "7–21 день" },
-  { n: "05", title: "Тестирование", desc: "Функциональное и нагрузочное тестирование, фикс багов.", dur: "2–5 дней" },
-  { n: "06", title: "Запуск", desc: "Деплой на сервер, настройка CI/CD и мониторинга.", dur: "1–2 дня" },
-  { n: "07", title: "Поддержка", desc: "Мониторинг, обновления, доработки и консультации.", dur: "Ongoing" },
-];
+const currentLocale = computed<LocaleCode>(() => (locale.value === "ru" ? "ru" : "en"));
+const copy = computed(() => landingCopy[currentLocale.value]);
+const navItems = computed(() => copy.value.nav.items);
+const footerNavItems = computed(() => navItems.value.filter((item) => item.href !== "#contacts"));
+const marqueeItems = computed(() => copy.value.marqueeItems);
+const fallbackServices = computed(() => copy.value.services.fallback);
+const fallbackStackGroups = computed(() => copy.value.stack.groups);
+const fallbackClients = computed(() => copy.value.clients.tags);
+const fallbackStages = computed(() => copy.value.stages.fallback);
 
 const displayServices = computed<DisplayService[]>(() => {
-  if (!services.value.length) return fallbackServices;
+  if (currentLocale.value === "en" || !services.value.length) return fallbackServices.value;
 
   return services.value.slice(0, 7).map((service, index) => ({
     n: toNumber(index + 1),
-    title: service.name || service.title || fallbackServices[index]?.title || "Услуга",
-    desc: service.description || service.about || fallbackServices[index]?.desc || "Проектируем и запускаем продукт под задачу бизнеса.",
-    meta: service.features?.slice(0, 3).map((feature) => feature.text) || fallbackServices[index]?.meta || [],
+    title: service.name || service.title || fallbackServices.value[index]?.title || copy.value.services.fallbackTitle,
+    desc: service.description || service.about || fallbackServices.value[index]?.desc || copy.value.services.fallbackDesc,
+    meta: service.features?.slice(0, 3).map((feature) => feature.text) || fallbackServices.value[index]?.meta || [],
   }));
 });
 
 const displayStackGroups = computed<StackGroup[]>(() => {
-  if (!techStack.value.length) return fallbackStackGroups;
+  if (!techStack.value.length) return fallbackStackGroups.value;
 
   const grouped = techStack.value.reduce<Record<string, string[]>>((acc, item) => {
     const name = item.name?.trim();
@@ -642,7 +911,7 @@ const displayStackGroups = computed<StackGroup[]>(() => {
     return acc;
   }, {});
 
-  return fallbackStackGroups.map((fallback) => {
+  return fallbackStackGroups.value.map((fallback) => {
     const key = normalizeStackCategory(fallback.title);
 
     return {
@@ -653,19 +922,20 @@ const displayStackGroups = computed<StackGroup[]>(() => {
 });
 
 const displayClients = computed(() => {
+  if (currentLocale.value === "en") return fallbackClients.value;
   if (clientTypes.value.length) return clientTypes.value.slice(0, 7).map((client) => client.title);
   if (projects.value.length) return projects.value.slice(0, 7).map((project) => project.type || project.name);
-  return fallbackClients;
+  return fallbackClients.value;
 });
 
 const displayStages = computed<DisplayStage[]>(() => {
-  if (!workStages.value.length) return fallbackStages;
+  if (currentLocale.value === "en" || !workStages.value.length) return fallbackStages.value;
 
   return workStages.value.slice(0, 7).map((stage, index) => ({
     n: toNumber(stage.step_number || index + 1),
     title: stage.title,
     desc: stage.description || stage.full_description,
-    dur: stage.duration || fallbackStages[index]?.dur || "По плану",
+    dur: stage.duration || fallbackStages.value[index]?.dur || copy.value.stages.fallbackDuration,
   }));
 });
 
@@ -699,14 +969,89 @@ function mergeStackItems(primary: string[], fallback: string[]) {
   }).slice(0, 5);
 }
 
-function toggleTheme() {
-  theme.value = theme.value === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", theme.value);
-  localStorage.setItem("vz_theme", theme.value);
+function getSavedTheme(): ThemeMode | null {
+  const saved = localStorage.getItem("vz_theme");
+  return saved === "dark" || saved === "light" ? saved : null;
 }
 
+function getSystemTheme(): ThemeMode {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(nextTheme: ThemeMode, persist = false) {
+  theme.value = nextTheme;
+  document.documentElement.setAttribute("data-theme", nextTheme);
+  document.documentElement.style.colorScheme = nextTheme;
+  if (persist) localStorage.setItem("vz_theme", nextTheme);
+}
+
+function toggleTheme() {
+  applyTheme(theme.value === "dark" ? "light" : "dark", true);
+}
+
+function getSavedLocale(): LocaleCode | null {
+  const saved = localStorage.getItem("vz_lang");
+  return saved === "ru" || saved === "en" ? saved : null;
+}
+
+function detectBrowserLocale(): LocaleCode {
+  const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
+  const preferred = languages.find(Boolean)?.toLowerCase() || "";
+  return preferred.startsWith("ru") ? "ru" : "en";
+}
+
+async function applyLocale(nextLocale: LocaleCode, persist = false) {
+  if (persist) localStorage.setItem("vz_lang", nextLocale);
+  document.cookie = `i18n_locale=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
+  document.documentElement.lang = nextLocale;
+  if (locale.value !== nextLocale) await setLocale(nextLocale);
+}
+
+async function toggleLocale() {
+  await applyLocale(currentLocale.value === "ru" ? "en" : "ru", true);
+}
+
+async function loadPublicData() {
+  try {
+    const [
+      servicesData,
+      projectsData,
+      advantagesData,
+      techStackData,
+      workStagesData,
+      settingsData,
+      clientTypeData,
+    ] = await Promise.all([
+      getServices(),
+      getProjects(),
+      getAdvantages(),
+      getTechStack(),
+      getWorkStages(),
+      getSettings(),
+      getClientTypes(),
+    ]);
+
+    services.value = servicesData;
+    projects.value = projectsData;
+    advantages.value = advantagesData;
+    techStack.value = techStackData;
+    workStages.value = workStagesData;
+    settings.value = settingsData.settings;
+    clientTypes.value = clientTypeData;
+  } catch (error) {
+    console.info("VEZHA public data fallback is active:", error);
+  }
+}
+
+let systemThemeQuery: MediaQueryList | null = null;
+let localeWatcherReady = false;
 let serviceAutoplayTimer: ReturnType<typeof window.setInterval> | null = null;
 let serviceManualPauseUntil = 0;
+
+function handleSystemThemeChange(event: MediaQueryListEvent) {
+  if (getSavedTheme()) return;
+  applyTheme(event.matches ? "dark" : "light");
+}
 
 function setActiveService(index: number, manual = false) {
   const count = displayServices.value.length || 1;
@@ -956,8 +1301,17 @@ function scheduleUpdate() {
 }
 
 onMounted(async () => {
-  theme.value = localStorage.getItem("vz_theme") || "light";
-  document.documentElement.setAttribute("data-theme", theme.value);
+  systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+  applyTheme(getSavedTheme() || getSystemTheme());
+  if (systemThemeQuery.addEventListener) {
+    systemThemeQuery.addEventListener("change", handleSystemThemeChange);
+  } else {
+    systemThemeQuery.addListener(handleSystemThemeChange);
+  }
+
+  await applyLocale(getSavedLocale() || detectBrowserLocale());
+  localeWatcherReady = true;
+
   runPreloader();
   setupReveals();
   scanReveals();
@@ -965,46 +1319,31 @@ onMounted(async () => {
   startServiceAutoplay();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
-
-  try {
-    const [
-      servicesData,
-      projectsData,
-      advantagesData,
-      techStackData,
-      workStagesData,
-      settingsData,
-      clientTypeData,
-    ] = await Promise.all([
-      getServices(),
-      getProjects(),
-      getAdvantages(),
-      getTechStack(),
-      getWorkStages(),
-      getSettings(),
-      getClientTypes(),
-    ]);
-
-    services.value = servicesData;
-    projects.value = projectsData;
-    advantages.value = advantagesData;
-    techStack.value = techStackData;
-    workStages.value = workStagesData;
-    settings.value = settingsData.settings;
-    clientTypes.value = clientTypeData;
-    await nextTick();
-    setupReveals();
-    updateScrollEffects();
-  } catch (error) {
-    console.info("VEZHA public data fallback is active:", error);
-  }
+  await loadPublicData();
+  await nextTick();
+  setupReveals();
+  updateScrollEffects();
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scheduleUpdate);
   window.removeEventListener("resize", scheduleUpdate);
+  if (systemThemeQuery?.removeEventListener) {
+    systemThemeQuery.removeEventListener("change", handleSystemThemeChange);
+  } else {
+    systemThemeQuery?.removeListener(handleSystemThemeChange);
+  }
   stopServiceAutoplay();
   if (raf) cancelAnimationFrame(raf);
+});
+
+watch(currentLocale, async () => {
+  document.documentElement.lang = currentLocale.value;
+  if (!localeWatcherReady) return;
+  await loadPublicData();
+  await nextTick();
+  setupReveals();
+  updateScrollEffects();
 });
 
 watch(displayServices, async () => {
@@ -1013,15 +1352,20 @@ watch(displayServices, async () => {
   updateScrollEffects();
 });
 
-useHead({
-  title: "VEZHA Digital - Веб-разработка под ключ",
+const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t);document.documentElement.style.colorScheme=t}catch(e){}}();`;
+
+useHead(() => ({
+  htmlAttrs: {
+    lang: currentLocale.value,
+  },
+  title: copy.value.head.title,
   meta: [
     {
       name: "description",
-      content: "Разработка Telegram Mini Apps, ботов, веб-сайтов, интернет-магазинов, AI и корпоративных систем.",
+      content: copy.value.head.description,
     },
-    { property: "og:title", content: "VEZHA Digital - продукты, которые работают в бизнесе" },
-    { property: "og:description", content: "Команда полного цикла для Telegram, web, AI и корпоративных систем." },
+    { property: "og:title", content: copy.value.head.ogTitle },
+    { property: "og:description", content: copy.value.head.ogDescription },
     { property: "og:type", content: "website" },
   ],
   link: [
@@ -1032,7 +1376,14 @@ useHead({
       href: "https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
     },
   ],
-});
+  script: [
+    {
+      key: "vz-theme-init",
+      innerHTML: themeInitScript,
+      tagPosition: "head",
+    },
+  ],
+}));
 </script>
 
 <style>
@@ -1252,9 +1603,9 @@ useHead({
 }
 
 .vz-icon-button,
-.vz-menu-button {
+.vz-menu-button,
+.vz-lang-button {
   display: flex;
-  width: 38px;
   height: 38px;
   align-items: center;
   justify-content: center;
@@ -1264,6 +1615,20 @@ useHead({
   background: transparent;
   color: var(--ink);
   cursor: pointer;
+}
+
+.vz-icon-button,
+.vz-menu-button {
+  width: 38px;
+}
+
+.vz-lang-button {
+  min-width: 44px;
+  padding: 0 11px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
 }
 
 .vz-nav__cta,
@@ -1309,6 +1674,12 @@ useHead({
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.vz-mobile-menu__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .vz-mobile-menu__links {
