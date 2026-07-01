@@ -1,207 +1,343 @@
 <template>
-  <div class="vz-home">
-    <Transition name="vz-intro">
-      <div v-if="showIntro" class="vz-intro" aria-hidden="true">
-        <div class="vz-intro__top">
-          <span>VEZHA DIGITAL</span>
-          <span>{{ introProgress.toString().padStart(2, '0') }}</span>
-        </div>
-        <div class="vz-intro__brand">VEZHA</div>
-        <div class="vz-intro__bottom">Engineering clarity through code</div>
+  <div ref="rootRef" class="vz-min" :data-theme="theme">
+    <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
+      <div class="vz-preloader__top">
+        <span>2026 / Загрузка</span>
+        <span>Vezha / Digital</span>
       </div>
-    </Transition>
+      <div class="vz-preloader__bottom">
+        <div class="vz-preloader__count"><span>{{ introProgress.toString().padStart(2, "0") }}</span><span>%</span></div>
+        <div class="vz-preloader__meta">Пространство 000<br />Base · Moscow</div>
+      </div>
+    </div>
 
-    <section id="hero" class="vz-hero" aria-labelledby="hero-title">
-      <div class="vz-hero__orbit" aria-hidden="true"></div>
-      <div class="vz-hero__meta">
+    <nav class="vz-nav" aria-label="Основная навигация">
+      <a class="vz-logo" href="#hero" aria-label="VEZHA Digital">
+        <span>VEZHA</span>
+        <small>Digital</small>
+      </a>
+      <div class="vz-nav__links" data-nav-links>
+        <a href="#about">Кто мы</a>
+        <a href="#stack">Стек</a>
+        <a href="#services">Услуги</a>
+        <a href="#stages">Этапы</a>
+        <a href="#contacts">Контакты</a>
+      </div>
+      <div class="vz-nav__actions">
+        <button class="vz-icon-button" type="button" aria-label="Сменить тему" @click="toggleTheme">
+          {{ theme === "dark" ? "☀" : "☾" }}
+        </button>
+        <a class="vz-nav__cta" href="#contacts" data-nav-cta>Обсудить проект</a>
+        <button class="vz-menu-button" type="button" aria-label="Открыть меню" data-nav-toggle @click="isMenuOpen = true">
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </nav>
+
+    <div v-show="isMenuOpen" class="vz-mobile-menu" data-mobile-menu>
+      <div class="vz-mobile-menu__top">
+        <div class="vz-logo">
+          <span>VEZHA</span>
+          <small>Digital</small>
+        </div>
+        <button class="vz-icon-button" type="button" aria-label="Закрыть меню" @click="isMenuOpen = false">✕</button>
+      </div>
+      <div class="vz-mobile-menu__links">
+        <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">{{ item.label }}</a>
+      </div>
+      <a class="vz-mobile-menu__cta" href="#contacts" @click="isMenuOpen = false">Обсудить проект →</a>
+      <div class="vz-mobile-menu__bottom">
         <span>2026 / Веб-студия</span>
         <span>Base / Moscow</span>
-        <span>Engineering clarity through code</span>
       </div>
+    </div>
 
-      <div class="vz-hero__seal" aria-hidden="true">
-        <span>ВЕБ-СТУДИЯ</span>
-        <strong>VEZHA</strong>
-        <span>DIGITAL</span>
-      </div>
-
-      <div class="vz-hero__grid">
-        <div>
-          <p class="vz-kicker">Продукты, которые работают в вашем бизнесе</p>
-          <h1 id="hero-title">Telegram Mini Apps, боты, сайты, магазины, AI и корпоративные системы.</h1>
+    <section id="hero" class="vz-hero">
+      <div class="vz-hero__art" aria-hidden="true">
+        <div class="vz-aura vz-aura--top"></div>
+        <div class="vz-aura vz-aura--bottom"></div>
+        <div class="vz-orbit">
+          <svg data-orbit viewBox="0 0 200 200" fill="none">
+            <circle cx="100" cy="100" r="98" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 7" />
+          </svg>
         </div>
-        <div class="vz-hero__aside">
+        <span v-for="corner in 4" :key="corner" :class="`vz-corner vz-corner--${corner}`"><i></i><b></b></span>
+      </div>
+
+      <div class="vz-hero__inner">
+        <div class="vz-hero__meta" data-hero-meta>
+          <span>2026 / Веб-студия</span>
+          <span>Base / Moscow</span>
+        </div>
+        <div class="vz-hero__kicker">
+          <span>✦</span>
+          <span>Engineering clarity through code</span>
+        </div>
+        <h1>
+          <span><span data-reveal>Продукты,</span></span>
+          <span><span data-reveal>которые работают</span></span>
+          <span><span data-reveal>в вашем бизнесе</span></span>
+        </h1>
+        <div class="vz-hero__grid" data-hero-grid>
           <p>
-            Команда полного цикла: проектирование, дизайн, разработка, запуск и поддержка.
-            Ведём проект без субподряда и лишних звеньев.
+            Telegram Mini Apps, боты, сайты, интернет-магазины, AI и корпоративные системы.
+            Команда полного цикла — без субподряда и лишних звеньев.
           </p>
-          <div class="vz-actions">
-            <button class="vz-button vz-button--primary" type="button" @click="showModal = true">
-              Обсудить проект
-              <span aria-hidden="true">→</span>
-            </button>
-            <a class="vz-button vz-button--ghost" href="#stack">
-              Смотреть стек
-              <span aria-hidden="true">↓</span>
-            </a>
+          <div class="vz-hero__actions">
+            <a class="vz-button vz-button--dark" href="#contacts">Обсудить проект →</a>
+            <a class="vz-button-link" href="#stack">Смотреть стек <span aria-hidden="true">↓</span></a>
+          </div>
+        </div>
+        <div class="vz-hero__stats" data-hero-stats>
+          <span>От 40 000 ₽</span>
+          <span>/</span>
+          <span>Запуск 1–4 недели</span>
+          <span>/</span>
+          <span>Полный цикл</span>
+          <span>/</span>
+          <span>Без субподряда</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="vz-marquee" aria-label="Направления разработки">
+      <div>
+        <span v-for="item in marqueeItems" :key="`a-${item}`">{{ item }} <i>✦</i></span>
+        <span v-for="item in marqueeItems" :key="`b-${item}`" aria-hidden="true">{{ item }} <i>✦</i></span>
+      </div>
+    </div>
+
+    <section id="about" class="vz-about">
+      <div class="vz-about__grid">
+        <div class="vz-section-label">
+          <span>Кто мы</span>
+          <i>/</i>
+          <span data-secnum>01</span>
+        </div>
+        <div class="vz-about__copy">
+          <p class="vz-about__lead">
+            Мы — команда полного цикла. Каждый проект ведёт конкретный человек: от первого разговора до запуска.
+          </p>
+          <div class="vz-about__cols">
+            <p>Вникаем в задачу и предлагаем решения, а не просто закрываем ТЗ. Никакого субподряда и лишних звеньев между вами и результатом.</p>
+            <p>Нам важно, чтобы продукт реально работал в вашем бизнесе, а не выглядел красиво на сдаче и пылился после запуска.</p>
           </div>
         </div>
       </div>
-
-      <div class="vz-hero__stats" aria-label="Ключевые условия">
-        <span>{{ heroPriceLabel }}</span>
-        <span>Запуск 1-4 недели</span>
-        <span>Полный цикл</span>
-        <span>Без субподряда</span>
-      </div>
     </section>
 
-    <section id="about" class="vz-section vz-about" aria-labelledby="about-title">
-      <div class="vz-section__label">
-        <span>Кто мы</span>
-        <span>01</span>
-      </div>
-      <div class="vz-about__copy">
-        <h2 id="about-title">Мы — команда полного цикла.</h2>
-        <p>
-          Каждый проект ведёт конкретный человек: от первого разговора до запуска.
-          Вникаем в задачу и предлагаем решения, а не просто закрываем ТЗ.
-        </p>
-        <p>
-          Нам важно, чтобы продукт реально работал в вашем бизнесе, а не выглядел
-          красиво на сдаче и пылился после запуска.
-        </p>
-      </div>
-    </section>
-
-    <section id="stack" class="vz-section vz-stack" aria-labelledby="stack-title">
-      <div class="vz-stack__sticky">
-        <div class="vz-section__label">
-          <span>Стек</span>
-          <span>02</span>
-        </div>
-        <div class="vz-stack__head">
-          <h2 id="stack-title">Стек подбирается под задачу, а не по трендам</h2>
-          <p>Каждый инструмент проверен в реальных проектах и предсказуем в поддержке.</p>
-        </div>
-        <div class="vz-stack__line" aria-hidden="true"></div>
-        <div class="vz-stack__items">
-          <article v-for="(group, index) in displayStackGroups" :key="group.title" class="vz-stack-card">
-            <span class="vz-stack-card__num">{{ toNumber(index + 1) }} / {{ toNumber(displayStackGroups.length) }}</span>
-            <div class="vz-stack-card__dot" aria-hidden="true"></div>
+    <section id="stack" data-stack-section class="vz-stack">
+      <div class="vz-sticky">
+        <div class="vz-sticky__inner">
+          <div class="vz-sec-head" data-sec-head>
             <div>
-              <h3>{{ group.title }}</h3>
-              <p>{{ group.description }}</p>
-              <div class="vz-tags">
-                <span v-for="item in group.items" :key="item">{{ item }}</span>
+              <div class="vz-section-label">
+                <span>Стек</span>
+                <i>/</i>
+                <span data-secnum>02</span>
               </div>
+              <h2>Стек подбирается под задачу, а не по трендам</h2>
             </div>
+            <div class="vz-sec-meta" data-sec-meta>
+              <div><span data-stack-counter>01</span><i> / 04</i></div>
+              <p>Каждый инструмент проверен в реальных проектах и предсказуем в поддержке.</p>
+            </div>
+          </div>
+
+          <div class="vz-stack__timeline">
+            <div class="vz-stack__line" data-stack-line><span data-line-fill></span></div>
+            <article
+              v-for="group in displayStackGroups"
+              :key="group.title"
+              data-stack-item
+              class="vz-stack-item"
+            >
+              <div data-label>{{ group.title }}</div>
+              <div>
+                <span data-halo></span>
+                <span data-dot></span>
+              </div>
+              <div>
+                <p>{{ group.description }}</p>
+                <div>
+                  <span v-for="item in group.items" :key="item">{{ item }}</span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div class="vz-scroll-hint" data-stack-hint>
+            <span>Скролл</span>
+            <span>↓</span>
+            <span>категории появляются по очереди</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" data-services-pin class="vz-services">
+      <div class="vz-sticky">
+        <div class="vz-sticky__inner">
+          <div class="vz-sec-head" data-sec-head>
+            <div>
+              <div class="vz-section-label">
+                <span>Услуги</span>
+                <i>/</i>
+                <span data-secnum>03</span>
+              </div>
+              <h2><span><span data-reveal>Что мы делаем</span></span></h2>
+            </div>
+            <div class="vz-services__counter"><span data-serv-counter>01 / 07</span></div>
+          </div>
+
+          <div class="vz-services__grid" data-serv-grid>
+            <div class="vz-services__nav" data-serv-list>
+              <button
+                v-for="(service, index) in displayServices"
+                :key="service.title"
+                data-serv-nav
+                type="button"
+                @click="scrollToService(index)"
+              >
+                <span data-serv-nav-num>{{ service.n }}</span>
+                <span data-serv-nav-label>{{ service.title }}</span>
+              </button>
+            </div>
+
+            <div class="vz-services__stage" data-serv-stage>
+              <article
+                v-for="service in displayServices"
+                :key="service.n"
+                data-serv-panel
+                class="vz-service-panel"
+              >
+                <div>{{ service.n }}</div>
+                <div>
+                  <h3>{{ service.title }}</h3>
+                  <p>{{ service.desc }}</p>
+                  <div data-serv-metawrap>
+                    <span v-for="meta in service.meta" :key="meta">{{ meta }}</span>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="vz-services__bar"><span data-serv-bar></span></div>
+          <div class="vz-scroll-hint" data-serv-hint>
+            <span>Скролл</span>
+            <span>↓</span>
+            <span>услуги сменяют друг друга</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="clients" class="vz-clients">
+      <div class="vz-clients__grid" data-clients-grid>
+        <div>
+          <div class="vz-section-label">
+            <span>Для любых клиентов</span>
+            <i>/</i>
+            <span>✦</span>
+          </div>
+          <h2><span><span data-reveal>От частного специалиста до компании</span></span></h2>
+        </div>
+        <div class="vz-client-tags">
+          <span v-for="client in displayClients" :key="client">{{ client }}</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="stages" class="vz-stages">
+      <div class="vz-wrap">
+        <div class="vz-stages__head">
+          <div class="vz-section-label">
+            <span>Этапы работы</span>
+            <i>/</i>
+            <span data-secnum>04</span>
+          </div>
+          <h2><span><span data-reveal>Полный контроль на каждом шаге</span></span></h2>
+          <p>Фиксированные сроки, регулярные отчёты и согласование на каждом этапе. Никаких сюрпризов — только предсказуемый результат.</p>
+        </div>
+        <div class="vz-stage-list">
+          <article v-for="stage in displayStages" :key="stage.n" data-stages-row class="vz-stage-row">
+            <span>{{ stage.n }}</span>
+            <h3>{{ stage.title }}</h3>
+            <p>{{ stage.desc }}</p>
+            <span>{{ stage.dur }}</span>
           </article>
         </div>
       </div>
     </section>
 
-    <section id="services" class="vz-section vz-services" aria-labelledby="services-title">
-      <div class="vz-section__label">
-        <span>Услуги</span>
-        <span>03</span>
+    <section id="contacts" class="vz-contacts">
+      <div class="vz-contacts__art" aria-hidden="true">
+        <div></div>
+        <span v-for="corner in 4" :key="corner" :class="`vz-corner vz-corner--${corner}`"><i></i><b></b></span>
       </div>
-      <div class="vz-services__layout">
-        <div class="vz-services__head">
-          <p class="vz-kicker">Что мы делаем</p>
-          <h2 id="services-title">От Telegram-продуктов до внутренних систем.</h2>
-          <p>
-            Каждую услугу упаковываем в понятный план: цель, сроки, результат,
-            интеграции и поддержка после запуска.
-          </p>
-          <div class="vz-service-nav" role="tablist" aria-label="Услуги">
-            <button
-              v-for="(service, index) in displayServices"
-              :key="service.title"
-              :class="{ 'is-active': activeServiceIndex === index }"
-              type="button"
-              role="tab"
-              :aria-selected="activeServiceIndex === index"
-              @click="activeServiceIndex = index"
-              @mouseenter="activeServiceIndex = index"
-            >
-              <span>{{ service.n }}</span>
-              {{ service.title }}
-            </button>
-          </div>
+      <div class="vz-contacts__inner">
+        <div class="vz-section-label">
+          <span>Контакты</span>
+          <i>/</i>
+          <span data-secnum>05</span>
         </div>
-        <div class="vz-service-stage">
-          <Transition name="vz-service" mode="out-in">
-            <article :key="activeService.title" class="vz-service-panel">
-              <span>{{ activeService.n }}</span>
-              <h3>{{ activeService.title }}</h3>
-              <p>{{ activeService.desc }}</p>
-              <div class="vz-tags">
-                <span v-for="meta in activeService.meta" :key="meta">{{ meta }}</span>
-              </div>
-            </article>
-          </Transition>
+        <h2><span><span data-reveal>Обсудим проект и рассчитаем точную стоимость</span></span></h2>
+        <div class="vz-contacts__buttons" data-contacts-btns>
+          <a class="vz-button vz-button--dark" :href="`mailto:${contactEmail}`">Написать нам</a>
+          <a class="vz-button vz-button--light" :href="`mailto:${contactEmail}`">{{ contactEmail }}</a>
         </div>
       </div>
     </section>
 
-    <section id="clients" class="vz-clients" aria-labelledby="clients-title">
-      <div class="vz-section__label">
-        <span>Для любых клиентов</span>
-        <span>✦</span>
+    <footer class="vz-footer">
+      <div class="vz-footer__top" data-footer-top>
+        <span>Всё по проекту. В одном месте. Спокойно.</span>
+        <a href="#hero">Конец полотна ↑ В начало</a>
       </div>
-      <h2 id="clients-title">От частного специалиста до компании</h2>
-      <div class="vz-client-grid">
-        <span v-for="client in displayClients" :key="client">{{ client }}</span>
+      <div class="vz-footer__cols" data-footer-cols>
+        <div>
+          <span>Year</span>
+          <strong>2026</strong>
+        </div>
+        <div>
+          <span>Base</span>
+          <p>Москва<br />Россия</p>
+        </div>
+        <div>
+          <span>Contact</span>
+          <nav>
+            <a :href="`mailto:${contactEmail}`">{{ contactEmail }} →</a>
+            <a href="#hero">vezha.digital ↗</a>
+          </nav>
+        </div>
+        <div>
+          <span>Навигация</span>
+          <nav>
+            <a href="#about">Кто мы</a>
+            <a href="#stack">Стек</a>
+            <a href="#services">Услуги</a>
+            <a href="#stages">Этапы</a>
+          </nav>
+        </div>
       </div>
-    </section>
-
-    <section id="stages" class="vz-section vz-stages" aria-labelledby="stages-title">
-      <div class="vz-section__label">
-        <span>Этапы работы</span>
-        <span>04</span>
+      <div class="vz-footer__sign" data-footer-sign>
+        <div>
+          <span>2026 / Sign-off</span>
+          <span>vezha.digital</span>
+        </div>
+        <strong data-clip-reveal>VEZHA</strong>
       </div>
-      <div class="vz-stages__head">
-        <h2 id="stages-title">Полный контроль на каждом шаге</h2>
-        <p>
-          Фиксированные сроки, регулярные отчёты и согласование на каждом этапе.
-          Никаких сюрпризов — только предсказуемый результат.
-        </p>
+      <div class="vz-footer__legal" data-footer-legal>
+        <span>© 2026 · VEZHA DIGITAL</span>
+        <span>ИП Анищенко Д. А. · ОГРНИП 326774600075626 · ИНН 773421830976</span>
       </div>
-      <div class="vz-stage-list">
-        <article v-for="stage in displayStages" :key="stage.title" class="vz-stage-row">
-          <span>{{ stage.n }}</span>
-          <h3>{{ stage.title }}</h3>
-          <p>{{ stage.desc }}</p>
-          <small>{{ stage.dur }}</small>
-        </article>
-      </div>
-    </section>
-
-    <section id="contacts" class="vz-contacts" aria-labelledby="contacts-title">
-      <div class="vz-contacts__circle" aria-hidden="true"></div>
-      <div class="vz-section__label">
-        <span>Контакты</span>
-        <span>05</span>
-      </div>
-      <h2 id="contacts-title">Обсудим проект и рассчитаем точную стоимость</h2>
-      <div class="vz-actions vz-actions--center">
-        <button class="vz-button vz-button--primary" type="button" @click="showModal = true">
-          Написать нам
-          <span aria-hidden="true">→</span>
-        </button>
-        <a class="vz-button vz-button--ghost" :href="`mailto:${contactEmail}`">
-          {{ contactEmail }}
-        </a>
-      </div>
-    </section>
-
-    <ContactModal v-model:showModal="showModal" />
+    </footer>
   </div>
 </template>
 
 <script setup lang="ts">
-import ContactModal from "~/components/modals/ContactModal.vue";
 import type { IAdvantages } from "~/utils/interfaces/IAdvantages";
 import type { IClientType } from "~/utils/interfaces/IClientTypes";
 import type { IProjects } from "~/utils/interfaces/IProjects";
@@ -211,7 +347,7 @@ import type { ITechStack } from "~/utils/interfaces/ITechStack";
 import type { IWorkStages } from "~/utils/interfaces/IWorkStages";
 
 definePageMeta({
-  layout: "site-custom",
+  layout: false,
 });
 
 type StackGroup = {
@@ -244,10 +380,12 @@ const {
   getClientTypes,
 } = useApi();
 
-const showModal = ref(false);
-const showIntro = ref(false);
+const rootRef = ref<HTMLElement | null>(null);
+const preloaderRef = ref<HTMLElement | null>(null);
+const showPreloader = ref(true);
 const introProgress = ref(0);
-const activeServiceIndex = ref(0);
+const theme = ref("light");
+const isMenuOpen = ref(false);
 
 const services = ref<IServices[]>([]);
 const projects = ref<IProjects[]>([]);
@@ -257,72 +395,39 @@ const workStages = ref<IWorkStages[]>([]);
 const clientTypes = ref<IClientType[]>([]);
 const settings = ref<ISettings | null>(null);
 
+const navItems = [
+  { href: "#about", label: "Кто мы" },
+  { href: "#stack", label: "Стек" },
+  { href: "#services", label: "Услуги" },
+  { href: "#stages", label: "Этапы" },
+  { href: "#contacts", label: "Контакты" },
+];
+
+const marqueeItems = [
+  "Веб-разработка под ключ",
+  "Telegram Mini Apps",
+  "Telegram боты",
+  "Веб-сайты",
+  "Интернет-магазины",
+  "AI и автоматизация",
+  "Корпоративные системы",
+];
+
 const fallbackServices: DisplayService[] = [
-  {
-    n: "01",
-    title: "Telegram Mini Apps",
-    desc: "Полноценные приложения внутри Telegram: каталог, профиль, оплата и личный кабинет.",
-    meta: ["Каталог", "Оплата", "Профиль"],
-  },
-  {
-    n: "02",
-    title: "Telegram боты",
-    desc: "Автоматизация продаж, записи и поддержки прямо в чате, без лишних экранов.",
-    meta: ["Продажи", "Запись", "Поддержка"],
-  },
-  {
-    n: "03",
-    title: "Веб-сайты",
-    desc: "Лендинги и корпоративные сайты, которые быстро грузятся, понятно объясняют и продают.",
-    meta: ["Лендинги", "Корпоративные", "SEO"],
-  },
-  {
-    n: "04",
-    title: "Интернет-магазины",
-    desc: "Каталог, корзина, оплата, склад и CRM в одной устойчивой системе.",
-    meta: ["Корзина", "Оплата", "CRM"],
-  },
-  {
-    n: "05",
-    title: "AI и автоматизация",
-    desc: "Ассистенты, обработка заявок и интеграции, которые снимают рутину с команды.",
-    meta: ["Ассистенты", "Заявки", "Интеграции"],
-  },
-  {
-    n: "06",
-    title: "Корпоративные системы",
-    desc: "Внутренние порталы, CRM и учётные системы под реальные процессы компании.",
-    meta: ["CRM", "Порталы", "Учёт"],
-  },
-  {
-    n: "07",
-    title: "Мобильные приложения",
-    desc: "Нативные и кроссплатформенные приложения для iOS, Android и PWA-сценариев.",
-    meta: ["iOS", "Android", "PWA"],
-  },
+  { n: "01", title: "Telegram Mini Apps", desc: "Полноценные приложения внутри Telegram: каталог, профиль, оплата.", meta: ["Каталог", "Оплата", "Профиль"] },
+  { n: "02", title: "Telegram боты", desc: "Автоматизация продаж, записи и поддержки прямо в чате.", meta: ["Продажи", "Запись", "Поддержка"] },
+  { n: "03", title: "Веб-сайты", desc: "Лендинги и корпоративные сайты, которые быстро грузятся и продают.", meta: ["Лендинги", "Корпоративные", "SEO"] },
+  { n: "04", title: "Интернет-магазины", desc: "Каталог, корзина, оплата и интеграции со складом и CRM.", meta: ["Корзина", "Оплата", "CRM"] },
+  { n: "05", title: "AI и автоматизация", desc: "Ассистенты и обработка заявок на стороне ИИ — меньше рутины.", meta: ["Ассистенты", "Заявки", "Интеграции"] },
+  { n: "06", title: "Корпоративные системы", desc: "Внутренние порталы, CRM и учётные системы под ваши процессы.", meta: ["CRM", "Порталы", "Учёт"] },
+  { n: "07", title: "Мобильные приложения", desc: "Нативные и кроссплатформенные приложения для iOS и Android.", meta: ["iOS", "Android", "PWA"] },
 ];
 
 const fallbackStackGroups: StackGroup[] = [
-  {
-    title: "Frontend",
-    description: "Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.",
-    items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"],
-  },
-  {
-    title: "Backend",
-    description: "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.",
-    items: ["Python", "FastAPI", "PostgreSQL", "Redis"],
-  },
-  {
-    title: "DevOps",
-    description: "Стабильный деплой и мониторинг: предсказуемые релизы и аптайм без сюрпризов.",
-    items: ["Docker", "Nginx", "CI/CD", "Linux"],
-  },
-  {
-    title: "Mobile",
-    description: "Мобильные приложения и PWA с нативным ощущением на iOS и Android.",
-    items: ["React Native", "Expo", "PWA", "Flutter"],
-  },
+  { title: "Frontend", description: "Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
+  { title: "Backend", description: "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
+  { title: "DevOps", description: "Стабильный деплой и мониторинг: предсказуемые релизы и аптайм без сюрпризов.", items: ["Docker", "Nginx", "CI/CD", "Linux"] },
+  { title: "Mobile", description: "Мобильные приложения и PWA с нативным ощущением на iOS и Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
 ];
 
 const fallbackClients = [
@@ -334,27 +439,25 @@ const fallbackClients = [
 ];
 
 const fallbackStages: DisplayStage[] = [
-  { n: "01", title: "Анализ", desc: "Изучаем бизнес, цели и аудиторию, фиксируем техническое задание.", dur: "1-3 дня" },
-  { n: "02", title: "Проектирование", desc: "Прототипы экранов, архитектура системы и UX-логика продукта.", dur: "2-4 дня" },
-  { n: "03", title: "Дизайн", desc: "Визуальная концепция, UI Kit и адаптив под устройства.", dur: "3-7 дней" },
-  { n: "04", title: "Разработка", desc: "Frontend, Backend, API-интеграции и code review.", dur: "7-21 день" },
-  { n: "05", title: "Тестирование", desc: "Функциональное и нагрузочное тестирование, фикс багов.", dur: "2-5 дней" },
-  { n: "06", title: "Запуск", desc: "Деплой на сервер, настройка CI/CD и мониторинга.", dur: "1-2 дня" },
+  { n: "01", title: "Анализ", desc: "Изучаем бизнес, цели и аудиторию, фиксируем техническое задание.", dur: "1–3 дня" },
+  { n: "02", title: "Проектирование", desc: "Прототипы экранов, архитектура системы и UX-логика продукта.", dur: "2–4 дня" },
+  { n: "03", title: "Дизайн", desc: "Визуальная концепция, UI Kit и адаптив под устройства.", dur: "3–7 дней" },
+  { n: "04", title: "Разработка", desc: "Frontend, Backend, API-интеграции и code review.", dur: "7–21 день" },
+  { n: "05", title: "Тестирование", desc: "Функциональное и нагрузочное тестирование, фикс багов.", dur: "2–5 дней" },
+  { n: "06", title: "Запуск", desc: "Деплой на сервер, настройка CI/CD и мониторинга.", dur: "1–2 дня" },
   { n: "07", title: "Поддержка", desc: "Мониторинг, обновления, доработки и консультации.", dur: "Ongoing" },
 ];
 
 const displayServices = computed<DisplayService[]>(() => {
   if (!services.value.length) return fallbackServices;
 
-  return services.value.map((service, index) => ({
+  return services.value.slice(0, 7).map((service, index) => ({
     n: toNumber(index + 1),
     title: service.name || service.title || fallbackServices[index]?.title || "Услуга",
     desc: service.description || service.about || fallbackServices[index]?.desc || "Проектируем и запускаем продукт под задачу бизнеса.",
     meta: service.features?.slice(0, 3).map((feature) => feature.text) || fallbackServices[index]?.meta || [],
   }));
 });
-
-const activeService = computed(() => displayServices.value[activeServiceIndex.value] || displayServices.value[0]);
 
 const displayStackGroups = computed<StackGroup[]>(() => {
   if (!techStack.value.length) return fallbackStackGroups;
@@ -374,21 +477,15 @@ const displayStackGroups = computed<StackGroup[]>(() => {
 });
 
 const displayClients = computed(() => {
-  if (clientTypes.value.length) {
-    return clientTypes.value.slice(0, 7).map((client) => client.title);
-  }
-
-  if (projects.value.length) {
-    return projects.value.slice(0, 7).map((project) => project.type || project.name);
-  }
-
+  if (clientTypes.value.length) return clientTypes.value.slice(0, 7).map((client) => client.title);
+  if (projects.value.length) return projects.value.slice(0, 7).map((project) => project.type || project.name);
   return fallbackClients;
 });
 
 const displayStages = computed<DisplayStage[]>(() => {
   if (!workStages.value.length) return fallbackStages;
 
-  return workStages.value.map((stage, index) => ({
+  return workStages.value.slice(0, 7).map((stage, index) => ({
     n: toNumber(stage.step_number || index + 1),
     title: stage.title,
     desc: stage.description || stage.full_description,
@@ -397,43 +494,206 @@ const displayStages = computed<DisplayStage[]>(() => {
 });
 
 const contactEmail = computed(() => settings.value?.contact_email || "contact@vezha.digital");
-const heroPriceLabel = computed(() => {
-  const price = settings.value?.hero_price?.trim() || "50,000";
-  if (price.toLowerCase().startsWith("от ")) return price;
-  return `От ${price}${price.includes("₽") ? "" : " ₽"}`;
-});
 
 function toNumber(value: number) {
   return value.toString().padStart(2, "0");
 }
 
-function runIntro() {
-  const seen = sessionStorage.getItem("vz_intro_seen") === "1";
-  if (seen) return;
+function toggleTheme() {
+  theme.value = theme.value === "dark" ? "light" : "dark";
+  localStorage.setItem("vz_theme", theme.value);
+}
 
-  showIntro.value = true;
+function runPreloader() {
+  const seen = sessionStorage.getItem("vz_loaded") === "1";
+  if (seen) {
+    showPreloader.value = false;
+    return;
+  }
+
+  const duration = 1150;
   const started = performance.now();
-  const duration = 900;
 
-  const frame = (now: number) => {
+  const step = (now: number) => {
     const progress = Math.min(1, (now - started) / duration);
-    introProgress.value = Math.round(progress * 100);
+    introProgress.value = Math.round((1 - Math.pow(1 - progress, 2)) * 100);
 
     if (progress < 1) {
-      requestAnimationFrame(frame);
+      requestAnimationFrame(step);
       return;
     }
 
-    sessionStorage.setItem("vz_intro_seen", "1");
+    sessionStorage.setItem("vz_loaded", "1");
+    if (preloaderRef.value) {
+      preloaderRef.value.style.transform = "translateY(-100%)";
+      preloaderRef.value.style.pointerEvents = "none";
+    }
     window.setTimeout(() => {
-      showIntro.value = false;
-    }, 240);
+      showPreloader.value = false;
+    }, 900);
   };
 
-  requestAnimationFrame(frame);
+  requestAnimationFrame(step);
+}
+
+function setupReveals() {
+  const root = rootRef.value;
+  if (!root) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+
+  root.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
+    if (element.dataset.revealed) return;
+    element.style.transform = "translateY(110%)";
+    element.style.opacity = "0";
+    element.style.willChange = "transform";
+  });
+
+  root.querySelectorAll<HTMLElement>("[data-clip-reveal]").forEach((element) => {
+    if (element.dataset.clipped) return;
+    element.style.clipPath = "inset(0 100% 0 0)";
+  });
+}
+
+function scanReveals() {
+  const root = rootRef.value;
+  if (!root) return;
+  const vh = window.innerHeight;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  root.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
+    const wrap = element.parentElement || element;
+    const rect = wrap.getBoundingClientRect();
+    const inView = rect.top < vh * 0.92 && rect.bottom > -40;
+
+    if (reduceMotion || inView) {
+      if (!element.dataset.revealed) {
+        element.dataset.revealed = "1";
+        element.style.transition = "transform .9s cubic-bezier(.22,1,.36,1), opacity .9s ease";
+      }
+      element.style.transform = "translateY(0)";
+      element.style.opacity = "1";
+    }
+  });
+
+  root.querySelectorAll<HTMLElement>("[data-clip-reveal]").forEach((element) => {
+    const rect = element.getBoundingClientRect();
+    const inView = rect.top < vh * 0.86 && rect.bottom > -40;
+    if (reduceMotion || inView) {
+      if (!element.dataset.clipped) {
+        element.dataset.clipped = "1";
+        element.style.transition = "clip-path 1.5s cubic-bezier(.16,1,.3,1)";
+      }
+      element.style.clipPath = "inset(0 0% 0 0)";
+    }
+  });
+}
+
+function updateScrollEffects() {
+  const root = rootRef.value;
+  if (!root) return;
+  scanReveals();
+
+  const stack = root.querySelector<HTMLElement>("[data-stack-section]");
+  const stackItems = root.querySelectorAll<HTMLElement>("[data-stack-item]");
+  const stackFill = root.querySelector<HTMLElement>("[data-line-fill]");
+  const stackCounter = root.querySelector<HTMLElement>("[data-stack-counter]");
+
+  if (stack && stackItems.length) {
+    const rect = stack.getBoundingClientRect();
+    const total = stack.offsetHeight - window.innerHeight;
+    const progress = Math.max(0, Math.min(1, total > 0 ? -rect.top / total : 0));
+    const span = 1 / stackItems.length;
+    let active = 0;
+
+    stackItems.forEach((item, index) => {
+      const itemProgress = Math.max(0, Math.min(1, (progress - index * span) / (span * 0.72)));
+      const isActive = progress >= index * span - 0.0001 && (index === stackItems.length - 1 || progress < (index + 1) * span);
+      item.style.opacity = itemProgress.toFixed(3);
+      item.style.transform = `translateY(${((1 - itemProgress) * 28).toFixed(1)}px)`;
+      if (itemProgress > 0.5) active = index;
+
+      const dot = item.querySelector<HTMLElement>("[data-dot]");
+      const label = item.querySelector<HTMLElement>("[data-label]");
+      const halo = item.querySelector<HTMLElement>("[data-halo]");
+      if (dot) {
+        dot.style.background = isActive ? "var(--ink)" : "var(--dot)";
+        dot.style.borderColor = itemProgress > 0.2 ? "var(--ink)" : "var(--dotbd)";
+        dot.style.transform = `scale(${isActive ? 1.3 : 1})`;
+      }
+      if (label) label.style.color = itemProgress > 0.35 ? "var(--ink)" : "var(--idle)";
+      if (halo) halo.style.opacity = isActive ? "1" : "0";
+    });
+
+    if (stackFill) stackFill.style.height = `${(progress * 100).toFixed(2)}%`;
+    if (stackCounter) stackCounter.textContent = toNumber(active + 1);
+  }
+
+  const servicesSection = root.querySelector<HTMLElement>("[data-services-pin]");
+  if (!servicesSection) return;
+  const panels = root.querySelectorAll<HTMLElement>("[data-serv-panel]");
+  const navs = root.querySelectorAll<HTMLElement>("[data-serv-nav]");
+  const bar = root.querySelector<HTMLElement>("[data-serv-bar]");
+  const counter = root.querySelector<HTMLElement>("[data-serv-counter]");
+  const total = servicesSection.offsetHeight - window.innerHeight;
+  const rect = servicesSection.getBoundingClientRect();
+  const progress = Math.max(0, Math.min(1, total > 0 ? -rect.top / total : 0));
+  const frame = progress * Math.max(0, panels.length - 1);
+  const active = Math.round(frame);
+
+  panels.forEach((panel, index) => {
+    const distance = frame - index;
+    const visibility = Math.max(0, 1 - Math.abs(distance));
+    const eased = visibility * visibility * (3 - 2 * visibility);
+    panel.style.opacity = eased.toFixed(3);
+    panel.style.transform = `translateY(${(-distance * 46).toFixed(1)}px)`;
+    panel.style.pointerEvents = Math.abs(distance) < 0.5 ? "auto" : "none";
+  });
+
+  navs.forEach((nav, index) => {
+    const on = index === active;
+    const label = nav.querySelector<HTMLElement>("[data-serv-nav-label]");
+    const num = nav.querySelector<HTMLElement>("[data-serv-nav-num]");
+    if (label) {
+      label.style.color = on ? "var(--ink)" : "var(--muted2)";
+      label.style.fontWeight = on ? "600" : "400";
+    }
+    if (num) num.style.color = on ? "var(--ink)" : "var(--hair)";
+    nav.style.borderBottomColor = on ? "var(--ink)" : "var(--border)";
+    nav.style.paddingLeft = on ? "12px" : "2px";
+  });
+
+  if (bar) bar.style.width = `${(progress * 100).toFixed(2)}%`;
+  if (counter) counter.textContent = `${toNumber(active + 1)} / ${toNumber(panels.length)}`;
+}
+
+function scrollToService(index: number) {
+  const root = rootRef.value;
+  const section = root?.querySelector<HTMLElement>("[data-services-pin]");
+  if (!section) return;
+
+  const total = section.offsetHeight - window.innerHeight;
+  const target = section.offsetTop + (displayServices.value.length > 1 ? index / (displayServices.value.length - 1) : 0) * total;
+  window.scrollTo({ top: target, behavior: "smooth" });
+}
+
+let raf = 0;
+function scheduleUpdate() {
+  if (raf) return;
+  raf = requestAnimationFrame(() => {
+    raf = 0;
+    updateScrollEffects();
+  });
 }
 
 onMounted(async () => {
+  theme.value = localStorage.getItem("vz_theme") || "light";
+  runPreloader();
+  setupReveals();
+  updateScrollEffects();
+  window.addEventListener("scroll", scheduleUpdate, { passive: true });
+  window.addEventListener("resize", scheduleUpdate);
+
   try {
     const [
       servicesData,
@@ -460,15 +720,23 @@ onMounted(async () => {
     workStages.value = workStagesData;
     settings.value = settingsData.settings;
     clientTypes.value = clientTypeData;
+    await nextTick();
+    setupReveals();
+    updateScrollEffects();
   } catch (error) {
     console.info("VEZHA public data fallback is active:", error);
   }
 });
 
-watch(displayServices, (items) => {
-  if (activeServiceIndex.value > items.length - 1) {
-    activeServiceIndex.value = 0;
-  }
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", scheduleUpdate);
+  window.removeEventListener("resize", scheduleUpdate);
+  if (raf) cancelAnimationFrame(raf);
+});
+
+watch(displayServices, async () => {
+  await nextTick();
+  updateScrollEffects();
 });
 
 useHead({
@@ -487,569 +755,1009 @@ useHead({
     { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
     {
       rel: "stylesheet",
-      href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700;800&display=swap",
+      href: "https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
     },
   ],
 });
 </script>
 
-<style scoped>
-.vz-home {
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-ui);
-  -webkit-font-smoothing: antialiased;
+<style>
+.vz-min,
+.vz-min * {
+  box-sizing: border-box;
 }
 
-.vz-intro {
+.vz-min {
+  --bg: #ffffff;
+  --ink: #1c1d21;
+  --text2: #565a62;
+  --text3: #6b6f77;
+  --chipink: #45484e;
+  --muted: #9ba0a8;
+  --muted2: #b9bdc3;
+  --idle: #c2c6cc;
+  --hair: #cdd1d6;
+  --border: #ececef;
+  --border2: #f0f1f3;
+  --surface: #f6f7f9;
+  --surface-bd: #eceef0;
+  --hover: #fafbfc;
+  --chipbd: #e5e7ea;
+  --ghost: #f1f2f4;
+  --dotbd: #d9dce0;
+  --dot: #ffffff;
+  --btnhover: #36373d;
+  --slash: #dcdfe3;
+  --navbg: rgba(255, 255, 255, 0.72);
+  --halo: rgba(28, 29, 33, 0.07);
+  --aura: rgba(63, 77, 91, 0.1);
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Onest", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s ease, color 0.4s ease;
+}
+
+.vz-min[data-theme="dark"] {
+  --bg: #0e0f12;
+  --ink: #f2f3f5;
+  --text2: #a6acb4;
+  --text3: #969ca4;
+  --chipink: #c6cbd1;
+  --muted: #79808a;
+  --muted2: #5c626b;
+  --idle: #41464e;
+  --hair: #34383f;
+  --border: #26282d;
+  --border2: #1b1d21;
+  --surface: #15171b;
+  --surface-bd: #212429;
+  --hover: #181a1e;
+  --chipbd: #2b2e34;
+  --ghost: #191b1f;
+  --dotbd: #3b404a;
+  --dot: #ffffff;
+  --btnhover: #d9dbdf;
+  --slash: #34383f;
+  --navbg: rgba(14, 15, 18, 0.66);
+  --halo: rgba(255, 255, 255, 0.28);
+  --aura: rgba(63, 77, 91, 0.24);
+}
+
+.vz-min ::selection {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+@keyframes vz-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes vz-orbit {
+  to { transform: rotate(360deg); }
+}
+
+.vz-preloader {
   position: fixed;
   inset: 0;
-  z-index: 3000;
+  z-index: 200;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 40px;
   background: var(--bg);
-  color: var(--text);
+  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
 }
 
-.vz-intro__top,
-.vz-intro__bottom {
+.vz-preloader__top,
+.vz-preloader__meta,
+.vz-section-label,
+.vz-hero__meta,
+.vz-hero__kicker,
+.vz-hero__stats,
+.vz-scroll-hint,
+.vz-footer__top,
+.vz-footer__cols > div > span,
+.vz-footer__sign > div,
+.vz-footer__legal,
+.vz-services__counter,
+.vz-stage-row > span:first-child,
+.vz-stage-row > span:last-child {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vz-preloader__top {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
-  font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-.vz-intro__brand {
-  font-size: clamp(72px, 18vw, 220px);
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 0.85;
+.vz-preloader__bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
 }
 
-.vz-intro-enter-active,
-.vz-intro-leave-active {
-  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+.vz-preloader__count {
+  color: var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(72px, 17vw, 230px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
 }
 
-.vz-intro-enter-from,
-.vz-intro-leave-to {
-  transform: translateY(-100%);
+.vz-preloader__count span:last-child {
+  color: var(--idle);
 }
 
-.vz-section,
-.vz-hero,
-.vz-clients,
-.vz-contacts {
+.vz-preloader__meta {
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  line-height: 1.7;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+.vz-nav {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 100;
+  display: flex;
+  height: 68px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: 1px solid var(--border);
+  background: var(--navbg);
+  backdrop-filter: saturate(1.4) blur(14px);
+}
+
+.vz-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.vz-logo span {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.vz-logo small {
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.vz-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+
+.vz-nav__links a,
+.vz-footer a {
+  color: var(--text2);
+  text-decoration: none;
+}
+
+.vz-nav__links a {
+  font-size: 14px;
+}
+
+.vz-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vz-icon-button,
+.vz-menu-button {
+  display: flex;
+  width: 38px;
+  height: 38px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.vz-nav__cta,
+.vz-button,
+.vz-mobile-menu__cta {
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.vz-nav__cta {
+  padding: 11px 20px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 14px;
+}
+
+.vz-menu-button {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vz-menu-button span {
+  display: block;
+  width: 17px;
+  height: 1.5px;
+  background: var(--ink);
+}
+
+.vz-mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 24px 40px;
+  background: var(--bg);
+}
+
+.vz-mobile-menu__top,
+.vz-mobile-menu__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vz-mobile-menu__links {
+  display: flex;
+  flex-direction: column;
+  margin-top: 38px;
+}
+
+.vz-mobile-menu__links a {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.vz-mobile-menu__cta {
+  margin-top: 30px;
+  padding: 17px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 16px;
+  text-align: center;
+}
+
+.vz-mobile-menu__bottom {
+  margin-top: auto;
+  padding-top: 30px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vz-hero {
   position: relative;
   max-width: 1240px;
   margin: 0 auto;
-  padding-inline: 40px;
+  padding: 150px 40px 92px;
 }
 
-.vz-section__label {
+.vz-hero__art,
+.vz-contacts__art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vz-aura,
+.vz-contacts__art > div {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--aura) 0%, transparent 70%);
+}
+
+.vz-aura--top {
+  top: -110px;
+  right: -150px;
+  width: 540px;
+  height: 540px;
+}
+
+.vz-aura--bottom {
+  bottom: -250px;
+  left: 3%;
+  width: 480px;
+  height: 480px;
+}
+
+.vz-orbit {
+  position: absolute;
+  top: 52%;
+  right: 1%;
+  width: min(56vmin, 540px);
+  height: min(56vmin, 540px);
+  transform: translateY(-50%);
+}
+
+.vz-orbit svg {
+  width: 100%;
+  height: 100%;
+  color: var(--hair);
+  opacity: 0.55;
+  animation: vz-orbit 48s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.vz-corner {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+}
+
+.vz-corner i,
+.vz-corner b {
+  position: absolute;
+  display: block;
+  background: var(--muted2);
+}
+
+.vz-corner i {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+  transform: translateX(-50%);
+}
+
+.vz-corner b {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  transform: translateY(-50%);
+}
+
+.vz-corner--1 { top: 26px; left: 26px; }
+.vz-corner--2 { top: 26px; right: 26px; }
+.vz-corner--3 { bottom: 26px; left: 26px; }
+.vz-corner--4 { right: 26px; bottom: 26px; }
+
+.vz-hero__inner,
+.vz-contacts__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.vz-hero__meta {
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
-  margin-bottom: 34px;
-  font-family: var(--font-mono);
+  color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--muted);
 }
 
-.vz-kicker {
-  margin: 0 0 16px;
-  font-family: var(--font-mono);
+.vz-hero__kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 58px;
+  color: var(--muted2);
   font-size: 12px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--muted);
+}
+
+.vz-hero__kicker span:first-child {
+  color: var(--ink);
+}
+
+.vz-hero h1 {
+  margin: 22px 0 0;
+  font-size: clamp(42px, 7vw, 104px);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.vz-hero h1 > span,
+.vz-services h2 > span,
+.vz-clients h2 > span,
+.vz-stages h2 > span,
+.vz-contacts h2 > span {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.vz-hero h1 > span {
+  padding-bottom: 0.06em;
+}
+
+.vz-hero h1 span span,
+.vz-services h2 span span,
+.vz-clients h2 span span,
+.vz-stages h2 span span,
+.vz-contacts h2 span span {
+  display: block;
+}
+
+.vz-hero__grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 60px;
+  align-items: end;
+  margin-top: 50px;
+}
+
+.vz-hero__grid p {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--text2);
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.vz-hero__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+  justify-self: end;
 }
 
 .vz-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-height: 48px;
-  padding: 14px 24px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font: 500 15px/1 var(--font-ui);
+  font-size: 16px;
+}
+
+.vz-button--dark {
+  padding: 16px 28px;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.vz-button--light {
+  padding: 17px 28px;
+  border: 1px solid var(--dotbd);
+  color: var(--ink);
+}
+
+.vz-button-link {
+  display: inline-flex;
+  gap: 9px;
+  padding-left: 4px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 500;
   text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, gap 0.2s ease, transform 0.2s ease;
-}
-
-.vz-button:hover {
-  gap: 14px;
-  transform: translateY(-1px);
-}
-
-.vz-button:focus-visible,
-.vz-service-nav button:focus-visible {
-  outline: 2px solid var(--text);
-  outline-offset: 3px;
-}
-
-.vz-button--primary {
-  background: var(--text);
-  color: var(--bg);
-  border-color: var(--text);
-}
-
-.vz-button--primary:hover {
-  background: var(--btn-hover);
-  color: var(--bg);
-}
-
-.vz-button--ghost {
-  background: transparent;
-  color: var(--text);
-}
-
-.vz-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  align-items: center;
-}
-
-.vz-actions--center {
-  justify-content: center;
-}
-
-.vz-hero {
-  min-height: min(860px, calc(100vh - 10px));
-  padding-top: 126px;
-  padding-bottom: 72px;
-  overflow: hidden;
-}
-
-.vz-hero__orbit {
-  position: absolute;
-  top: 104px;
-  left: 50%;
-  width: min(470px, 62vw);
-  aspect-ratio: 1;
-  border: 1px dashed var(--hair);
-  border-radius: 50%;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.vz-hero__meta,
-.vz-hero__stats {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 18px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-.vz-hero__meta span:last-child {
-  text-align: right;
-}
-
-.vz-hero__seal {
-  position: relative;
-  z-index: 1;
-  display: grid;
-  justify-items: center;
-  margin: 42px auto 0;
-  width: min(560px, 100%);
-  text-align: center;
-}
-
-.vz-hero__seal span {
-  font-family: var(--font-mono);
-  font-size: clamp(14px, 2vw, 24px);
-  letter-spacing: 0.34em;
-  color: var(--muted-2);
-}
-
-.vz-hero__seal strong {
-  margin: 8px 0 4px;
-  font-size: clamp(72px, 10vw, 132px);
-  font-weight: 800;
-  letter-spacing: 0;
-  line-height: 0.88;
-  color: var(--text);
-}
-
-.vz-hero__grid {
-  display: grid;
-  grid-template-columns: 1.08fr 0.92fr;
-  gap: 60px;
-  align-items: end;
-  margin-top: 44px;
-}
-
-.vz-hero h1 {
-  max-width: 780px;
-  margin: 0;
-  font-size: clamp(40px, 5.2vw, 72px);
-  line-height: 0.96;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.vz-hero__aside {
-  display: grid;
-  gap: 28px;
-}
-
-.vz-hero__aside p {
-  margin: 0;
-  max-width: 520px;
-  color: var(--text-2);
-  font-size: 18px;
-  line-height: 1.7;
 }
 
 .vz-hero__stats {
+  display: flex;
   flex-wrap: wrap;
-  justify-content: flex-start;
-  margin-top: 42px;
+  gap: 20px;
+  margin-top: 58px;
   padding-top: 24px;
   border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vz-hero__stats span:nth-child(even) {
+  color: var(--slash);
+}
+
+.vz-marquee {
+  overflow: hidden;
+  padding: 22px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.vz-marquee > div {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: vz-marquee 32s linear infinite;
+  will-change: transform;
+}
+
+.vz-marquee span {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 24px;
+  color: var(--ink);
+  font-size: clamp(20px, 2.4vw, 30px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.vz-marquee i {
+  margin-left: 24px;
+  color: var(--hair);
+  font-style: normal;
 }
 
 .vz-about {
-  display: grid;
-  grid-template-columns: minmax(180px, 0.35fr) 1fr;
-  gap: 72px;
-  padding-top: 120px;
-  padding-bottom: 110px;
-  border-top: 1px solid var(--border-2);
+  padding: 120px 40px 110px;
 }
 
-.vz-about .vz-section__label {
+.vz-about__grid,
+.vz-clients__grid {
   display: grid;
-  align-content: start;
-  margin: 0;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.vz-about__grid {
+  grid-template-columns: 300px 1fr;
+  gap: 80px;
+}
+
+.vz-section-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vz-section-label i {
+  margin: 0 9px;
+  color: var(--hair);
+  font-style: normal;
 }
 
 .vz-about__copy {
-  max-width: 880px;
+  max-width: 720px;
 }
 
-.vz-about h2,
-.vz-stack h2,
-.vz-services h2,
+.vz-about__lead {
+  margin: 0;
+  font-size: clamp(26px, 3vw, 38px);
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.vz-about__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px;
+  margin-top: 48px;
+}
+
+.vz-about__cols p,
+.vz-sec-meta p,
+.vz-stage-row p,
+.vz-stages__head p,
+.vz-service-panel p {
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+.vz-about__cols p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.vz-stack,
+.vz-services {
+  position: relative;
+  border-top: 1px solid var(--border2);
+}
+
+.vz-stack {
+  min-height: 380vh;
+}
+
+.vz-services {
+  min-height: 580vh;
+}
+
+.vz-sticky {
+  position: sticky;
+  top: 0;
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  overflow: hidden;
+}
+
+.vz-sticky__inner {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+.vz-sec-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 40px;
+  margin-bottom: 52px;
+}
+
+.vz-sec-head h2,
 .vz-clients h2,
 .vz-stages h2,
 .vz-contacts h2 {
   margin: 0;
-  font-size: clamp(34px, 5vw, 74px);
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: 0;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-transform: uppercase;
 }
 
-.vz-about p {
-  margin: 34px 0 0;
-  font-size: clamp(22px, 3.1vw, 42px);
-  line-height: 1.18;
-  color: var(--text);
+.vz-sec-head h2 {
+  max-width: 640px;
+  margin-top: 20px;
+  font-size: clamp(32px, 4vw, 52px);
 }
 
-.vz-about p + p {
-  color: var(--text-2);
+.vz-sec-meta {
+  max-width: 360px;
+  flex-shrink: 0;
 }
 
-.vz-stack {
-  max-width: none;
-  min-height: 330vh;
-  padding: 0;
-  border-top: 1px solid var(--border-2);
+.vz-sec-meta div {
+  color: var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.06em;
 }
 
-.vz-stack__sticky {
-  position: sticky;
-  top: 0;
-  display: grid;
-  grid-template-columns: minmax(260px, 0.75fr) minmax(0, 1.25fr);
-  gap: 72px;
-  min-height: 100vh;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 112px 40px 72px;
-  align-items: center;
+.vz-sec-meta div span {
+  font-size: 40px;
+  font-weight: 500;
 }
 
-.vz-stack__head {
-  align-self: start;
-}
-
-.vz-stack__head p,
-.vz-services__head > p,
-.vz-stages__head p {
-  margin: 22px 0 0;
-  max-width: 560px;
-  color: var(--text-2);
+.vz-sec-meta div i {
+  color: var(--muted2);
   font-size: 17px;
-  line-height: 1.7;
+  font-style: normal;
+}
+
+.vz-sec-meta p {
+  margin: 12px 0 0;
+  font-size: 14px;
+}
+
+.vz-stack__timeline {
+  position: relative;
 }
 
 .vz-stack__line {
   position: absolute;
-  top: 19%;
-  bottom: 13%;
-  left: calc(50% - 58px);
+  top: 8px;
+  bottom: 8px;
+  left: 281px;
   width: 1px;
   background: var(--border);
 }
 
-.vz-stack__items {
-  display: grid;
-  gap: 0;
+.vz-stack__line span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 0%;
+  background: var(--ink);
 }
 
-.vz-stack-card {
+.vz-stack-item {
   display: grid;
-  grid-template-columns: 112px 48px 1fr;
-  gap: 22px;
+  grid-template-columns: 240px 80px 1fr;
   align-items: center;
-  min-height: 120px;
-  padding: 12px 0;
+  min-height: 116px;
+  opacity: 0;
+  transform: translateY(28px);
 }
 
-.vz-stack-card__num {
-  justify-self: end;
-  font-family: var(--font-mono);
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.08em;
+.vz-stack-item > div:first-child {
+  padding-right: 24px;
+  color: var(--idle);
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-align: right;
+  transition: color 0.25s ease;
 }
 
-.vz-stack-card__dot {
-  width: 16px;
-  height: 16px;
-  border: 1px solid var(--text);
+.vz-stack-item > div:nth-child(2) {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.vz-stack-item [data-halo] {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--halo);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.vz-stack-item [data-dot] {
+  position: relative;
+  width: 15px;
+  height: 15px;
+  border: 2px solid var(--dotbd);
   border-radius: 50%;
   background: var(--bg);
-  box-shadow: 0 0 0 10px var(--bg);
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
 }
 
-.vz-stack-card h3,
-.vz-stage-row h3 {
-  margin: 0;
-  font-size: clamp(22px, 2.2vw, 32px);
-  line-height: 1.1;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-.vz-stack-card p,
-.vz-stage-row p,
-.vz-service-panel p {
-  margin: 10px 0 0;
-  color: var(--text-2);
-  font-size: 15px;
+.vz-stack-item p {
+  max-width: 46ch;
+  margin: 0 0 16px;
+  color: var(--text2);
+  font-size: 16px;
   line-height: 1.55;
 }
 
-.vz-tags {
+.vz-stack-item > div:last-child > div,
+.vz-service-panel [data-serv-metawrap] {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 18px;
 }
 
-.vz-tags span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 29px;
-  padding: 6px 11px;
-  border: 1px solid var(--border);
+.vz-stack-item span:not([data-dot], [data-halo]),
+.vz-service-panel [data-serv-metawrap] span {
+  padding: 7px 13px;
+  border: 1px solid var(--chipbd);
   border-radius: 999px;
-  font-family: var(--font-mono);
+  color: var(--chipink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+.vz-scroll-hint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 46px;
+  color: var(--muted2);
   font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--text-2);
-  background: var(--surface);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
-.vz-services {
-  max-width: none;
-  padding: 0;
-  border-top: 1px solid var(--border-2);
+.vz-services h2,
+.vz-stages h2 {
+  font-size: clamp(34px, 4.4vw, 56px);
 }
 
-.vz-services > .vz-section__label {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 112px 40px 0;
+.vz-services__counter {
+  flex-shrink: 0;
+  color: var(--ink);
+  font-size: 14px;
+  letter-spacing: 0.08em;
 }
 
-.vz-services__layout {
+.vz-services__grid {
   display: grid;
-  grid-template-columns: minmax(320px, 0.78fr) minmax(0, 1.22fr);
-  gap: 72px;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 34px 40px 120px;
-}
-
-.vz-services__head {
-  position: sticky;
-  top: 96px;
-  align-self: start;
-}
-
-.vz-service-nav {
-  display: grid;
-  margin-top: 42px;
-  border-top: 1px solid var(--border);
-}
-
-.vz-service-nav button {
-  display: grid;
-  grid-template-columns: 46px 1fr;
-  gap: 12px;
-  width: 100%;
-  padding: 17px 2px;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  text-align: left;
-  font: 500 15px/1.2 var(--font-ui);
-  cursor: pointer;
-  transition: color 0.2s ease, padding-left 0.2s ease, border-color 0.2s ease;
-}
-
-.vz-service-nav button span {
-  font-family: var(--font-mono);
-  color: var(--hair);
-}
-
-.vz-service-nav button.is-active {
-  padding-left: 12px;
-  color: var(--text);
-  border-bottom-color: var(--text);
-}
-
-.vz-service-nav button.is-active span {
-  color: var(--text);
-}
-
-.vz-service-stage {
-  min-height: 620px;
-  display: flex;
-  align-items: center;
-  border-left: 1px solid var(--border);
-  padding-left: 58px;
-}
-
-.vz-service-panel {
-  max-width: 680px;
-}
-
-.vz-service-panel > span {
-  display: block;
-  margin-bottom: 18px;
-  font-family: var(--font-mono);
-  font-size: clamp(72px, 11vw, 152px);
-  line-height: 0.8;
-  color: var(--hair);
-}
-
-.vz-service-panel h3 {
-  margin: 0;
-  max-width: 620px;
-  font-size: clamp(40px, 6vw, 86px);
-  line-height: 0.94;
-  font-weight: 700;
-  letter-spacing: 0;
-}
-
-.vz-service-panel p {
-  max-width: 540px;
-  margin-top: 26px;
-  font-size: 18px;
-  line-height: 1.65;
-}
-
-.vz-service-enter-active,
-.vz-service-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-.vz-service-enter-from,
-.vz-service-leave-to {
-  opacity: 0;
-  transform: translateY(18px);
-}
-
-.vz-clients {
-  padding-top: 120px;
-  padding-bottom: 120px;
-  background: var(--surface);
-  border-top: 1px solid var(--surface-bd);
-  max-width: none;
-}
-
-.vz-clients > * {
-  max-width: 1240px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.vz-clients .vz-section__label,
-.vz-clients h2,
-.vz-client-grid {
-  padding-left: 40px;
-  padding-right: 40px;
-}
-
-.vz-clients h2 {
-  max-width: 1040px;
-}
-
-.vz-client-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  margin-top: 44px;
-}
-
-.vz-client-grid span {
-  padding: 13px 18px;
-  border: 1px solid var(--surface-bd);
-  border-radius: 999px;
-  color: var(--text-2);
-  background: var(--bg);
-}
-
-.vz-stages {
-  padding-top: 120px;
-  padding-bottom: 120px;
-  border-top: 1px solid var(--border-2);
-}
-
-.vz-stages__head {
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(260px, 0.48fr);
-  gap: 56px;
+  grid-template-columns: 300px 1fr;
+  gap: 70px;
   align-items: start;
 }
 
+.vz-services__nav {
+  border-top: 1px solid var(--border);
+}
+
+.vz-services__nav button {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  gap: 16px;
+  padding: 13px 2px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  transition: padding-left 0.3s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.vz-services__nav button span:first-child {
+  color: var(--hair);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.vz-services__nav button span:last-child {
+  color: var(--muted2);
+  font-size: 17px;
+  letter-spacing: -0.01em;
+}
+
+.vz-services__stage {
+  position: relative;
+  min-height: 380px;
+}
+
+.vz-service-panel {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.vz-service-panel > div:first-child {
+  position: absolute;
+  top: -34px;
+  right: 0;
+  z-index: 0;
+  color: var(--ghost);
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(120px, 17vw, 240px);
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 0.8;
+  pointer-events: none;
+  user-select: none;
+}
+
+.vz-service-panel > div:last-child {
+  position: relative;
+  z-index: 1;
+  max-width: 640px;
+}
+
+.vz-service-panel h3 {
+  margin: 8px 0 0;
+  font-size: clamp(38px, 4.6vw, 60px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.vz-service-panel p {
+  max-width: 50ch;
+  margin: 28px 0 0;
+  font-size: 19px;
+  line-height: 1.55;
+}
+
+.vz-service-panel [data-serv-metawrap] {
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+}
+
+.vz-service-panel [data-serv-metawrap] span {
+  padding: 8px 15px;
+}
+
+.vz-services__bar {
+  position: relative;
+  overflow: hidden;
+  height: 2px;
+  margin-top: 48px;
+  background: var(--border);
+}
+
+.vz-services__bar span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: var(--ink);
+  transition: width 0.12s linear;
+}
+
+.vz-services .vz-scroll-hint {
+  margin-top: 18px;
+}
+
+.vz-clients {
+  padding: 120px 40px;
+  border-top: 1px solid var(--surface-bd);
+  background: var(--surface);
+}
+
+.vz-clients__grid {
+  grid-template-columns: 360px 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.vz-clients h2 {
+  margin-top: 22px;
+  font-size: clamp(30px, 3.6vw, 46px);
+}
+
+.vz-client-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.vz-client-tags span {
+  padding: 14px 22px;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.vz-stages {
+  padding: 120px 40px;
+  border-top: 1px solid var(--border2);
+}
+
+.vz-wrap {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.vz-stages__head {
+  margin-bottom: 56px;
+}
+
+.vz-stages__head h2 {
+  max-width: 20ch;
+  margin-top: 20px;
+}
+
+.vz-stages__head p {
+  max-width: 60ch;
+  margin: 22px 0 0;
+  color: var(--text3);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
 .vz-stage-list {
-  margin-top: 58px;
   border-top: 1px solid var(--border);
 }
 
@@ -1060,279 +1768,465 @@ useHead({
   align-items: baseline;
   padding: 28px 0;
   border-bottom: 1px solid var(--border);
-  transition: background 0.2s ease, padding-inline 0.2s ease;
 }
 
-.vz-stage-row:hover {
-  background: var(--hover);
-  padding-inline: 12px;
+.vz-stage-row > span:first-child {
+  color: var(--muted2);
+  font-size: 14px;
 }
 
-.vz-stage-row > span,
-.vz-stage-row small {
-  font-family: var(--font-mono);
-  color: var(--muted);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.vz-stage-row h3 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .vz-stage-row p {
   margin: 0;
+  color: var(--text3);
+  font-size: 15px;
+  line-height: 1.55;
 }
 
-.vz-stage-row small {
+.vz-stage-row > span:last-child {
+  color: var(--muted);
+  font-size: 13px;
   text-align: right;
 }
 
 .vz-contacts {
-  max-width: none;
-  overflow: hidden;
-  padding-top: 140px;
-  padding-bottom: 120px;
-  border-top: 1px solid var(--border-2);
-  text-align: center;
-}
-
-.vz-contacts > *:not(.vz-contacts__circle) {
   position: relative;
-  z-index: 1;
-  max-width: 1240px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 40px;
-  padding-right: 40px;
+  overflow: hidden;
+  padding: 140px 40px 120px;
+  border-top: 1px solid var(--border2);
 }
 
-.vz-contacts .vz-section__label {
-  max-width: 1240px;
-  margin-bottom: 34px;
-}
-
-.vz-contacts h2 {
-  max-width: 960px;
-}
-
-.vz-contacts .vz-actions {
-  margin-top: 48px;
-}
-
-.vz-contacts__circle {
-  position: absolute;
+.vz-contacts__art > div {
+  top: 44%;
   left: 50%;
-  top: 50%;
-  width: min(680px, 84vw);
-  aspect-ratio: 1;
-  border: 1px dashed var(--hair);
-  border-radius: 50%;
+  width: min(64vmin, 660px);
+  height: min(64vmin, 660px);
   transform: translate(-50%, -50%);
 }
 
+.vz-contacts__inner {
+  max-width: 1240px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.vz-contacts .vz-section-label {
+  display: inline-flex;
+  margin-bottom: 30px;
+}
+
+.vz-contacts h2 {
+  max-width: 18ch;
+  margin: 0 auto;
+  font-size: clamp(40px, 6vw, 80px);
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+}
+
+.vz-contacts__buttons {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 48px;
+}
+
+.vz-footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.vz-footer__top,
+.vz-footer__cols,
+.vz-footer__sign,
+.vz-footer__legal {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.vz-footer__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 40px;
+  border-bottom: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.vz-footer__top a {
+  color: var(--muted);
+}
+
+.vz-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  padding: 64px 40px 52px;
+}
+
+.vz-footer__cols > div > span {
+  display: block;
+  margin-bottom: 14px;
+  color: var(--muted2);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vz-footer__cols strong {
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.vz-footer__cols p,
+.vz-footer__cols nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  color: var(--text2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.vz-footer__cols nav a:first-child {
+  color: var(--ink);
+}
+
+.vz-footer__sign {
+  padding: 22px 40px 0;
+  border-top: 1px solid var(--border);
+}
+
+.vz-footer__sign > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: var(--muted2);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vz-footer__sign strong {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: clamp(64px, 14vw, 210px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1.06;
+  text-transform: uppercase;
+}
+
+.vz-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 40px 44px;
+  color: var(--muted2);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .vz-button,
-  .vz-service-enter-active,
-  .vz-service-leave-active,
-  .vz-intro-enter-active,
-  .vz-intro-leave-active {
-    transition: none;
+  .vz-orbit svg,
+  .vz-marquee > div {
+    animation: none !important;
   }
 }
 
-@media (max-width: 980px) {
-  .vz-section,
-  .vz-hero,
-  .vz-clients,
-  .vz-contacts {
-    padding-left: 22px;
-    padding-right: 22px;
-  }
-
-  .vz-hero {
-    min-height: auto;
-    padding-top: 118px;
-    padding-bottom: 64px;
-  }
-
-  .vz-hero__meta,
-  .vz-hero__stats {
-    gap: 10px 14px;
-  }
-
-  .vz-hero__meta {
-    display: grid;
-  }
-
-  .vz-hero__meta span:last-child {
-    text-align: left;
-  }
-
-  .vz-hero__grid,
-  .vz-about,
-  .vz-stack__sticky,
-  .vz-services__layout,
-  .vz-stages__head {
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-
-  .vz-hero__seal {
-    margin-top: 46px;
-  }
-
-  .vz-about {
-    padding-top: 72px;
-    padding-bottom: 72px;
-  }
-
-  .vz-stack {
-    min-height: auto;
-  }
-
-  .vz-stack__sticky {
-    position: relative;
-    min-height: auto;
-    padding: 74px 22px;
-  }
-
-  .vz-stack__line {
-    left: 45px;
-    top: 250px;
-    bottom: 86px;
-  }
-
-  .vz-stack-card {
-    grid-template-columns: 34px 1fr;
-    gap: 10px 16px;
-    min-height: 0;
-    padding: 18px 0;
-  }
-
-  .vz-stack-card__num {
-    grid-column: 2;
-    justify-self: start;
-  }
-
-  .vz-stack-card__dot {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-    margin-top: 3px;
-  }
-
-  .vz-stack-card > div:last-child {
-    grid-column: 2;
-  }
-
-  .vz-services > .vz-section__label {
-    padding: 74px 22px 0;
-  }
-
-  .vz-services__layout {
-    padding: 26px 22px 78px;
-  }
-
-  .vz-services__head {
-    position: relative;
-    top: auto;
-  }
-
-  .vz-service-stage {
-    min-height: auto;
-    border-left: 0;
-    border-top: 1px solid var(--border);
-    padding: 34px 0 0;
-  }
-
-  .vz-clients {
-    padding-top: 74px;
-    padding-bottom: 76px;
-  }
-
-  .vz-clients .vz-section__label,
-  .vz-clients h2,
-  .vz-client-grid,
-  .vz-contacts > *:not(.vz-contacts__circle) {
-    padding-left: 22px;
-    padding-right: 22px;
-  }
-
-  .vz-stages,
-  .vz-contacts {
-    padding-top: 78px;
-    padding-bottom: 78px;
-  }
-
-  .vz-stage-row {
-    grid-template-columns: 34px 1fr;
-    gap: 4px 14px;
-    padding: 22px 0;
-  }
-
-  .vz-stage-row h3,
-  .vz-stage-row p,
-  .vz-stage-row small {
-    grid-column: 2;
-  }
-
-  .vz-stage-row small {
-    margin-top: 6px;
-    text-align: left;
-  }
-}
-
-@media (max-width: 560px) {
-  .vz-intro {
+@media (max-width: 900px) {
+  .vz-preloader {
     padding: 24px;
   }
 
+  .vz-nav {
+    padding: 0 20px;
+  }
+
+  .vz-nav__links,
+  .vz-nav__cta {
+    display: none;
+  }
+
+  .vz-menu-button {
+    display: flex;
+  }
+
+  .vz-hero {
+    padding: 112px 20px 60px;
+  }
+
   .vz-hero h1 {
-    font-size: clamp(34px, 10.5vw, 46px);
+    font-size: clamp(30px, 8.4vw, 46px);
   }
 
-  .vz-hero__seal strong {
-    font-size: clamp(58px, 18vw, 92px);
+  .vz-hero__grid,
+  .vz-about__grid,
+  .vz-clients__grid,
+  .vz-services__grid {
+    grid-template-columns: 1fr;
   }
 
-  .vz-hero__seal span,
-  .vz-hero__stats,
-  .vz-section__label {
+  .vz-hero__grid {
+    gap: 30px;
+  }
+
+  .vz-hero__actions {
+    justify-self: start;
+  }
+
+  .vz-hero__stats {
+    gap: 10px 14px;
+    margin-top: 44px;
+  }
+
+  .vz-about {
+    padding: 72px 20px 60px;
+  }
+
+  .vz-about__grid {
+    gap: 22px;
+  }
+
+  .vz-about__lead {
+    font-size: 22px;
+  }
+
+  .vz-about__cols {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-top: 26px;
+  }
+
+  .vz-sticky {
+    align-items: flex-start;
+    padding-top: 84px;
+    padding-bottom: 20px;
+  }
+
+  .vz-sticky__inner {
+    padding: 0 20px;
+  }
+
+  .vz-sec-head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 26px;
+  }
+
+  .vz-sec-meta {
+    display: none;
+  }
+
+  .vz-stack h2 {
+    max-width: none;
+    font-size: 18px;
+    line-height: 1.15;
+  }
+
+  .vz-services h2 {
+    font-size: 26px;
+  }
+
+  .vz-stack__line {
+    left: 16px;
+  }
+
+  .vz-stack-item {
+    grid-template-columns: 33px 1fr;
+    grid-template-rows: auto auto;
+    align-items: start;
+    min-height: 0;
+    column-gap: 12px;
+    row-gap: 2px;
+    padding: 7px 0;
+  }
+
+  .vz-stack-item > div:first-child {
+    grid-column: 2;
+    grid-row: 1;
+    padding-right: 0;
+    font-size: 18px;
+    text-align: left;
+  }
+
+  .vz-stack-item > div:nth-child(2) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .vz-stack-item > div:nth-child(3) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .vz-stack-item p {
+    max-width: none;
+    margin-bottom: 8px;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .vz-stack-item span:not([data-dot], [data-halo]) {
+    padding: 5px 10px;
     font-size: 11px;
   }
 
-  .vz-hero__aside p,
-  .vz-service-panel p {
-    font-size: 16px;
+  .vz-stack-item > div:last-child > div {
+    gap: 6px;
   }
 
-  .vz-button,
-  .vz-actions,
-  .vz-contacts .vz-button {
-    width: 100%;
+  [data-stack-hint],
+  [data-serv-list] {
+    display: none;
   }
 
-  .vz-button {
-    padding-left: 16px;
-    padding-right: 16px;
+  .vz-services__stage {
+    min-height: 250px;
   }
 
-  .vz-about p {
-    font-size: 24px;
-  }
-
-  .vz-service-nav button {
-    grid-template-columns: 38px 1fr;
-    font-size: 14px;
-  }
-
-  .vz-service-panel > span {
-    font-size: 72px;
+  .vz-service-panel > div:first-child {
+    top: -8px;
+    font-size: 84px;
   }
 
   .vz-service-panel h3 {
-    font-size: clamp(36px, 11vw, 54px);
+    font-size: 30px;
   }
 
-  .vz-tags span {
-    font-size: 10px;
+  .vz-service-panel p {
+    margin-top: 18px;
+    font-size: 16px;
+  }
+
+  .vz-service-panel [data-serv-metawrap] {
+    margin-top: 22px;
+    padding-top: 20px;
+  }
+
+  .vz-services .vz-scroll-hint {
+    margin-top: 16px;
+  }
+
+  .vz-clients,
+  .vz-stages {
+    padding: 72px 20px;
+  }
+
+  .vz-clients__grid {
+    gap: 26px;
+  }
+
+  .vz-stage-row {
+    grid-template-columns: 26px 1fr;
+    gap: 2px 12px;
+    padding: 20px 0;
+  }
+
+  .vz-stage-row > span:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .vz-stage-row h3 {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .vz-stage-row p {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 6px;
+  }
+
+  .vz-stage-row > span:last-child {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 8px;
+    text-align: left;
+  }
+
+  .vz-contacts {
+    padding: 88px 20px 80px;
+  }
+
+  .vz-contacts h2 {
+    font-size: clamp(26px, 8vw, 40px);
+  }
+
+  .vz-contacts__buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .vz-contacts__buttons a {
+    justify-content: center;
+    text-align: center;
+  }
+
+  .vz-footer__top {
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px;
+  }
+
+  .vz-footer__cols {
+    grid-template-columns: 1fr 1fr;
+    gap: 26px 20px;
+    padding: 44px 20px 36px;
+  }
+
+  .vz-footer__sign {
+    padding: 20px 20px 0;
+  }
+
+  .vz-footer__legal {
+    flex-direction: column;
+    gap: 6px;
+    padding: 16px 20px 34px;
+  }
+}
+
+@media (max-width: 900px) and (max-height: 700px) {
+  .vz-sticky {
+    padding-top: 74px;
+  }
+
+  .vz-stack-item > div:nth-child(3) > div {
+    display: none;
+  }
+
+  .vz-stack-item p {
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .vz-hero__meta span {
+    font-size: 11px;
+  }
+
+  .vz-hero h1 {
+    font-size: clamp(26px, 8vw, 40px);
+  }
+
+  .vz-footer__cols {
+    gap: 22px 16px;
   }
 }
 </style>
