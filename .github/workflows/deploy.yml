@@ -18,7 +18,44 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            cd /var/www/vezha.digital
-            git pull origin main
+            set -euo pipefail
+
+            DEPLOY_DIR="/var/www/vezha"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+
+            if [ ! -d "$DEPLOY_DIR" ]; then
+              mkdir -p "$DEPLOY_DIR" 2>/dev/null || sudo mkdir -p "$DEPLOY_DIR"
+              sudo chown -R "$USER:$USER" "$DEPLOY_DIR" 2>/dev/null || true
+            fi
+
+            if [ ! -d "$DEPLOY_DIR/.git" ]; then
+              if [ "$(find "$DEPLOY_DIR" -mindepth 1 -maxdepth 1 | head -n 1)" ]; then
+                echo "$DEPLOY_DIR exists but is not a git repository"
+                exit 1
+              fi
+
+              git clone "$REPO_URL" "$DEPLOY_DIR"
+            fi
+
+            cd "$DEPLOY_DIR"
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
+
+            if [ ! -f .env.prod ]; then
+              echo ".env.prod is missing in $DEPLOY_DIR"
+              exit 1
+            fi
+
+            if [ ! -f backend/.env.production ]; then
+              echo "backend/.env.production is missing in $DEPLOY_DIR"
+              exit 1
+            fi
+
+            set -a
+            . ./.env.prod
+            set +a
+
             docker compose -f docker-compose.prod.yml build
-            docker compose -f docker-compose.prod.yml up -d
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -f docker-compose.prod.yml exec -T vezha-backend alembic upgrade head
