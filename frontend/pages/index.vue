@@ -206,21 +206,122 @@
             </div>
 
             <div class="vz-services__stage" data-serv-stage>
-              <article
-                v-for="service in displayServices"
-                :key="service.n"
-                data-serv-panel
-                class="vz-service-panel"
-              >
-                <div>{{ service.n }}</div>
-                <div>
-                  <h3>{{ service.title }}</h3>
+              <div class="vz-services__devices" data-serv-devices>
+                <div class="vz-device-mac" data-device-mac>
+                  <div class="vz-macbook" data-macbook>
+                    <div class="vz-macbook__tilt">
+                      <div class="vz-macbook__lid" data-mac-lid>
+                        <div class="vz-macbook__notch"></div>
+                        <div class="vz-macbook__screen-wrap" data-screen-wrap>
+                          <div
+                            v-for="(screen, index) in serviceScreens"
+                            :key="screen.type"
+                            data-screen
+                            :data-si="index"
+                            :class="['vz-screen', `vz-screen--${screen.type}`]"
+                          >
+                            <div v-if="screen.type === 'miniapp'" class="vz-screen-miniapp">
+                              <div class="vz-screen-topbar">
+                                <span></span>
+                                <i>Mini app</i>
+                              </div>
+                              <div class="vz-screen-hero-line"></div>
+                              <div class="vz-screen-cards">
+                                <b></b>
+                                <b></b>
+                              </div>
+                              <div class="vz-screen-button"></div>
+                            </div>
+
+                            <div v-else-if="screen.type === 'bot'" class="vz-screen-chat">
+                              <div class="vz-screen-chatbar"><span></span><b></b></div>
+                              <div class="vz-bubble vz-bubble--left"></div>
+                              <div class="vz-bubble vz-bubble--right"></div>
+                              <div class="vz-bubble vz-bubble--choice"></div>
+                              <div class="vz-chat-input"></div>
+                            </div>
+
+                            <div v-else-if="screen.type === 'site'" class="vz-screen-site">
+                              <div class="vz-browserbar"><span></span><i>vezha.digital</i></div>
+                              <div class="vz-site-grid">
+                                <div></div>
+                                <b></b>
+                              </div>
+                            </div>
+
+                            <div v-else-if="screen.type === 'shop'" class="vz-screen-shop">
+                              <div class="vz-shop-top"><span></span><b>2</b></div>
+                              <div class="vz-shop-grid">
+                                <i v-for="cell in 6" :key="cell"></i>
+                              </div>
+                            </div>
+
+                            <div v-else-if="screen.type === 'ai'" class="vz-screen-ai">
+                              <div class="vz-ai-top"><span>✦</span><b></b></div>
+                              <div class="vz-bubble vz-bubble--right"></div>
+                              <div class="vz-ai-answer"><span>✦</span><i></i></div>
+                              <div class="vz-ai-plan"></div>
+                              <div class="vz-ai-flow"><b></b><b></b><b></b></div>
+                            </div>
+
+                            <div v-else-if="screen.type === 'corp'" class="vz-screen-corp">
+                              <div class="vz-corp-side"></div>
+                              <div class="vz-corp-main">
+                                <div class="vz-corp-head"></div>
+                                <div class="vz-corp-cards"><b></b><b></b><b></b></div>
+                                <div class="vz-corp-chart"><i v-for="bar in 6" :key="bar"></i></div>
+                              </div>
+                            </div>
+
+                            <div v-else class="vz-screen-mobile">
+                              <div class="vz-code-pane">
+                                <span>// app/main.go</span>
+                                <b>func main() {</b>
+                                <i>app := mobile.New()</i>
+                                <i>app.Screen("home")</i>
+                                <i>app.Render(ui.List{</i>
+                                <i>Title: "Каталог"</i>
+                                <b>}</b>
+                              </div>
+                              <div class="vz-phone-pane">
+                                <div class="vz-phone">
+                                  <span></span>
+                                  <b></b>
+                                  <i></i>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="vz-screen-shine"></div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="vz-macbook__base">
+                        <span></span>
+                        <i></i>
+                      </div>
+                    </div>
+                    <div class="vz-macbook__shadow"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="vz-service-caption" data-serv-caption>
+                <article
+                  v-for="service in displayServices"
+                  :key="service.n"
+                  data-serv-panel
+                  class="vz-service-panel"
+                >
+                  <div class="vz-service-panel__title">
+                    <span>{{ service.n }}</span>
+                    <h3>{{ service.title }}</h3>
+                  </div>
                   <p>{{ service.desc }}</p>
                   <div data-serv-metawrap>
                     <span v-for="meta in service.meta" :key="meta">{{ meta }}</span>
                   </div>
-                </div>
-              </article>
+                </article>
+              </div>
             </div>
           </div>
 
@@ -250,23 +351,61 @@
       </div>
     </section>
 
-    <section id="stages" class="vz-stages">
+    <section id="stages" class="vz-stages" data-stages-dark>
+      <div class="vz-go-layer" data-go-layer aria-hidden="true">
+        <pre>package main
+
+import (
+  "encoding/json"
+  "log"
+  "net/http"
+  "time"
+)
+
+type Project struct {
+  ID        string    `json:"id"`
+  Title     string    `json:"title"`
+  Stage     string    `json:"stage"`
+  CreatedAt time.Time `json:"created_at"`
+}</pre>
+        <pre>func listProjects(w http.ResponseWriter, r *http.Request) {
+  if r.Method != http.MethodGet {
+    http.Error(w, "method not allowed", 405)
+    return
+  }
+  projects, err := store.All(r.Context())
+  if err != nil {
+    http.Error(w, err.Error(), 500)
+    return
+  }
+  _ = json.NewEncoder(w).Encode(projects)
+}</pre>
+      </div>
+      <div class="vz-stages__aura" aria-hidden="true"></div>
       <div class="vz-wrap">
         <div class="vz-stages__head">
           <div class="vz-section-label">
-            <span>Этапы работы</span>
+            <span>Этапы</span>
             <i>/</i>
             <span data-secnum>04</span>
           </div>
-          <h2><span><span data-reveal>Полный контроль на каждом шаге</span></span></h2>
-          <p>Фиксированные сроки, регулярные отчёты и согласование на каждом этапе. Никаких сюрпризов — только предсказуемый результат.</p>
+          <h2><span><span data-reveal>Анатомия разработки</span></span></h2>
+          <p>«Понятный процесс, где каждый этап приближает вас к продукту, который работает в вашем бизнесе»</p>
         </div>
-        <div class="vz-stage-list">
-          <article v-for="stage in displayStages" :key="stage.n" data-stages-row class="vz-stage-row">
-            <span>{{ stage.n }}</span>
-            <h3>{{ stage.title }}</h3>
-            <p>{{ stage.desc }}</p>
-            <span>{{ stage.dur }}</span>
+        <div class="vz-stage-cards" data-stages-cards>
+          <article
+            v-for="(stage, index) in displayStages"
+            :key="stage.n"
+            data-stage-card
+            data-rise
+            :class="['vz-stage-card', { 'vz-stage-card--dark': index === 1 || index === 3 || index === 6 }]"
+          >
+            <div class="vz-stage-card__num">{{ stage.n }}</div>
+            <div class="vz-stage-card__content">
+              <span>{{ stage.dur }}</span>
+              <h3>{{ stage.title }}</h3>
+              <p>{{ stage.desc }}</p>
+            </div>
           </article>
         </div>
       </div>
@@ -423,6 +562,16 @@ const fallbackServices: DisplayService[] = [
   { n: "07", title: "Мобильные приложения", desc: "Нативные и кроссплатформенные приложения для iOS и Android.", meta: ["iOS", "Android", "PWA"] },
 ];
 
+const serviceScreens = [
+  { type: "miniapp" },
+  { type: "bot" },
+  { type: "site" },
+  { type: "shop" },
+  { type: "ai" },
+  { type: "corp" },
+  { type: "mobile" },
+];
+
 const fallbackStackGroups: StackGroup[] = [
   { title: "Frontend", description: "Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
   { title: "Backend", description: "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
@@ -535,6 +684,7 @@ function mergeStackItems(primary: string[], fallback: string[]) {
 
 function toggleTheme() {
   theme.value = theme.value === "dark" ? "light" : "dark";
+  document.documentElement.setAttribute("data-theme", theme.value);
   localStorage.setItem("vz_theme", theme.value);
 }
 
@@ -587,6 +737,13 @@ function setupReveals() {
     if (element.dataset.clipped) return;
     element.style.clipPath = "inset(0 100% 0 0)";
   });
+
+  root.querySelectorAll<HTMLElement>("[data-rise]").forEach((element) => {
+    if (element.dataset.risen) return;
+    element.style.opacity = "0";
+    element.style.transform = "translateY(48px)";
+    element.style.willChange = "transform, opacity";
+  });
 }
 
 function scanReveals() {
@@ -619,6 +776,21 @@ function scanReveals() {
         element.style.transition = "clip-path 1.5s cubic-bezier(.16,1,.3,1)";
       }
       element.style.clipPath = "inset(0 0% 0 0)";
+    }
+  });
+
+  root.querySelectorAll<HTMLElement>("[data-rise]").forEach((element, index) => {
+    const rect = element.getBoundingClientRect();
+    const inView = rect.top < vh * 0.9 && rect.bottom > -40;
+
+    if (reduceMotion || inView) {
+      if (!element.dataset.risen) {
+        element.dataset.risen = "1";
+        element.style.transition = "transform .8s cubic-bezier(.22,1,.36,1), opacity .8s ease";
+        element.style.transitionDelay = `${(index % 3) * 0.08 + Math.floor(index / 3) * 0.05}s`;
+      }
+      element.style.opacity = "1";
+      element.style.transform = "translateY(0)";
     }
   });
 }
@@ -665,22 +837,42 @@ function updateScrollEffects() {
   if (!servicesSection) return;
   const panels = root.querySelectorAll<HTMLElement>("[data-serv-panel]");
   const navs = root.querySelectorAll<HTMLElement>("[data-serv-nav]");
+  const screens = root.querySelectorAll<HTMLElement>("[data-screen]");
   const bar = root.querySelector<HTMLElement>("[data-serv-bar]");
   const counter = root.querySelector<HTMLElement>("[data-serv-counter]");
   const total = servicesSection.offsetHeight - window.innerHeight;
   const rect = servicesSection.getBoundingClientRect();
   const progress = Math.max(0, Math.min(1, total > 0 ? -rect.top / total : 0));
-  const frame = progress * Math.max(0, panels.length - 1);
+  const introProgress = Math.max(0, Math.min(1, (progress - 0.1) / 0.12));
+  const carouselProgress = Math.max(0, Math.min(1, (progress - 0.19) / 0.81));
+  const frame = carouselProgress * Math.max(0, panels.length - 1);
   const active = Math.round(frame);
 
   panels.forEach((panel, index) => {
     const distance = frame - index;
-    const visibility = Math.max(0, 1 - Math.abs(distance));
-    const eased = visibility * visibility * (3 - 2 * visibility);
-    panel.style.opacity = eased.toFixed(3);
+    const isActive = index === active;
+    panel.style.opacity = isActive ? "1" : "0";
     panel.style.transform = `translateY(${(-distance * 46).toFixed(1)}px)`;
-    panel.style.pointerEvents = Math.abs(distance) < 0.5 ? "auto" : "none";
+    panel.style.pointerEvents = isActive ? "auto" : "none";
   });
+
+  screens.forEach((screen, index) => {
+    const distance = index - frame;
+    screen.style.transform = `translateX(${(distance * 100).toFixed(2)}%)`;
+    screen.style.opacity = Math.max(0, 1.12 - Math.abs(distance)).toFixed(3);
+    screen.style.zIndex = Math.abs(distance) < 0.5 ? "3" : "2";
+  });
+
+  const easedOpen = introProgress * introProgress * (3 - 2 * introProgress);
+  const mac = root.querySelector<HTMLElement>("[data-device-mac]");
+  if (mac) {
+    mac.style.opacity = "1";
+    mac.style.transform = "translateX(0)";
+    const lid = mac.querySelector<HTMLElement>("[data-mac-lid]");
+    const screenWrap = mac.querySelector<HTMLElement>("[data-screen-wrap]");
+    if (lid) lid.style.transform = `rotateX(${(-(1 - easedOpen) * 90).toFixed(1)}deg)`;
+    if (screenWrap) screenWrap.style.opacity = Math.max(0, Math.min(1, (easedOpen - 0.55) / 0.35)).toFixed(3);
+  }
 
   navs.forEach((nav, index) => {
     const on = index === active;
@@ -695,7 +887,7 @@ function updateScrollEffects() {
     nav.style.paddingLeft = on ? "12px" : "2px";
   });
 
-  if (bar) bar.style.width = `${(progress * 100).toFixed(2)}%`;
+  if (bar) bar.style.width = `${(carouselProgress * 100).toFixed(2)}%`;
   if (counter) counter.textContent = `${toNumber(active + 1)} / ${toNumber(panels.length)}`;
 }
 
@@ -720,8 +912,10 @@ function scheduleUpdate() {
 
 onMounted(async () => {
   theme.value = localStorage.getItem("vz_theme") || "light";
+  document.documentElement.setAttribute("data-theme", theme.value);
   runPreloader();
   setupReveals();
+  scanReveals();
   updateScrollEffects();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
@@ -822,13 +1016,18 @@ useHead({
   --slash: #dcdfe3;
   --navbg: rgba(255, 255, 255, 0.72);
   --halo: rgba(28, 29, 33, 0.07);
+  --slate: #3f4d5b;
   --aura: rgba(63, 77, 91, 0.1);
+  --alu1: #eceef0;
+  --alu2: #cfd2d6;
+  --alu3: #b7babf;
+  --bezel: #0c0c0e;
+  --code: #d7dce4;
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
   font-family: "Onest", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  transition: background 0.4s ease, color 0.4s ease;
 }
 
 .vz-min[data-theme="dark"] {
@@ -854,7 +1053,13 @@ useHead({
   --slash: #34383f;
   --navbg: rgba(14, 15, 18, 0.66);
   --halo: rgba(255, 255, 255, 0.28);
+  --slate: #3f4d5b;
   --aura: rgba(63, 77, 91, 0.24);
+  --alu1: #bfc2c8;
+  --alu2: #94979e;
+  --alu3: #787b82;
+  --bezel: #050506;
+  --code: #2b3a5a;
 }
 
 .vz-min ::selection {
@@ -1650,8 +1855,470 @@ useHead({
 }
 
 .vz-services__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  min-height: 0;
+}
+
+.vz-services__devices {
   position: relative;
-  min-height: 380px;
+  display: grid;
+  width: 100%;
+  min-height: 372px;
+  align-items: center;
+  justify-items: center;
+}
+
+.vz-device-mac {
+  grid-area: 1 / 1;
+  opacity: 1;
+  will-change: transform, opacity;
+}
+
+.vz-macbook {
+  --sw: clamp(280px, 38vw, 500px);
+  position: relative;
+  perspective: 1800px;
+}
+
+.vz-macbook__tilt {
+  transform: rotateX(4deg);
+  transform-style: preserve-3d;
+}
+
+.vz-macbook__lid {
+  position: relative;
+  width: var(--sw);
+  padding: 10px 10px 12px;
+  border-radius: 18px 18px 6px 6px;
+  background: linear-gradient(155deg, #34373d, #141619 62%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 9%), inset 0 -2px 3px rgb(0 0 0 / 45%), 0 42px 70px -22px rgb(0 0 0 / 62%);
+  transform-origin: center bottom;
+  will-change: transform;
+}
+
+.vz-macbook__notch {
+  position: absolute;
+  top: 9px;
+  left: 50%;
+  z-index: 4;
+  width: 94px;
+  height: 15px;
+  border-radius: 0 0 9px 9px;
+  background: #0a0a0c;
+  transform: translateX(-50%);
+}
+
+.vz-macbook__screen-wrap {
+  position: relative;
+  width: 100%;
+  height: calc(var(--sw) * 0.625);
+  overflow: hidden;
+  border-radius: 9px;
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 35%);
+  transition: opacity 0.12s linear;
+}
+
+.vz-screen {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Onest", system-ui, sans-serif;
+  will-change: opacity, transform;
+}
+
+.vz-screen-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(118deg, rgb(255 255 255 / 10%), transparent 42%);
+}
+
+.vz-screen-topbar,
+.vz-screen-chatbar,
+.vz-browserbar,
+.vz-shop-top,
+.vz-ai-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 13px;
+  border-bottom: 1px solid var(--border);
+}
+
+.vz-screen-topbar {
+  justify-content: space-between;
+}
+
+.vz-screen-topbar span,
+.vz-screen-chatbar span,
+.vz-ai-top span {
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: var(--ink);
+}
+
+.vz-screen-topbar i,
+.vz-browserbar i {
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 8px;
+  font-style: normal;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vz-screen-hero-line {
+  height: 60px;
+  margin: 11px 13px 0;
+  border-radius: 10px;
+  background: linear-gradient(120deg, var(--slate), #29323c);
+}
+
+.vz-screen-cards,
+.vz-shop-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+  padding: 11px 13px 0;
+}
+
+.vz-screen-cards b,
+.vz-shop-grid i {
+  min-height: 58px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: linear-gradient(var(--surface), var(--surface)) content-box;
+  padding: 7px;
+}
+
+.vz-screen-button {
+  height: 30px;
+  margin: 11px 13px 13px;
+  border-radius: 8px;
+  background: var(--ink);
+}
+
+.vz-screen-chat,
+.vz-screen-miniapp,
+.vz-screen-site,
+.vz-screen-shop,
+.vz-screen-ai,
+.vz-screen-corp,
+.vz-screen-mobile {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+.vz-bubble {
+  width: 58%;
+  height: 34px;
+  margin: 12px 13px 0;
+  border-radius: 11px 11px 11px 3px;
+  background: var(--surface);
+}
+
+.vz-bubble--right {
+  align-self: flex-end;
+  border-radius: 11px 11px 3px 11px;
+  background: var(--ink);
+}
+
+.vz-bubble--choice {
+  width: 68%;
+  height: 56px;
+}
+
+.vz-chat-input {
+  height: 46px;
+  margin-top: auto;
+  border-top: 1px solid var(--border);
+}
+
+.vz-browserbar {
+  background: var(--surface);
+}
+
+.vz-browserbar span {
+  width: 40px;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e0655a 0 8px, #e6b34d 8px 22px, #57b96a 22px 36px);
+}
+
+.vz-site-grid {
+  display: grid;
+  flex: 1;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 14px;
+  align-items: center;
+  padding: 16px 15px;
+}
+
+.vz-site-grid div,
+.vz-site-grid b {
+  height: 108px;
+  border-radius: 10px;
+}
+
+.vz-site-grid div {
+  background: repeating-linear-gradient(to bottom, var(--ink), var(--ink) 10px, transparent 10px, transparent 17px);
+}
+
+.vz-site-grid b {
+  background: linear-gradient(135deg, var(--surface), var(--border));
+}
+
+.vz-shop-grid {
+  grid-template-columns: repeat(3, 1fr);
+  flex: 1;
+}
+
+.vz-shop-top {
+  justify-content: space-between;
+}
+
+.vz-shop-top span,
+.vz-ai-top b {
+  width: 70px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--ink);
+}
+
+.vz-shop-top b {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 6px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 10px;
+}
+
+.vz-ai-answer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 13px 0;
+}
+
+.vz-ai-answer span {
+  display: grid;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 5px;
+  font-size: 9px;
+}
+
+.vz-ai-answer i,
+.vz-ai-plan {
+  flex: 1;
+  min-height: 44px;
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.vz-ai-plan {
+  margin: 10px 13px 0;
+  border: 1px solid var(--border);
+}
+
+.vz-ai-flow {
+  display: flex;
+  gap: 6px;
+  margin: 10px 13px 0;
+}
+
+.vz-ai-flow b {
+  flex: 1;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.vz-ai-flow b:last-child {
+  background: var(--ink);
+}
+
+.vz-screen-corp {
+  flex-direction: row;
+}
+
+.vz-corp-side {
+  width: 46px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.vz-corp-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 12px 14px;
+}
+
+.vz-corp-head {
+  height: 28px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--ink) 0 35%, transparent 35% 100%);
+}
+
+.vz-corp-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 11px;
+}
+
+.vz-corp-cards b {
+  height: 48px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.vz-corp-chart {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  gap: 7px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.vz-corp-chart i {
+  flex: 1;
+  height: 50%;
+  border-radius: 3px 3px 0 0;
+  background: var(--surface);
+}
+
+.vz-corp-chart i:nth-child(2),
+.vz-corp-chart i:nth-child(5) {
+  height: 78%;
+  background: var(--slate);
+}
+
+.vz-corp-chart i:nth-child(4) {
+  height: 92%;
+  background: var(--ink);
+}
+
+.vz-screen-mobile {
+  flex-direction: row;
+}
+
+.vz-code-pane {
+  flex: 1.2;
+  padding: 12px 14px;
+  border-right: 1px solid var(--border);
+  color: var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  line-height: 1.55;
+}
+
+.vz-code-pane span {
+  display: block;
+  color: var(--muted2);
+}
+
+.vz-code-pane b,
+.vz-code-pane i {
+  display: block;
+  font-style: normal;
+  font-weight: 400;
+}
+
+.vz-phone-pane {
+  display: flex;
+  flex: 0.82;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+}
+
+.vz-phone {
+  position: relative;
+  height: 84%;
+  aspect-ratio: 118 / 240;
+  padding: 5px;
+  border-radius: 22px;
+  background: #0b0b0d;
+  box-shadow: 0 14px 24px -12px rgb(0 0 0 / 50%);
+}
+
+.vz-phone span {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  z-index: 3;
+  width: 34px;
+  height: 10px;
+  border-radius: 999px;
+  background: #000;
+  transform: translateX(-50%);
+}
+
+.vz-phone b {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 17px;
+  background: var(--bg);
+}
+
+.vz-macbook__base {
+  position: relative;
+  width: calc(var(--sw) + 40px);
+  margin-left: -20px;
+}
+
+.vz-macbook__base span {
+  display: block;
+  height: 4px;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(#828791, #4d515a);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 40%);
+}
+
+.vz-macbook__base i {
+  display: block;
+  height: 16px;
+  border-radius: 0 0 13px 13px;
+  background: linear-gradient(#3c3f46, #1b1d21);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%), inset 0 -2px 3px rgb(0 0 0 / 55%), 0 3px 5px rgb(0 0 0 / 30%);
+}
+
+.vz-macbook__shadow {
+  position: relative;
+  z-index: -1;
+  width: calc(var(--sw) * 0.94);
+  height: 44px;
+  margin: -8px auto 0;
+  background: radial-gradient(ellipse, rgb(0 0 0 / 36%), transparent 68%);
+  filter: blur(13px);
+}
+
+.vz-service-caption {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  min-height: 128px;
 }
 
 .vz-service-panel {
@@ -1661,51 +2328,39 @@ useHead({
   will-change: opacity, transform;
 }
 
-.vz-service-panel > div:first-child {
-  position: absolute;
-  top: -34px;
-  right: 0;
-  z-index: 0;
-  color: var(--ghost);
-  font-family: "JetBrains Mono", monospace;
-  font-size: clamp(120px, 17vw, 240px);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 0.8;
-  pointer-events: none;
-  user-select: none;
+.vz-service-panel__title {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
 }
 
-.vz-service-panel > div:last-child {
-  position: relative;
-  z-index: 1;
-  max-width: 640px;
+.vz-service-panel__title span {
+  color: var(--muted2);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
 }
 
 .vz-service-panel h3 {
-  margin: 8px 0 0;
-  font-size: clamp(38px, 4.6vw, 60px);
+  margin: 0;
+  font-size: clamp(23px, 2.3vw, 31px);
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
   text-transform: uppercase;
 }
 
 .vz-service-panel p {
-  max-width: 50ch;
-  margin: 28px 0 0;
-  font-size: 19px;
-  line-height: 1.55;
+  max-width: 54ch;
+  margin: 13px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
 }
 
 .vz-service-panel [data-serv-metawrap] {
-  margin-top: 40px;
-  padding-top: 28px;
-  border-top: 1px solid var(--border);
-}
-
-.vz-service-panel [data-serv-metawrap] span {
-  padding: 8px 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
 }
 
 .vz-services__bar {
@@ -1763,68 +2418,180 @@ useHead({
 }
 
 .vz-stages {
-  padding: 120px 40px;
+  position: relative;
+  overflow: hidden;
+  padding: 132px 40px 140px;
   border-top: 1px solid var(--border2);
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.vz-stages__aura {
+  position: absolute;
+  top: -150px;
+  right: -110px;
+  z-index: 0;
+  width: 780px;
+  height: 660px;
+  background: radial-gradient(ellipse at top right, var(--aura), transparent 62%);
+  pointer-events: none;
+}
+
+.vz-go-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  color: var(--code);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.vz-go-layer pre {
+  position: absolute;
+  top: 96px;
+  left: 30px;
+  margin: 0;
+  white-space: pre;
+}
+
+.vz-go-layer pre:last-child {
+  top: 150px;
+  right: 30px;
+  left: auto;
 }
 
 .vz-wrap {
+  position: relative;
+  z-index: 2;
   max-width: 1240px;
   margin: 0 auto;
 }
 
 .vz-stages__head {
-  margin-bottom: 56px;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.vz-stages__head .vz-section-label {
+  display: inline-flex;
+  margin-bottom: 26px;
 }
 
 .vz-stages__head h2 {
-  max-width: 20ch;
-  margin-top: 20px;
+  max-width: none;
+  margin: 0;
+  font-size: clamp(40px, 6vw, 82px);
+  letter-spacing: -0.03em;
+  line-height: 1;
 }
 
 .vz-stages__head p {
-  max-width: 60ch;
-  margin: 22px 0 0;
-  color: var(--text3);
-  font-size: 17px;
-  line-height: 1.6;
+  max-width: 50ch;
+  margin: 26px auto 0;
+  color: var(--text2);
+  font-size: 18px;
+  line-height: 1.5;
 }
 
-.vz-stage-list {
-  border-top: 1px solid var(--border);
-}
-
-.vz-stage-row {
+.vz-stage-cards {
+  position: relative;
+  z-index: 2;
   display: grid;
-  grid-template-columns: 90px 280px 1fr 130px;
-  gap: 30px;
-  align-items: baseline;
-  padding: 28px 0;
-  border-bottom: 1px solid var(--border);
+  max-width: 1180px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin: 78px auto 0;
 }
 
-.vz-stage-row > span:first-child {
-  color: var(--muted2);
-  font-size: 14px;
+.vz-stage-cards > .vz-stage-card:nth-child(3n + 2) {
+  margin-top: 64px;
 }
 
-.vz-stage-row h3 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
+.vz-stage-cards > .vz-stage-card:nth-child(3n) {
+  margin-top: 32px;
 }
 
-.vz-stage-row p {
-  margin: 0;
+.vz-stage-card {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  min-height: 246px;
+  padding: 30px 30px 26px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.vz-stage-card--dark {
+  border-color: var(--ink);
+  background: var(--ink);
+}
+
+.vz-stage-card__num {
+  position: absolute;
+  right: 16px;
+  bottom: -8px;
+  color: color-mix(in srgb, var(--ink) 6%, transparent);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 104px;
+  font-weight: 500;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.vz-stage-card--dark .vz-stage-card__num {
+  color: color-mix(in srgb, var(--bg) 16%, transparent);
+}
+
+.vz-stage-card__content {
+  position: relative;
+  z-index: 1;
+}
+
+.vz-stage-card__content > span {
+  display: inline-block;
+  padding: 6px 12px;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vz-stage-card--dark .vz-stage-card__content > span {
+  border-color: color-mix(in srgb, var(--bg) 42%, transparent);
+  color: var(--bg);
+}
+
+.vz-stage-card h3 {
+  margin: 22px 0 0;
+  color: var(--ink);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.vz-stage-card--dark h3 {
+  color: var(--bg);
+}
+
+.vz-stage-card p {
+  margin: 14px 0 0;
   color: var(--text3);
   font-size: 15px;
   line-height: 1.55;
 }
 
-.vz-stage-row > span:last-child {
-  color: var(--muted);
-  font-size: 13px;
-  text-align: right;
+.vz-stage-card--dark p {
+  color: color-mix(in srgb, var(--bg) 82%, transparent);
 }
 
 .vz-contacts {
@@ -1979,6 +2746,20 @@ useHead({
   }
 }
 
+@media (min-width: 901px) and (max-height: 840px) {
+  .vz-macbook {
+    --sw: clamp(300px, 33vw, 430px);
+  }
+
+  .vz-services [data-sec-head] {
+    margin-bottom: 26px;
+  }
+
+  .vz-service-caption {
+    min-height: 116px;
+  }
+}
+
 @media (max-width: 900px) {
   .vz-preloader {
     padding: 24px;
@@ -2128,68 +2909,81 @@ useHead({
   }
 
   .vz-services__stage {
-    min-height: 250px;
+    align-items: center;
+    gap: 22px;
+    min-height: 0;
   }
 
-  .vz-service-panel > div:first-child {
-    top: -8px;
-    font-size: 84px;
+  .vz-services__devices {
+    min-height: 300px;
+  }
+
+  .vz-macbook {
+    --sw: min(80vw, 350px);
+  }
+
+  .vz-service-caption {
+    min-height: 152px;
   }
 
   .vz-service-panel h3 {
-    font-size: 30px;
+    font-size: 22px;
   }
 
   .vz-service-panel p {
-    margin-top: 18px;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .vz-service-panel [data-serv-metawrap] {
-    margin-top: 22px;
-    padding-top: 20px;
+    margin-top: 14px;
   }
 
   .vz-services .vz-scroll-hint {
     margin-top: 16px;
   }
 
-  .vz-clients,
-  .vz-stages {
+  .vz-clients {
     padding: 72px 20px;
+  }
+
+  .vz-stages {
+    padding: 80px 20px 92px;
   }
 
   .vz-clients__grid {
     gap: 26px;
   }
 
-  .vz-stage-row {
-    grid-template-columns: 26px 1fr;
-    gap: 2px 12px;
-    padding: 20px 0;
+  .vz-stage-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 50px;
   }
 
-  .vz-stage-row > span:first-child {
-    grid-column: 1;
-    grid-row: 1;
+  .vz-stage-cards > .vz-stage-card {
+    margin-top: 0;
+    margin-bottom: 18px;
   }
 
-  .vz-stage-row h3 {
-    grid-column: 2;
-    grid-row: 1;
+  .vz-stage-card {
+    min-height: 220px;
+    padding: 22px 22px 20px;
   }
 
-  .vz-stage-row p {
-    grid-column: 2;
-    grid-row: 2;
-    margin-top: 6px;
+  .vz-stage-card h3 {
+    font-size: 22px;
   }
 
-  .vz-stage-row > span:last-child {
-    grid-column: 2;
-    grid-row: 3;
-    margin-top: 8px;
-    text-align: left;
+  .vz-go-layer {
+    font-size: 10px;
+  }
+
+  .vz-go-layer pre {
+    left: 14px;
+  }
+
+  .vz-go-layer pre:last-child {
+    display: none;
   }
 
   .vz-contacts {
@@ -2246,6 +3040,11 @@ useHead({
   .vz-stack-item p {
     margin-bottom: 0;
   }
+
+  .vz-stage-card p,
+  .vz-service-panel [data-serv-metawrap] {
+    display: none;
+  }
 }
 
 @media (max-width: 520px) {
@@ -2255,6 +3054,10 @@ useHead({
 
   .vz-hero h1 {
     font-size: clamp(26px, 8vw, 40px);
+  }
+
+  .vz-stage-cards {
+    grid-template-columns: 1fr;
   }
 
   .vz-footer__cols {
