@@ -2,10 +2,8 @@
   <div v-if="showModal" class="modal active">
     <div class="modal__overlay" @click="showModal = false"></div>
     <div class="modal__box">
-      <button class="modal__close" @click="showModal = false">&times;</button>
-      <h2>
-        <span class="bracket">&lt;</span>{{ $t('cta.title') }}<span class="bracket">/&gt;</span>
-      </h2>
+      <button class="modal__close" type="button" aria-label="Закрыть" @click="showModal = false">&times;</button>
+      <h2>{{ $t('cta.title') }}</h2>
       <form @submit.prevent="handleSubmit">
         <div class="field">
           <label>{{ $t('cta.name') }}</label>
@@ -88,15 +86,20 @@ watch(showModal, (isOpen) => {
   isOpen ? lockScroll() : unlockScroll()
 })
 
+const handleEscape = (e: KeyboardEvent) => {
+  if (e.key === 'Escape') {
+    showModal.value = false
+  }
+}
+
 // Close modal on Escape
 onMounted(() => {
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      showModal.value = false
-    }
+  document.addEventListener('keydown', handleEscape)
+})
 
-    unlockScroll()
-  })
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleEscape)
+  unlockScroll()
 })
 </script>
 <style scoped>

@@ -1,134 +1,202 @@
 <template>
-  <footer class="footer">
-    <div class="container-main">
-      <div class="footer__content">
-        <!-- Services Column -->
-        <div class="footer__col">
-          <h4>Услуги</h4>
-          <ul>
-            <li><a href="/#services">ВЕБ-САЙТЫ</a></li>
-            <li><a href="/#services">ИНТЕРНЕТ МАГАЗИНЫ</a></li>
-            <li><a href="/#services">TELEGRAM MINI APPS</a></li>
-            <li><a href="/#services">TELEGRAM БОТЫ</a></li>
-            <li><a href="/#services">КОРПОРАТИВНЫЕ СИСТЕМЫ</a></li>
-            <li><a href="/#services">AI И АВТОМАТИЗАЦИЯ</a></li>
-            <li><a href="/#services">МОБИЛЬНЫЕ ПРИЛОЖЕНИЯ</a></li>
-          </ul>
-        </div>
+  <footer class="vz-footer">
+    <div class="vz-footer__top">
+      <span>Всё по проекту. В одном месте. Спокойно.</span>
+      <a href="/#hero">Конец полотна ↑ В начало</a>
+    </div>
 
-        <!-- Company Column -->
-        <div class="footer__col">
-          <h4>Компания</h4>
-          <ul>
-            <li><a href="/#hero">Главная</a></li>
-            <li><a href="/#services">{{ $t('nav.services') }}</a></li>
-            <li><a href="/#advantages">{{ $t('nav.why_us') }}</a></li>
-            <li><a href="/#projects">{{ $t('nav.projects') }}</a></li>
-            <li><a href="/#stack">{{ $t('nav.stack') }}</a></li>
-            <li><a href="/#stages">{{ $t('nav.stages') }}</a></li>
-            <li><a href="/#contacts">{{ $t('nav.contacts') }}</a></li>
-          </ul>
-        </div>
-
-        <!-- Contacts Column -->
-        <div class="footer__col">
-          <h4>Контакты</h4>
-          <ul>
-            <li v-if="settings?.contact_telegram">
-              <a :href="`https://t.me/${settings.contact_telegram.replace('@', '')}`" target="_blank">
-                Telegram: {{ settings.contact_telegram }}
-              </a>
-            </li>
-            <li v-if="settings?.contact_email">
-              <a :href="`mailto:${settings.contact_email}`">
-                Email: {{ settings.contact_email }}
-              </a>
-            </li>
-            <li v-if="settings?.contact_phone">
-              <a :href="`tel:${settings.contact_phone?.replace(/\D/g, '')}`">
-                Телефон: {{ settings.contact_phone }}
-              </a>
-            </li>
-          </ul>
-        </div>
+    <div class="vz-footer__cols">
+      <div>
+        <span class="vz-footer__label">Year</span>
+        <strong>2026</strong>
       </div>
-
-      <div class="footer__bottom">
-        <p><span class="bracket">{</span>Vezha Digital<span class="bracket">}</span> · Создано с ♥</p>
+      <div>
+        <span class="vz-footer__label">Base</span>
+        <p>Москва<br />Россия</p>
       </div>
+      <div>
+        <span class="vz-footer__label">Contact</span>
+        <nav>
+          <a :href="`mailto:${contactEmail}`">{{ contactEmail }} →</a>
+          <a v-if="contactTelegram" :href="telegramHref" target="_blank" rel="noreferrer">
+            {{ contactTelegram }} ↗
+          </a>
+          <a v-else href="/#contacts">vezha.digital ↗</a>
+        </nav>
+      </div>
+      <div>
+        <span class="vz-footer__label">Навигация</span>
+        <nav>
+          <a href="/#about">Кто мы</a>
+          <a href="/#stack">Стек</a>
+          <a href="/#services">Услуги</a>
+          <a href="/#stages">Этапы</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="vz-footer__sign">
+      <div>
+        <span>2026 / Sign-off</span>
+        <span>vezha.digital</span>
+      </div>
+      <strong>VEZHA</strong>
+    </div>
+
+    <div class="vz-footer__legal">
+      <span>© 2026 · VEZHA DIGITAL</span>
+      <span>ИП Анищенко Д. А. · ОГРНИП 326774600075626 · ИНН 773421830976</span>
     </div>
   </footer>
 </template>
 
 <script setup lang="ts">
-defineProps<{
+const props = defineProps<{
   settings?: Record<string, string>
-}>()
+}>();
+
+const contactEmail = computed(() => props.settings?.contact_email || "contact@vezha.digital");
+const contactTelegram = computed(() => props.settings?.contact_telegram || "");
+const telegramHref = computed(() => `https://t.me/${contactTelegram.value.replace("@", "")}`);
 </script>
 
 <style scoped>
-.footer {
-  background: var(--bg-secondary);
-  border-top: 2px solid var(--accent);
-  padding: 60px 20px 30px;
-  z-index: 100;
-  width: 100%;
-  box-shadow: 0 -5px 10px rgba(0, 255, 65, 0.3);
-  clear: both;
+.vz-footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
 }
 
-.footer__content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
-  margin-bottom: 40px;
+.vz-footer__top,
+.vz-footer__cols,
+.vz-footer__sign,
+.vz-footer__legal {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding-inline: 40px;
 }
 
-.footer__col h4 {
-  font-family: var(--font-epilepsy);
-  font-size: 1.1rem;
-  margin-bottom: 20px;
+.vz-footer__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding-top: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 
-.footer__col ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.footer__col ul li {
-  margin-bottom: 12px;
-}
-
-.footer__col a {
-  color: var(--text-dim);
+.vz-footer a {
+  color: inherit;
   text-decoration: none;
-  transition: all 0.3s;
-  font-size: 0.9rem;
+  transition: color 0.2s ease;
 }
 
-.footer__col a:hover {
-  color: var(--accent);
-  padding-left: 5px;
+.vz-footer a:hover {
+  color: var(--text);
 }
 
-.footer__bottom {
-  text-align: center;
-  padding-top: 30px;
+.vz-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+  padding-top: 64px;
+  padding-bottom: 52px;
+}
+
+.vz-footer__label {
+  display: block;
+  margin-bottom: 14px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.vz-footer__cols strong {
+  display: block;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.vz-footer__cols p,
+.vz-footer__cols nav {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.vz-footer__cols nav a:first-child {
+  color: var(--text);
+}
+
+.vz-footer__sign {
+  padding-top: 22px;
   border-top: 1px solid var(--border);
 }
 
-.footer__bottom p {
-  color: var(--text-dim);
-  font-size: 0.9rem;
+.vz-footer__sign > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted-2);
 }
 
-@media (max-width: 768px) {
-  .footer .container-main {
-    max-width: 100%;
-    margin: 0;
-    padding-left: 20px;
-    padding-right: 20px;
+.vz-footer__sign strong {
+  display: block;
+  overflow: hidden;
+  font-size: clamp(64px, 14vw, 210px);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+.vz-footer__legal {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 18px;
+  padding-bottom: 44px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--muted-2);
+}
+
+@media (max-width: 760px) {
+  .vz-footer__top,
+  .vz-footer__cols,
+  .vz-footer__sign,
+  .vz-footer__legal {
+    padding-left: 22px;
+    padding-right: 22px;
+  }
+
+  .vz-footer__top,
+  .vz-footer__legal {
+    display: grid;
+    gap: 8px;
+  }
+
+  .vz-footer__cols {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 20px;
+    padding-top: 44px;
+    padding-bottom: 36px;
   }
 }
 </style>

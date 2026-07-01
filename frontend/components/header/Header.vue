@@ -1,259 +1,281 @@
 <template>
-  <header class="header" id="header">
-    <div class="container-main">
-      <div class="header__wrap">
-        <!-- Logo -->
-        <a href="/#hero" class="logo">
-          <span class="bracket">{</span>Vezha Digital<span class="bracket">}</span>
-        </a>
+  <header id="header" class="vz-header">
+    <div class="vz-header__inner">
+      <a class="vz-header__logo" href="/#hero" aria-label="VEZHA Digital">
+        <span>VEZHA</span>
+        <small>DIGITAL</small>
+      </a>
 
-        <!-- Desktop Navigation -->
-        <nav class="nav">
-          <a v-for="item in navItems" :key="item.href" :href="item.href">
-            {{ item.label }}
-          </a>
-        </nav>
+      <nav class="vz-header__nav" aria-label="Основная навигация">
+        <a v-for="item in navItems" :key="item.href" :href="item.href">{{ item.label }}</a>
+      </nav>
 
-        <!-- Actions -->
-        <div class="header__actions">
-          <button
-              @click="$emit('openModal')"
-              class="btn btn-primary sm:inline-block"
-          >
-            {{ $t('header.discuss_project') }}
-          </button>
-
-          <!-- Mobile Menu Button -->
-          <button @click="isMenuOpen = !isMenuOpen" class="mobile-menu-btn lg:hidden">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path v-if="!isMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
+      <div class="vz-header__actions">
+        <button
+          class="vz-header__icon"
+          type="button"
+          :aria-label="isDark ? 'Включить светлую тему' : 'Включить тёмную тему'"
+          @click="toggleTheme"
+        >
+          {{ isDark ? "☀" : "☾" }}
+        </button>
+        <button class="vz-header__cta" type="button" @click="$emit('openModal')">
+          Обсудить проект
+        </button>
+        <button
+          class="vz-header__menu"
+          type="button"
+          :aria-expanded="isMenuOpen"
+          aria-label="Открыть меню"
+          @click="isMenuOpen = !isMenuOpen"
+        >
+          <span></span>
+          <span></span>
+        </button>
       </div>
+    </div>
 
-      <!-- Mobile Navigation -->
-      <nav v-if="isMenuOpen" class="mobile-nav lg:hidden">
+    <Transition name="vz-menu">
+      <nav v-if="isMenuOpen" class="vz-mobile-nav" aria-label="Мобильная навигация">
         <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">
           {{ item.label }}
         </a>
-        <button @click="$emit('openModal'); isMenuOpen = false" class="btn btn-primary w-full text-center mt-4">
-          {{ $t('header.discuss_project') }}
+        <button
+          type="button"
+          @click="$emit('openModal'); isMenuOpen = false"
+        >
+          Обсудить проект →
         </button>
       </nav>
-    </div>
+    </Transition>
   </header>
 </template>
 
 <script setup lang="ts">
-defineEmits(['openModal'])
+defineEmits(["openModal"]);
 
-const { t } = useI18n()
-const isMenuOpen = ref(false)
+const isMenuOpen = ref(false);
+const isDark = ref(false);
 
-const navItems = computed(() => [
-  { href: '/#hero', label: t('nav.home') },
-  { href: '/#stack', label: t('nav.stack') },
-  { href: '/#services', label: t('nav.services') },
-  { href: '/#advantages', label: t('nav.why_us') },
-  { href: '/#projects', label: t('nav.projects') },
-  { href: '/#stages', label: t('nav.stages') },
-  { href: '/#contacts', label: t('nav.contacts') },
-])
+const navItems = [
+  { href: "/#stack", label: "Стек" },
+  { href: "/#services", label: "Услуги" },
+  { href: "/#stages", label: "Этапы" },
+  { href: "/#contacts", label: "Контакты" },
+];
 
-const activeSection = ref('hero')
-
-function observeHeaderLogo() {
-  const sections = document.querySelectorAll('section[id]')
-
-  const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            activeSection.value = entry.target.id
-          }
-        })
-      },
-      {threshold: 0.4}
-  )
-  sections.forEach((section) => observer.observe(section))
+function applyTheme(value: boolean) {
+  isDark.value = value;
+  document.documentElement.setAttribute("data-vezha-theme", value ? "dark" : "light");
+  localStorage.setItem("vz_theme", value ? "dark" : "light");
 }
 
-function stickyHeaderEffect(){
-  const header = document.getElementById('header')
-  if (!header) return
-
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 50) {
-      header.style.background = 'rgba(10, 10, 10, 0.98)'
-      header.style.boxShadow = '0 5px 20px rgba(0, 229, 255, 0.1)'
-      header.classList.add('glitch-scroll')
-      setTimeout(() => {
-        header.classList.remove('glitch-scroll')
-      }, 500)
-    } else {
-      header.style.background = 'rgba(10, 10, 10, 0.95)'
-      header.style.boxShadow = 'none'
-    }
-  })
+function toggleTheme() {
+  applyTheme(!isDark.value);
 }
 
 onMounted(() => {
-  observeHeaderLogo()
-  stickyHeaderEffect()
-})
+  const saved = localStorage.getItem("vz_theme");
+  applyTheme(saved === "dark");
+});
 </script>
 
 <style scoped>
-.header {
+.vz-header {
   position: fixed;
   top: 0;
-  left: 0;
   right: 0;
-  background: rgba(10, 10, 10, 0.95);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border);
+  left: 0;
   z-index: 1000;
-  transition: all 0.3s;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
 }
 
-.header__wrap {
-  display: flex;
+.vz-header__inner {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 0;
-  gap: 40px;
+  gap: 30px;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 18px 40px;
 }
 
-.logo {
-  font-family: var(--font-inter);
-  font-size: 1.5rem;
-  font-weight: 700;
+.vz-header__logo {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
   color: var(--text);
   text-decoration: none;
-  white-space: nowrap;
 }
 
-.nav {
+.vz-header__logo span {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.vz-header__logo small {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+.vz-header__nav {
   display: flex;
-  gap: 30px;
-  flex: 1;
   justify-content: center;
+  gap: 30px;
 }
 
-.nav a {
-  font-family: var(--font-inter);
-  color: var(--text-dim);
+.vz-header__nav a {
+  color: var(--text-2);
+  font-size: 14px;
   text-decoration: none;
-  font-size: 0.95rem;
-  position: relative;
-  transition: all 0.3s;
-  white-space: nowrap;
+  transition: color 0.2s ease;
 }
 
-.nav a::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: var(--accent);
-  transition: width 0.3s;
+.vz-header__nav a:hover {
+  color: var(--text);
 }
 
-.nav a.active {
-  color: var(--accent);
-}
-
-.nav a.active::after {
-  width: 100%;
-}
-
-.nav a:hover {
-  color: var(--accent);
-}
-
-.nav a:hover::after {
-  width: 100%;
-}
-
-.header__actions {
+.vz-header__actions {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
-.mobile-menu-btn-container{
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-}
-
-.mobile-discuss-btn{
-  margin-right: 20px;
-}
-
-.mobile-menu-btn {
-  padding: 8px;
+.vz-header__icon,
+.vz-header__cta,
+.vz-header__menu {
+  border: 1px solid var(--border);
+  border-radius: 8px;
   background: transparent;
-  border: none;
   color: var(--text);
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-.mobile-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 16px 0;
+.vz-header__icon {
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+}
+
+.vz-header__cta {
+  min-height: 38px;
+  padding: 0 18px;
+  background: var(--text);
+  color: var(--bg);
+  border-color: var(--text);
+  font: 500 14px/1 var(--font-ui);
+}
+
+.vz-header__cta:hover {
+  background: var(--btn-hover);
+}
+
+.vz-header__icon:hover,
+.vz-header__menu:hover {
+  border-color: var(--text);
+  background: var(--hover);
+}
+
+.vz-header__menu {
+  display: none;
+  width: 38px;
+  height: 38px;
+  padding: 0 9px;
+}
+
+.vz-header__menu span {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: var(--text);
+  transition: transform 0.2s ease;
+}
+
+.vz-header__menu span + span {
+  margin-top: 7px;
+}
+
+.vz-header__menu[aria-expanded="true"] span:first-child {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.vz-header__menu[aria-expanded="true"] span:last-child {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+.vz-mobile-nav {
+  position: fixed;
+  top: 69px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 999;
+  display: grid;
+  gap: 0;
+  align-content: start;
+  overflow-y: auto;
+  padding: 30px 22px 34px;
   border-top: 1px solid var(--border);
+  background: var(--bg);
 }
 
-.mobile-nav a {
-  padding: 8px 0;
-  color: var(--text-dim);
+.vz-mobile-nav a {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 0;
   text-decoration: none;
-  transition: all 0.3s;
-  font-family: var(--font-inter);
+  text-transform: uppercase;
 }
 
-.mobile-nav a:hover {
-  color: var(--accent);
-  padding-left: 10px;
+.vz-mobile-nav button {
+  margin-top: 26px;
+  padding: 17px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--bg);
+  font: 600 16px/1 var(--font-ui);
 }
 
-@keyframes glitch {
-  0% {
-    text-shadow: 2px 2px var(--accent), -2px -2px #ff00ff;
-  }
-  25% {
-    text-shadow: -2px 2px var(--accent), 2px -2px #ff00ff;
-  }
-  50% {
-    text-shadow: 2px -2px var(--accent), -2px 2px #ff00ff;
-  }
-  75% {
-    text-shadow: -2px -2px var(--accent), 2px 2px #ff00ff;
-  }
-  100% {
-    text-shadow: 2px 2px var(--accent), -2px -2px #ff00ff;
-  }
+.vz-menu-enter-active,
+.vz-menu-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-@media (max-width: 1024px) {
-  .nav {
+.vz-menu-enter-from,
+.vz-menu-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+@media (max-width: 900px) {
+  .vz-header__inner {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    padding: 15px 22px;
+  }
+
+  .vz-header__nav,
+  .vz-header__cta {
     display: none;
   }
-}
 
-@media (max-width: 768px) {
-  .btn-primary {
-    padding: 6px 12px;
-    font-size: 0.8rem;
-    letter-spacing: 0;
+  .vz-header__menu {
+    display: block;
   }
 }
 </style>
