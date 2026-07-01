@@ -63,10 +63,8 @@ jobs:
               exit 1
             fi
 
-            set -a
-            . "./$ENV_FILE"
-            set +a
+            tr -d '\r' < "$ENV_FILE" > .env.deploy
 
-            docker compose -f docker-compose.prod.yml build
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            docker compose -f docker-compose.prod.yml exec -T vezha-backend alembic upgrade head
+            docker compose --env-file .env.deploy -f docker-compose.prod.yml build
+            docker compose --env-file .env.deploy -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose --env-file .env.deploy -f docker-compose.prod.yml exec -T vezha-backend alembic upgrade head
