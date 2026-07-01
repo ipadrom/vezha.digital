@@ -140,7 +140,7 @@
               <h2>Стек подбирается под задачу, а не по трендам</h2>
             </div>
             <div class="vz-sec-meta" data-sec-meta>
-              <div><span data-stack-counter>01</span><i> / 04</i></div>
+              <div><span data-stack-counter>01</span><i> / {{ toNumber(displayStackGroups.length) }}</i></div>
               <p>Каждый инструмент проверен в реальных проектах и предсказуем в поддержке.</p>
             </div>
           </div>
@@ -170,7 +170,7 @@
           <div class="vz-scroll-hint" data-stack-hint>
             <span>Скролл</span>
             <span>↓</span>
-            <span>категории появляются по очереди</span>
+            <span>категории подсвечиваются по очереди</span>
           </div>
         </div>
       </div>
@@ -430,6 +430,8 @@ const fallbackStackGroups: StackGroup[] = [
   { title: "Mobile", description: "Мобильные приложения и PWA с нативным ощущением на iOS и Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
 ];
 
+const devOpsTechNames = new Set(["docker", "nginx", "ci/cd", "ci cd", "linux", "kubernetes", "github actions", "gitlab ci"]);
+
 const fallbackClients = [
   "Лендинг для фотографа",
   "Сайт-портфолио",
@@ -463,17 +465,25 @@ const displayStackGroups = computed<StackGroup[]>(() => {
   if (!techStack.value.length) return fallbackStackGroups;
 
   const grouped = techStack.value.reduce<Record<string, string[]>>((acc, item) => {
-    const key = item.category || "Stack";
+    const name = item.name?.trim();
+    if (!name) return acc;
+
+    let key = normalizeStackCategory(item.category);
+    if (key === "backend" && devOpsTechNames.has(normalizeTechName(name))) key = "devops";
+
     acc[key] ||= [];
-    acc[key].push(item.name);
+    acc[key].push(name);
     return acc;
   }, {});
 
-  return Object.entries(grouped).slice(0, 4).map(([title, items], index) => ({
-    title,
-    description: fallbackStackGroups[index]?.description || "Технологии подбираем под требования продукта и поддержку после запуска.",
-    items: items.slice(0, 5),
-  }));
+  return fallbackStackGroups.map((fallback) => {
+    const key = normalizeStackCategory(fallback.title);
+
+    return {
+      ...fallback,
+      items: mergeStackItems(grouped[key] || [], fallback.items),
+    };
+  });
 });
 
 const displayClients = computed(() => {
@@ -497,6 +507,30 @@ const contactEmail = computed(() => settings.value?.contact_email || "contact@ve
 
 function toNumber(value: number) {
   return value.toString().padStart(2, "0");
+}
+
+function normalizeTechName(value: string) {
+  return value.trim().toLowerCase();
+}
+
+function normalizeStackCategory(value?: string) {
+  const normalized = (value || "").trim().toLowerCase();
+  if (normalized.includes("front")) return "frontend";
+  if (normalized.includes("back")) return "backend";
+  if (normalized.includes("dev") || normalized.includes("ops") || normalized.includes("infra")) return "devops";
+  if (normalized.includes("mobile") || normalized.includes("app")) return "mobile";
+  return "backend";
+}
+
+function mergeStackItems(primary: string[], fallback: string[]) {
+  const seen = new Set<string>();
+
+  return [...primary, ...fallback].filter((item) => {
+    const key = normalizeTechName(item);
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, 5);
 }
 
 function toggleTheme() {
@@ -603,25 +637,23 @@ function updateScrollEffects() {
     const rect = stack.getBoundingClientRect();
     const total = stack.offsetHeight - window.innerHeight;
     const progress = Math.max(0, Math.min(1, total > 0 ? -rect.top / total : 0));
-    const span = 1 / stackItems.length;
-    let active = 0;
+    const active = Math.min(stackItems.length - 1, Math.floor(progress * stackItems.length));
 
     stackItems.forEach((item, index) => {
-      const itemProgress = Math.max(0, Math.min(1, (progress - index * span) / (span * 0.72)));
-      const isActive = progress >= index * span - 0.0001 && (index === stackItems.length - 1 || progress < (index + 1) * span);
-      item.style.opacity = itemProgress.toFixed(3);
-      item.style.transform = `translateY(${((1 - itemProgress) * 28).toFixed(1)}px)`;
-      if (itemProgress > 0.5) active = index;
+      const isActive = index === active;
+      const isPast = index < active;
+      item.style.opacity = "1";
+      item.style.transform = "translateY(0)";
 
       const dot = item.querySelector<HTMLElement>("[data-dot]");
       const label = item.querySelector<HTMLElement>("[data-label]");
       const halo = item.querySelector<HTMLElement>("[data-halo]");
       if (dot) {
         dot.style.background = isActive ? "var(--ink)" : "var(--dot)";
-        dot.style.borderColor = itemProgress > 0.2 ? "var(--ink)" : "var(--dotbd)";
+        dot.style.borderColor = isActive || isPast ? "var(--ink)" : "var(--dotbd)";
         dot.style.transform = `scale(${isActive ? 1.3 : 1})`;
       }
-      if (label) label.style.color = itemProgress > 0.35 ? "var(--ink)" : "var(--idle)";
+      if (label) label.style.color = isActive || isPast ? "var(--ink)" : "var(--idle)";
       if (halo) halo.style.opacity = isActive ? "1" : "0";
     });
 
@@ -1490,8 +1522,8 @@ useHead({
   grid-template-columns: 240px 80px 1fr;
   align-items: center;
   min-height: 116px;
-  opacity: 0;
-  transform: translateY(28px);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .vz-stack-item > div:first-child {
