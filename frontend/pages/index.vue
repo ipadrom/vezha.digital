@@ -274,15 +274,25 @@
                             </div>
 
                             <div v-else class="vz-screen-mobile">
-                              <div class="vz-code-pane">
-                                <span>// app/main.go</span>
-                                <b>func main() {</b>
-                                <i>app := mobile.New()</i>
-                                <i>app.Screen("home")</i>
-                                <i>app.Render(ui.List{</i>
-                                <i>Title: "Каталог"</i>
-                                <b>}</b>
-                              </div>
+                              <pre class="vz-code-pane">// App/MainView.swift
+import SwiftUI
+
+@main
+struct VezhaApp: App {
+    var body: some Scene {
+        WindowGroup {
+            CatalogView()
+        }
+    }
+}
+
+struct CatalogView: View {
+    var body: some View {
+        List(products) { product in
+            ProductRow(product)
+        }
+    }
+}</pre>
                               <div class="vz-phone-pane">
                                 <div class="vz-phone">
                                   <span></span>
@@ -327,9 +337,9 @@
 
           <div class="vz-services__bar"><span data-serv-bar></span></div>
           <div class="vz-scroll-hint" data-serv-hint>
-            <span>Скролл</span>
-            <span>↓</span>
-            <span>услуги сменяют друг друга</span>
+            <span>Авто</span>
+            <span>→</span>
+            <span>услуги листаются сами</span>
           </div>
         </div>
       </div>
@@ -352,33 +362,39 @@
     </section>
 
     <section id="stages" class="vz-stages" data-stages-dark>
-      <div class="vz-go-layer" data-go-layer aria-hidden="true">
-        <pre>package main
+      <div class="vz-code-layer" data-code-layer aria-hidden="true">
+        <pre>import SwiftUI
+import Observation
 
-import (
-  "encoding/json"
-  "log"
-  "net/http"
-  "time"
-)
+@Observable
+final class ProjectStore {
+    private(set) var projects: [Project] = []
+    private let api: ProjectAPI
 
-type Project struct {
-  ID        string    `json:"id"`
-  Title     string    `json:"title"`
-  Stage     string    `json:"stage"`
-  CreatedAt time.Time `json:"created_at"`
+    init(api: ProjectAPI = .live) {
+        self.api = api
+    }
+
+    func refresh() async throws {
+        projects = try await api.projects()
+    }
 }</pre>
-        <pre>func listProjects(w http.ResponseWriter, r *http.Request) {
-  if r.Method != http.MethodGet {
-    http.Error(w, "method not allowed", 405)
-    return
-  }
-  projects, err := store.All(r.Context())
-  if err != nil {
-    http.Error(w, err.Error(), 500)
-    return
-  }
-  _ = json.NewEncoder(w).Encode(projects)
+        <pre>struct ProjectBoard: View {
+    @State private var store = ProjectStore()
+
+    var body: some View {
+        ScrollView {
+            LazyVGrid(columns: [.adaptive(minimum: 280)]) {
+                ForEach(store.projects) { project in
+                    ProjectCard(project: project)
+                }
+            }
+            .padding(24)
+        }
+        .task {
+            try? await store.refresh()
+        }
+    }
 }</pre>
       </div>
       <div class="vz-stages__aura" aria-hidden="true"></div>
@@ -525,6 +541,7 @@ const showPreloader = ref(true);
 const introProgress = ref(0);
 const theme = ref("light");
 const isMenuOpen = ref(false);
+const activeServiceIndex = ref(0);
 
 const services = ref<IServices[]>([]);
 const projects = ref<IProjects[]>([]);
@@ -688,6 +705,40 @@ function toggleTheme() {
   localStorage.setItem("vz_theme", theme.value);
 }
 
+let serviceAutoplayTimer: ReturnType<typeof window.setInterval> | null = null;
+let serviceManualPauseUntil = 0;
+
+function setActiveService(index: number, manual = false) {
+  const count = displayServices.value.length || 1;
+  activeServiceIndex.value = ((index % count) + count) % count;
+  if (manual) serviceManualPauseUntil = performance.now() + 6500;
+  scheduleUpdate();
+}
+
+function startServiceAutoplay() {
+  if (serviceAutoplayTimer) return;
+
+  serviceAutoplayTimer = window.setInterval(() => {
+    const root = rootRef.value;
+    const section = root?.querySelector<HTMLElement>("[data-services-pin]");
+    if (!root || !section || document.hidden) return;
+    if (performance.now() < serviceManualPauseUntil) return;
+
+    const rect = section.getBoundingClientRect();
+    const vh = window.innerHeight || document.documentElement.clientHeight || 900;
+    const isVisible = rect.top < vh * 0.82 && rect.bottom > vh * 0.18;
+    if (!isVisible) return;
+
+    setActiveService(activeServiceIndex.value + 1);
+  }, 3200);
+}
+
+function stopServiceAutoplay() {
+  if (!serviceAutoplayTimer) return;
+  window.clearInterval(serviceAutoplayTimer);
+  serviceAutoplayTimer = null;
+}
+
 function runPreloader() {
   const seen = sessionStorage.getItem("vz_loaded") === "1";
   if (seen) {
@@ -840,13 +891,10 @@ function updateScrollEffects() {
   const screens = root.querySelectorAll<HTMLElement>("[data-screen]");
   const bar = root.querySelector<HTMLElement>("[data-serv-bar]");
   const counter = root.querySelector<HTMLElement>("[data-serv-counter]");
-  const total = servicesSection.offsetHeight - window.innerHeight;
   const rect = servicesSection.getBoundingClientRect();
-  const progress = Math.max(0, Math.min(1, total > 0 ? -rect.top / total : 0));
-  const introProgress = Math.max(0, Math.min(1, (progress - 0.1) / 0.12));
-  const carouselProgress = Math.max(0, Math.min(1, (progress - 0.19) / 0.81));
-  const frame = carouselProgress * Math.max(0, panels.length - 1);
-  const active = Math.round(frame);
+  const introProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight * 0.62)));
+  const active = Math.max(0, Math.min(activeServiceIndex.value, Math.max(0, panels.length - 1)));
+  const frame = active;
 
   panels.forEach((panel, index) => {
     const distance = frame - index;
@@ -858,9 +906,10 @@ function updateScrollEffects() {
 
   screens.forEach((screen, index) => {
     const distance = index - frame;
-    screen.style.transform = `translateX(${(distance * 100).toFixed(2)}%)`;
-    screen.style.opacity = Math.max(0, 1.12 - Math.abs(distance)).toFixed(3);
-    screen.style.zIndex = Math.abs(distance) < 0.5 ? "3" : "2";
+    const isActive = index === active;
+    screen.style.transform = `translateX(${(distance * 102).toFixed(2)}%) scale(${isActive ? "1" : "0.96"})`;
+    screen.style.opacity = isActive ? "1" : "0";
+    screen.style.zIndex = isActive ? "3" : "2";
   });
 
   const easedOpen = introProgress * introProgress * (3 - 2 * introProgress);
@@ -870,35 +919,31 @@ function updateScrollEffects() {
     mac.style.transform = "translateX(0)";
     const lid = mac.querySelector<HTMLElement>("[data-mac-lid]");
     const screenWrap = mac.querySelector<HTMLElement>("[data-screen-wrap]");
-    if (lid) lid.style.transform = `rotateX(${(-(1 - easedOpen) * 90).toFixed(1)}deg)`;
-    if (screenWrap) screenWrap.style.opacity = Math.max(0, Math.min(1, (easedOpen - 0.55) / 0.35)).toFixed(3);
+    if (lid) lid.style.transform = `rotateX(${(-(1 - easedOpen) * 68).toFixed(1)}deg) translateY(${((1 - easedOpen) * 5).toFixed(1)}px)`;
+    if (screenWrap) screenWrap.style.opacity = Math.max(0, Math.min(1, (easedOpen - 0.22) / 0.48)).toFixed(3);
   }
 
   navs.forEach((nav, index) => {
     const on = index === active;
-    const label = nav.querySelector<HTMLElement>("[data-serv-nav-label]");
-    const num = nav.querySelector<HTMLElement>("[data-serv-nav-num]");
-    if (label) {
-      label.style.color = on ? "var(--ink)" : "var(--muted2)";
-      label.style.fontWeight = on ? "600" : "400";
-    }
-    if (num) num.style.color = on ? "var(--ink)" : "var(--hair)";
-    nav.style.borderBottomColor = on ? "var(--ink)" : "var(--border)";
-    nav.style.paddingLeft = on ? "12px" : "2px";
+    nav.dataset.active = on ? "true" : "false";
   });
 
-  if (bar) bar.style.width = `${(carouselProgress * 100).toFixed(2)}%`;
+  if (bar) bar.style.width = `${(panels.length > 1 ? (active / (panels.length - 1)) * 100 : 100).toFixed(2)}%`;
   if (counter) counter.textContent = `${toNumber(active + 1)} / ${toNumber(panels.length)}`;
 }
 
 function scrollToService(index: number) {
+  setActiveService(index, true);
+
   const root = rootRef.value;
   const section = root?.querySelector<HTMLElement>("[data-services-pin]");
   if (!section) return;
 
-  const total = section.offsetHeight - window.innerHeight;
-  const target = section.offsetTop + (displayServices.value.length > 1 ? index / (displayServices.value.length - 1) : 0) * total;
-  window.scrollTo({ top: target, behavior: "smooth" });
+  const rect = section.getBoundingClientRect();
+  const vh = window.innerHeight || document.documentElement.clientHeight || 900;
+  if (rect.top < -16 || rect.top > vh * 0.18) {
+    window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
+  }
 }
 
 let raf = 0;
@@ -917,6 +962,7 @@ onMounted(async () => {
   setupReveals();
   scanReveals();
   updateScrollEffects();
+  startServiceAutoplay();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
 
@@ -957,10 +1003,12 @@ onMounted(async () => {
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scheduleUpdate);
   window.removeEventListener("resize", scheduleUpdate);
+  stopServiceAutoplay();
   if (raf) cancelAnimationFrame(raf);
 });
 
 watch(displayServices, async () => {
+  if (activeServiceIndex.value >= displayServices.value.length) activeServiceIndex.value = 0;
   await nextTick();
   updateScrollEffects();
 });
@@ -1628,7 +1676,7 @@ useHead({
 }
 
 .vz-services {
-  min-height: 580vh;
+  min-height: 132vh;
 }
 
 .vz-sticky {
@@ -1838,7 +1886,7 @@ useHead({
   background: transparent;
   cursor: pointer;
   text-align: left;
-  transition: padding-left 0.3s cubic-bezier(0.76, 0, 0.24, 1);
+  transition: padding-left 0.3s cubic-bezier(0.76, 0, 0.24, 1), border-color 0.25s ease, background 0.25s ease;
 }
 
 .vz-services__nav button span:first-child {
@@ -1852,6 +1900,20 @@ useHead({
   color: var(--muted2);
   font-size: 17px;
   letter-spacing: -0.01em;
+}
+
+.vz-services__nav button[data-active="true"] {
+  padding-left: 12px;
+  border-bottom-color: var(--ink);
+}
+
+.vz-services__nav button[data-active="true"] span:first-child,
+.vz-services__nav button[data-active="true"] span:last-child {
+  color: var(--ink);
+}
+
+.vz-services__nav button[data-active="true"] span:last-child {
+  font-weight: 600;
 }
 
 .vz-services__stage {
@@ -1893,10 +1955,22 @@ useHead({
   width: var(--sw);
   padding: 10px 10px 12px;
   border-radius: 18px 18px 6px 6px;
-  background: linear-gradient(155deg, #34373d, #141619 62%);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 9%), inset 0 -2px 3px rgb(0 0 0 / 45%), 0 42px 70px -22px rgb(0 0 0 / 62%);
+  backface-visibility: hidden;
+  background: linear-gradient(155deg, #3a3d44, #17191e 62%);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%), inset 0 -2px 3px rgb(0 0 0 / 45%), 0 36px 64px -22px rgb(0 0 0 / 58%);
   transform-origin: center bottom;
   will-change: transform;
+}
+
+.vz-macbook__lid::before {
+  position: absolute;
+  right: 12%;
+  bottom: -5px;
+  left: 12%;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 28%), transparent), linear-gradient(#22252b, #090a0c);
+  content: "";
 }
 
 .vz-macbook__notch {
@@ -1930,6 +2004,7 @@ useHead({
   background: var(--bg);
   color: var(--ink);
   font-family: "Onest", system-ui, sans-serif;
+  transition: opacity 0.42s ease, transform 0.42s cubic-bezier(0.76, 0, 0.24, 1);
   will-change: opacity, transform;
 }
 
@@ -2049,10 +2124,12 @@ useHead({
 }
 
 .vz-browserbar span {
-  width: 40px;
-  height: 8px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #e0655a 0 8px, #e6b34d 8px 22px, #57b96a 22px 36px);
+  width: 9px;
+  height: 9px;
+  margin-right: 30px;
+  border-radius: 50%;
+  background: #e0655a;
+  box-shadow: 14px 0 0 #e6b34d, 28px 0 0 #57b96a;
 }
 
 .vz-site-grid {
@@ -2224,24 +2301,16 @@ useHead({
 
 .vz-code-pane {
   flex: 1.2;
+  overflow: hidden;
+  margin: 0;
   padding: 12px 14px;
   border-right: 1px solid var(--border);
   color: var(--ink);
   font-family: "JetBrains Mono", monospace;
-  font-size: 9px;
-  line-height: 1.55;
-}
-
-.vz-code-pane span {
-  display: block;
-  color: var(--muted2);
-}
-
-.vz-code-pane b,
-.vz-code-pane i {
-  display: block;
-  font-style: normal;
+  font-size: 8.6px;
   font-weight: 400;
+  line-height: 1.5;
+  white-space: pre;
 }
 
 .vz-phone-pane {
@@ -2325,6 +2394,7 @@ useHead({
   position: absolute;
   inset: 0;
   opacity: 0;
+  transition: opacity 0.28s ease, transform 0.28s ease;
   will-change: opacity, transform;
 }
 
@@ -2361,6 +2431,17 @@ useHead({
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 16px;
+}
+
+.vz-service-panel [data-serv-metawrap] span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  box-shadow: 0 1px 0 rgb(0 0 0 / 4%);
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .vz-services__bar {
@@ -2437,7 +2518,7 @@ useHead({
   pointer-events: none;
 }
 
-.vz-go-layer {
+.vz-code-layer {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -2450,7 +2531,7 @@ useHead({
   pointer-events: none;
 }
 
-.vz-go-layer pre {
+.vz-code-layer pre {
   position: absolute;
   top: 96px;
   left: 30px;
@@ -2458,7 +2539,7 @@ useHead({
   white-space: pre;
 }
 
-.vz-go-layer pre:last-child {
+.vz-code-layer pre:last-child {
   top: 150px;
   right: 30px;
   left: auto;
@@ -2903,9 +2984,65 @@ useHead({
     gap: 6px;
   }
 
-  [data-stack-hint],
-  [data-serv-list] {
+  [data-stack-hint] {
     display: none;
+  }
+
+  .vz-services {
+    min-height: 126vh;
+  }
+
+  .vz-services__grid {
+    gap: 18px;
+  }
+
+  .vz-services__nav {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 2px 0 8px;
+    border-top: 0;
+    scrollbar-width: none;
+  }
+
+  .vz-services__nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .vz-services__nav button {
+    width: auto;
+    min-width: max-content;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    border: 1px solid var(--chipbd);
+    border-radius: 999px;
+    background: var(--bg);
+    box-shadow: 0 1px 0 rgb(0 0 0 / 4%);
+  }
+
+  .vz-services__nav button[data-active="true"] {
+    padding-left: 12px;
+    border-color: var(--ink);
+    background: var(--ink);
+  }
+
+  .vz-services__nav button span:first-child {
+    font-size: 10px;
+  }
+
+  .vz-services__nav button span:last-child {
+    max-width: 150px;
+    overflow: hidden;
+    font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vz-services__nav button[data-active="true"] span:first-child,
+  .vz-services__nav button[data-active="true"] span:last-child {
+    color: var(--bg);
   }
 
   .vz-services__stage {
@@ -2974,15 +3111,15 @@ useHead({
     font-size: 22px;
   }
 
-  .vz-go-layer {
+  .vz-code-layer {
     font-size: 10px;
   }
 
-  .vz-go-layer pre {
+  .vz-code-layer pre {
     left: 14px;
   }
 
-  .vz-go-layer pre:last-child {
+  .vz-code-layer pre:last-child {
     display: none;
   }
 
