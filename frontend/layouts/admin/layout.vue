@@ -66,7 +66,6 @@
       </nav>
     </div>
 
-    <!-- Main WorkStagesContent -->
     <main class="lg:ml-64 min-h-screen pt-16 lg:pt-0">
       <div class="p-4 lg:p-8">
         <slot />

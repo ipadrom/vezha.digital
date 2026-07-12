@@ -1,11 +1,7 @@
 import type {IServices} from "~/utils/interfaces/IServices";
-import type {IProjects} from "~/utils/interfaces/IProjects";
-import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
 import type {ITechStack} from "~/utils/interfaces/ITechStack";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
-import type {ISettings, ISettingsResponse} from "~/utils/interfaces/ISettings";
-import type {IClientType} from "~/utils/interfaces/IClientTypes";
-import type {IAboutSection} from "~/utils/interfaces/IAboutSection";
+import type {ISettingsResponse} from "~/utils/interfaces/ISettings";
 
 export const useApi = () => {
   const config = useRuntimeConfig()
@@ -49,13 +45,9 @@ export const useApi = () => {
   // Public API
   const getServiceId = (service_id: string) => fetchApi<IServices>(`/services/${service_id}`)
   const getServices = () => fetchApi<IServices[]>('/services')
-  const getProjects = () => fetchApi<IProjects[]>('/projects')
-  const getAdvantages = () => fetchApi<IAdvantages[]>('/advantages')
   const getTechStack = () => fetchApi<ITechStack[]>('/tech-stack')
   const getWorkStages = () => fetchApi<IWorkStages[]>('/work-stages')
   const getSettings = () => fetchApi<ISettingsResponse>('/settings')
-  const getClientTypes = () => fetchApi<IClientType[]>('/client-types')
-  const getAboutSection = () => fetchApi<IAboutSection[]>('/about-sections')
 
   const submitContact = (data: { name: string; contact: string; message: string }) => {
     // Convert reactive to plain object
@@ -75,13 +67,9 @@ export const useApi = () => {
     fetchApi,
     getServiceId,
     getServices,
-    getProjects,
-    getAdvantages,
     getTechStack,
     getWorkStages,
     getSettings,
     submitContact,
-    getClientTypes,
-    getAboutSection,
   }
 }
