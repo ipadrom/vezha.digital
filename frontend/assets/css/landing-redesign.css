@@ -63,7 +63,7 @@
   --aura: rgba(63, 77, 91, 0.24);
 }
 
-.vz-min[data-theme="dark"] .vz-stack__sphere {
+.vz-min[data-theme="dark"] .vz-stack__sphere canvas {
   filter: invert(1);
   opacity: 0.5;
 }
@@ -1645,21 +1645,21 @@
   z-index: 0;
   width: var(--stack-sphere-size);
   aspect-ratio: 1;
-  opacity: 0.86;
   pointer-events: none;
-  mask-image: radial-gradient(circle at 50% 50%, #000 56%, rgba(0, 0, 0, 0.72) 72%, transparent 88%);
 }
 
 .vz-stack__sphere canvas {
   display: block;
   width: 100%;
   height: 100%;
+  opacity: 0.86;
+  mask-image: radial-gradient(circle at 50% 50%, #000 56%, rgba(0, 0, 0, 0.72) 72%, transparent 88%);
 }
 
 .vz-stack__sphere-labels {
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  overflow: visible;
   pointer-events: none;
 }
 
@@ -1676,7 +1676,7 @@
   padding: 0 12px 0 10px;
   border: 1px solid color-mix(in srgb, var(--ink) 10%, var(--border));
   border-radius: 9px;
-  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  background: var(--bg);
   box-shadow:
     0 8px 22px color-mix(in srgb, var(--ink) 8%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.78);
@@ -1701,6 +1701,36 @@
   width: 100%;
   height: 100%;
   fill: currentColor;
+}
+
+.vz-stack__sphere-label--core {
+  min-width: 84px;
+  height: 32px;
+  padding-inline: 9px 11px;
+}
+
+.vz-stack__sphere-label--bridge {
+  min-width: 82px;
+  height: 32px;
+  padding-inline: 9px 11px;
+  border-radius: 7px;
+}
+
+.vz-stack__sphere-label-icon--text {
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: var(--stack-tech-color);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.vz-stack__sphere-label-icon--text img {
+  display: block;
+  width: 11px;
+  height: 11px;
 }
 
 .vz-stack__sphere-label-text {

@@ -233,7 +233,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         element: document.createElement("span"),
         y: [0.66, 0.28, -0.08, 0.46, -0.48][index] || 0,
       }));
-      const frontendLabelPoints = frontendLabelSpecs.map((spec) => {
+      const frontendLabelPoints = frontendLabelSpecs.flatMap((spec) => {
         const icon = document.createElement("span");
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -252,11 +252,107 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         text.textContent = spec.label;
         spec.element.append(icon, text);
         labelLayer.appendChild(spec.element);
-        return {
+        const point = new THREE.Vector3(Math.cos(spec.angle) * 1.72, spec.y, Math.sin(spec.angle) * 1.62);
+        const loopElement = spec.element.cloneNode(true) as HTMLSpanElement;
+        labelLayer.appendChild(loopElement);
+
+        return [{
           ...spec,
-          point: new THREE.Vector3(Math.cos(spec.angle) * 1.72, spec.y, Math.sin(spec.angle) * 1.62),
-        };
+          point,
+          layer: "surface" as const,
+          projectionGroup: rootGroup,
+        }, {
+          ...spec,
+          element: loopElement,
+          point: new THREE.Vector3(-point.x, point.y, -point.z),
+          layer: "surface" as const,
+          projectionGroup: rootGroup,
+        }];
       });
+      const coreLabelSpecs = [
+        { color: "#3776AB", slug: "python", label: "Python", angle: 2.55, y: 0.28 },
+        { color: "#009688", slug: "fastapi", label: "FastAPI", angle: 1.25, y: -0.18 },
+        { color: "#4169E1", slug: "postgresql", label: "PostgreSQL", angle: -0.15, y: 0.16 },
+        { color: "#DC382D", slug: "redis", label: "Redis", angle: -1.55, y: -0.3 },
+      ];
+      const coreLabelPoints = coreLabelSpecs.flatMap((spec) => {
+        const element = document.createElement("span");
+        const icon = document.createElement("span");
+        const image = document.createElement("img");
+        const text = document.createElement("span");
+        element.className = "vz-stack__sphere-label vz-stack__sphere-label--core";
+        icon.className = "vz-stack__sphere-label-icon vz-stack__sphere-label-icon--text";
+        icon.style.setProperty("--stack-tech-color", spec.color);
+        image.src = `https://cdn.simpleicons.org/${spec.slug}/ffffff`;
+        image.alt = "";
+        icon.appendChild(image);
+        text.className = "vz-stack__sphere-label-text";
+        text.textContent = spec.label;
+        element.append(icon, text);
+        labelLayer.appendChild(element);
+        const point = new THREE.Vector3(Math.cos(spec.angle) * 0.82, spec.y, Math.sin(spec.angle) * 0.76);
+        const loopElement = element.cloneNode(true) as HTMLSpanElement;
+        labelLayer.appendChild(loopElement);
+
+        return [{
+          element,
+          point,
+          layer: "core" as const,
+          projectionGroup: coreGroup,
+        }, {
+          element: loopElement,
+          point: new THREE.Vector3(-point.x, point.y, -point.z),
+          layer: "core" as const,
+          projectionGroup: coreGroup,
+        }];
+      });
+      const bridgeLabelSpecs = [
+        { color: "#2496ED", slug: "docker", label: "Docker", angle: 2.8, y: 0.48 },
+        { color: "#009639", slug: "nginx", label: "Nginx", angle: 1.25, y: -0.34 },
+        { color: "#7C3AED", slug: "githubactions", label: "CI/CD", angle: -0.2, y: 0.32 },
+        { color: "#F5B800", slug: "linux", label: "Linux", angle: -1.7, y: -0.46 },
+      ];
+      const bridgeStickPositions: number[] = [];
+      const bridgeLabelPoints = bridgeLabelSpecs.flatMap((spec) => {
+        const element = document.createElement("span");
+        const icon = document.createElement("span");
+        const image = document.createElement("img");
+        const text = document.createElement("span");
+        element.className = "vz-stack__sphere-label vz-stack__sphere-label--bridge";
+        icon.className = "vz-stack__sphere-label-icon vz-stack__sphere-label-icon--text";
+        icon.style.setProperty("--stack-tech-color", spec.color);
+        image.src = `https://cdn.simpleicons.org/${spec.slug}/ffffff`;
+        image.alt = "";
+        icon.appendChild(image);
+        text.className = "vz-stack__sphere-label-text";
+        text.textContent = spec.label;
+        element.append(icon, text);
+        labelLayer.appendChild(element);
+
+        const directionX = Math.cos(spec.angle);
+        const directionZ = Math.sin(spec.angle);
+        const point = new THREE.Vector3(directionX * 1.28, spec.y, directionZ * 1.2);
+        const anchor = new THREE.Vector3(directionX * 0.82, spec.y * 0.72, directionZ * 0.78);
+        bridgeStickPositions.push(anchor.x, anchor.y, anchor.z, point.x, point.y, point.z);
+        bridgeStickPositions.push(-anchor.x, anchor.y, -anchor.z, -point.x, point.y, -point.z);
+
+        const loopElement = element.cloneNode(true) as HTMLSpanElement;
+        labelLayer.appendChild(loopElement);
+        return [{
+          element,
+          point,
+          layer: "bridge" as const,
+          projectionGroup: bridgeGroup,
+        }, {
+          element: loopElement,
+          point: new THREE.Vector3(-point.x, point.y, -point.z),
+          layer: "bridge" as const,
+          projectionGroup: bridgeGroup,
+        }];
+      });
+      const bridgeStickGeometry = new THREE.BufferGeometry();
+      bridgeStickGeometry.setAttribute("position", new THREE.Float32BufferAttribute(bridgeStickPositions, 3));
+      const stackLabelPoints = [...frontendLabelPoints, ...coreLabelPoints, ...bridgeLabelPoints];
       const surfacePointGeometry = new THREE.BufferGeometry().setFromPoints(surfacePoints);
       const corePointGeometry = new THREE.BufferGeometry().setFromPoints(corePoints);
       const surfaceLineGeometry = createStackLineGeometry(THREE, surfacePoints, createStackSpherePairs(surfacePoints, 5, 0.72));
@@ -272,6 +368,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         bridgeGeometry,
         coreShellGeometry,
         coreInnerGeometry,
+        bridgeStickGeometry,
       );
 
       surfaceGroup.add(
@@ -309,6 +406,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           bridgeGeometry,
           trackMaterial(new THREE.LineBasicMaterial({ color: 0x5d6470 }), "bridge", 0.34),
         ),
+        new THREE.LineSegments(
+          bridgeStickGeometry,
+          trackMaterial(new THREE.LineBasicMaterial({ color: 0x343942 }), "bridge", 0.72),
+        ),
       );
 
       motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -338,22 +439,37 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       };
 
       const fadeRange = (value: number, from: number, to: number) => clampValue((value - from) / (to - from), 0, 1);
-      const updateFrontendLabels = (surfaceVisibility: number) => {
+      const updateStackLabels = () => {
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
         rootGroup.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
 
-        frontendLabelPoints.forEach((item) => {
+        stackLabelPoints.forEach((item, index) => {
           const world = item.point.clone();
-          rootGroup.localToWorld(world);
+          item.projectionGroup.localToWorld(world);
+          const counterpart = stackLabelPoints[index % 2 === 0 ? index + 1 : index - 1];
+          const counterpartWorld = counterpart.point.clone();
+          counterpart.projectionGroup.localToWorld(counterpartWorld);
           const projected = world.clone().project(camera);
           const x = (projected.x * 0.5 + 0.5) * width;
           const y = (-projected.y * 0.5 + 0.5) * height;
-          const leftFade = fadeRange(projected.x, -0.98, -0.72);
-          const rightFade = 1 - fadeRange(projected.x, 0.5, 0.86);
-          const frontFade = fadeRange(world.z, -0.34, 0.28);
-          const opacity = clampValue(surfaceVisibility * leftFade * rightFade * frontFade, 0, 0.96);
+          const isSurfaceLabel = item.layer === "surface";
+          const leftFade = isSurfaceLabel
+            ? fadeRange(projected.x, -0.96, -0.89)
+            : fadeRange(projected.x, -0.96, -0.84);
+          const rightFade = isSurfaceLabel
+            ? 1 - fadeRange(projected.x, 0.79, 0.86)
+            : 1 - fadeRange(projected.x, 0.72, 0.86);
+          const frontFade = isSurfaceLabel
+            ? fadeRange(world.z, -0.06, 0.08)
+            : fadeRange(world.z, -0.12, 0.12);
+          const layerVisibility = activeStackLayer.value === item.layer ? 1 : 0;
+          const pairVisibility = world.z > counterpartWorld.z
+            || (world.z === counterpartWorld.z && index % 2 === 0)
+            ? 1
+            : 0;
+          const opacity = clampValue(layerVisibility * pairVisibility * leftFade * rightFade * frontFade, 0, 1);
           const scale = 0.78 + frontFade * 0.18;
 
           item.element.style.opacity = opacity.toFixed(3);
@@ -368,11 +484,13 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           material.opacity = baseOpacity * targets[layer];
         });
         trackedGroups.forEach((item) => {
-          item.scale = 1 + targets[item.layer] * 0.055;
+          item.scale = item.layer === "core"
+            ? 1 + targets[item.layer] * 0.4
+            : 1 + targets[item.layer] * 0.055;
           item.group.scale.setScalar(item.scale);
         });
         renderer.render(scene, camera);
-        updateFrontendLabels(targets.surface);
+        updateStackLabels();
       };
       renderStaticLayer = () => {
         if (reduceMotion) renderStaticState();
@@ -395,7 +513,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           });
 
           trackedGroups.forEach((item) => {
-            const targetScale = 1 + targets[item.layer] * 0.055;
+            const targetScale = item.layer === "core"
+              ? 1 + targets[item.layer] * 0.4
+              : 1 + targets[item.layer] * 0.055;
             item.scale += (targetScale - item.scale) * 0.06 * frame;
             item.group.scale.setScalar(item.scale);
           });
@@ -404,7 +524,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
           rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
           renderer.render(scene, camera);
-          updateFrontendLabels(targets.surface);
+          updateStackLabels();
         }
 
         frameId = requestAnimationFrame(tick);
