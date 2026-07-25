@@ -67,4 +67,4 @@ jobs:
 
             docker compose --env-file .env.deploy -f docker-compose.prod.yml build
             docker compose --env-file .env.deploy -f docker-compose.prod.yml up -d --remove-orphans
-            docker compose --env-file .env.deploy -f docker-compose.prod.yml exec -T vezha-backend uv run alembic upgrade head
+            docker compose --env-file .env.deploy -f docker-compose.prod.yml exec -T vezha-backend .venv/bin/alembic upgrade head
