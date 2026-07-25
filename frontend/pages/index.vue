@@ -637,6 +637,7 @@ const footerGame = ref({
 
 
 const devOpsTechNames = new Set(["docker", "nginx", "ci/cd", "ci cd", "linux", "kubernetes", "github actions", "gitlab ci"]);
+const replacedBackendTechNames = new Set(["python", "fastapi"]);
 
 const currentLocale = computed<LocaleCode>(() => (locale.value === "ru" ? "ru" : "en"));
 const enMessages = JSON.parse(enMessagesRaw) as { landing: LandingCopy };
@@ -739,6 +740,7 @@ function mergeStackItems(primary: string[], fallback: string[]) {
 
   return [...primary, ...fallback].filter((item) => {
     const key = normalizeTechName(item);
+    if (replacedBackendTechNames.has(key)) return false;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
@@ -4005,6 +4007,14 @@ useHead(() => ({
   transition: color 0.25s ease;
 }
 
+.vz-stack-item.is-active > div:first-child {
+  color: var(--ink);
+}
+
+.vz-stack-item.is-past > div:first-child {
+  color: var(--text2);
+}
+
 .vz-stack-item > div:nth-child(2) {
   position: relative;
   display: flex;
@@ -4029,6 +4039,21 @@ useHead(() => ({
   border-radius: 50%;
   background: var(--bg);
   transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.vz-stack-item.is-active [data-halo] {
+  opacity: 1;
+}
+
+.vz-stack-item.is-active [data-dot] {
+  border-color: var(--ink);
+  background: var(--ink);
+  transform: scale(1.12);
+}
+
+.vz-stack-item.is-past [data-dot] {
+  border-color: var(--ink);
+  background: var(--ink);
 }
 
 .vz-stack-item p {
@@ -4582,8 +4607,7 @@ useHead(() => ({
 }
 
 @media (hover: none) {
-  .vz-hero__negative,
-.vz-section-liquid {
+  .vz-hero__negative {
     display: none;
   }
 }
