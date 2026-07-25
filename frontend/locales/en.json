@@ -59,5 +59,354 @@
     "company_title": "Company",
     "contacts_title": "Contacts",
     "rights": "All rights reserved"
+  },
+  "landing": {
+    "preloader": {
+      "loading": "2026 / Loading",
+      "meta": [
+        "Workspace 000",
+        "Base · Moscow"
+      ]
+    },
+    "nav": {
+      "aria": "Main navigation",
+      "themeAria": "Switch theme",
+      "langAria": "Переключить на русский",
+      "menuOpen": "Open menu",
+      "menuClose": "Close menu",
+      "cta": "Discuss a project",
+      "mobileCta": "Discuss a project →",
+      "items": [
+        {
+          "href": "#about",
+          "label": "About"
+        },
+        {
+          "href": "#stack",
+          "label": "Stack"
+        },
+        {
+          "href": "#services",
+          "label": "Services"
+        },
+        {
+          "href": "#stages",
+          "label": "Process"
+        },
+        {
+          "href": "#contacts",
+          "label": "Contacts"
+        }
+      ]
+    },
+    "hero": {
+      "meta": [
+        "2026 / Web studio",
+        "Base / Moscow"
+      ],
+      "kicker": "Engineering clarity through code",
+      "title": [
+        "Products",
+        "that work",
+        "inside your business"
+      ],
+      "text": "Telegram Mini Apps, bots, websites, online stores, AI and corporate systems. A full-cycle team with no subcontractors or extra layers.",
+      "cta": "Discuss a project →",
+      "stackLink": "View stack",
+      "stats": [
+        "From $500",
+        "Launch in 1-4 weeks",
+        "Full cycle",
+        "No subcontractors"
+      ]
+    },
+    "marqueeAria": "Development directions",
+    "marqueeItems": [
+      "Full-cycle web development",
+      "Telegram Mini Apps",
+      "Telegram bots",
+      "Websites",
+      "Online stores",
+      "AI and automation",
+      "Corporate systems"
+    ],
+    "about": {
+      "label": "About",
+      "lead": "We are a full-cycle team. One responsible person leads each project from the first call to launch.",
+      "paragraphs": [
+        "We dig into the task and propose solutions instead of only closing a brief. No subcontractors or extra layers between you and the result.",
+        "The product has to work in your business, not just look good at handoff and sit unused after launch."
+      ],
+      "roles": [
+        "Strategy",
+        "Design",
+        "Development"
+      ],
+      "note": "Not an agency chain, but a compact product team responsible for the complete result.",
+      "eyebrow": [
+        "Full-cycle team",
+        "One accountable lead"
+      ],
+      "teamLead": "A team that leads the project through launch",
+      "metrics": [
+        "person leads the project",
+        "subcontractors in the chain",
+        "weeks to first launch"
+      ]
+    },
+    "stack": {
+      "label": "Stack",
+      "title": "The stack fits the task, not the trend",
+      "meta": "Every tool is tested in real projects and predictable in support.",
+      "hint": [
+        "Scroll",
+        "categories highlight one by one"
+      ],
+      "groups": [
+        {
+          "title": "Frontend",
+          "description": "Interfaces that load fast and feel natural on any device.",
+          "items": [
+            "React",
+            "Vue 3",
+            "Next.js",
+            "TypeScript",
+            "Tailwind"
+          ]
+        },
+        {
+          "title": "Backend",
+          "description": "Reliable server logic that handles load and scales cleanly.",
+          "items": [
+            "Python",
+            "FastAPI",
+            "PostgreSQL",
+            "Redis"
+          ]
+        },
+        {
+          "title": "DevOps",
+          "description": "Stable deployment and monitoring with predictable releases and uptime.",
+          "items": [
+            "Docker",
+            "Nginx",
+            "CI/CD",
+            "Linux"
+          ]
+        },
+        {
+          "title": "Mobile",
+          "description": "Mobile apps and PWAs with a native feel on iOS and Android.",
+          "items": [
+            "React Native",
+            "Expo",
+            "PWA",
+            "Flutter"
+          ]
+        }
+      ]
+    },
+    "services": {
+      "label": "Services",
+      "title": "What we build",
+      "hint": [
+        "Auto",
+        "services rotate on their own"
+      ],
+      "fallbackTitle": "Service",
+      "fallbackDesc": "We design and launch a product around the business task.",
+      "fallback": [
+        {
+          "n": "01",
+          "title": "Telegram Mini Apps",
+          "desc": "Full-featured apps inside Telegram: catalog, profile, payments.",
+          "meta": [
+            "Catalog",
+            "Payments",
+            "Profile"
+          ]
+        },
+        {
+          "n": "02",
+          "title": "Telegram bots",
+          "desc": "Sales, booking and support automation directly in chat.",
+          "meta": [
+            "Sales",
+            "Booking",
+            "Support"
+          ]
+        },
+        {
+          "n": "03",
+          "title": "Websites",
+          "desc": "Landing pages and corporate websites that load fast and sell clearly.",
+          "meta": [
+            "Landing",
+            "Corporate",
+            "SEO"
+          ]
+        },
+        {
+          "n": "04",
+          "title": "Online stores",
+          "desc": "Catalog, cart, payment and integrations with warehouse and CRM.",
+          "meta": [
+            "Cart",
+            "Payments",
+            "CRM"
+          ]
+        },
+        {
+          "n": "05",
+          "title": "AI and automation",
+          "desc": "Assistants and AI-side request processing to cut routine work.",
+          "meta": [
+            "Assistants",
+            "Requests",
+            "Integrations"
+          ]
+        },
+        {
+          "n": "06",
+          "title": "Corporate systems",
+          "desc": "Internal portals, CRMs and accounting systems built around your process.",
+          "meta": [
+            "CRM",
+            "Portals",
+            "Accounting"
+          ]
+        },
+        {
+          "n": "07",
+          "title": "Mobile apps",
+          "desc": "Native and cross-platform apps for iOS and Android.",
+          "meta": [
+            "iOS",
+            "Android",
+            "PWA"
+          ]
+        }
+      ]
+    },
+    "clients": {
+      "label": "For any client",
+      "title": "From solo specialists to companies",
+      "tags": [
+        "Photographer landing page",
+        "Portfolio website",
+        "Booking bot",
+        "Telegram mini-store",
+        "Personal AI assistant"
+      ],
+      "tabAria": "Client type",
+      "segments": [
+        {
+          "key": "private",
+          "label": "Individuals",
+          "eyebrow": "Personal launch",
+          "title": "A website, bot or mini-product without needless complexity",
+          "text": "We build a clear first version: portfolio, landing page, booking, payments or a Telegram tool. We handle structure, design, launch and calm support after release."
+        },
+        {
+          "key": "small-business",
+          "label": "Small / medium business",
+          "eyebrow": "Sales and operations",
+          "title": "A digital system that helps the business grow every day",
+          "text": "We create websites, stores, Mini Apps, CRM connections and request automation, integrating payments, analytics, inventory, Telegram and internal workflows."
+        },
+        {
+          "key": "enterprise",
+          "label": "Enterprise",
+          "eyebrow": "System level",
+          "title": "Reliable services for complex teams and processes",
+          "text": "We design corporate portals, accounts, integrations and admin panels with roles, security and predictable releases. Solutions are documented and built to scale."
+        }
+      ]
+    },
+    "stages": {
+      "label": "Process",
+      "title": "Development anatomy",
+      "text": "A clear process where each stage moves you closer to a product that works inside your business.",
+      "fallbackDuration": "Planned",
+      "fallback": [
+        {
+          "n": "01",
+          "title": "Discovery",
+          "desc": "We study the business, goals and audience, then lock the technical brief.",
+          "dur": "1-3 days"
+        },
+        {
+          "n": "02",
+          "title": "Architecture",
+          "desc": "Screen prototypes, system architecture and product UX logic.",
+          "dur": "2-4 days"
+        },
+        {
+          "n": "03",
+          "title": "Design",
+          "desc": "Visual concept, UI kit and responsive layouts for devices.",
+          "dur": "3-7 days"
+        },
+        {
+          "n": "04",
+          "title": "Development",
+          "desc": "Frontend, backend, API integrations and code review.",
+          "dur": "7-21 days"
+        },
+        {
+          "n": "05",
+          "title": "Testing",
+          "desc": "Functional and load testing, bug fixing and release checks.",
+          "dur": "2-5 days"
+        },
+        {
+          "n": "06",
+          "title": "Launch",
+          "desc": "Server deployment, CI/CD setup and monitoring.",
+          "dur": "1-2 days"
+        },
+        {
+          "n": "07",
+          "title": "Support",
+          "desc": "Monitoring, updates, improvements and consultation.",
+          "dur": "Ongoing"
+        }
+      ]
+    },
+    "contacts": {
+      "label": "Contacts",
+      "title": "Let's discuss the project and calculate the exact cost",
+      "emailCta": "Email us"
+    },
+    "footer": {
+      "tagline": "Everything about the project. In one place. Calmly.",
+      "topLink": "End of page ↑ Back to top",
+      "base": [
+        "Moscow",
+        "Russia"
+      ],
+      "navLabel": "Navigation",
+      "legal": "Individual entrepreneur D. A. Anishchenko · OGRNIP 326774600075626 · INN 773421830976",
+      "yearLabel": "Year",
+      "baseLabel": "Base",
+      "contactLabel": "Contact",
+      "signOff": "2026 / Sign-off",
+      "game": {
+        "name": "VEZHA RUN",
+        "aria": "Footer mini-game. Press to jump",
+        "ready": "READY",
+        "running": "RUNNING",
+        "crash": "CRASH"
+      }
+    },
+    "head": {
+      "title": "VEZHA Digital - Full-cycle web development",
+      "description": "Telegram Mini Apps, bots, websites, online stores, AI and corporate systems development.",
+      "ogTitle": "VEZHA Digital - products that work inside business",
+      "ogDescription": "A full-cycle team for Telegram, web, AI and corporate systems."
+    },
+    "language": {
+      "label": "Language"
+    }
   }
 }

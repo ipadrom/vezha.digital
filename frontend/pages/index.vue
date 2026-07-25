@@ -23,9 +23,7 @@
         <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
           {{ theme === "dark" ? "☀" : "☾" }}
         </button>
-        <button class="vz-lang-button" type="button" :aria-label="copy.nav.langAria" @click="toggleLocale">
-          {{ currentLocale === "ru" ? "EN" : "RU" }}
-        </button>
+        <LandingLanguageSwitcher />
         <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
         <button class="vz-menu-button" type="button" :aria-label="copy.nav.menuOpen" data-nav-toggle @click="isMenuOpen = true">
           <span></span>
@@ -44,9 +42,7 @@
           <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
             {{ theme === "dark" ? "☀" : "☾" }}
           </button>
-          <button class="vz-lang-button" type="button" :aria-label="copy.nav.langAria" @click="toggleLocale">
-            {{ currentLocale === "ru" ? "EN" : "RU" }}
-          </button>
+          <LandingLanguageSwitcher />
           <button class="vz-icon-button" type="button" :aria-label="copy.nav.menuClose" @click="isMenuOpen = false">✕</button>
         </div>
       </div>
@@ -60,16 +56,34 @@
       </div>
     </div>
 
-    <section id="hero" class="vz-hero">
+    <Teleport to="body">
+      <div
+        v-if="enableSectionLiquid"
+        ref="sectionLiquidRef"
+        class="vz-section-liquid"
+        :data-theme="theme"
+        aria-hidden="true"
+      >
+        <div class="vz-negative-world vz-negative-world--page" data-negative-world="page"></div>
+        <div class="vz-section-liquid__target" data-section-liquid-target hidden></div>
+      </div>
+    </Teleport>
+
+    <section
+      id="hero"
+      ref="heroRef"
+      class="vz-hero"
+      @pointerenter="updateHeroNegative"
+      @pointermove="updateHeroNegative"
+      @pointerleave="resetHeroNegative"
+    >
       <div class="vz-hero__art" aria-hidden="true">
         <div class="vz-aura vz-aura--top"></div>
-        <div class="vz-aura vz-aura--bottom"></div>
         <div class="vz-orbit">
           <svg data-orbit viewBox="0 0 200 200" fill="none">
             <circle cx="100" cy="100" r="98" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 7" />
           </svg>
         </div>
-        <span v-for="corner in 4" :key="corner" :class="`vz-corner vz-corner--${corner}`"><i></i><b></b></span>
       </div>
 
       <div class="vz-hero__inner">
@@ -78,7 +92,6 @@
           <span>{{ copy.hero.meta[1] }}</span>
         </div>
         <div class="vz-hero__kicker">
-          <span>✦</span>
           <span>{{ copy.hero.kicker }}</span>
         </div>
         <h1>
@@ -92,254 +105,101 @@
           </div>
         </div>
         <div class="vz-hero__stats" data-hero-stats>
-          <template v-for="(stat, index) in copy.hero.stats" :key="stat">
-            <span v-if="index > 0">/</span>
-            <span>{{ stat }}</span>
-          </template>
+          <span v-for="stat in copy.hero.stats" :key="stat">{{ stat }}</span>
+        </div>
+      </div>
+
+      <div ref="heroNegativeRef" class="vz-hero__negative vz-hero__negative--main" aria-hidden="true">
+        <div class="vz-hero__negative-plane" data-hero-negative-plane>
+          <div class="vz-negative-world vz-negative-world--hero" data-negative-world="hero"></div>
+        </div>
+      </div>
+
+      <div class="vz-marquee" :aria-label="copy.marqueeAria">
+        <div>
+          <span v-for="item in marqueeItems" :key="`a-${item}`">{{ item }} <i>✦</i></span>
+          <span v-for="item in marqueeItems" :key="`b-${item}`" aria-hidden="true">{{ item }} <i>✦</i></span>
         </div>
       </div>
     </section>
-
-    <div class="vz-marquee" :aria-label="copy.marqueeAria">
-      <div>
-        <span v-for="item in marqueeItems" :key="`a-${item}`">{{ item }} <i>✦</i></span>
-        <span v-for="item in marqueeItems" :key="`b-${item}`" aria-hidden="true">{{ item }} <i>✦</i></span>
-      </div>
-    </div>
 
     <section id="about" class="vz-about">
+      <div ref="aboutLiquidRef" class="vz-about__liquid" aria-hidden="true"></div>
       <div class="vz-about__grid">
-        <div class="vz-section-label">
-          <span>{{ copy.about.label }}</span>
-          <i>/</i>
-          <span data-secnum>01</span>
+        <div class="vz-about__brand">
+          <div class="vz-section-label">
+            <span>{{ copy.about.label }}</span>
+            <i>/</i>
+            <span data-secnum>01</span>
+          </div>
+          <div class="vz-about__mark" aria-hidden="true">
+            <span>VEZHA</span>
+            <i>digital</i>
+          </div>
+          <div class="vz-about__roles">
+            <div>
+              <span>01</span>
+              <strong>{{ copy.about.roles[0] }}</strong>
+            </div>
+            <div>
+              <span>02</span>
+              <strong>{{ copy.about.roles[1] }}</strong>
+            </div>
+            <div>
+              <span>03</span>
+              <strong>{{ copy.about.roles[2] }}</strong>
+            </div>
+          </div>
+          <p class="vz-about__note">{{ copy.about.note }}</p>
         </div>
         <div class="vz-about__copy">
-          <p class="vz-about__lead">{{ copy.about.lead }}</p>
-          <div class="vz-about__cols">
-            <p v-for="paragraph in copy.about.paragraphs" :key="paragraph">{{ paragraph }}</p>
+          <div class="vz-about__eyebrow">
+            <span>{{ copy.about.eyebrow[0] }}</span>
+            <span>{{ copy.about.eyebrow[1] }}</span>
           </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="stack" data-stack-section class="vz-stack">
-      <div class="vz-sticky">
-        <div class="vz-sticky__inner">
-          <div class="vz-sec-head" data-sec-head>
-            <div>
-              <div class="vz-section-label">
-                <span>{{ copy.stack.label }}</span>
-                <i>/</i>
-                <span data-secnum>02</span>
-              </div>
-              <h2>{{ copy.stack.title }}</h2>
-            </div>
-            <div class="vz-sec-meta" data-sec-meta>
-              <div><span data-stack-counter>01</span><i> / {{ toNumber(displayStackGroups.length) }}</i></div>
-              <p>{{ copy.stack.meta }}</p>
-            </div>
-          </div>
-
-          <div class="vz-stack__timeline">
-            <div class="vz-stack__line" data-stack-line><span data-line-fill></span></div>
-            <article
-              v-for="group in displayStackGroups"
-              :key="group.title"
-              data-stack-item
-              class="vz-stack-item"
-            >
-              <div data-label>{{ group.title }}</div>
-              <div>
-                <span data-halo></span>
-                <span data-dot></span>
-              </div>
-              <div>
-                <p>{{ group.description }}</p>
-                <div>
-                  <span v-for="item in group.items" :key="item">{{ item }}</span>
-                </div>
-              </div>
+          <p class="vz-about__lead">
+            {{ copy.about.teamLead }}
+          </p>
+          <div class="vz-about__principles">
+            <article>
+              <span>01</span>
+              <p>{{ copy.about.paragraphs[0] }}</p>
+            </article>
+            <article>
+              <span>02</span>
+              <p>{{ copy.about.paragraphs[1] }}</p>
             </article>
           </div>
-
-          <div class="vz-scroll-hint" data-stack-hint>
-            <span>{{ copy.stack.hint[0] }}</span>
-            <span>↓</span>
-            <span>{{ copy.stack.hint[1] }}</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="services" data-services-pin class="vz-services">
-      <div class="vz-sticky">
-        <div class="vz-sticky__inner">
-          <div class="vz-sec-head" data-sec-head>
+          <div class="vz-about__metrics">
             <div>
-              <div class="vz-section-label">
-                <span>{{ copy.services.label }}</span>
-                <i>/</i>
-                <span data-secnum>03</span>
-              </div>
-              <h2><span><span data-reveal>{{ copy.services.title }}</span></span></h2>
+              <strong>01</strong>
+              <span>{{ copy.about.metrics[0] }}</span>
             </div>
-            <div class="vz-services__counter"><span data-serv-counter>01 / 07</span></div>
-          </div>
-
-          <div class="vz-services__grid" data-serv-grid>
-            <div class="vz-services__nav" data-serv-list>
-              <button
-                v-for="(service, index) in displayServices"
-                :key="service.title"
-                data-serv-nav
-                type="button"
-                @click="scrollToService(index)"
-              >
-                <span data-serv-nav-num>{{ service.n }}</span>
-                <span data-serv-nav-label>{{ service.title }}</span>
-              </button>
+            <div>
+              <strong>0</strong>
+              <span>{{ copy.about.metrics[1] }}</span>
             </div>
-
-            <div class="vz-services__stage" data-serv-stage>
-              <div class="vz-services__devices" data-serv-devices>
-                <div class="vz-device-mac" data-device-mac>
-                  <div class="vz-macbook" data-macbook>
-                    <div class="vz-macbook__tilt">
-                      <div class="vz-macbook__lid" data-mac-lid>
-                        <div class="vz-macbook__notch"></div>
-                        <div class="vz-macbook__screen-wrap" data-screen-wrap>
-                          <div
-                            v-for="(screen, index) in serviceScreens"
-                            :key="screen.type"
-                            data-screen
-                            :data-si="index"
-                            :class="['vz-screen', `vz-screen--${screen.type}`]"
-                          >
-                            <div v-if="screen.type === 'miniapp'" class="vz-screen-miniapp">
-                              <div class="vz-screen-topbar">
-                                <span></span>
-                                <i>Mini app</i>
-                              </div>
-                              <div class="vz-screen-hero-line"></div>
-                              <div class="vz-screen-cards">
-                                <b></b>
-                                <b></b>
-                              </div>
-                              <div class="vz-screen-button"></div>
-                            </div>
-
-                            <div v-else-if="screen.type === 'bot'" class="vz-screen-chat">
-                              <div class="vz-screen-chatbar"><span></span><b></b></div>
-                              <div class="vz-bubble vz-bubble--left"></div>
-                              <div class="vz-bubble vz-bubble--right"></div>
-                              <div class="vz-bubble vz-bubble--choice"></div>
-                              <div class="vz-chat-input"></div>
-                            </div>
-
-                            <div v-else-if="screen.type === 'site'" class="vz-screen-site">
-                              <div class="vz-browserbar"><span></span><i>vezha.digital</i></div>
-                              <div class="vz-site-grid">
-                                <div></div>
-                                <b></b>
-                              </div>
-                            </div>
-
-                            <div v-else-if="screen.type === 'shop'" class="vz-screen-shop">
-                              <div class="vz-shop-top"><span></span><b>2</b></div>
-                              <div class="vz-shop-grid">
-                                <i v-for="cell in 6" :key="cell"></i>
-                              </div>
-                            </div>
-
-                            <div v-else-if="screen.type === 'ai'" class="vz-screen-ai">
-                              <div class="vz-ai-top"><span>✦</span><b></b></div>
-                              <div class="vz-bubble vz-bubble--right"></div>
-                              <div class="vz-ai-answer"><span>✦</span><i></i></div>
-                              <div class="vz-ai-plan"></div>
-                              <div class="vz-ai-flow"><b></b><b></b><b></b></div>
-                            </div>
-
-                            <div v-else-if="screen.type === 'corp'" class="vz-screen-corp">
-                              <div class="vz-corp-side"></div>
-                              <div class="vz-corp-main">
-                                <div class="vz-corp-head"></div>
-                                <div class="vz-corp-cards"><b></b><b></b><b></b></div>
-                                <div class="vz-corp-chart"><i v-for="bar in 6" :key="bar"></i></div>
-                              </div>
-                            </div>
-
-                            <div v-else class="vz-screen-mobile">
-                              <pre class="vz-code-pane">// App/MainView.swift
-import SwiftUI
-
-@main
-struct VezhaApp: App {
-    var body: some Scene {
-        WindowGroup {
-            CatalogView()
-        }
-    }
-}
-
-struct CatalogView: View {
-    var body: some View {
-        List(products) { product in
-            ProductRow(product)
-        }
-    }
-}</pre>
-                              <div class="vz-phone-pane">
-                                <div class="vz-phone">
-                                  <span></span>
-                                  <b></b>
-                                  <i></i>
-                                </div>
-                              </div>
-                            </div>
-                            <div class="vz-screen-shine"></div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="vz-macbook__base">
-                        <span></span>
-                        <i></i>
-                      </div>
-                    </div>
-                    <div class="vz-macbook__shadow"></div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="vz-service-caption" data-serv-caption>
-                <article
-                  v-for="service in displayServices"
-                  :key="service.n"
-                  data-serv-panel
-                  class="vz-service-panel"
-                >
-                  <div class="vz-service-panel__title">
-                    <span>{{ service.n }}</span>
-                    <h3>{{ service.title }}</h3>
-                  </div>
-                  <p>{{ service.desc }}</p>
-                  <div data-serv-metawrap>
-                    <span v-for="meta in service.meta" :key="meta">{{ meta }}</span>
-                  </div>
-                </article>
-              </div>
+            <div>
+              <strong>1-4</strong>
+              <span>{{ copy.about.metrics[2] }}</span>
             </div>
-          </div>
-
-          <div class="vz-services__bar"><span data-serv-bar></span></div>
-          <div class="vz-scroll-hint" data-serv-hint>
-            <span>{{ copy.services.hint[0] }}</span>
-            <span>→</span>
-            <span>{{ copy.services.hint[1] }}</span>
           </div>
         </div>
       </div>
     </section>
+
+    <LandingStack
+      :groups="displayStackGroups"
+      :copy="copy.stack"
+      @active-change="handleStackActiveChange"
+      @sphere-ready="handleStackSphereReady"
+    />
+
+    <LandingServices
+      :services="displayServices"
+      :copy="copy.services"
+      @active-change="handleServiceActiveChange"
+    />
 
     <section id="clients" class="vz-clients">
       <div class="vz-clients__grid" data-clients-grid>
@@ -347,81 +207,60 @@ struct CatalogView: View {
           <div class="vz-section-label">
             <span>{{ copy.clients.label }}</span>
             <i>/</i>
-            <span>✦</span>
+            <span aria-hidden="true">✦</span>
           </div>
           <h2><span><span data-reveal>{{ copy.clients.title }}</span></span></h2>
         </div>
-        <div class="vz-client-tags">
-          <span v-for="client in displayClients" :key="client">{{ client }}</span>
-        </div>
-      </div>
-    </section>
-
-    <section id="stages" class="vz-stages" data-stages-dark>
-      <div class="vz-code-layer" data-code-layer aria-hidden="true">
-        <pre>import SwiftUI
-import Observation
-
-@Observable
-final class ProjectStore {
-    private(set) var projects: [Project] = []
-    private let api: ProjectAPI
-
-    init(api: ProjectAPI = .live) {
-        self.api = api
-    }
-
-    func refresh() async throws {
-        projects = try await api.projects()
-    }
-}</pre>
-        <pre>struct ProjectBoard: View {
-    @State private var store = ProjectStore()
-
-    var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [.adaptive(minimum: 280)]) {
-                ForEach(store.projects) { project in
-                    ProjectCard(project: project)
-                }
-            }
-            .padding(24)
-        }
-        .task {
-            try? await store.refresh()
-        }
-    }
-}</pre>
-      </div>
-      <div class="vz-stages__aura" aria-hidden="true"></div>
-      <div class="vz-wrap">
-        <div class="vz-stages__head">
-          <div class="vz-section-label">
-            <span>{{ copy.stages.label }}</span>
-            <i>/</i>
-            <span data-secnum>04</span>
+        <div
+          class="vz-client-interactive"
+          :style="{ '--active-client-index': activeClientSegment }"
+        >
+          <div class="vz-client-capsules" role="tablist" :aria-label="copy.clients.tabAria">
+            <button
+              v-for="(segment, index) in clientSegments"
+              :id="`client-tab-${segment.key}`"
+              :key="segment.key"
+              :aria-controls="`client-panel-${segment.key}`"
+              :aria-selected="activeClientSegment === index"
+              :class="{ 'is-active': activeClientSegment === index }"
+              role="tab"
+              type="button"
+              @click="activeClientSegment = index"
+              @focus="activeClientSegment = index"
+            >
+              {{ segment.label }}
+            </button>
           </div>
-          <h2><span><span data-reveal>{{ copy.stages.title }}</span></span></h2>
-          <p>{{ copy.stages.text }}</p>
-        </div>
-        <div class="vz-stage-cards" data-stages-cards>
+
+          <div class="vz-client-connector" aria-hidden="true">
+            <span></span>
+          </div>
+
           <article
-            v-for="(stage, index) in displayStages"
-            :key="stage.n"
-            data-stage-card
-            data-rise
-            :class="['vz-stage-card', { 'vz-stage-card--dark': index === 1 || index === 3 || index === 6 }]"
+            :id="`client-panel-${activeClient.key}`"
+            :aria-labelledby="`client-tab-${activeClient.key}`"
+            class="vz-client-copy"
+            role="tabpanel"
           >
-            <div class="vz-stage-card__num">{{ stage.n }}</div>
-            <div class="vz-stage-card__content">
-              <span>{{ stage.dur }}</span>
-              <h3>{{ stage.title }}</h3>
-              <p>{{ stage.desc }}</p>
-            </div>
+            <span :key="`${activeClient.key}-eyebrow`">{{ activeClient.eyebrow }}</span>
+            <h3 :key="`${activeClient.key}-title`">{{ activeClient.title }}</h3>
+            <p :key="`${activeClient.key}-text`">{{ activeClient.text }}</p>
           </article>
         </div>
+        <div
+          ref="clientCubeRef"
+          class="vz-client-cube-field"
+          :data-client-cube-stage="activeClient.key"
+          aria-hidden="true"
+        ></div>
       </div>
     </section>
+
+    <LandingDevelopmentAnatomy
+      :stages="displayStages"
+      :copy="copy.stages"
+      @revealed="syncNegativeWorlds(true)"
+    />
 
     <section id="contacts" class="vz-contacts">
       <div class="vz-contacts__art" aria-hidden="true">
@@ -449,15 +288,15 @@ final class ProjectStore {
       </div>
       <div class="vz-footer__cols" data-footer-cols>
         <div>
-          <span>Year</span>
+          <span>{{ copy.footer.yearLabel }}</span>
           <strong>2026</strong>
         </div>
         <div>
-          <span>Base</span>
+          <span>{{ copy.footer.baseLabel }}</span>
           <p>{{ copy.footer.base[0] }}<br />{{ copy.footer.base[1] }}</p>
         </div>
         <div>
-          <span>Contact</span>
+          <span>{{ copy.footer.contactLabel }}</span>
           <nav>
             <a :href="`mailto:${contactEmail}`">{{ contactEmail }} →</a>
             <a href="#hero">vezha.digital ↗</a>
@@ -472,14 +311,52 @@ final class ProjectStore {
       </div>
       <div class="vz-footer__sign" data-footer-sign>
         <div>
-          <span>2026 / Sign-off</span>
+          <span>{{ copy.footer.signOff }}</span>
           <span>vezha.digital</span>
         </div>
-        <strong data-clip-reveal>VEZHA</strong>
+        <strong data-clip-reveal><span data-footer-word>VEZHA</span></strong>
       </div>
       <div class="vz-footer__legal" data-footer-legal>
         <span>© 2026 · VEZHA DIGITAL</span>
         <span>{{ copy.footer.legal }}</span>
+      </div>
+      <div
+        ref="footerGameRef"
+        class="vz-footer-game"
+        :aria-label="copy.footer.game.aria"
+        :class="{
+          'is-running': footerGame.running,
+          'is-paused': !footerGame.running && !footerGame.crashed,
+          'is-crashed': footerGame.crashed,
+        }"
+        @pointerdown.prevent="jumpFooterDino"
+      >
+        <div class="vz-footer-game__hud">
+          <span>{{ copy.footer.game.name }}</span>
+          <span>{{ footerGameStatus }}</span>
+          <span>{{ footerGameScore }}</span>
+        </div>
+        <div class="vz-footer-game__track" data-footer-game-track>
+          <div
+            class="vz-footer-game__dino"
+            :style="{ transform: `translateY(${-footerGame.dinoY}px)` }"
+            aria-hidden="true"
+          >
+            <span></span>
+            <i></i>
+            <b></b>
+          </div>
+          <span
+            v-for="obstacle in footerObstacles"
+            :key="obstacle.id"
+            class="vz-footer-game__letter"
+            :style="{ transform: `translateX(${obstacle.x}px)` }"
+            aria-hidden="true"
+          >
+            {{ obstacle.letter }}
+          </span>
+          <div class="vz-footer-game__ground" aria-hidden="true"></div>
+        </div>
       </div>
     </footer>
   </div>
@@ -487,12 +364,13 @@ final class ProjectStore {
 
 <script setup lang="ts">
 import type { IAdvantages } from "~/utils/interfaces/IAdvantages";
-import type { IClientType } from "~/utils/interfaces/IClientTypes";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 import type { IServices } from "~/utils/interfaces/IServices";
 import type { ISettings } from "~/utils/interfaces/ISettings";
 import type { ITechStack } from "~/utils/interfaces/ITechStack";
 import type { IWorkStages } from "~/utils/interfaces/IWorkStages";
+import enMessagesRaw from "~/locales/en.json?raw";
+import ruMessagesRaw from "~/locales/ru.json?raw";
 
 definePageMeta({
   layout: false,
@@ -517,6 +395,40 @@ type DisplayStage = {
   desc: string;
   dur: string;
 };
+
+type ClientSegment = {
+  key: string;
+  label: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+};
+
+type FooterObstacle = {
+  id: number;
+  letter: string;
+  passed: boolean;
+  width: number;
+  x: number;
+};
+
+type HeroLiquidBounds = {
+  bottom: number;
+  height: number;
+  left: number;
+  right: number;
+  top: number;
+  width: number;
+};
+
+type SectionLiquidTarget = {
+  element: HTMLElement;
+  key: string;
+  rect: DOMRect;
+  sectionRect: DOMRect;
+};
+
+type ThreeModule = typeof import("three");
 
 type LocaleCode = "ru" | "en";
 type ThemeMode = "light" | "dark";
@@ -555,6 +467,11 @@ type LandingCopy = {
     label: string;
     lead: string;
     paragraphs: string[];
+    roles: [string, string, string];
+    note: string;
+    eyebrow: [string, string];
+    teamLead: string;
+    metrics: [string, string, string];
   };
   stack: {
     label: string;
@@ -575,6 +492,8 @@ type LandingCopy = {
     label: string;
     title: string;
     tags: string[];
+    tabAria: string;
+    segments: ClientSegment[];
   };
   stages: {
     label: string;
@@ -592,8 +511,19 @@ type LandingCopy = {
     tagline: string;
     topLink: string;
     base: [string, string];
+    yearLabel: string;
+    baseLabel: string;
+    contactLabel: string;
+    signOff: string;
     navLabel: string;
     legal: string;
+    game: {
+      name: string;
+      aria: string;
+      ready: string;
+      running: string;
+      crash: string;
+    };
   };
   head: {
     title: string;
@@ -602,7 +532,6 @@ type LandingCopy = {
     ogDescription: string;
   };
 };
-
 const {
   getServices,
   getProjects,
@@ -610,273 +539,111 @@ const {
   getTechStack,
   getWorkStages,
   getSettings,
-  getClientTypes,
 } = useApi();
-const { locale, setLocale } = useI18n();
+const { locale } = useI18n();
 
 const rootRef = ref<HTMLElement | null>(null);
+const heroRef = ref<HTMLElement | null>(null);
+const heroNegativeRef = ref<HTMLElement | null>(null);
+const sectionLiquidRef = ref<HTMLElement | null>(null);
+const aboutLiquidRef = ref<HTMLElement | null>(null);
+const stackSphereRef = ref<HTMLElement | null>(null);
+const clientCubeRef = ref<HTMLElement | null>(null);
+const footerGameRef = ref<HTMLElement | null>(null);
 const preloaderRef = ref<HTMLElement | null>(null);
 const showPreloader = ref(true);
 const introProgress = ref(0);
 const theme = ref<ThemeMode>("light");
 const isMenuOpen = ref(false);
+const activeStackIndex = ref(0);
+const activeClientSegment = ref(0);
+const enableMotionLayer = true;
+const enableSectionLiquid = true;
+
 const activeServiceIndex = ref(0);
+let heroFxRaf = 0;
+let heroFxLastFrame = 0;
+let sectionLiquidRaf = 0;
+let sectionLiquidLastFrame = 0;
+let sectionLiquidLastScrollY = 0;
+let sectionLiquidScrollDirection = 0;
+let footerGameRaf = 0;
+let footerGameLastFrame = 0;
+let footerGameLastScrollY = 0;
+let footerGameNextId = 0;
+let footerGameSpawnIn = 0;
+let footerGameStartBlockedUntil = 0;
+let footerGameNeedsReentry = false;
+let aboutLiquidCleanup: (() => void) | null = null;
+let stackSphereCleanup: (() => void) | null = null;
+let clientCubeCleanup: (() => void) | null = null;
+let updateClientCubeStage: ((index: number) => void) | null = null;
+
+const heroFxState = {
+  active: false,
+  angle: 0,
+  currentX: 0.76,
+  currentY: 0.43,
+  hasPointer: false,
+  lastPointerX: 0,
+  lastPointerY: 0,
+  lastX: 0.76,
+  lastY: 0.43,
+  speed: 0,
+  targetX: 0.76,
+  targetY: 0.43,
+  velocityX: 0.00048,
+  velocityY: 0.00018,
+};
+
+const sectionLiquidState = {
+  angle: -0.35,
+  arcX: 0,
+  arcY: 0,
+  currentX: 0,
+  currentY: 0,
+  initialized: false,
+  lastTargetKey: "",
+  lastX: 0,
+  lastY: 0,
+  radius: 104,
+  speed: 0,
+  targetRadius: 104,
+  targetX: 0,
+  targetY: 0,
+  velocityX: 0,
+  velocityY: 0,
+};
 
 const services = ref<IServices[]>([]);
 const projects = ref<IProjects[]>([]);
 const advantages = ref<IAdvantages[]>([]);
 const techStack = ref<ITechStack[]>([]);
 const workStages = ref<IWorkStages[]>([]);
-const clientTypes = ref<IClientType[]>([]);
 const settings = ref<ISettings | null>(null);
+const footerObstacles = ref<FooterObstacle[]>([]);
 
-const landingCopy: Record<LocaleCode, LandingCopy> = {
-  ru: {
-    preloader: {
-      loading: "2026 / Загрузка",
-      meta: ["Пространство 000", "Base · Moscow"],
-    },
-    nav: {
-      aria: "Основная навигация",
-      themeAria: "Сменить тему",
-      langAria: "Switch to English",
-      menuOpen: "Открыть меню",
-      menuClose: "Закрыть меню",
-      cta: "Обсудить проект",
-      mobileCta: "Обсудить проект →",
-      items: [
-        { href: "#about", label: "Кто мы" },
-        { href: "#stack", label: "Стек" },
-        { href: "#services", label: "Услуги" },
-        { href: "#stages", label: "Этапы" },
-        { href: "#contacts", label: "Контакты" },
-      ],
-    },
-    hero: {
-      meta: ["2026 / Веб-студия", "Base / Moscow"],
-      kicker: "Engineering clarity through code",
-      title: ["Продукты,", "которые работают", "в вашем бизнесе"],
-      text: "Telegram Mini Apps, боты, сайты, интернет-магазины, AI и корпоративные системы. Команда полного цикла — без субподряда и лишних звеньев.",
-      cta: "Обсудить проект →",
-      stackLink: "Смотреть стек",
-      stats: ["От 40 000 ₽", "Запуск 1–4 недели", "Полный цикл", "Без субподряда"],
-    },
-    marqueeAria: "Направления разработки",
-    marqueeItems: [
-      "Веб-разработка под ключ",
-      "Telegram Mini Apps",
-      "Telegram боты",
-      "Веб-сайты",
-      "Интернет-магазины",
-      "AI и автоматизация",
-      "Корпоративные системы",
-    ],
-    about: {
-      label: "Кто мы",
-      lead: "Мы — команда полного цикла. Каждый проект ведёт конкретный человек: от первого разговора до запуска.",
-      paragraphs: [
-        "Вникаем в задачу и предлагаем решения, а не просто закрываем ТЗ. Никакого субподряда и лишних звеньев между вами и результатом.",
-        "Нам важно, чтобы продукт реально работал в вашем бизнесе, а не выглядел красиво на сдаче и пылился после запуска.",
-      ],
-    },
-    stack: {
-      label: "Стек",
-      title: "Стек подбирается под задачу, а не по трендам",
-      meta: "Каждый инструмент проверен в реальных проектах и предсказуем в поддержке.",
-      hint: ["Скролл", "категории подсвечиваются по очереди"],
-      groups: [
-        { title: "Frontend", description: "Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
-        { title: "Backend", description: "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
-        { title: "DevOps", description: "Стабильный деплой и мониторинг: предсказуемые релизы и аптайм без сюрпризов.", items: ["Docker", "Nginx", "CI/CD", "Linux"] },
-        { title: "Mobile", description: "Мобильные приложения и PWA с нативным ощущением на iOS и Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
-      ],
-    },
-    services: {
-      label: "Услуги",
-      title: "Что мы делаем",
-      hint: ["Авто", "услуги листаются сами"],
-      fallbackTitle: "Услуга",
-      fallbackDesc: "Проектируем и запускаем продукт под задачу бизнеса.",
-      fallback: [
-        { n: "01", title: "Telegram Mini Apps", desc: "Полноценные приложения внутри Telegram: каталог, профиль, оплата.", meta: ["Каталог", "Оплата", "Профиль"] },
-        { n: "02", title: "Telegram боты", desc: "Автоматизация продаж, записи и поддержки прямо в чате.", meta: ["Продажи", "Запись", "Поддержка"] },
-        { n: "03", title: "Веб-сайты", desc: "Лендинги и корпоративные сайты, которые быстро грузятся и продают.", meta: ["Лендинги", "Корпоративные", "SEO"] },
-        { n: "04", title: "Интернет-магазины", desc: "Каталог, корзина, оплата и интеграции со складом и CRM.", meta: ["Корзина", "Оплата", "CRM"] },
-        { n: "05", title: "AI и автоматизация", desc: "Ассистенты и обработка заявок на стороне ИИ — меньше рутины.", meta: ["Ассистенты", "Заявки", "Интеграции"] },
-        { n: "06", title: "Корпоративные системы", desc: "Внутренние порталы, CRM и учётные системы под ваши процессы.", meta: ["CRM", "Порталы", "Учёт"] },
-        { n: "07", title: "Мобильные приложения", desc: "Нативные и кроссплатформенные приложения для iOS и Android.", meta: ["iOS", "Android", "PWA"] },
-      ],
-    },
-    clients: {
-      label: "Для любых клиентов",
-      title: "От частного специалиста до компании",
-      tags: ["Лендинг для фотографа", "Сайт-портфолио", "Бот для записи", "Мини-магазин в Telegram", "Личный AI-ассистент"],
-    },
-    stages: {
-      label: "Этапы",
-      title: "Анатомия разработки",
-      text: "Понятный процесс, где каждый этап приближает вас к продукту, который работает в вашем бизнесе.",
-      fallbackDuration: "По плану",
-      fallback: [
-        { n: "01", title: "Анализ", desc: "Изучаем бизнес, цели и аудиторию, фиксируем техническое задание.", dur: "1–3 дня" },
-        { n: "02", title: "Проектирование", desc: "Прототипы экранов, архитектура системы и UX-логика продукта.", dur: "2–4 дня" },
-        { n: "03", title: "Дизайн", desc: "Визуальная концепция, UI Kit и адаптив под устройства.", dur: "3–7 дней" },
-        { n: "04", title: "Разработка", desc: "Frontend, Backend, API-интеграции и code review.", dur: "7–21 день" },
-        { n: "05", title: "Тестирование", desc: "Функциональное и нагрузочное тестирование, фикс багов.", dur: "2–5 дней" },
-        { n: "06", title: "Запуск", desc: "Деплой на сервер, настройка CI/CD и мониторинга.", dur: "1–2 дня" },
-        { n: "07", title: "Поддержка", desc: "Мониторинг, обновления, доработки и консультации.", dur: "Ongoing" },
-      ],
-    },
-    contacts: {
-      label: "Контакты",
-      title: "Обсудим проект и рассчитаем точную стоимость",
-      emailCta: "Написать нам",
-    },
-    footer: {
-      tagline: "Всё по проекту. В одном месте. Спокойно.",
-      topLink: "Конец полотна ↑ В начало",
-      base: ["Москва", "Россия"],
-      navLabel: "Навигация",
-      legal: "ИП Анищенко Д. А. · ОГРНИП 326774600075626 · ИНН 773421830976",
-    },
-    head: {
-      title: "VEZHA Digital - Веб-разработка под ключ",
-      description: "Разработка Telegram Mini Apps, ботов, веб-сайтов, интернет-магазинов, AI и корпоративных систем.",
-      ogTitle: "VEZHA Digital - продукты, которые работают в бизнесе",
-      ogDescription: "Команда полного цикла для Telegram, web, AI и корпоративных систем.",
-    },
-  },
-  en: {
-    preloader: {
-      loading: "2026 / Loading",
-      meta: ["Workspace 000", "Base · Moscow"],
-    },
-    nav: {
-      aria: "Main navigation",
-      themeAria: "Switch theme",
-      langAria: "Переключить на русский",
-      menuOpen: "Open menu",
-      menuClose: "Close menu",
-      cta: "Discuss a project",
-      mobileCta: "Discuss a project →",
-      items: [
-        { href: "#about", label: "About" },
-        { href: "#stack", label: "Stack" },
-        { href: "#services", label: "Services" },
-        { href: "#stages", label: "Process" },
-        { href: "#contacts", label: "Contacts" },
-      ],
-    },
-    hero: {
-      meta: ["2026 / Web studio", "Base / Moscow"],
-      kicker: "Engineering clarity through code",
-      title: ["Products", "that work", "inside your business"],
-      text: "Telegram Mini Apps, bots, websites, online stores, AI and corporate systems. A full-cycle team with no subcontractors or extra layers.",
-      cta: "Discuss a project →",
-      stackLink: "View stack",
-      stats: ["From $500", "Launch in 1-4 weeks", "Full cycle", "No subcontractors"],
-    },
-    marqueeAria: "Development directions",
-    marqueeItems: [
-      "Full-cycle web development",
-      "Telegram Mini Apps",
-      "Telegram bots",
-      "Websites",
-      "Online stores",
-      "AI and automation",
-      "Corporate systems",
-    ],
-    about: {
-      label: "About",
-      lead: "We are a full-cycle team. One responsible person leads each project from the first call to launch.",
-      paragraphs: [
-        "We dig into the task and propose solutions instead of only closing a brief. No subcontractors or extra layers between you and the result.",
-        "The product has to work in your business, not just look good at handoff and sit unused after launch.",
-      ],
-    },
-    stack: {
-      label: "Stack",
-      title: "The stack fits the task, not the trend",
-      meta: "Every tool is tested in real projects and predictable in support.",
-      hint: ["Scroll", "categories highlight one by one"],
-      groups: [
-        { title: "Frontend", description: "Interfaces that load fast and feel natural on any device.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
-        { title: "Backend", description: "Reliable server logic that handles load and scales cleanly.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
-        { title: "DevOps", description: "Stable deployment and monitoring with predictable releases and uptime.", items: ["Docker", "Nginx", "CI/CD", "Linux"] },
-        { title: "Mobile", description: "Mobile apps and PWAs with a native feel on iOS and Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
-      ],
-    },
-    services: {
-      label: "Services",
-      title: "What we build",
-      hint: ["Auto", "services rotate on their own"],
-      fallbackTitle: "Service",
-      fallbackDesc: "We design and launch a product around the business task.",
-      fallback: [
-        { n: "01", title: "Telegram Mini Apps", desc: "Full-featured apps inside Telegram: catalog, profile, payments.", meta: ["Catalog", "Payments", "Profile"] },
-        { n: "02", title: "Telegram bots", desc: "Sales, booking and support automation directly in chat.", meta: ["Sales", "Booking", "Support"] },
-        { n: "03", title: "Websites", desc: "Landing pages and corporate websites that load fast and sell clearly.", meta: ["Landing", "Corporate", "SEO"] },
-        { n: "04", title: "Online stores", desc: "Catalog, cart, payment and integrations with warehouse and CRM.", meta: ["Cart", "Payments", "CRM"] },
-        { n: "05", title: "AI and automation", desc: "Assistants and AI-side request processing to cut routine work.", meta: ["Assistants", "Requests", "Integrations"] },
-        { n: "06", title: "Corporate systems", desc: "Internal portals, CRMs and accounting systems built around your process.", meta: ["CRM", "Portals", "Accounting"] },
-        { n: "07", title: "Mobile apps", desc: "Native and cross-platform apps for iOS and Android.", meta: ["iOS", "Android", "PWA"] },
-      ],
-    },
-    clients: {
-      label: "For any client",
-      title: "From solo specialists to companies",
-      tags: ["Photographer landing page", "Portfolio website", "Booking bot", "Telegram mini-store", "Personal AI assistant"],
-    },
-    stages: {
-      label: "Process",
-      title: "Development anatomy",
-      text: "A clear process where each stage moves you closer to a product that works inside your business.",
-      fallbackDuration: "Planned",
-      fallback: [
-        { n: "01", title: "Discovery", desc: "We study the business, goals and audience, then lock the technical brief.", dur: "1-3 days" },
-        { n: "02", title: "Architecture", desc: "Screen prototypes, system architecture and product UX logic.", dur: "2-4 days" },
-        { n: "03", title: "Design", desc: "Visual concept, UI kit and responsive layouts for devices.", dur: "3-7 days" },
-        { n: "04", title: "Development", desc: "Frontend, backend, API integrations and code review.", dur: "7-21 days" },
-        { n: "05", title: "Testing", desc: "Functional and load testing, bug fixing and release checks.", dur: "2-5 days" },
-        { n: "06", title: "Launch", desc: "Server deployment, CI/CD setup and monitoring.", dur: "1-2 days" },
-        { n: "07", title: "Support", desc: "Monitoring, updates, improvements and consultation.", dur: "Ongoing" },
-      ],
-    },
-    contacts: {
-      label: "Contacts",
-      title: "Let's discuss the project and calculate the exact cost",
-      emailCta: "Email us",
-    },
-    footer: {
-      tagline: "Everything about the project. In one place. Calmly.",
-      topLink: "End of page ↑ Back to top",
-      base: ["Moscow", "Russia"],
-      navLabel: "Navigation",
-      legal: "Individual entrepreneur D. A. Anishchenko · OGRNIP 326774600075626 · INN 773421830976",
-    },
-    head: {
-      title: "VEZHA Digital - Full-cycle web development",
-      description: "Telegram Mini Apps, bots, websites, online stores, AI and corporate systems development.",
-      ogTitle: "VEZHA Digital - products that work inside business",
-      ogDescription: "A full-cycle team for Telegram, web, AI and corporate systems.",
-    },
-  },
-};
+const footerGameLetters = ["V", "E", "Z", "H", "A"];
+const footerGame = ref({
+  best: 0,
+  crashed: false,
+  dinoY: 0,
+  running: false,
+  score: 0,
+  speed: 3.6,
+  status: "READY",
+  velocityY: 0,
+});
 
-const serviceScreens = [
-  { type: "miniapp" },
-  { type: "bot" },
-  { type: "site" },
-  { type: "shop" },
-  { type: "ai" },
-  { type: "corp" },
-  { type: "mobile" },
-];
 
 const devOpsTechNames = new Set(["docker", "nginx", "ci/cd", "ci cd", "linux", "kubernetes", "github actions", "gitlab ci"]);
 
 const currentLocale = computed<LocaleCode>(() => (locale.value === "ru" ? "ru" : "en"));
-const copy = computed(() => landingCopy[currentLocale.value]);
+const enMessages = JSON.parse(enMessagesRaw) as { landing: LandingCopy };
+const ruMessages = JSON.parse(ruMessagesRaw) as { landing: LandingCopy };
+const landingMessages = { ru: ruMessages.landing, en: enMessages.landing };
+const copy = computed(() => landingMessages[currentLocale.value] as LandingCopy);
+const clientSegments = computed(() => copy.value.clients.segments);
 const navItems = computed(() => copy.value.nav.items);
 const footerNavItems = computed(() => navItems.value.filter((item) => item.href !== "#contacts"));
 const marqueeItems = computed(() => copy.value.marqueeItems);
@@ -886,7 +653,7 @@ const fallbackClients = computed(() => copy.value.clients.tags);
 const fallbackStages = computed(() => copy.value.stages.fallback);
 
 const displayServices = computed<DisplayService[]>(() => {
-  if (currentLocale.value === "en" || !services.value.length) return fallbackServices.value;
+  if (!services.value.length) return fallbackServices.value;
 
   return services.value.slice(0, 7).map((service, index) => ({
     n: toNumber(index + 1),
@@ -921,15 +688,16 @@ const displayStackGroups = computed<StackGroup[]>(() => {
   });
 });
 
-const displayClients = computed(() => {
-  if (currentLocale.value === "en") return fallbackClients.value;
-  if (clientTypes.value.length) return clientTypes.value.slice(0, 7).map((client) => client.title);
-  if (projects.value.length) return projects.value.slice(0, 7).map((project) => project.type || project.name);
-  return fallbackClients.value;
+const activeClient = computed(() => clientSegments.value[activeClientSegment.value] || clientSegments.value[0]);
+const footerGameScore = computed(() => Math.floor(footerGame.value.score).toString().padStart(4, "0"));
+const footerGameStatus = computed(() => {
+  if (footerGame.value.crashed) return copy.value.footer.game.crash;
+  if (footerGame.value.running) return copy.value.footer.game.running;
+  return copy.value.footer.game.ready;
 });
 
 const displayStages = computed<DisplayStage[]>(() => {
-  if (currentLocale.value === "en" || !workStages.value.length) return fallbackStages.value;
+  if (!workStages.value.length) return fallbackStages.value;
 
   return workStages.value.slice(0, 7).map((stage, index) => ({
     n: toNumber(stage.step_number || index + 1),
@@ -943,6 +711,14 @@ const contactEmail = computed(() => settings.value?.contact_email || "contact@ve
 
 function toNumber(value: number) {
   return value.toString().padStart(2, "0");
+}
+
+function clampStackIndex(index: number, length = displayStackGroups.value.length) {
+  return Math.max(0, Math.min(Math.max(0, length - 1), index));
+}
+
+function clampValue(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, value));
 }
 
 function normalizeTechName(value: string) {
@@ -969,49 +745,16 @@ function mergeStackItems(primary: string[], fallback: string[]) {
   }).slice(0, 5);
 }
 
-function getSavedTheme(): ThemeMode | null {
-  const saved = localStorage.getItem("vz_theme");
-  return saved === "dark" || saved === "light" ? saved : null;
-}
-
-function getSystemTheme(): ThemeMode {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-}
-
-function applyTheme(nextTheme: ThemeMode, persist = false) {
-  theme.value = nextTheme;
-  document.documentElement.setAttribute("data-theme", nextTheme);
-  document.documentElement.style.colorScheme = nextTheme;
-  if (persist) localStorage.setItem("vz_theme", nextTheme);
-}
-
 function toggleTheme() {
-  applyTheme(theme.value === "dark" ? "light" : "dark", true);
+  theme.value = theme.value === "dark" ? "light" : "dark";
+  localStorage.setItem("vz_theme", theme.value);
+  requestAnimationFrame(() => syncNegativeWorlds(true));
 }
 
-function getSavedLocale(): LocaleCode | null {
-  const saved = localStorage.getItem("vz_lang");
-  return saved === "ru" || saved === "en" ? saved : null;
-}
+let publicDataRequestId = 0;
 
-function detectBrowserLocale(): LocaleCode {
-  const languages = navigator.languages?.length ? navigator.languages : [navigator.language];
-  const preferred = languages.find(Boolean)?.toLowerCase() || "";
-  return preferred.startsWith("ru") ? "ru" : "en";
-}
-
-async function applyLocale(nextLocale: LocaleCode, persist = false) {
-  if (persist) localStorage.setItem("vz_lang", nextLocale);
-  document.cookie = `i18n_locale=${nextLocale}; path=/; max-age=31536000; SameSite=Lax`;
-  document.documentElement.lang = nextLocale;
-  if (locale.value !== nextLocale) await setLocale(nextLocale);
-}
-
-async function toggleLocale() {
-  await applyLocale(currentLocale.value === "ru" ? "en" : "ru", true);
-}
-
-async function loadPublicData() {
+async function loadPublicData(lang: LocaleCode = currentLocale.value) {
+  const requestId = ++publicDataRequestId;
   try {
     const [
       servicesData,
@@ -1020,16 +763,16 @@ async function loadPublicData() {
       techStackData,
       workStagesData,
       settingsData,
-      clientTypeData,
     ] = await Promise.all([
-      getServices(),
-      getProjects(),
-      getAdvantages(),
-      getTechStack(),
-      getWorkStages(),
-      getSettings(),
-      getClientTypes(),
+      getServices(lang),
+      getProjects(lang),
+      getAdvantages(lang),
+      getTechStack(lang),
+      getWorkStages(lang),
+      getSettings(lang),
     ]);
+
+    if (requestId !== publicDataRequestId || lang !== currentLocale.value) return;
 
     services.value = servicesData;
     projects.value = projectsData;
@@ -1037,51 +780,1544 @@ async function loadPublicData() {
     techStack.value = techStackData;
     workStages.value = workStagesData;
     settings.value = settingsData.settings;
-    clientTypes.value = clientTypeData;
   } catch (error) {
+    if (requestId !== publicDataRequestId) return;
     console.info("VEZHA public data fallback is active:", error);
   }
 }
 
-let systemThemeQuery: MediaQueryList | null = null;
 let localeWatcherReady = false;
-let serviceAutoplayTimer: ReturnType<typeof window.setInterval> | null = null;
-let serviceManualPauseUntil = 0;
 
-function handleSystemThemeChange(event: MediaQueryListEvent) {
-  if (getSavedTheme()) return;
-  applyTheme(event.matches ? "dark" : "light");
+function createAboutLiquidEnvironment(THREE: ThreeModule) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+
+  if (ctx) {
+    const sky = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    sky.addColorStop(0, "#ffffff");
+    sky.addColorStop(0.24, "#e9ecef");
+    sky.addColorStop(0.42, "#111318");
+    sky.addColorStop(0.52, "#ffffff");
+    sky.addColorStop(0.72, "#d7dbe0");
+    sky.addColorStop(1, "#ffffff");
+    ctx.fillStyle = sky;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.fillStyle = "rgba(255,255,255,0.95)";
+    ctx.fillRect(0, 0, canvas.width, 58);
+    ctx.fillRect(0, 238, canvas.width, 36);
+    ctx.fillStyle = "rgba(0,0,0,0.72)";
+    ctx.fillRect(0, 184, canvas.width, 34);
+    ctx.fillStyle = "rgba(255,255,255,0.88)";
+    ctx.beginPath();
+    ctx.ellipse(780, 130, 210, 46, -0.18, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(0,0,0,0.45)";
+    ctx.beginPath();
+    ctx.ellipse(240, 330, 240, 58, 0.14, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
 }
 
-function setActiveService(index: number, manual = false) {
-  const count = displayServices.value.length || 1;
-  activeServiceIndex.value = ((index % count) + count) % count;
-  if (manual) serviceManualPauseUntil = performance.now() + 6500;
-  scheduleUpdate();
+function createAboutLiquidGeometry(THREE: ThreeModule) {
+  const radialSegments = 180;
+  const tubeSegments = 30;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const radial = new THREE.Vector3();
+  const binormal = new THREE.Vector3(0, 0, 1);
+
+  for (let i = 0; i <= radialSegments; i += 1) {
+    const u = (i / radialSegments) * Math.PI * 2;
+    const centerX = Math.cos(u) * (1.72 + Math.sin(u * 3.1 + 0.28) * 0.12 + Math.cos(u * 5.2) * 0.05);
+    const centerY = Math.sin(u) * (0.86 + Math.cos(u * 2.4 - 0.7) * 0.08) + Math.sin(u * 2 + 0.45) * 0.06;
+    const centerZ = Math.sin(u * 2.6 - 0.4) * 0.12;
+    const tube = 0.34 + Math.sin(u * 3.4 + 1.2) * 0.035 + Math.cos(u * 5.1) * 0.025;
+
+    radial.set(Math.cos(u), Math.sin(u) * 0.74, 0).normalize();
+
+    for (let j = 0; j <= tubeSegments; j += 1) {
+      const v = (j / tubeSegments) * Math.PI * 2;
+      const oval = 1 + Math.sin(u * 2.2 + 0.3) * 0.1;
+      const px = centerX + radial.x * Math.cos(v) * tube * oval + binormal.x * Math.sin(v) * tube * 0.72;
+      const py = centerY + radial.y * Math.cos(v) * tube * oval + binormal.y * Math.sin(v) * tube * 0.72;
+      const pz = centerZ + radial.z * Math.cos(v) * tube * oval + binormal.z * Math.sin(v) * tube * 0.72;
+
+      positions.push(px, py, pz);
+      uvs.push(i / radialSegments, j / tubeSegments);
+    }
+  }
+
+  for (let i = 0; i < radialSegments; i += 1) {
+    for (let j = 0; j < tubeSegments; j += 1) {
+      const a = i * (tubeSegments + 1) + j;
+      const b = (i + 1) * (tubeSegments + 1) + j;
+      const c = b + 1;
+      const d = a + 1;
+      indices.push(a, b, d, b, c, d);
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setIndex(indices);
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geometry.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geometry.computeVertexNormals();
+  return geometry;
 }
 
-function startServiceAutoplay() {
-  if (serviceAutoplayTimer) return;
+async function setupAboutLiquidScene() {
+  const host = aboutLiquidRef.value;
+  if (!host || aboutLiquidCleanup) return;
 
-  serviceAutoplayTimer = window.setInterval(() => {
-    const root = rootRef.value;
-    const section = root?.querySelector<HTMLElement>("[data-services-pin]");
-    if (!root || !section || document.hidden) return;
-    if (performance.now() < serviceManualPauseUntil) return;
+  try {
+    const THREE = await import("three");
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.94;
+    renderer.domElement.setAttribute("aria-hidden", "true");
+    host.replaceChildren(renderer.domElement);
 
-    const rect = section.getBoundingClientRect();
-    const vh = window.innerHeight || document.documentElement.clientHeight || 900;
-    const isVisible = rect.top < vh * 0.82 && rect.bottom > vh * 0.18;
-    if (!isVisible) return;
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+    camera.position.set(0, 0, 6.2);
 
-    setActiveService(activeServiceIndex.value + 1);
-  }, 3200);
+    const envMap = createAboutLiquidEnvironment(THREE);
+    scene.environment = envMap;
+    scene.add(new THREE.AmbientLight(0xffffff, 0.82));
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.2);
+    keyLight.position.set(2.8, 2.2, 4.4);
+    scene.add(keyLight);
+    const rimLight = new THREE.DirectionalLight(0x7f8a98, 1.35);
+    rimLight.position.set(-2.2, -1.8, 3.4);
+    scene.add(rimLight);
+
+    const geometry = createAboutLiquidGeometry(THREE);
+    const material = new THREE.MeshPhysicalMaterial({
+      clearcoat: 1,
+      clearcoatRoughness: 0.08,
+      color: 0xf7f8f9,
+      envMap,
+      envMapIntensity: 1.6,
+      metalness: 1,
+      roughness: 0.16,
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.rotation.set(-0.58, 0.16, -0.1);
+    mesh.scale.setScalar(0.88);
+    scene.add(mesh);
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frameId = 0;
+    let isVisible = true;
+    const resize = () => {
+      const width = Math.max(1, host.clientWidth);
+      const height = Math.max(1, host.clientHeight);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+    };
+    const tick = (time: number) => {
+      if (isVisible) {
+        mesh.rotation.x = -0.58 + Math.sin(time * 0.00022) * 0.035;
+        mesh.rotation.y = 0.16 + Math.sin(time * 0.00016 + 1.1) * 0.045;
+        mesh.rotation.z = -0.1 + Math.sin(time * 0.00018) * 0.03;
+        renderer.render(scene, camera);
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(host);
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
+      isVisible = Boolean(entry?.isIntersecting);
+    });
+    intersectionObserver.observe(host);
+    resize();
+    if (!reduceMotion) frameId = requestAnimationFrame(tick);
+
+    aboutLiquidCleanup = () => {
+      if (frameId) cancelAnimationFrame(frameId);
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      geometry.dispose();
+      material.dispose();
+      envMap.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+      aboutLiquidCleanup = null;
+    };
+  } catch (error) {
+    console.info("VEZHA about 3D fallback is inactive:", error);
+    host.hidden = true;
+  }
 }
 
-function stopServiceAutoplay() {
-  if (!serviceAutoplayTimer) return;
-  window.clearInterval(serviceAutoplayTimer);
-  serviceAutoplayTimer = null;
+function createStackSpherePoints(THREE: ThreeModule, count: number, radius: number, yScale = 1) {
+  const points: import("three").Vector3[] = [];
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
+
+  for (let index = 0; index < count; index += 1) {
+    const y = count === 1 ? 0 : 1 - (index / (count - 1)) * 2;
+    const r = Math.sqrt(Math.max(0, 1 - y * y));
+    const theta = index * goldenAngle;
+    points.push(new THREE.Vector3(
+      Math.cos(theta) * r * radius,
+      y * radius * yScale,
+      Math.sin(theta) * r * radius,
+    ));
+  }
+
+  return points;
+}
+
+function createStackSpherePairs(points: import("three").Vector3[], neighbors: number, maxDistance: number) {
+  const pairs: Array<[number, number]> = [];
+  const seen = new Set<string>();
+
+  points.forEach((point, index) => {
+    const nearest = points
+      .map((target, targetIndex) => ({
+        distance: point.distanceTo(target),
+        targetIndex,
+      }))
+      .filter((item) => item.targetIndex !== index && item.distance <= maxDistance)
+      .sort((a, b) => a.distance - b.distance)
+      .slice(0, neighbors);
+
+    nearest.forEach(({ targetIndex }) => {
+      const a = Math.min(index, targetIndex);
+      const b = Math.max(index, targetIndex);
+      const key = `${a}:${b}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+      pairs.push([a, b]);
+    });
+  });
+
+  return pairs;
+}
+
+function createStackLineGeometry(THREE: ThreeModule, points: import("three").Vector3[], pairs: Array<[number, number]>) {
+  const positions: number[] = [];
+
+  pairs.forEach(([a, b]) => {
+    positions.push(points[a].x, points[a].y, points[a].z, points[b].x, points[b].y, points[b].z);
+  });
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  return geometry;
+}
+
+function createStackBridgeGeometry(THREE: ThreeModule, corePoints: import("three").Vector3[], surfacePoints: import("three").Vector3[]) {
+  const positions: number[] = [];
+  const surfaceRadiusX = surfacePoints.reduce((max, point) => Math.max(max, Math.abs(point.x)), 0);
+  const surfaceRadiusY = surfacePoints.reduce((max, point) => Math.max(max, Math.abs(point.y)), 0);
+  const surfaceRadiusZ = surfacePoints.reduce((max, point) => Math.max(max, Math.abs(point.z)), 0);
+  const inset = 0.92;
+
+  corePoints.forEach((point, index) => {
+    if (index % 2 !== 0) return;
+
+    const direction = point.clone().normalize();
+    const distanceToSurface = 1 / Math.sqrt(
+      (direction.x * direction.x) / (surfaceRadiusX * surfaceRadiusX)
+      + (direction.y * direction.y) / (surfaceRadiusY * surfaceRadiusY)
+      + (direction.z * direction.z) / (surfaceRadiusZ * surfaceRadiusZ),
+    );
+    const surface = direction.multiplyScalar(distanceToSurface * inset);
+    positions.push(point.x, point.y, point.z, surface.x, surface.y, surface.z);
+  });
+
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  return geometry;
+}
+
+async function setupStackSphereScene() {
+  const host = stackSphereRef.value;
+  if (!host || stackSphereCleanup) return;
+
+  try {
+    const THREE = await import("three");
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.setAttribute("aria-hidden", "true");
+    host.replaceChildren(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    camera.position.set(0, 0, 5.7);
+
+    const rootGroup = new THREE.Group();
+    rootGroup.rotation.set(-0.16, -0.4, 0.08);
+    scene.add(rootGroup);
+
+    const surfaceGroup = new THREE.Group();
+    const bridgeGroup = new THREE.Group();
+    const coreGroup = new THREE.Group();
+    rootGroup.add(bridgeGroup, surfaceGroup, coreGroup);
+
+    const geometries: import("three").BufferGeometry[] = [];
+    const trackedMaterials: Array<{
+      baseOpacity: number;
+      layer: "surface" | "core" | "bridge";
+      material: import("three").Material & { opacity: number };
+    }> = [];
+    const trackedGroups = [
+      { group: surfaceGroup, layer: "surface" as const, scale: 1 },
+      { group: coreGroup, layer: "core" as const, scale: 1 },
+      { group: bridgeGroup, layer: "bridge" as const, scale: 1 },
+    ];
+
+    const trackMaterial = <T extends import("three").Material & { opacity: number }>(
+      material: T,
+      layer: "surface" | "core" | "bridge",
+      baseOpacity: number,
+    ) => {
+      material.transparent = true;
+      material.depthWrite = false;
+      material.opacity = baseOpacity * 0.16;
+      trackedMaterials.push({ baseOpacity, layer, material });
+      return material;
+    };
+
+    const surfacePoints = createStackSpherePoints(THREE, 118, 1.62, 0.98);
+    const corePoints = createStackSpherePoints(THREE, 72, 0.62, 1);
+    const surfacePointGeometry = new THREE.BufferGeometry().setFromPoints(surfacePoints);
+    const corePointGeometry = new THREE.BufferGeometry().setFromPoints(corePoints);
+    const surfaceLineGeometry = createStackLineGeometry(THREE, surfacePoints, createStackSpherePairs(surfacePoints, 5, 0.72));
+    const coreLineGeometry = createStackLineGeometry(THREE, corePoints, createStackSpherePairs(corePoints, 4, 0.52));
+    const bridgeGeometry = createStackBridgeGeometry(THREE, corePoints, surfacePoints);
+    const coreShellGeometry = new THREE.IcosahedronGeometry(0.68, 3);
+    const coreInnerGeometry = new THREE.IcosahedronGeometry(0.34, 2);
+    geometries.push(
+      surfacePointGeometry,
+      corePointGeometry,
+      surfaceLineGeometry,
+      coreLineGeometry,
+      bridgeGeometry,
+      coreShellGeometry,
+      coreInnerGeometry,
+    );
+
+    surfaceGroup.add(
+      new THREE.LineSegments(
+        surfaceLineGeometry,
+        trackMaterial(new THREE.LineBasicMaterial({ color: 0x1b1d22 }), "surface", 0.22),
+      ),
+      new THREE.Points(
+        surfacePointGeometry,
+        trackMaterial(new THREE.PointsMaterial({ color: 0x17191e, size: 0.036, sizeAttenuation: true }), "surface", 0.8),
+      ),
+    );
+
+    coreGroup.add(
+      new THREE.Mesh(
+        coreInnerGeometry,
+        trackMaterial(new THREE.MeshBasicMaterial({ color: 0x111318 }), "core", 0.18),
+      ),
+      new THREE.Mesh(
+        coreShellGeometry,
+        trackMaterial(new THREE.MeshBasicMaterial({ color: 0x111318, wireframe: true }), "core", 0.28),
+      ),
+      new THREE.LineSegments(
+        coreLineGeometry,
+        trackMaterial(new THREE.LineBasicMaterial({ color: 0x111318 }), "core", 0.46),
+      ),
+      new THREE.Points(
+        corePointGeometry,
+        trackMaterial(new THREE.PointsMaterial({ color: 0x111318, size: 0.058, sizeAttenuation: true }), "core", 0.96),
+      ),
+    );
+
+    bridgeGroup.add(
+      new THREE.LineSegments(
+        bridgeGeometry,
+        trackMaterial(new THREE.LineBasicMaterial({ color: 0x5d6470 }), "bridge", 0.34),
+      ),
+    );
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frameId = 0;
+    let lastFrame = performance.now();
+    let lastPositionCheck = 0;
+    let isVisible = true;
+    const positionInterval = window.setInterval(updateStackSpherePosition, 300);
+
+    const resize = () => {
+      updateStackSpherePosition();
+      const width = Math.max(1, host.clientWidth);
+      const height = Math.max(1, host.clientHeight);
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      renderer.render(scene, camera);
+    };
+
+    const getLayerTargets = () => {
+      const layer = host.dataset.layer || "surface";
+      if (layer === "core") return { bridge: 0.16, core: 1, surface: 0.12 };
+      if (layer === "bridge") return { bridge: 1, core: 0.38, surface: 0.26 };
+      if (layer === "all") return { bridge: 0.82, core: 0.82, surface: 0.86 };
+      return { bridge: 0.16, core: 0.1, surface: 1 };
+    };
+
+    const tick = (now: number) => {
+      const frame = clampValue((now - lastFrame) / 16.67, 0, 2.2);
+      lastFrame = now;
+
+      if (isVisible) {
+        if (now - lastPositionCheck > 250) {
+          lastPositionCheck = now;
+          updateStackSpherePosition();
+        }
+
+        const targets = getLayerTargets();
+        trackedMaterials.forEach(({ baseOpacity, layer, material }) => {
+          const targetOpacity = baseOpacity * targets[layer];
+          material.opacity += (targetOpacity - material.opacity) * 0.08 * frame;
+        });
+
+        trackedGroups.forEach((item) => {
+          const targetScale = 1 + targets[item.layer] * 0.055;
+          item.scale += (targetScale - item.scale) * 0.06 * frame;
+          item.group.scale.setScalar(item.scale);
+        });
+
+        rootGroup.rotation.y += 0.0022 * frame;
+        rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
+        rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
+        renderer.render(scene, camera);
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(host);
+    const layoutObserver = new ResizeObserver(updateStackSpherePosition);
+    const inner = host.closest<HTMLElement>(".vz-sticky__inner");
+    const timeline = inner?.querySelector<HTMLElement>(".vz-stack__timeline");
+    if (inner) layoutObserver.observe(inner);
+    if (timeline) layoutObserver.observe(timeline);
+    const viewport = window.visualViewport;
+    viewport?.addEventListener("resize", updateStackSpherePosition, { passive: true });
+    viewport?.addEventListener("scroll", updateStackSpherePosition, { passive: true });
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
+      isVisible = Boolean(entry?.isIntersecting);
+    });
+    intersectionObserver.observe(host);
+    resize();
+    if (!reduceMotion) frameId = requestAnimationFrame(tick);
+
+    stackSphereCleanup = () => {
+      if (frameId) cancelAnimationFrame(frameId);
+      window.clearInterval(positionInterval);
+      resizeObserver.disconnect();
+      layoutObserver.disconnect();
+      viewport?.removeEventListener("resize", updateStackSpherePosition);
+      viewport?.removeEventListener("scroll", updateStackSpherePosition);
+      intersectionObserver.disconnect();
+      geometries.forEach((geometry) => geometry.dispose());
+      trackedMaterials.forEach(({ material }) => material.dispose());
+      renderer.dispose();
+      renderer.domElement.remove();
+      stackSphereCleanup = null;
+    };
+  } catch (error) {
+    console.info("VEZHA stack 3D fallback is inactive:", error);
+    host.hidden = true;
+  }
+}
+
+function createClientCubeEnvironment(THREE: ThreeModule) {
+  const canvas = document.createElement("canvas");
+  canvas.width = 1024;
+  canvas.height = 512;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+
+  const base = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  base.addColorStop(0, "#f8fafc");
+  base.addColorStop(0.2, "#ffffff");
+  base.addColorStop(0.38, "#05070b");
+  base.addColorStop(0.48, "#2a2d33");
+  base.addColorStop(0.58, "#f4f7fb");
+  base.addColorStop(0.72, "#07090e");
+  base.addColorStop(0.84, "#11141a");
+  base.addColorStop(1, "#eef3f7");
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const bands = [
+    { x: 44, width: 74, alpha: 0.86, color: "#ffffff" },
+    { x: 154, width: 148, alpha: 0.86, color: "#02040a" },
+    { x: 344, width: 54, alpha: 0.9, color: "#ffffff" },
+    { x: 500, width: 168, alpha: 0.82, color: "#080b12" },
+    { x: 704, width: 78, alpha: 0.78, color: "#ffffff" },
+    { x: 850, width: 96, alpha: 0.38, color: "#dfe8ef" },
+  ];
+
+  bands.forEach((band) => {
+    const gradient = ctx.createLinearGradient(band.x, 0, band.x + band.width, 0);
+    gradient.addColorStop(0, "transparent");
+    gradient.addColorStop(0.28, band.color);
+    gradient.addColorStop(0.72, band.color);
+    gradient.addColorStop(1, "transparent");
+    ctx.globalAlpha = band.alpha;
+    ctx.fillStyle = gradient;
+    ctx.fillRect(band.x - band.width * 0.4, 0, band.width * 1.8, canvas.height);
+  });
+
+  ctx.globalAlpha = 0.82;
+  const horizon = ctx.createLinearGradient(0, 210, canvas.width, 300);
+  horizon.addColorStop(0, "rgba(255,255,255,0)");
+  horizon.addColorStop(0.22, "rgba(255,255,255,0.86)");
+  horizon.addColorStop(0.42, "rgba(2,4,8,0.96)");
+  horizon.addColorStop(0.62, "rgba(255,255,255,0.9)");
+  horizon.addColorStop(0.82, "rgba(15,18,24,0.82)");
+  horizon.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = horizon;
+  ctx.fillRect(0, 218, canvas.width, 70);
+
+  ctx.globalCompositeOperation = "screen";
+  ctx.globalAlpha = 0.46;
+  const glow = ctx.createRadialGradient(740, 118, 0, 740, 118, 280);
+  glow.addColorStop(0, "rgba(232,242,248,0.88)");
+  glow.addColorStop(0.36, "rgba(255,255,255,0.82)");
+  glow.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(440, 0, 584, 300);
+
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.mapping = THREE.EquirectangularReflectionMapping;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.needsUpdate = true;
+  return texture;
+}
+
+async function setupClientCubeScene() {
+  const host = clientCubeRef.value;
+  if (!host || clientCubeCleanup) return;
+
+  try {
+    const THREE = await import("three");
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance",
+    });
+    renderer.setClearColor(0x000000, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 0.98;
+    renderer.domElement.setAttribute("aria-hidden", "true");
+    host.replaceChildren(renderer.domElement);
+
+    const scene = new THREE.Scene();
+    const cameraViewHeight = 4.25;
+    const camera = new THREE.OrthographicCamera(-2.2, 2.2, 2.2, -2.2, 0.1, 100);
+    camera.position.set(4.8, 4.1, 4.8);
+    camera.lookAt(0, 0, 0);
+
+    const environment = createClientCubeEnvironment(THREE);
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envTarget = environment ? pmrem.fromEquirectangular(environment) : null;
+    const envMap = envTarget?.texture || null;
+    if (envMap) scene.environment = envMap;
+
+    const ambient = new THREE.AmbientLight(0xffffff, 0.42);
+    scene.add(ambient);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
+    keyLight.position.set(3.8, 4.4, 5.2);
+    scene.add(keyLight);
+    const rimLight = new THREE.DirectionalLight(0xe9f4f8, 1.15);
+    rimLight.position.set(-4.4, 2.4, -3.2);
+    scene.add(rimLight);
+
+    const rootGroup = new THREE.Group();
+    rootGroup.position.set(1.32, 0, 0);
+    rootGroup.rotation.set(0, 0, 0);
+    scene.add(rootGroup);
+
+    const cubeGeometry = new THREE.BoxGeometry(0.54, 0.54, 0.54);
+    const edgeGeometry = new THREE.EdgesGeometry(cubeGeometry, 18);
+    const cubeRecords: Array<{
+      edgeMaterial: import("three").LineBasicMaterial;
+      fly: import("three").Vector3;
+      home: import("three").Vector3;
+      materials: import("three").MeshPhysicalMaterial[];
+      mesh: import("three").Mesh;
+      order: number;
+      scale: number;
+      visibleStage: number;
+    }> = [];
+    const spacing = 0.66;
+    const faceColors = [0xffffff, 0xffffff, 0x9ca0a6, 0xffffff, 0xffffff, 0xffffff];
+    const mediumBusinessCubeMask = [
+      [
+        [true, true, true],
+        [true, true, true],
+        [true, true, true],
+      ],
+      [
+        [true, true, true],
+        [true, true, false],
+        [true, false, false],
+      ],
+      [
+        [true, true, false],
+        [true, false, false],
+        [false, false, false],
+      ],
+    ];
+
+    for (let layer = 0; layer < 3; layer += 1) {
+      for (let row = 0; row < 3; row += 1) {
+        for (let column = 0; column < 3; column += 1) {
+          const visibleStage = layer === 0 ? 0 : mediumBusinessCubeMask[layer]?.[row]?.[column] ? 1 : 2;
+          const materials = faceColors.map((color, faceIndex) => new THREE.MeshPhysicalMaterial({
+            clearcoat: 0.92,
+            clearcoatRoughness: faceIndex === 2 ? 0.08 : 0.045,
+            color,
+            envMap,
+            envMapIntensity: faceIndex === 2 ? 1.35 : 1.7,
+            metalness: 0.08,
+            opacity: 0,
+            reflectivity: 0.55,
+            roughness: faceIndex === 2 ? 0.42 : 0.24,
+            specularIntensity: faceIndex === 2 ? 0.72 : 0.95,
+            transparent: true,
+          }));
+          const mesh = new THREE.Mesh(cubeGeometry, materials);
+          const edgeMaterial = new THREE.LineBasicMaterial({
+            color: 0x8c949d,
+            opacity: 0,
+            transparent: true,
+          });
+          const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
+          edges.renderOrder = 2;
+          mesh.add(edges);
+
+          const home = new THREE.Vector3(
+            (column - 1) * spacing,
+            (layer - 1) * spacing,
+            (row - 1) * spacing,
+          );
+          const fly = home.clone().add(new THREE.Vector3(
+            3.1 + row * 0.24 + column * 0.08,
+            0.34 + (column - 1) * 0.16 + layer * 0.08,
+            0.64 - row * 0.12 + layer * 0.06,
+          ));
+          const order = column * 9 + row * 3 + layer;
+
+          mesh.position.copy(fly);
+          mesh.scale.setScalar(0.18);
+          mesh.visible = false;
+          rootGroup.add(mesh);
+          cubeRecords.push({ edgeMaterial, fly, home, materials, mesh, order, scale: 0.18, visibleStage });
+        }
+      }
+    }
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let frameId = 0;
+    let isVisible = true;
+    let lastFrame = performance.now();
+    let currentStage = clampValue(activeClientSegment.value, 0, clientSegments.value.length - 1);
+    let transitionFromStage = currentStage;
+    let stageChangedAt = performance.now();
+
+    const render = () => renderer.render(scene, camera);
+    const setStage = (index: number, immediate = false) => {
+      const nextStage = clampValue(index, 0, clientSegments.value.length - 1);
+      transitionFromStage = immediate ? nextStage : currentStage;
+      currentStage = nextStage;
+      stageChangedAt = performance.now();
+      cubeRecords.forEach((record) => {
+        const shouldShow = record.visibleStage <= currentStage;
+        if (immediate || reduceMotion) {
+          record.mesh.position.copy(shouldShow ? record.home : record.fly);
+          record.scale = shouldShow ? 1 : 0.18;
+          record.mesh.scale.setScalar(record.scale);
+          record.materials.forEach((material) => { material.opacity = shouldShow ? 1 : 0; });
+          record.edgeMaterial.opacity = shouldShow ? 0.36 : 0;
+          record.mesh.visible = shouldShow;
+        } else if (shouldShow) {
+          record.mesh.visible = true;
+        }
+      });
+      if (immediate || reduceMotion) render();
+    };
+    updateClientCubeStage = setStage;
+
+    const resize = () => {
+      const width = Math.max(1, host.clientWidth);
+      const height = Math.max(1, host.clientHeight);
+      renderer.setSize(width, height, false);
+      const aspect = width / height;
+      camera.left = -(cameraViewHeight * aspect) / 2;
+      camera.right = (cameraViewHeight * aspect) / 2;
+      camera.top = cameraViewHeight / 2;
+      camera.bottom = -cameraViewHeight / 2;
+      camera.updateProjectionMatrix();
+      render();
+    };
+
+    const tick = (now: number) => {
+      const frame = clampValue((now - lastFrame) / 16.67, 0, 2.2);
+      lastFrame = now;
+
+      if (isVisible) {
+        cubeRecords.forEach((record) => {
+          const delay = record.order * 34;
+          let shouldShow = record.visibleStage <= currentStage;
+          if (shouldShow && currentStage > transitionFromStage && record.visibleStage > transitionFromStage) {
+            shouldShow = now >= stageChangedAt + delay;
+          }
+          if (!shouldShow && currentStage < transitionFromStage && record.visibleStage <= transitionFromStage) {
+            shouldShow = now < stageChangedAt + delay;
+          }
+          const target = shouldShow ? record.home : record.fly;
+          const moveEase = (shouldShow ? 0.085 : 0.07) * frame;
+          record.mesh.position.lerp(target, moveEase);
+          record.scale += ((shouldShow ? 1 : 0.18) - record.scale) * 0.1 * frame;
+          record.mesh.scale.setScalar(record.scale);
+          record.materials.forEach((material) => {
+            material.opacity += ((shouldShow ? 1 : 0) - material.opacity) * 0.12 * frame;
+          });
+          record.edgeMaterial.opacity += ((shouldShow ? 0.36 : 0) - record.edgeMaterial.opacity) * 0.12 * frame;
+          record.mesh.visible = shouldShow || record.materials[0].opacity > 0.02;
+        });
+
+        render();
+      }
+
+      frameId = requestAnimationFrame(tick);
+    };
+
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(host);
+    const intersectionObserver = new IntersectionObserver(([entry]) => {
+      isVisible = Boolean(entry?.isIntersecting);
+    });
+    intersectionObserver.observe(host);
+    resize();
+    setStage(currentStage, true);
+    if (!reduceMotion) frameId = requestAnimationFrame(tick);
+
+    clientCubeCleanup = () => {
+      if (frameId) cancelAnimationFrame(frameId);
+      resizeObserver.disconnect();
+      intersectionObserver.disconnect();
+      if (updateClientCubeStage === setStage) updateClientCubeStage = null;
+      cubeGeometry.dispose();
+      edgeGeometry.dispose();
+      cubeRecords.forEach(({ edgeMaterial, materials }) => {
+        edgeMaterial.dispose();
+        materials.forEach((material) => material.dispose());
+      });
+      environment?.dispose();
+      envTarget?.dispose();
+      pmrem.dispose();
+      renderer.dispose();
+      renderer.domElement.remove();
+      clientCubeCleanup = null;
+    };
+  } catch (error) {
+    console.info("VEZHA client cube 3D fallback is inactive:", error);
+    host.hidden = true;
+  }
+}
+
+function updateStackSpherePosition() {
+  const host = stackSphereRef.value;
+  if (!host || window.innerWidth <= 900) return;
+
+  const inner = host.closest<HTMLElement>(".vz-sticky__inner");
+  const timeline = inner?.querySelector<HTMLElement>(".vz-stack__timeline");
+  const meta = inner?.querySelector<HTMLElement>(".vz-sec-meta");
+  const items = timeline ? Array.from(timeline.querySelectorAll<HTMLElement>("[data-stack-item]")) : [];
+  const backendItem = items[1];
+  const devopsItem = items[2];
+  if (!inner || !meta || !backendItem || !devopsItem) return;
+
+  const innerRect = inner.getBoundingClientRect();
+  const metaRect = meta.getBoundingClientRect();
+  const backendRect = backendItem.getBoundingClientRect();
+  const devopsRect = devopsItem.getBoundingClientRect();
+  const sphereRect = host.getBoundingClientRect();
+  const sphereSize = sphereRect.height || host.offsetHeight;
+  const sphereWidth = sphereRect.width || host.offsetWidth;
+  if (!sphereSize || !sphereWidth) return;
+
+  const backendCenter = backendRect.top + backendRect.height / 2;
+  const devopsCenter = devopsRect.top + devopsRect.height / 2;
+  const targetY = (backendCenter + devopsCenter) / 2 - innerRect.top;
+  const targetX = metaRect.left + metaRect.width / 2 - innerRect.left;
+  const nextTop = `${Math.round(targetY - sphereSize / 2)}px`;
+  const nextLeft = `${Math.round(targetX - sphereWidth / 2)}px`;
+  if (host.style.getPropertyValue("--stack-sphere-top") !== nextTop) {
+    host.style.setProperty("--stack-sphere-top", nextTop);
+  }
+  if (host.style.getPropertyValue("--stack-sphere-left") !== nextLeft) {
+    host.style.setProperty("--stack-sphere-left", nextLeft);
+  }
+}
+
+function updateClientCubePosition() {
+  const host = clientCubeRef.value;
+  const grid = rootRef.value?.querySelector<HTMLElement>("[data-clients-grid]");
+  if (!host || !grid) return;
+
+  if (window.innerWidth <= 900) {
+    host.style.removeProperty("--client-cube-left");
+    host.style.removeProperty("--client-cube-top");
+    return;
+  }
+
+  const section = grid.closest<HTMLElement>("#clients");
+  const connector = grid.querySelector<HTMLElement>(".vz-client-connector");
+  const gridRect = grid.getBoundingClientRect();
+  const sectionRect = section?.getBoundingClientRect() || gridRect;
+  const connectorRect = connector?.getBoundingClientRect();
+  const cubeRect = host.getBoundingClientRect();
+  const cubeWidth = cubeRect.width || host.offsetWidth;
+  const cubeHeight = cubeRect.height || host.offsetHeight;
+  if (!cubeWidth || !cubeHeight) return;
+
+  const upperLineY = connectorRect?.bottom || gridRect.top;
+  const lowerLineY = sectionRect.bottom;
+  const targetViewportY = (upperLineY + lowerLineY) / 2;
+  const cubeVisualCenterRatio = 0.62;
+  const nextLeft = `${Math.round(gridRect.width - cubeWidth)}px`;
+  const nextTop = `${Math.round(targetViewportY - gridRect.top - cubeHeight * cubeVisualCenterRatio)}px`;
+
+  if (host.style.getPropertyValue("--client-cube-left") !== nextLeft) {
+    host.style.setProperty("--client-cube-left", nextLeft);
+  }
+  if (host.style.getPropertyValue("--client-cube-top") !== nextTop) {
+    host.style.setProperty("--client-cube-top", nextTop);
+  }
+}
+
+function getFooterGameTrack() {
+  return footerGameRef.value?.querySelector<HTMLElement>("[data-footer-game-track]") || null;
+}
+
+function isFooterGameVisible() {
+  const el = getFooterGameTrack();
+  if (!el) return false;
+
+  const rect = el.getBoundingClientRect();
+  return rect.top < window.innerHeight * 0.94 && rect.bottom > window.innerHeight * 0.08;
+}
+
+function resetFooterGame() {
+  footerGame.value.crashed = false;
+  footerGame.value.dinoY = 0;
+  footerGame.value.score = 0;
+  footerGame.value.speed = 3.6;
+  footerGame.value.status = "READY";
+  footerGame.value.velocityY = 0;
+  footerObstacles.value = [];
+  footerGameSpawnIn = 420;
+}
+
+function stopFooterGameLoop() {
+  if (footerGameRaf) cancelAnimationFrame(footerGameRaf);
+  footerGameRaf = 0;
+  footerGameLastFrame = 0;
+}
+
+function startFooterGameLoop() {
+  if (footerGameRaf) return;
+
+  footerGameLastFrame = performance.now();
+  footerGameRaf = requestAnimationFrame(tickFooterGame);
+}
+
+function endFooterGame() {
+  if (!footerGame.value.running && !footerGameRaf && !footerObstacles.value.length && footerGame.value.score === 0) return;
+
+  stopFooterGameLoop();
+  resetFooterGame();
+}
+
+function endFooterGameFromScrollUp() {
+  footerGameStartBlockedUntil = performance.now() + 1100;
+  endFooterGame();
+}
+
+function startFooterGame() {
+  if (!footerGameRef.value || !isFooterGameVisible()) return;
+
+  if (footerGame.value.crashed) resetFooterGame();
+  if (!footerObstacles.value.length) footerGameSpawnIn = Math.max(footerGameSpawnIn, 420);
+
+  footerGame.value.running = true;
+  footerGame.value.status = "RUNNING";
+  startFooterGameLoop();
+}
+
+function crashFooterGame() {
+  footerGame.value.running = false;
+  footerGame.value.crashed = true;
+  footerGame.value.status = "CRASH";
+  footerGame.value.best = Math.max(footerGame.value.best, Math.floor(footerGame.value.score));
+  stopFooterGameLoop();
+}
+
+function spawnFooterObstacle(trackWidth: number) {
+  const letter = footerGameLetters[footerGameNextId % footerGameLetters.length];
+
+  footerObstacles.value.push({
+    id: footerGameNextId,
+    letter,
+    passed: false,
+    width: letter === "I" ? 34 : 58,
+    x: trackWidth + 54,
+  });
+
+  footerGameNextId += 1;
+  footerGameSpawnIn = 460 + Math.random() * 380;
+}
+
+function tickFooterGame(now: number) {
+  footerGameRaf = 0;
+  if (!footerGame.value.running) return;
+  if (!isFooterGameVisible()) {
+    endFooterGame();
+    return;
+  }
+
+  const track = getFooterGameTrack();
+  const trackWidth = track?.clientWidth || 900;
+  const delta = clampValue(now - footerGameLastFrame, 0, 34);
+  const frame = delta / 16.67;
+  footerGameLastFrame = now;
+
+  footerGame.value.speed = Math.min(8.6, footerGame.value.speed + 0.0019 * frame);
+  footerGame.value.score += 0.07 * frame;
+  footerGame.value.velocityY -= 0.82 * frame;
+  footerGame.value.dinoY += footerGame.value.velocityY * frame;
+
+  if (footerGame.value.dinoY <= 0) {
+    footerGame.value.dinoY = 0;
+    if (footerGame.value.velocityY < 0) footerGame.value.velocityY = 0;
+  }
+
+  footerGameSpawnIn -= footerGame.value.speed * frame;
+  if (footerGameSpawnIn <= 0) spawnFooterObstacle(trackWidth);
+
+  const dinoLeft = 74;
+  const dinoRight = 118;
+  const collisionHeight = 50;
+
+  footerObstacles.value.forEach((obstacle) => {
+    obstacle.x -= footerGame.value.speed * frame;
+
+    if (!obstacle.passed && obstacle.x + obstacle.width < dinoLeft) {
+      obstacle.passed = true;
+      footerGame.value.score += 8;
+    }
+
+    const overlapsX = obstacle.x < dinoRight && obstacle.x + obstacle.width > dinoLeft;
+    if (overlapsX && footerGame.value.dinoY < collisionHeight) crashFooterGame();
+  });
+
+  footerObstacles.value = footerObstacles.value.filter((obstacle) => obstacle.x > -96);
+
+  if (footerGame.value.running) footerGameRaf = requestAnimationFrame(tickFooterGame);
+}
+
+function jumpFooterDino() {
+  if (!isFooterGameVisible()) return;
+
+  if (footerGame.value.crashed) {
+    resetFooterGame();
+    startFooterGame();
+  } else if (!footerGame.value.running) {
+    startFooterGame();
+  }
+
+  if (footerGame.value.dinoY <= 1) footerGame.value.velocityY = 15.8;
+}
+
+function updateFooterGameFromScroll() {
+  const currentY = window.scrollY;
+  const delta = currentY - footerGameLastScrollY;
+  const visible = isFooterGameVisible();
+
+  if (!visible) {
+    endFooterGame();
+    footerGameNeedsReentry = false;
+    footerGameLastScrollY = currentY;
+    return;
+  }
+
+  if (delta < -1) {
+    footerGameNeedsReentry = true;
+    endFooterGameFromScrollUp();
+    footerGameLastScrollY = currentY;
+    return;
+  }
+
+  if (delta > 1 && !footerGameNeedsReentry && performance.now() > footerGameStartBlockedUntil) startFooterGame();
+
+  footerGameLastScrollY = currentY;
+}
+
+function getSectionLiquidTargets() {
+  const root = rootRef.value;
+  if (!root) return [];
+
+  const configs = [
+    { key: "hero", selector: "#hero h1", section: "#hero" },
+    { key: "about", selector: "#about .vz-about__mark span", section: "#about" },
+    { key: "stack", selector: "#stack .vz-sec-head h2", section: "#stack" },
+    { key: "services", selector: "#services .vz-sec-head h2", section: "#services" },
+    { key: "clients", selector: "#clients h2", section: "#clients" },
+    { key: "stages", selector: "#stages h2", section: "#stages" },
+    { key: "contacts", selector: "#contacts h2", section: "#contacts" },
+    { key: "footer", selector: ".vz-footer__sign strong", section: ".vz-footer" },
+  ];
+
+  return configs.reduce<SectionLiquidTarget[]>((targets, config) => {
+    const element = root.querySelector<HTMLElement>(config.selector);
+    const section = root.querySelector<HTMLElement>(config.section);
+    if (!element || !section) return targets;
+
+    const rect = element.getBoundingClientRect();
+    if (rect.width < 2 || rect.height < 2) return targets;
+
+    targets.push({
+      element,
+      key: config.key,
+      rect,
+      sectionRect: section.getBoundingClientRect(),
+    });
+
+    return targets;
+  }, []);
+}
+
+function getSectionLiquidRadius(target: SectionLiquidTarget) {
+  const wideLimit = window.innerWidth * 0.13;
+  const byWidth = target.rect.width * 0.2;
+  const byHeight = target.rect.height * (target.key === "footer" ? 0.46 : 0.72);
+  return clampValue(Math.max(78, Math.min(wideLimit, byWidth, byHeight)), 68, 162);
+}
+
+function isSectionLiquidTargetFullyVisible(target: SectionLiquidTarget) {
+  const topGuard = window.innerWidth > 900 ? 76 : 62;
+  const bottomGuard = 24;
+  return target.rect.top >= topGuard && target.rect.bottom <= window.innerHeight - bottomGuard;
+}
+
+function isSectionLiquidTargetVisible(target: SectionLiquidTarget) {
+  const topGuard = window.innerWidth > 900 ? 76 : 62;
+  const bottomGuard = 24;
+  return target.rect.bottom > topGuard && target.rect.top < window.innerHeight - bottomGuard;
+}
+
+function getSectionLiquidTargetCenter(target: SectionLiquidTarget) {
+  return (target.rect.top + target.rect.bottom) / 2;
+}
+
+function formatStablePx(value: number) {
+  return `${Number(value.toFixed(3))}px`;
+}
+
+function getClosestSectionLiquidTarget(targets: SectionLiquidTarget[]) {
+  const viewportCenter = window.innerHeight * 0.5;
+  return targets.reduce((best, target) => {
+    const bestDistance = Math.abs(getSectionLiquidTargetCenter(best) - viewportCenter);
+    const distance = Math.abs(getSectionLiquidTargetCenter(target) - viewportCenter);
+    return distance < bestDistance ? target : best;
+  });
+}
+
+function getInitialSectionLiquidTarget(targets: SectionLiquidTarget[]) {
+  const fullyVisible = targets.filter(isSectionLiquidTargetFullyVisible);
+  if (fullyVisible.length) return getClosestSectionLiquidTarget(fullyVisible);
+
+  const viewportTargets = targets.filter((target) => (
+    target.rect.bottom > 0 &&
+    target.rect.top < window.innerHeight
+  ));
+
+  return viewportTargets.length ? getClosestSectionLiquidTarget(viewportTargets) : getClosestSectionLiquidTarget(targets);
+}
+
+function getSectionLiquidSwitchLine(direction: number) {
+  return window.innerHeight * (direction > 0 ? 0.43 : 0.57);
+}
+
+function isSectionLiquidTargetReadyToEnter(target: SectionLiquidTarget, direction: number) {
+  const center = getSectionLiquidTargetCenter(target);
+  const switchLine = getSectionLiquidSwitchLine(direction);
+  const enterLine = window.innerHeight * (direction > 0 ? 0.78 : 0.22);
+
+  return direction > 0
+    ? center >= switchLine && center <= enterLine
+    : center <= switchLine && center >= enterLine;
+}
+
+function getNextSectionLiquidTarget(targets: SectionLiquidTarget[]) {
+  const direction = sectionLiquidScrollDirection;
+
+  if (direction) {
+    const visibleTargets = targets.filter(isSectionLiquidTargetVisible);
+    const directionalFromViewport = visibleTargets.filter((target) => isSectionLiquidTargetReadyToEnter(target, direction));
+
+    if (directionalFromViewport.length) {
+      const nextTarget = directionalFromViewport.reduce((best, target) => (
+        direction > 0
+          ? getSectionLiquidTargetCenter(target) < getSectionLiquidTargetCenter(best) ? target : best
+          : getSectionLiquidTargetCenter(target) > getSectionLiquidTargetCenter(best) ? target : best
+      ));
+      return nextTarget.key === sectionLiquidState.lastTargetKey ? null : nextTarget;
+    }
+
+    const currentTarget = targets.find((target) => target.key === sectionLiquidState.lastTargetKey);
+    if (currentTarget && isSectionLiquidTargetVisible(currentTarget)) return null;
+    if (visibleTargets.length) {
+      const closestVisible = getClosestSectionLiquidTarget(visibleTargets);
+      return closestVisible.key === sectionLiquidState.lastTargetKey ? null : closestVisible;
+    }
+
+    return null;
+  }
+
+  const fullyVisible = targets.filter((target) => (
+    target.key !== sectionLiquidState.lastTargetKey &&
+    isSectionLiquidTargetFullyVisible(target)
+  ));
+
+  return fullyVisible.length ? getClosestSectionLiquidTarget(fullyVisible) : null;
+}
+
+function updateSectionLiquidScrollDirection() {
+  const currentScrollY = window.scrollY;
+  const delta = currentScrollY - sectionLiquidLastScrollY;
+  if (Math.abs(delta) > 0.5) sectionLiquidScrollDirection = delta > 0 ? 1 : -1;
+  sectionLiquidLastScrollY = currentScrollY;
+}
+
+function syncCurrentSectionLiquidTarget(targets: SectionLiquidTarget[]) {
+  if (!sectionLiquidState.lastTargetKey) return;
+
+  const currentTarget = targets.find((target) => target.key === sectionLiquidState.lastTargetKey);
+  if (!currentTarget) return;
+
+  const nextTargetX = currentTarget.rect.left + currentTarget.rect.width / 2;
+  const nextTargetY = currentTarget.rect.top + currentTarget.rect.height / 2;
+  const deltaX = nextTargetX - sectionLiquidState.targetX;
+  const deltaY = nextTargetY - sectionLiquidState.targetY;
+
+  sectionLiquidState.currentX += deltaX;
+  sectionLiquidState.currentY += deltaY;
+  sectionLiquidState.lastX += deltaX;
+  sectionLiquidState.lastY += deltaY;
+  sectionLiquidState.targetX = nextTargetX;
+  sectionLiquidState.targetY = nextTargetY;
+  sectionLiquidState.targetRadius = getSectionLiquidRadius(currentTarget);
+}
+
+function hideSectionLiquidTargetOverlay() {
+  const targetHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-section-liquid-target]");
+  if (targetHost) targetHost.hidden = true;
+}
+
+function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
+  void targets;
+  hideSectionLiquidTargetOverlay();
+}
+
+function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
+  const targetX = target.rect.left + target.rect.width / 2;
+  const targetY = target.rect.top + target.rect.height / 2;
+  const targetRadius = getSectionLiquidRadius(target);
+
+  if (snap || !sectionLiquidState.initialized) {
+    sectionLiquidState.currentX = targetX;
+    sectionLiquidState.currentY = targetY;
+    sectionLiquidState.lastX = targetX;
+    sectionLiquidState.lastY = targetY;
+    sectionLiquidState.arcX = 0;
+    sectionLiquidState.arcY = 0;
+    sectionLiquidState.radius = targetRadius;
+    sectionLiquidState.speed = 0;
+    sectionLiquidState.velocityX = 0;
+    sectionLiquidState.velocityY = 0;
+    sectionLiquidState.initialized = true;
+  } else {
+    const dx = targetX - sectionLiquidState.currentX;
+    const dy = targetY - sectionLiquidState.currentY;
+    const distance = Math.max(1, Math.hypot(dx, dy));
+    const direction = targetY >= sectionLiquidState.currentY ? 1 : -1;
+    const normalX = -dy / distance;
+    const normalY = dx / distance;
+    const arc = clampValue(distance * 0.14, 34, 112) * direction;
+    const impulse = clampValue(distance * 0.0038, 1.2, 5.8);
+
+    sectionLiquidState.arcX = normalX * arc;
+    sectionLiquidState.arcY = normalY * arc * 0.38;
+    sectionLiquidState.velocityX += normalX * impulse * direction;
+    sectionLiquidState.velocityY += normalY * impulse * 0.38 * direction;
+  }
+
+  sectionLiquidState.lastTargetKey = target.key;
+  sectionLiquidState.targetX = targetX;
+  sectionLiquidState.targetY = targetY;
+  sectionLiquidState.targetRadius = targetRadius;
+}
+
+function startSectionLiquid() {
+  if (!enableSectionLiquid || sectionLiquidRaf) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) return;
+
+  sectionLiquidLastFrame = performance.now();
+  sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
+}
+
+function animateSectionLiquid(now: number) {
+  sectionLiquidRaf = 0;
+  const overlay = sectionLiquidRef.value;
+  if (!overlay || !enableSectionLiquid) return;
+
+  const frame = clampValue((now - sectionLiquidLastFrame) / 16.67, 0, 2.4);
+  sectionLiquidLastFrame = now;
+  updateSectionLiquidScrollDirection();
+  const targets = getSectionLiquidTargets();
+
+  if (!targets.length && !sectionLiquidState.initialized) {
+    overlay.classList.remove("is-active");
+    overlay.removeAttribute("data-active-key");
+    hideSectionLiquidTargetOverlay();
+    sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
+    return;
+  }
+
+  if (!sectionLiquidState.initialized) {
+    commitSectionLiquidTarget(getInitialSectionLiquidTarget(targets), true);
+  } else {
+    const nextTarget = getNextSectionLiquidTarget(targets);
+    if (nextTarget) commitSectionLiquidTarget(nextTarget);
+    else syncCurrentSectionLiquidTarget(targets);
+  }
+
+  updateNegativeWorldPositions();
+  syncSectionLiquidTargetOverlay(targets);
+
+  const targetX = sectionLiquidState.targetX;
+  const targetY = sectionLiquidState.targetY;
+  const targetRadius = sectionLiquidState.targetRadius;
+  const directDistance = Math.hypot(targetX - sectionLiquidState.currentX, targetY - sectionLiquidState.currentY);
+  const landing = clampValue(1 - directDistance / 180, 0, 1);
+  const steerX = targetX + sectionLiquidState.arcX * (1 - landing * 0.72) - sectionLiquidState.currentX;
+  const steerY = targetY + sectionLiquidState.arcY * (1 - landing * 0.86) - sectionLiquidState.currentY;
+  const horizontalDamping = 0.82 - landing * 0.08;
+  const verticalDamping = 0.76 - landing * 0.1;
+
+  sectionLiquidState.velocityX += steerX * (0.012 + (1 - landing) * 0.002) * frame;
+  sectionLiquidState.velocityY += steerY * (0.009 + (1 - landing) * 0.002) * frame;
+  sectionLiquidState.velocityX *= Math.pow(horizontalDamping, frame);
+  sectionLiquidState.velocityY *= Math.pow(verticalDamping, frame);
+  sectionLiquidState.velocityY = clampValue(sectionLiquidState.velocityY, -18, 18);
+  sectionLiquidState.currentX += sectionLiquidState.velocityX * frame;
+  sectionLiquidState.currentY += sectionLiquidState.velocityY * frame;
+  sectionLiquidState.arcX *= Math.pow(0.9, frame);
+  sectionLiquidState.arcY *= Math.pow(0.82, frame);
+  sectionLiquidState.radius += (targetRadius - sectionLiquidState.radius) * 0.08 * frame;
+
+  const velocityX = sectionLiquidState.currentX - sectionLiquidState.lastX;
+  const velocityY = sectionLiquidState.currentY - sectionLiquidState.lastY;
+  const travel = Math.hypot(velocityX, velocityY);
+  if (travel > 0.15) sectionLiquidState.angle = Math.atan2(velocityY, velocityX);
+  sectionLiquidState.speed = clampValue(sectionLiquidState.speed * 0.88 + clampValue(travel / 24, 0, 1) * 0.12, 0, 1);
+  sectionLiquidState.lastX = sectionLiquidState.currentX;
+  sectionLiquidState.lastY = sectionLiquidState.currentY;
+
+  const bounds = {
+    bottom: window.innerHeight,
+    height: window.innerHeight,
+    left: 0,
+    right: window.innerWidth,
+    top: 0,
+    width: window.innerWidth,
+  };
+  const moveIntensity = clampValue(Math.max(sectionLiquidState.speed, directDistance / 340), 0, 1);
+  const renderRadius = sectionLiquidState.radius * (1 - moveIntensity * 0.34);
+  const path = buildHeroLiquidPath(
+    sectionLiquidState.currentX,
+    sectionLiquidState.currentY,
+    renderRadius,
+    now * 0.001,
+    sectionLiquidState.speed,
+    sectionLiquidState.angle,
+    bounds,
+  );
+
+  const activeKey = sectionLiquidState.lastTargetKey;
+  overlay.classList.toggle("is-active", Boolean(activeKey) && activeKey !== "hero");
+  overlay.dataset.activeKey = activeKey;
+  applyHeroClip(overlay, path);
+  sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
+}
+
+function updateHeroNegative(event: PointerEvent) {
+  const hero = heroRef.value;
+  if (!hero || event.pointerType === "touch") return;
+
+  const rect = hero.getBoundingClientRect();
+  const bounds = getHeroLiquidBounds(hero, rect);
+  const pointerX = event.clientX - rect.left;
+  const pointerY = event.clientY - rect.top;
+  const isInsideBounds = pointerX >= bounds.left && pointerX <= bounds.right && pointerY >= bounds.top && pointerY <= bounds.bottom;
+  if (!isInsideBounds) return;
+
+  heroFxState.active = true;
+  heroFxState.targetX = pointerX / rect.width;
+  heroFxState.targetY = pointerY / rect.height;
+
+  if (event.type === "pointermove") {
+    if (heroFxState.hasPointer) {
+      const pointerImpulseX = clampValue((pointerX - heroFxState.lastPointerX) / rect.width, -0.045, 0.045);
+      const pointerImpulseY = clampValue((pointerY - heroFxState.lastPointerY) / rect.height, -0.045, 0.045);
+      heroFxState.velocityX += pointerImpulseX * 0.034;
+      heroFxState.velocityY += pointerImpulseY * 0.034;
+    }
+
+    heroFxState.hasPointer = true;
+    heroFxState.lastPointerX = pointerX;
+    heroFxState.lastPointerY = pointerY;
+  }
+
+  startHeroNegative();
+}
+
+function resetHeroNegative() {
+  heroFxState.active = false;
+  heroFxState.hasPointer = false;
+  startHeroNegative();
+}
+
+function startHeroNegative() {
+  if (heroFxRaf) return;
+  heroFxLastFrame = performance.now();
+  heroFxRaf = requestAnimationFrame(animateHeroNegative);
+}
+
+function animateHeroNegative(now: number) {
+  const hero = heroRef.value;
+  const mask = heroNegativeRef.value;
+  if (!hero || !mask) {
+    heroFxRaf = 0;
+    return;
+  }
+
+  const rect = hero.getBoundingClientRect();
+  if (rect.width < 1 || rect.height < 1) {
+    heroFxRaf = requestAnimationFrame(animateHeroNegative);
+    return;
+  }
+
+  const frame = clampValue((now - heroFxLastFrame) / 16.67, 0, 2);
+  heroFxLastFrame = now;
+  const bounds = getHeroLiquidBounds(hero, rect);
+  const radius = clampValue(Math.min(bounds.width * 0.16, bounds.height * 0.46, rect.width * 0.105), 76, 148);
+  const centerInset = Math.min(radius * 0.14, bounds.width * 0.18, bounds.height * 0.18);
+  const minCenterX = Math.min(bounds.left + centerInset, bounds.right);
+  const maxCenterX = Math.max(bounds.right - centerInset, minCenterX);
+  const minCenterY = Math.min(bounds.top + centerInset, bounds.bottom);
+  const maxCenterY = Math.max(bounds.bottom - centerInset, minCenterY);
+  const targetX = clampValue(heroFxState.targetX * rect.width, minCenterX, maxCenterX) / rect.width;
+  const targetY = clampValue(heroFxState.targetY * rect.height, minCenterY, maxCenterY) / rect.height;
+
+  if (heroFxState.active) {
+    const dx = targetX - heroFxState.currentX;
+    const dy = targetY - heroFxState.currentY;
+    heroFxState.velocityX += dx * 0.0024 * frame;
+    heroFxState.velocityY += dy * 0.0024 * frame;
+  }
+
+  const velocity = Math.hypot(heroFxState.velocityX, heroFxState.velocityY);
+  if (!heroFxState.active && velocity < 0.00016) {
+    heroFxState.velocityX += Math.cos(heroFxState.angle || -0.24) * 0.000012 * frame;
+    heroFxState.velocityY += Math.sin(heroFxState.angle || -0.24) * 0.000012 * frame;
+  }
+
+  const damping = heroFxState.active ? 0.992 : 0.996;
+  heroFxState.velocityX *= Math.pow(damping, frame);
+  heroFxState.velocityY *= Math.pow(damping, frame);
+  heroFxState.currentX += heroFxState.velocityX * frame;
+  heroFxState.currentY += heroFxState.velocityY * frame;
+
+  const clampedCenterX = clampValue(heroFxState.currentX * rect.width, minCenterX, maxCenterX);
+  const clampedCenterY = clampValue(heroFxState.currentY * rect.height, minCenterY, maxCenterY);
+  if (Math.abs(clampedCenterX - heroFxState.currentX * rect.width) > 0.1) {
+    heroFxState.currentX = clampedCenterX / rect.width;
+    heroFxState.velocityX = Math.sign(minCenterX + maxCenterX - clampedCenterX * 2 || 1) * Math.max(0.00022, Math.abs(heroFxState.velocityX) * 0.76);
+  }
+  if (Math.abs(clampedCenterY - heroFxState.currentY * rect.height) > 0.1) {
+    heroFxState.currentY = clampedCenterY / rect.height;
+    heroFxState.velocityY = Math.sign(minCenterY + maxCenterY - clampedCenterY * 2 || 1) * Math.max(0.00016, Math.abs(heroFxState.velocityY) * 0.76);
+  }
+
+  const velocityX = (heroFxState.currentX - heroFxState.lastX) * rect.width;
+  const velocityY = (heroFxState.currentY - heroFxState.lastY) * rect.height;
+  const travel = Math.hypot(velocityX, velocityY);
+
+  if (travel > 0.2) heroFxState.angle = Math.atan2(velocityY, velocityX);
+  heroFxState.speed = clampValue(heroFxState.speed * 0.9 + clampValue(travel / 20, 0, 1) * 0.08, 0, 1);
+  heroFxState.lastX = heroFxState.currentX;
+  heroFxState.lastY = heroFxState.currentY;
+
+  const x = heroFxState.currentX * rect.width;
+  const y = heroFxState.currentY * rect.height;
+  const path = buildHeroLiquidPath(x, y, radius, now * 0.001, heroFxState.speed, heroFxState.angle, bounds);
+  hero.classList.add("is-hero-fx-active");
+
+  applyHeroClip(mask, path);
+  heroFxRaf = requestAnimationFrame(animateHeroNegative);
+}
+
+function getHeroLiquidBounds(hero: HTMLElement, heroRect: DOMRect): HeroLiquidBounds {
+  const title = hero.querySelector<HTMLElement>("h1");
+  if (!title) {
+    return {
+      bottom: heroRect.height,
+      height: heroRect.height,
+      left: 0,
+      right: heroRect.width,
+      top: 0,
+      width: heroRect.width,
+    };
+  }
+
+  const titleRect = title.getBoundingClientRect();
+  const left = clampValue(titleRect.left - heroRect.left, 0, heroRect.width);
+  const top = clampValue(titleRect.top - heroRect.top, 0, heroRect.height);
+  const right = clampValue(titleRect.right - heroRect.left, left, heroRect.width);
+  const bottom = clampValue(titleRect.bottom - heroRect.top, top, heroRect.height);
+
+  return {
+    bottom,
+    height: Math.max(1, bottom - top),
+    left,
+    right,
+    top,
+    width: Math.max(1, right - left),
+  };
+}
+
+function buildHeroLiquidPath(cx: number, cy: number, baseRadius: number, time: number, speed: number, angle: number, bounds: HeroLiquidBounds) {
+  const pointCount = 42;
+  const points: Array<{ x: number; y: number }> = [];
+  const wallRange = baseRadius * 1.05;
+  const leftPressure = clampValue((bounds.left + wallRange - cx) / wallRange, 0, 1);
+  const rightPressure = clampValue((cx - (bounds.right - wallRange)) / wallRange, 0, 1);
+  const topPressure = clampValue((bounds.top + wallRange - cy) / wallRange, 0, 1);
+  const bottomPressure = clampValue((cy - (bounds.bottom - wallRange)) / wallRange, 0, 1);
+  const wallXPressure = Math.max(leftPressure, rightPressure);
+  const wallYPressure = Math.max(topPressure, bottomPressure);
+
+  for (let index = 0; index < pointCount; index += 1) {
+    const a = (Math.PI * 2 * index) / pointCount;
+    const flow = Math.cos(a - angle);
+    const side = Math.sin(a - angle);
+    const wobble =
+      Math.sin(a * 3 + time * 2.2) * 0.095 +
+      Math.sin(a * 5 - time * 1.55) * 0.06 +
+      Math.sin(a * 7 + time * 0.84) * 0.036;
+    const motionPulse = Math.cos((a - angle) * 2) * speed * 0.07;
+    const surfaceTension = Math.abs(side) * speed * 0.04;
+    const radius = baseRadius * (1 + wobble + motionPulse - surfaceTension);
+    const stretch = baseRadius * speed * flow * 0.085;
+    const rx = radius * (1 - wallXPressure * 0.22 + wallYPressure * 0.08);
+    const ry = radius * (1 - wallYPressure * 0.22 + wallXPressure * 0.08);
+    const wallSlideX = Math.sin(a * 2 + time * 1.7) * wallYPressure * baseRadius * 0.012;
+    const wallSlideY = Math.cos(a * 2 - time * 1.45) * wallXPressure * baseRadius * 0.012;
+    const rawX = cx + Math.cos(a) * rx + Math.cos(angle) * stretch + wallSlideX;
+    const rawY = cy + Math.sin(a) * ry + Math.sin(angle) * stretch + wallSlideY;
+    const clampedX = clampValue(rawX, bounds.left, bounds.right);
+    const clampedY = clampValue(rawY, bounds.top, bounds.bottom);
+
+    points.push({
+      x: clampedX,
+      y: clampedY,
+    });
+  }
+
+  return getClosedCurvePath(points, bounds);
+}
+
+function applyHeroClip(element: HTMLElement, value: string) {
+  const clipPath = `path("${value}")`;
+  element.style.clipPath = clipPath;
+  element.style.setProperty("-webkit-clip-path", clipPath);
+}
+
+function getClosedCurvePath(points: Array<{ x: number; y: number }>, bounds?: HeroLiquidBounds) {
+  const size = points.length;
+  const clampX = (value: number) => bounds ? clampValue(value, bounds.left, bounds.right) : value;
+  const clampY = (value: number) => bounds ? clampValue(value, bounds.top, bounds.bottom) : value;
+  const segments = [`M ${formatPathNumber(clampX(points[0].x))} ${formatPathNumber(clampY(points[0].y))}`];
+
+  for (let index = 0; index < size; index += 1) {
+    const p0 = points[(index - 1 + size) % size];
+    const p1 = points[index];
+    const p2 = points[(index + 1) % size];
+    const p3 = points[(index + 2) % size];
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+
+    segments.push(
+      `C ${formatPathNumber(clampX(c1x))} ${formatPathNumber(clampY(c1y))} ${formatPathNumber(clampX(c2x))} ${formatPathNumber(clampY(c2y))} ${formatPathNumber(clampX(p2.x))} ${formatPathNumber(clampY(p2.y))}`,
+    );
+  }
+
+  return `${segments.join(" ")} Z`;
+}
+
+function formatPathNumber(value: number) {
+  return value.toFixed(1);
 }
 
 function runPreloader() {
@@ -1121,24 +2357,19 @@ function setupReveals() {
   if (!root) return;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) return;
+  if (enableMotionLayer) root.classList.add("vz-motion-ready");
 
   root.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
     if (element.dataset.revealed) return;
     element.style.transform = "translateY(110%)";
     element.style.opacity = "0";
+    element.style.filter = "";
     element.style.willChange = "transform";
   });
 
   root.querySelectorAll<HTMLElement>("[data-clip-reveal]").forEach((element) => {
     if (element.dataset.clipped) return;
     element.style.clipPath = "inset(0 100% 0 0)";
-  });
-
-  root.querySelectorAll<HTMLElement>("[data-rise]").forEach((element) => {
-    if (element.dataset.risen) return;
-    element.style.opacity = "0";
-    element.style.transform = "translateY(48px)";
-    element.style.willChange = "transform, opacity";
   });
 }
 
@@ -1156,10 +2387,11 @@ function scanReveals() {
     if (reduceMotion || inView) {
       if (!element.dataset.revealed) {
         element.dataset.revealed = "1";
-        element.style.transition = "transform .9s cubic-bezier(.22,1,.36,1), opacity .9s ease";
+        element.style.transition = "transform 1s cubic-bezier(.16,1,.3,1), opacity .9s ease";
       }
       element.style.transform = "translateY(0)";
       element.style.opacity = "1";
+      element.style.filter = "";
     }
   });
 
@@ -1174,120 +2406,144 @@ function scanReveals() {
       element.style.clipPath = "inset(0 0% 0 0)";
     }
   });
+}
 
-  root.querySelectorAll<HTMLElement>("[data-rise]").forEach((element, index) => {
-    const rect = element.getBoundingClientRect();
-    const inView = rect.top < vh * 0.9 && rect.bottom > -40;
+function scanSectionEntrances() {
+  const root = rootRef.value;
+  if (!root) return;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const sections = root.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #stages, #contacts, .vz-footer");
 
-    if (reduceMotion || inView) {
-      if (!element.dataset.risen) {
-        element.dataset.risen = "1";
-        element.style.transition = "transform .8s cubic-bezier(.22,1,.36,1), opacity .8s ease";
-        element.style.transitionDelay = `${(index % 3) * 0.08 + Math.floor(index / 3) * 0.05}s`;
-      }
-      element.style.opacity = "1";
-      element.style.transform = "translateY(0)";
+  sections.forEach((section) => {
+    if (section.classList.contains("is-motion-visible")) return;
+    if (!enableMotionLayer || reduceMotion) {
+      section.classList.add("is-motion-visible");
+      return;
+    }
+
+    const rect = section.getBoundingClientRect();
+    const triggerTop = window.innerHeight * 0.84;
+    const triggerBottom = window.innerHeight * 0.08;
+    if (rect.top < triggerTop && rect.bottom > triggerBottom) {
+      section.classList.add("is-motion-visible");
     }
   });
 }
 
 function updateScrollEffects() {
-  const root = rootRef.value;
-  if (!root) return;
+  scanSectionEntrances();
   scanReveals();
-
-  const stack = root.querySelector<HTMLElement>("[data-stack-section]");
-  const stackItems = root.querySelectorAll<HTMLElement>("[data-stack-item]");
-  const stackFill = root.querySelector<HTMLElement>("[data-line-fill]");
-  const stackCounter = root.querySelector<HTMLElement>("[data-stack-counter]");
-
-  if (stack && stackItems.length) {
-    const rect = stack.getBoundingClientRect();
-    const total = stack.offsetHeight - window.innerHeight;
-    const progress = Math.max(0, Math.min(1, total > 0 ? -rect.top / total : 0));
-    const active = Math.min(stackItems.length - 1, Math.floor(progress * stackItems.length));
-
-    stackItems.forEach((item, index) => {
-      const isActive = index === active;
-      const isPast = index < active;
-      item.style.opacity = "1";
-      item.style.transform = "translateY(0)";
-
-      const dot = item.querySelector<HTMLElement>("[data-dot]");
-      const label = item.querySelector<HTMLElement>("[data-label]");
-      const halo = item.querySelector<HTMLElement>("[data-halo]");
-      if (dot) {
-        dot.style.background = isActive ? "var(--ink)" : "var(--dot)";
-        dot.style.borderColor = isActive || isPast ? "var(--ink)" : "var(--dotbd)";
-        dot.style.transform = `scale(${isActive ? 1.3 : 1})`;
-      }
-      if (label) label.style.color = isActive || isPast ? "var(--ink)" : "var(--idle)";
-      if (halo) halo.style.opacity = isActive ? "1" : "0";
-    });
-
-    if (stackFill) stackFill.style.height = `${(progress * 100).toFixed(2)}%`;
-    if (stackCounter) stackCounter.textContent = toNumber(active + 1);
-  }
-
-  const servicesSection = root.querySelector<HTMLElement>("[data-services-pin]");
-  if (!servicesSection) return;
-  const panels = root.querySelectorAll<HTMLElement>("[data-serv-panel]");
-  const navs = root.querySelectorAll<HTMLElement>("[data-serv-nav]");
-  const screens = root.querySelectorAll<HTMLElement>("[data-screen]");
-  const bar = root.querySelector<HTMLElement>("[data-serv-bar]");
-  const counter = root.querySelector<HTMLElement>("[data-serv-counter]");
-  const rect = servicesSection.getBoundingClientRect();
-  const introProgress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight * 0.62)));
-  const active = Math.max(0, Math.min(activeServiceIndex.value, Math.max(0, panels.length - 1)));
-  const frame = active;
-
-  panels.forEach((panel, index) => {
-    const distance = frame - index;
-    const isActive = index === active;
-    panel.style.opacity = isActive ? "1" : "0";
-    panel.style.transform = `translateY(${(-distance * 46).toFixed(1)}px)`;
-    panel.style.pointerEvents = isActive ? "auto" : "none";
-  });
-
-  screens.forEach((screen, index) => {
-    const distance = index - frame;
-    const isActive = index === active;
-    screen.style.transform = `translateX(${(distance * 102).toFixed(2)}%) scale(${isActive ? "1" : "0.96"})`;
-    screen.style.opacity = isActive ? "1" : "0";
-    screen.style.zIndex = isActive ? "3" : "2";
-  });
-
-  const easedOpen = introProgress * introProgress * (3 - 2 * introProgress);
-  const mac = root.querySelector<HTMLElement>("[data-device-mac]");
-  if (mac) {
-    mac.style.opacity = "1";
-    mac.style.transform = "translateX(0)";
-    const lid = mac.querySelector<HTMLElement>("[data-mac-lid]");
-    const screenWrap = mac.querySelector<HTMLElement>("[data-screen-wrap]");
-    if (lid) lid.style.transform = `rotateX(${(-(1 - easedOpen) * 68).toFixed(1)}deg) translateY(${((1 - easedOpen) * 5).toFixed(1)}px)`;
-    if (screenWrap) screenWrap.style.opacity = Math.max(0, Math.min(1, (easedOpen - 0.22) / 0.48)).toFixed(3);
-  }
-
-  navs.forEach((nav, index) => {
-    const on = index === active;
-    nav.dataset.active = on ? "true" : "false";
-  });
-
-  if (bar) bar.style.width = `${(panels.length > 1 ? (active / (panels.length - 1)) * 100 : 100).toFixed(2)}%`;
-  if (counter) counter.textContent = `${toNumber(active + 1)} / ${toNumber(panels.length)}`;
 }
 
-function scrollToService(index: number) {
-  setActiveService(index, true);
+function handleStackActiveChange(index: number) {
+  if (activeStackIndex.value === index) return;
+  activeStackIndex.value = index;
+  updateStackSpherePosition();
+  syncNegativeWorlds(true);
+}
 
+function handleStackSphereReady(element: HTMLElement) {
+  stackSphereRef.value = element;
+  nextTick(() => {
+    updateStackSpherePosition();
+    void setupStackSphereScene();
+  });
+}
+
+function handleServiceActiveChange(index: number) {
+  activeServiceIndex.value = index;
+  syncNegativeWorlds(true);
+}
+
+function getNegativeWorldSignature(scope: "hero" | "page") {
+  return [
+    scope,
+    theme.value,
+    showPreloader.value ? "preloader" : "ready",
+    displayServices.value.length,
+    displayStackGroups.value.length,
+    displayStages.value.length,
+    activeStackIndex.value,
+    activeServiceIndex.value,
+    activeClientSegment.value,
+  ].join(":");
+}
+
+function cleanupNegativeClone(clone: HTMLElement) {
+  clone.dataset.negativeClone = "true";
+  clone.setAttribute("aria-hidden", "true");
+  clone.removeAttribute("id");
+  clone.classList.remove("vz-motion-ready");
+  clone.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #stages, #contacts, .vz-footer").forEach((section) => {
+    section.classList.add("is-motion-visible");
+    if (section.matches("#stages")) section.classList.add("is-anatomy-visible");
+  });
+  clone.querySelectorAll<HTMLElement>(".vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu").forEach((element) => element.remove());
+  clone.querySelectorAll<HTMLElement>("[id]").forEach((element) => element.removeAttribute("id"));
+  clone.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
+    element.style.opacity = "1";
+    element.style.transform = "translateY(0)";
+    element.style.transition = "none";
+    element.style.willChange = "auto";
+  });
+  clone.querySelectorAll<HTMLElement>("[data-clip-reveal]").forEach((element) => {
+    element.style.clipPath = "inset(0 0 0 0)";
+    element.style.transition = "none";
+  });
+  clone.querySelectorAll<HTMLElement>("[data-reveal], [data-clipped], [data-revealed]").forEach((element) => {
+    element.removeAttribute("data-reveal");
+    element.removeAttribute("data-clipped");
+    element.removeAttribute("data-revealed");
+  });
+  clone.querySelectorAll<HTMLElement>("[data-clip-reveal]").forEach((element) => element.removeAttribute("data-clip-reveal"));
+  clone.querySelectorAll<HTMLElement>("a, button, input, textarea, select").forEach((element) => {
+    element.setAttribute("tabindex", "-1");
+  });
+}
+
+function mountNegativeClone(host: HTMLElement, source: HTMLElement) {
+  host.textContent = "";
+  const clone = source.cloneNode(true) as HTMLElement;
+  cleanupNegativeClone(clone);
+  host.appendChild(clone);
+}
+
+function syncNegativeWorlds(force = false) {
   const root = rootRef.value;
-  const section = root?.querySelector<HTMLElement>("[data-services-pin]");
-  if (!section) return;
+  const hero = heroRef.value;
+  const pageHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-negative-world='page']");
+  const heroHost = heroNegativeRef.value?.querySelector<HTMLElement>("[data-negative-world='hero']");
 
-  const rect = section.getBoundingClientRect();
-  const vh = window.innerHeight || document.documentElement.clientHeight || 900;
-  if (rect.top < -16 || rect.top > vh * 0.18) {
-    window.scrollTo({ top: section.offsetTop, behavior: "smooth" });
+  if (root && pageHost) {
+    const signature = getNegativeWorldSignature("page");
+    if (force || pageHost.dataset.signature !== signature) {
+      mountNegativeClone(pageHost, root);
+      pageHost.dataset.signature = signature;
+    }
+  }
+
+  if (hero && heroHost) {
+    const signature = getNegativeWorldSignature("hero");
+    if (force || heroHost.dataset.signature !== signature) {
+      mountNegativeClone(heroHost, hero);
+      heroHost.dataset.signature = signature;
+    }
+  }
+
+  updateNegativeWorldPositions();
+}
+
+function updateNegativeWorldPositions() {
+  const root = rootRef.value;
+  const pageHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-negative-world='page']");
+  if (root && pageHost) {
+    const rect = root.getBoundingClientRect();
+    const height = Math.max(root.scrollHeight, document.documentElement.scrollHeight, window.innerHeight);
+
+    pageHost.style.left = formatStablePx(rect.left);
+    pageHost.style.top = formatStablePx(rect.top);
+    pageHost.style.width = formatStablePx(rect.width);
+    pageHost.style.minHeight = `${height}px`;
   }
 }
 
@@ -1297,59 +2553,79 @@ function scheduleUpdate() {
   raf = requestAnimationFrame(() => {
     raf = 0;
     updateScrollEffects();
+    updateClientCubePosition();
+    updateFooterGameFromScroll();
+    syncNegativeWorlds();
   });
 }
 
 onMounted(async () => {
-  systemThemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  applyTheme(getSavedTheme() || getSystemTheme());
-  if (systemThemeQuery.addEventListener) {
-    systemThemeQuery.addEventListener("change", handleSystemThemeChange);
-  } else {
-    systemThemeQuery.addListener(handleSystemThemeChange);
-  }
-
-  await applyLocale(getSavedLocale() || detectBrowserLocale());
+  theme.value = localStorage.getItem("vz_theme") || "light";
   localeWatcherReady = true;
-
   runPreloader();
   setupReveals();
-  scanReveals();
   updateScrollEffects();
-  startServiceAutoplay();
+  sectionLiquidLastScrollY = window.scrollY;
+  footerGameLastScrollY = window.scrollY;
+  await nextTick();
+  syncNegativeWorlds(true);
+  updateStackSpherePosition();
+  updateClientCubePosition();
+  startHeroNegative();
+  startSectionLiquid();
+  void setupAboutLiquidScene();
+  void setupClientCubeScene();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
   await loadPublicData();
   await nextTick();
   setupReveals();
   updateScrollEffects();
+  updateStackSpherePosition();
+  updateClientCubePosition();
+  syncNegativeWorlds(true);
+  startHeroNegative();
+});
+
+watch(activeClientSegment, async () => {
+  updateClientCubeStage?.(activeClientSegment.value);
+  await nextTick();
+  updateClientCubePosition();
+  syncNegativeWorlds(true);
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scheduleUpdate);
   window.removeEventListener("resize", scheduleUpdate);
-  if (systemThemeQuery?.removeEventListener) {
-    systemThemeQuery.removeEventListener("change", handleSystemThemeChange);
-  } else {
-    systemThemeQuery?.removeListener(handleSystemThemeChange);
-  }
-  stopServiceAutoplay();
   if (raf) cancelAnimationFrame(raf);
+  if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
+  if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
+  aboutLiquidCleanup?.();
+  stackSphereCleanup?.();
+  clientCubeCleanup?.();
+  stopFooterGameLoop();
 });
 
-watch(currentLocale, async () => {
+watch(displayStackGroups, () => {
+  activeStackIndex.value = clampStackIndex(activeStackIndex.value);
+  updateScrollEffects();
+  void nextTick(updateStackSpherePosition);
+});
+
+watch(currentLocale, async (nextLocale) => {
   document.documentElement.lang = currentLocale.value;
   if (!localeWatcherReady) return;
-  await loadPublicData();
+  await loadPublicData(nextLocale);
   await nextTick();
   setupReveals();
   updateScrollEffects();
 });
 
 watch(displayServices, async () => {
-  if (activeServiceIndex.value >= displayServices.value.length) activeServiceIndex.value = 0;
   await nextTick();
   updateScrollEffects();
+  syncNegativeWorlds(true);
+  startSectionLiquid();
 });
 
 const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t);document.documentElement.style.colorScheme=t}catch(e){}}();`;
@@ -1415,18 +2691,15 @@ useHead(() => ({
   --slash: #dcdfe3;
   --navbg: rgba(255, 255, 255, 0.72);
   --halo: rgba(28, 29, 33, 0.07);
-  --slate: #3f4d5b;
   --aura: rgba(63, 77, 91, 0.1);
-  --alu1: #eceef0;
-  --alu2: #cfd2d6;
-  --alu3: #b7babf;
-  --bezel: #0c0c0e;
-  --code: #d7dce4;
+  --section-space: 80px;
+  overflow-x: clip;
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
   font-family: "Onest", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.4s ease, color 0.4s ease;
 }
 
 .vz-min[data-theme="dark"] {
@@ -1452,13 +2725,17 @@ useHead(() => ({
   --slash: #34383f;
   --navbg: rgba(14, 15, 18, 0.66);
   --halo: rgba(255, 255, 255, 0.28);
-  --slate: #3f4d5b;
   --aura: rgba(63, 77, 91, 0.24);
-  --alu1: #bfc2c8;
-  --alu2: #94979e;
-  --alu3: #787b82;
-  --bezel: #050506;
-  --code: #2b3a5a;
+}
+
+.vz-min[data-theme="dark"] .vz-about__liquid {
+  mix-blend-mode: screen;
+  opacity: 0.2;
+}
+
+.vz-min[data-theme="dark"] .vz-stack__sphere {
+  filter: invert(1);
+  opacity: 0.5;
 }
 
 .vz-min ::selection {
@@ -1474,6 +2751,200 @@ useHead(() => ({
 @keyframes vz-orbit {
   to { transform: rotate(360deg); }
 }
+
+@keyframes vz-motion-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes vz-motion-pop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes vz-motion-line-x {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes vz-motion-line-y {
+  from {
+    opacity: 0;
+    transform: scaleY(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+@keyframes vz-client-copy-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.vz-motion-ready [data-reveal] {
+  filter: none !important;
+}
+
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__meta,
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__kicker,
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__grid,
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__stats,
+.vz-motion-ready #hero:not(.is-motion-visible) > .vz-marquee,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-section-label,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__mark,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__roles div,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__note,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__eyebrow,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__lead,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__principles article,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__metrics div,
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-section-label,
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-capsules button,
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-copy > *,
+.vz-motion-ready .vz-contacts:not(.is-motion-visible) .vz-section-label,
+.vz-motion-ready .vz-contacts:not(.is-motion-visible) .vz-contacts__buttons,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__top,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__cols > div,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign > div,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign strong,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__legal,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer-game {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+.vz-motion-ready .vz-client-connector,
+.vz-motion-ready .vz-footer__top,
+.vz-motion-ready .vz-footer__sign {
+  transform-origin: left center;
+}
+
+.vz-motion-ready .vz-client-connector span {
+  transform-origin: center bottom;
+}
+
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-connector,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__top,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-connector span {
+  opacity: 0;
+  transform: translateX(-50%) scaleY(0);
+}
+
+.vz-motion-ready #hero.is-motion-visible .vz-hero__meta,
+.vz-motion-ready #hero.is-motion-visible .vz-hero__kicker,
+.vz-motion-ready #hero.is-motion-visible .vz-hero__grid,
+.vz-motion-ready #hero.is-motion-visible .vz-hero__stats,
+.vz-motion-ready #hero.is-motion-visible > .vz-marquee,
+.vz-motion-ready .vz-about.is-motion-visible .vz-section-label,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__mark,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__note,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__eyebrow,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__lead,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__principles article,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div,
+.vz-motion-ready .vz-clients.is-motion-visible .vz-section-label,
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy > *,
+.vz-motion-ready .vz-contacts.is-motion-visible .vz-section-label,
+.vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__buttons,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__top,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign > div,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign strong,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer-game {
+  animation: vz-motion-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-connector,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__top,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign {
+  animation: vz-motion-line-x 0.9s cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-connector span {
+  animation: vz-motion-line-y 0.62s cubic-bezier(0.76, 0, 0.24, 1) 0.42s both;
+}
+
+.vz-motion-ready #hero.is-motion-visible .vz-hero__kicker { animation-delay: 0.08s; }
+.vz-motion-ready #hero.is-motion-visible .vz-hero__grid { animation-delay: 0.34s; }
+.vz-motion-ready #hero.is-motion-visible .vz-hero__stats { animation-delay: 0.5s; }
+.vz-motion-ready #hero.is-motion-visible > .vz-marquee { animation-delay: 0.62s; }
+
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__mark { animation-delay: 0.12s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__eyebrow { animation-delay: 0.16s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__lead { animation-delay: 0.22s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div:nth-child(1),
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__principles article:nth-child(1),
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div:nth-child(1) { animation-delay: 0.3s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div:nth-child(2),
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__principles article:nth-child(2),
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div:nth-child(2) { animation-delay: 0.4s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div:nth-child(3),
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div:nth-child(3) { animation-delay: 0.5s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__note { animation-delay: 0.58s; }
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button {
+  animation: vz-motion-pop 0.82s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button:nth-child(1) { animation-delay: 0.12s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button:nth-child(2) { animation-delay: 0.2s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button:nth-child(3) { animation-delay: 0.28s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy > span { animation-delay: 0.42s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy h3 { animation-delay: 0.48s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy p { animation-delay: 0.58s; }
+
+.vz-motion-ready .vz-client-copy > span,
+.vz-motion-ready .vz-client-copy h3,
+.vz-motion-ready .vz-client-copy p {
+  animation: vz-client-copy-in 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-motion-ready .vz-client-copy h3 { animation-delay: 0.04s; }
+.vz-motion-ready .vz-client-copy p { animation-delay: 0.1s; }
+
+.vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__buttons { animation-delay: 0.32s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(1) { animation-delay: 0.14s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(2) { animation-delay: 0.22s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(3) { animation-delay: 0.3s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(4) { animation-delay: 0.38s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign { animation-delay: 0.46s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign > div { animation-delay: 0.54s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign strong { animation-delay: 0.62s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal { animation-delay: 0.72s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer-game { animation-delay: 0.82s; }
 
 .vz-preloader {
   position: fixed;
@@ -1493,14 +2964,10 @@ useHead(() => ({
 .vz-hero__meta,
 .vz-hero__kicker,
 .vz-hero__stats,
-.vz-scroll-hint,
 .vz-footer__top,
 .vz-footer__cols > div > span,
 .vz-footer__sign > div,
-.vz-footer__legal,
-.vz-services__counter,
-.vz-stage-row > span:first-child,
-.vz-stage-row > span:last-child {
+.vz-footer__legal {
   font-family: "JetBrains Mono", monospace;
 }
 
@@ -1603,8 +3070,7 @@ useHead(() => ({
 }
 
 .vz-icon-button,
-.vz-menu-button,
-.vz-lang-button {
+.vz-menu-button {
   display: flex;
   height: 38px;
   align-items: center;
@@ -1620,15 +3086,6 @@ useHead(() => ({
 .vz-icon-button,
 .vz-menu-button {
   width: 38px;
-}
-
-.vz-lang-button {
-  min-width: 44px;
-  padding: 0 11px;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
 }
 
 .vz-nav__cta,
@@ -1719,13 +3176,25 @@ useHead(() => ({
 }
 
 .vz-hero {
+  --hero-art-bottom: 138px;
   position: relative;
-  max-width: 1240px;
+  isolation: isolate;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 150px 40px 92px;
+  padding: 150px 40px 32px;
 }
 
-.vz-hero__art,
+.vz-hero__art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: var(--hero-art-bottom);
+  left: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
 .vz-contacts__art {
   position: absolute;
   inset: 0;
@@ -1743,16 +3212,9 @@ useHead(() => ({
 
 .vz-aura--top {
   top: -110px;
-  right: -150px;
+  right: -42px;
   width: 540px;
   height: 540px;
-}
-
-.vz-aura--bottom {
-  bottom: -250px;
-  left: 3%;
-  width: 480px;
-  height: 480px;
 }
 
 .vz-orbit {
@@ -1807,6 +3269,30 @@ useHead(() => ({
 .vz-corner--3 { bottom: 26px; left: 26px; }
 .vz-corner--4 { right: 26px; bottom: 26px; }
 
+.vz-hero__negative {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: circle(0 at 64% 48%);
+  contain: paint;
+  transition: opacity 0.42s ease;
+  will-change: clip-path, opacity;
+}
+
+.vz-hero.is-hero-fx-active .vz-hero__negative {
+  opacity: 1;
+}
+
+.vz-hero__negative-plane {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ink);
+}
+
 .vz-hero__inner,
 .vz-contacts__inner {
   position: relative;
@@ -1834,10 +3320,6 @@ useHead(() => ({
   text-transform: uppercase;
 }
 
-.vz-hero__kicker span:first-child {
-  color: var(--ink);
-}
-
 .vz-hero h1 {
   margin: 22px 0 0;
   font-size: clamp(42px, 7vw, 104px);
@@ -1848,9 +3330,7 @@ useHead(() => ({
 }
 
 .vz-hero h1 > span,
-.vz-services h2 > span,
 .vz-clients h2 > span,
-.vz-stages h2 > span,
 .vz-contacts h2 > span {
   display: block;
   overflow: hidden;
@@ -1862,9 +3342,7 @@ useHead(() => ({
 }
 
 .vz-hero h1 span span,
-.vz-services h2 span span,
 .vz-clients h2 span span,
-.vz-stages h2 span span,
 .vz-contacts h2 span span {
   display: block;
 }
@@ -1889,7 +3367,7 @@ useHead(() => ({
   display: flex;
   flex-direction: column;
   gap: 14px;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-self: end;
 }
 
@@ -1922,21 +3400,172 @@ useHead(() => ({
   text-decoration: none;
 }
 
+.vz-section-liquid {
+  position: fixed;
+  inset: 0;
+  z-index: 170;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  background: transparent;
+  isolation: isolate;
+  transition: opacity 0.22s ease;
+  will-change: clip-path, opacity;
+}
+
+.vz-section-liquid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 44% 36%, rgba(92, 216, 255, 0.16), transparent 38%),
+    rgba(18, 19, 24, 0.9);
+  backdrop-filter: invert(1) hue-rotate(172deg) saturate(1.22) contrast(1.08);
+  -webkit-backdrop-filter: invert(1) hue-rotate(172deg) saturate(1.22) contrast(1.08);
+}
+
+.vz-section-liquid[data-theme="dark"]::before {
+  background:
+    radial-gradient(circle at 44% 36%, rgba(173, 156, 255, 0.14), transparent 38%),
+    rgba(242, 243, 245, 0.94);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.vz-section-liquid.is-active {
+  opacity: 1;
+}
+
+.vz-section-liquid__target {
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  overflow: visible;
+  pointer-events: none;
+  background:
+    linear-gradient(104deg, #f7f9ff 0%, #ad9cff 38%, #51d8ff 72%, #ffffff 100%);
+  background-clip: text;
+  color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  transform: translateZ(0);
+}
+
+.vz-section-liquid__target[hidden] {
+  display: none;
+}
+
+.vz-negative-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  width: 100%;
+  min-height: 100%;
+  overflow: visible;
+  color: #f7f9ff;
+  pointer-events: none;
+}
+
+.vz-negative-world > [data-negative-clone="true"] {
+  width: 100%;
+  min-height: inherit;
+  background: transparent;
+  color: #f7f9ff;
+  --bg: transparent;
+  --ink: #f7f9ff;
+  --text2: #d7def0;
+  --muted: #b9bfd0;
+  --muted2: #8edfff;
+  --slash: rgba(247, 249, 255, 0.42);
+  --border: rgba(247, 249, 255, 0.14);
+  --border2: rgba(247, 249, 255, 0.08);
+  --hair: rgba(247, 249, 255, 0.18);
+  --dot: rgba(247, 249, 255, 0.18);
+  --dotbd: rgba(247, 249, 255, 0.34);
+  --idle: rgba(247, 249, 255, 0.44);
+  --surface: transparent;
+  --surface-bd: rgba(247, 249, 255, 0.12);
+  --chipbd: rgba(247, 249, 255, 0.25);
+  --navbg: transparent;
+  --aura: rgba(142, 223, 255, 0.12);
+  --halo: rgba(173, 156, 255, 0.18);
+}
+
+.vz-negative-world--hero {
+  inset: 0;
+}
+
+.vz-negative-world--hero > .vz-hero {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+
+.vz-negative-world h1,
+.vz-negative-world h1 span,
+.vz-negative-world h1 span span,
+.vz-negative-world h2,
+.vz-negative-world h2 span,
+.vz-negative-world h2 span span,
+.vz-negative-world .vz-about__mark span,
+.vz-negative-world .vz-footer__sign strong,
+.vz-negative-world .vz-footer__sign strong span,
+.vz-negative-world .vz-footer-game__letter {
+  background:
+    linear-gradient(104deg, #f7f9ff 0%, #ad9cff 38%, #51d8ff 72%, #ffffff 100%);
+  background-clip: text;
+  color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.vz-negative-world h1 *,
+.vz-negative-world h2 * {
+  background: inherit;
+  background-clip: text;
+  color: transparent;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.vz-negative-world a,
+.vz-negative-world button,
+.vz-negative-world p,
+.vz-negative-world small,
+.vz-negative-world strong {
+  border-color: var(--border);
+}
+
+.vz-negative-world span {
+  border-color: var(--border);
+}
+
 .vz-hero__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  margin-top: 58px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, max-content));
+  align-items: center;
+  gap: 12px;
+  margin-top: 48px;
+  padding-top: 0;
+  padding-bottom: 4px;
   color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-.vz-hero__stats span:nth-child(even) {
-  color: var(--slash);
+.vz-hero__stats span {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--muted);
 }
 
 .vz-marquee {
@@ -1945,6 +3574,13 @@ useHead(() => ({
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   background: var(--bg);
+}
+
+.vz-hero > .vz-marquee {
+  position: relative;
+  z-index: 1;
+  width: 100vw;
+  margin: 20px 0 0 calc(50% - 50vw);
 }
 
 .vz-marquee > div {
@@ -1971,20 +3607,19 @@ useHead(() => ({
   font-style: normal;
 }
 
-.vz-about {
-  padding: 120px 40px 110px;
-}
-
 .vz-about__grid,
 .vz-clients__grid {
   display: grid;
+  width: 100%;
   max-width: 1240px;
   margin: 0 auto;
 }
 
 .vz-about__grid {
-  grid-template-columns: 300px 1fr;
-  gap: 80px;
+  align-items: center;
+  grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+  gap: clamp(56px, 8vw, 118px);
+  position: relative;
 }
 
 .vz-section-label {
@@ -2003,65 +3638,244 @@ useHead(() => ({
   font-style: normal;
 }
 
+.vz-about {
+  position: relative;
+  overflow: hidden;
+}
+
+.vz-about__liquid {
+  position: absolute;
+  top: clamp(82px, 9vw, 132px);
+  right: max(-64px, calc((100vw - 1240px) / 2 - 64px));
+  z-index: 0;
+  width: clamp(300px, 30vw, 480px);
+  aspect-ratio: 16 / 10;
+  opacity: 0.48;
+  pointer-events: none;
+  transform: rotate(-8deg);
+  mask-image: radial-gradient(ellipse at center, #000 44%, rgba(0, 0, 0, 0.72) 60%, transparent 82%);
+}
+
+.vz-about__liquid canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.vz-about__brand {
+  position: relative;
+  z-index: 1;
+  align-self: stretch;
+  display: flex;
+  min-height: clamp(420px, 58vh, 520px);
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+  padding: 0 0 2px;
+}
+
+.vz-about__mark {
+  position: relative;
+  display: grid;
+  min-height: clamp(168px, 26vh, 232px);
+  margin-top: clamp(26px, 5vh, 46px);
+  place-items: center start;
+}
+
+.vz-about__mark span {
+  position: relative;
+  z-index: 1;
+  color: var(--ink);
+  font-size: clamp(58px, 7.5vw, 118px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.vz-about__mark i {
+  position: absolute;
+  right: 0;
+  bottom: 18px;
+  color: var(--muted2);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.vz-about__roles {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.vz-about__roles div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.vz-about__roles span {
+  color: var(--muted2);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+}
+
+.vz-about__roles strong {
+  color: var(--ink);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.vz-about__note {
+  max-width: 32ch;
+  margin: 28px 0 0;
+  color: var(--text2);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
 .vz-about__copy {
-  max-width: 720px;
+  position: relative;
+  z-index: 1;
+  justify-self: end;
+  width: 100%;
+  max-width: 760px;
+}
+
+.vz-about__eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 22px;
+  margin-bottom: 20px;
+  color: var(--muted2);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vz-about__eyebrow span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vz-about__eyebrow span + span::before {
+  content: "/";
+  color: var(--slash);
 }
 
 .vz-about__lead {
   margin: 0;
-  font-size: clamp(26px, 3vw, 38px);
-  font-weight: 500;
-  letter-spacing: -0.015em;
-  line-height: 1.3;
+  max-width: 13ch;
+  font-size: clamp(34px, 4vw, 56px);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  text-transform: uppercase;
 }
 
-.vz-about__cols {
+.vz-about__principles {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 36px;
-  margin-top: 48px;
+  gap: 0;
+  margin-top: clamp(26px, 4vh, 38px);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
 }
 
-.vz-about__cols p,
-.vz-sec-meta p,
-.vz-stage-row p,
-.vz-stages__head p,
-.vz-service-panel p {
+.vz-about__principles article {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 18px;
+  padding: clamp(16px, 2.2vh, 22px) 0;
+}
+
+.vz-about__principles article + article {
+  padding-left: 28px;
+  border-left: 1px solid var(--border);
+}
+
+.vz-about__principles span {
+  color: var(--muted2);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+}
+
+.vz-about__principles p,
+.vz-sec-meta p {
   color: var(--text2);
   line-height: 1.65;
 }
 
-.vz-about__cols p {
+.vz-about__principles p {
   margin: 0;
   font-size: 16px;
 }
 
-.vz-stack,
-.vz-services {
+.vz-about__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: clamp(18px, 3vh, 24px);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--surface) 52%, transparent);
+}
+
+.vz-about__metrics div {
+  min-height: clamp(86px, 12vh, 108px);
+  padding: 18px;
+}
+
+.vz-about__metrics div + div {
+  border-left: 1px solid var(--border);
+}
+
+.vz-about__metrics strong {
+  display: block;
+  color: var(--ink);
+  font-size: clamp(32px, 3vw, 48px);
+  font-weight: 650;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+}
+
+.vz-about__metrics span {
+  display: block;
+  max-width: 14ch;
+  margin-top: 18px;
+  color: var(--text2);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.vz-stack {
   position: relative;
   border-top: 1px solid var(--border2);
 }
 
 .vz-stack {
-  min-height: 380vh;
-}
-
-.vz-services {
-  min-height: 132vh;
+  padding: var(--section-space) 0;
 }
 
 .vz-sticky {
-  position: sticky;
-  top: 0;
   display: flex;
-  height: 100vh;
   align-items: center;
-  overflow: hidden;
 }
 
 .vz-sticky__inner {
+  position: relative;
   width: 100%;
-  max-width: 1240px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 0 40px;
 }
@@ -2076,7 +3890,6 @@ useHead(() => ({
 
 .vz-sec-head h2,
 .vz-clients h2,
-.vz-stages h2,
 .vz-contacts h2 {
   margin: 0;
   font-weight: 600;
@@ -2089,6 +3902,10 @@ useHead(() => ({
   max-width: 640px;
   margin-top: 20px;
   font-size: clamp(32px, 4vw, 52px);
+}
+
+#stack .vz-sec-head h2 {
+  transform: translateX(-0.055em);
 }
 
 .vz-sec-meta {
@@ -2121,6 +3938,27 @@ useHead(() => ({
 
 .vz-stack__timeline {
   position: relative;
+  z-index: 1;
+  max-width: min(760px, calc(100% - 430px));
+}
+
+.vz-stack__sphere {
+  --stack-sphere-size: clamp(300px, 28vw, 430px);
+  position: absolute;
+  top: var(--stack-sphere-top, clamp(285px, 24vw, 340px));
+  left: var(--stack-sphere-left, calc(100% - 40px - var(--stack-sphere-size)));
+  z-index: 0;
+  width: var(--stack-sphere-size);
+  aspect-ratio: 1;
+  opacity: 0.86;
+  pointer-events: none;
+  mask-image: radial-gradient(circle at 50% 50%, #000 56%, rgba(0, 0, 0, 0.72) 72%, transparent 88%);
+}
+
+.vz-stack__sphere canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .vz-stack__line {
@@ -2145,9 +3983,16 @@ useHead(() => ({
   display: grid;
   grid-template-columns: 240px 80px 1fr;
   align-items: center;
+  cursor: pointer;
   min-height: 116px;
   opacity: 1;
+  outline: none;
   transform: translateY(0);
+}
+
+.vz-stack-item:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 8px;
 }
 
 .vz-stack-item > div:first-child {
@@ -2194,15 +4039,30 @@ useHead(() => ({
   line-height: 1.55;
 }
 
-.vz-stack-item > div:last-child > div,
-.vz-service-panel [data-serv-metawrap] {
+.vz-stack-item > div:last-child {
+  transition:
+    opacity 0.36s ease,
+    transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.vz-stack-item:not(.is-active) > div:last-child {
+  opacity: 0.62;
+  transform: translateX(-4px);
+}
+
+.vz-stack-item.is-active > div:last-child,
+.vz-stack-item.is-past > div:last-child {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.vz-stack-item > div:last-child > div {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.vz-stack-item span:not([data-dot], [data-halo]),
-.vz-service-panel [data-serv-metawrap] span {
+.vz-stack-item span:not([data-dot], [data-halo]) {
   padding: 7px 13px;
   border: 1px solid var(--chipbd);
   border-radius: 999px;
@@ -2212,641 +4072,30 @@ useHead(() => ({
   letter-spacing: 0.03em;
 }
 
-.vz-scroll-hint {
+.vz-about,
+.vz-clients,
+.vz-contacts {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 46px;
-  color: var(--muted2);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
 }
 
-.vz-services h2,
-.vz-stages h2 {
-  font-size: clamp(34px, 4.4vw, 56px);
-}
-
-.vz-services__counter {
-  flex-shrink: 0;
-  color: var(--ink);
-  font-size: 14px;
-  letter-spacing: 0.08em;
-}
-
-.vz-services__grid {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 70px;
-  align-items: start;
-}
-
-.vz-services__nav {
-  border-top: 1px solid var(--border);
-}
-
-.vz-services__nav button {
-  display: flex;
-  width: 100%;
-  align-items: baseline;
-  gap: 16px;
-  padding: 13px 2px;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-  transition: padding-left 0.3s cubic-bezier(0.76, 0, 0.24, 1), border-color 0.25s ease, background 0.25s ease;
-}
-
-.vz-services__nav button span:first-child {
-  color: var(--hair);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-
-.vz-services__nav button span:last-child {
-  color: var(--muted2);
-  font-size: 17px;
-  letter-spacing: -0.01em;
-}
-
-.vz-services__nav button[data-active="true"] {
-  padding-left: 12px;
-  border-bottom-color: var(--ink);
-}
-
-.vz-services__nav button[data-active="true"] span:first-child,
-.vz-services__nav button[data-active="true"] span:last-child {
-  color: var(--ink);
-}
-
-.vz-services__nav button[data-active="true"] span:last-child {
-  font-weight: 600;
-}
-
-.vz-services__stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 30px;
-  min-height: 0;
-}
-
-.vz-services__devices {
-  position: relative;
-  display: grid;
-  width: 100%;
-  min-height: 372px;
-  align-items: center;
-  justify-items: center;
-}
-
-.vz-device-mac {
-  grid-area: 1 / 1;
-  opacity: 1;
-  will-change: transform, opacity;
-}
-
-.vz-macbook {
-  --sw: clamp(280px, 38vw, 500px);
-  position: relative;
-  perspective: 1800px;
-}
-
-.vz-macbook__tilt {
-  transform: rotateX(4deg);
-  transform-style: preserve-3d;
-}
-
-.vz-macbook__lid {
-  position: relative;
-  width: var(--sw);
-  padding: 10px 10px 12px;
-  border-radius: 18px 18px 6px 6px;
-  backface-visibility: hidden;
-  background: linear-gradient(155deg, #3a3d44, #17191e 62%);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 12%), inset 0 -2px 3px rgb(0 0 0 / 45%), 0 36px 64px -22px rgb(0 0 0 / 58%);
-  transform-origin: center bottom;
-  will-change: transform;
-}
-
-.vz-macbook__lid::before {
-  position: absolute;
-  right: 12%;
-  bottom: -5px;
-  left: 12%;
-  height: 5px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, transparent, rgb(255 255 255 / 28%), transparent), linear-gradient(#22252b, #090a0c);
-  content: "";
-}
-
-.vz-macbook__notch {
-  position: absolute;
-  top: 9px;
-  left: 50%;
-  z-index: 4;
-  width: 94px;
-  height: 15px;
-  border-radius: 0 0 9px 9px;
-  background: #0a0a0c;
-  transform: translateX(-50%);
-}
-
-.vz-macbook__screen-wrap {
-  position: relative;
-  width: 100%;
-  height: calc(var(--sw) * 0.625);
-  overflow: hidden;
-  border-radius: 9px;
-  background: var(--bg);
-  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 35%);
-  transition: opacity 0.12s linear;
-}
-
-.vz-screen {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  overflow: hidden;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: "Onest", system-ui, sans-serif;
-  transition: opacity 0.42s ease, transform 0.42s cubic-bezier(0.76, 0, 0.24, 1);
-  will-change: opacity, transform;
-}
-
-.vz-screen-shine {
-  position: absolute;
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-  background: linear-gradient(118deg, rgb(255 255 255 / 10%), transparent 42%);
-}
-
-.vz-screen-topbar,
-.vz-screen-chatbar,
-.vz-browserbar,
-.vz-shop-top,
-.vz-ai-top {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 13px;
-  border-bottom: 1px solid var(--border);
-}
-
-.vz-screen-topbar {
-  justify-content: space-between;
-}
-
-.vz-screen-topbar span,
-.vz-screen-chatbar span,
-.vz-ai-top span {
-  width: 21px;
-  height: 21px;
-  border-radius: 50%;
-  background: var(--ink);
-}
-
-.vz-screen-topbar i,
-.vz-browserbar i {
-  color: var(--muted);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 8px;
-  font-style: normal;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.vz-screen-hero-line {
-  height: 60px;
-  margin: 11px 13px 0;
-  border-radius: 10px;
-  background: linear-gradient(120deg, var(--slate), #29323c);
-}
-
-.vz-screen-cards,
-.vz-shop-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 9px;
-  padding: 11px 13px 0;
-}
-
-.vz-screen-cards b,
-.vz-shop-grid i {
-  min-height: 58px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: linear-gradient(var(--surface), var(--surface)) content-box;
-  padding: 7px;
-}
-
-.vz-screen-button {
-  height: 30px;
-  margin: 11px 13px 13px;
-  border-radius: 8px;
-  background: var(--ink);
-}
-
-.vz-screen-chat,
-.vz-screen-miniapp,
-.vz-screen-site,
-.vz-screen-shop,
-.vz-screen-ai,
-.vz-screen-corp,
-.vz-screen-mobile {
-  display: flex;
-  height: 100%;
-  flex-direction: column;
-}
-
-.vz-bubble {
-  width: 58%;
-  height: 34px;
-  margin: 12px 13px 0;
-  border-radius: 11px 11px 11px 3px;
-  background: var(--surface);
-}
-
-.vz-bubble--right {
-  align-self: flex-end;
-  border-radius: 11px 11px 3px 11px;
-  background: var(--ink);
-}
-
-.vz-bubble--choice {
-  width: 68%;
-  height: 56px;
-}
-
-.vz-chat-input {
-  height: 46px;
-  margin-top: auto;
-  border-top: 1px solid var(--border);
-}
-
-.vz-browserbar {
-  background: var(--surface);
-}
-
-.vz-browserbar span {
-  width: 9px;
-  height: 9px;
-  margin-right: 30px;
-  border-radius: 50%;
-  background: #e0655a;
-  box-shadow: 14px 0 0 #e6b34d, 28px 0 0 #57b96a;
-}
-
-.vz-site-grid {
-  display: grid;
-  flex: 1;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 14px;
-  align-items: center;
-  padding: 16px 15px;
-}
-
-.vz-site-grid div,
-.vz-site-grid b {
-  height: 108px;
-  border-radius: 10px;
-}
-
-.vz-site-grid div {
-  background: repeating-linear-gradient(to bottom, var(--ink), var(--ink) 10px, transparent 10px, transparent 17px);
-}
-
-.vz-site-grid b {
-  background: linear-gradient(135deg, var(--surface), var(--border));
-}
-
-.vz-shop-grid {
-  grid-template-columns: repeat(3, 1fr);
-  flex: 1;
-}
-
-.vz-shop-top {
-  justify-content: space-between;
-}
-
-.vz-shop-top span,
-.vz-ai-top b {
-  width: 70px;
-  height: 7px;
-  border-radius: 999px;
-  background: var(--ink);
-}
-
-.vz-shop-top b {
-  display: grid;
-  width: 20px;
-  height: 20px;
-  place-items: center;
-  border-radius: 6px;
-  background: var(--ink);
-  color: var(--bg);
-  font-size: 10px;
-}
-
-.vz-ai-answer {
-  display: flex;
-  gap: 8px;
-  padding: 12px 13px 0;
-}
-
-.vz-ai-answer span {
-  display: grid;
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  place-items: center;
-  border: 1px solid var(--ink);
-  border-radius: 5px;
-  font-size: 9px;
-}
-
-.vz-ai-answer i,
-.vz-ai-plan {
-  flex: 1;
-  min-height: 44px;
-  border-radius: 8px;
-  background: var(--surface);
-}
-
-.vz-ai-plan {
-  margin: 10px 13px 0;
-  border: 1px solid var(--border);
-}
-
-.vz-ai-flow {
-  display: flex;
-  gap: 6px;
-  margin: 10px 13px 0;
-}
-
-.vz-ai-flow b {
-  flex: 1;
-  height: 20px;
-  border-radius: 6px;
-  background: var(--surface);
-}
-
-.vz-ai-flow b:last-child {
-  background: var(--ink);
-}
-
-.vz-screen-corp {
-  flex-direction: row;
-}
-
-.vz-corp-side {
-  width: 46px;
-  border-right: 1px solid var(--border);
-  background: var(--surface);
-}
-
-.vz-corp-main {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  padding: 12px 14px;
-}
-
-.vz-corp-head {
-  height: 28px;
-  margin-bottom: 12px;
-  border-radius: 8px;
-  background: linear-gradient(90deg, var(--ink) 0 35%, transparent 35% 100%);
-}
-
-.vz-corp-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 11px;
-}
-
-.vz-corp-cards b {
-  height: 48px;
-  border: 1px solid var(--border);
-  border-radius: 7px;
-}
-
-.vz-corp-chart {
-  display: flex;
-  flex: 1;
-  align-items: flex-end;
-  gap: 7px;
-  padding: 11px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.vz-corp-chart i {
-  flex: 1;
-  height: 50%;
-  border-radius: 3px 3px 0 0;
-  background: var(--surface);
-}
-
-.vz-corp-chart i:nth-child(2),
-.vz-corp-chart i:nth-child(5) {
-  height: 78%;
-  background: var(--slate);
-}
-
-.vz-corp-chart i:nth-child(4) {
-  height: 92%;
-  background: var(--ink);
-}
-
-.vz-screen-mobile {
-  flex-direction: row;
-}
-
-.vz-code-pane {
-  flex: 1.2;
-  overflow: hidden;
-  margin: 0;
-  padding: 12px 14px;
-  border-right: 1px solid var(--border);
-  color: var(--ink);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 8.6px;
-  font-weight: 400;
-  line-height: 1.5;
-  white-space: pre;
-}
-
-.vz-phone-pane {
-  display: flex;
-  flex: 0.82;
-  align-items: center;
-  justify-content: center;
-  background: var(--surface);
-}
-
-.vz-phone {
-  position: relative;
-  height: 84%;
-  aspect-ratio: 118 / 240;
-  padding: 5px;
-  border-radius: 22px;
-  background: #0b0b0d;
-  box-shadow: 0 14px 24px -12px rgb(0 0 0 / 50%);
-}
-
-.vz-phone span {
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  z-index: 3;
-  width: 34px;
-  height: 10px;
-  border-radius: 999px;
-  background: #000;
-  transform: translateX(-50%);
-}
-
-.vz-phone b {
-  display: block;
-  width: 100%;
-  height: 100%;
-  border-radius: 17px;
-  background: var(--bg);
-}
-
-.vz-macbook__base {
-  position: relative;
-  width: calc(var(--sw) + 40px);
-  margin-left: -20px;
-}
-
-.vz-macbook__base span {
-  display: block;
-  height: 4px;
-  border-radius: 3px 3px 0 0;
-  background: linear-gradient(#828791, #4d515a);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 40%);
-}
-
-.vz-macbook__base i {
-  display: block;
-  height: 16px;
-  border-radius: 0 0 13px 13px;
-  background: linear-gradient(#3c3f46, #1b1d21);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 12%), inset 0 -2px 3px rgb(0 0 0 / 55%), 0 3px 5px rgb(0 0 0 / 30%);
-}
-
-.vz-macbook__shadow {
-  position: relative;
-  z-index: -1;
-  width: calc(var(--sw) * 0.94);
-  height: 44px;
-  margin: -8px auto 0;
-  background: radial-gradient(ellipse, rgb(0 0 0 / 36%), transparent 68%);
-  filter: blur(13px);
-}
-
-.vz-service-caption {
-  position: relative;
-  width: 100%;
-  max-width: 640px;
-  min-height: 128px;
-}
-
-.vz-service-panel {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity 0.28s ease, transform 0.28s ease;
-  will-change: opacity, transform;
-}
-
-.vz-service-panel__title {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-}
-
-.vz-service-panel__title span {
-  color: var(--muted2);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
-}
-
-.vz-service-panel h3 {
-  margin: 0;
-  font-size: clamp(23px, 2.3vw, 31px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.05;
-  text-transform: uppercase;
-}
-
-.vz-service-panel p {
-  max-width: 54ch;
-  margin: 13px 0 0;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.vz-service-panel [data-serv-metawrap] {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.vz-service-panel [data-serv-metawrap] span {
-  display: inline-flex;
-  min-height: 32px;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-  box-shadow: 0 1px 0 rgb(0 0 0 / 4%);
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.vz-services__bar {
-  position: relative;
-  overflow: hidden;
-  height: 2px;
-  margin-top: 48px;
-  background: var(--border);
-}
-
-.vz-services__bar span {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background: var(--ink);
-  transition: width 0.12s linear;
-}
-
-.vz-services .vz-scroll-hint {
-  margin-top: 18px;
+.vz-about {
+  padding: 0 40px var(--section-space);
 }
 
 .vz-clients {
-  padding: 120px 40px;
-  border-top: 1px solid var(--surface-bd);
-  background: var(--surface);
+  padding: var(--section-space) 40px;
+  border-top: 1px solid var(--border2);
+  background: var(--bg);
 }
 
 .vz-clients__grid {
+  position: relative;
   grid-template-columns: 360px 1fr;
   gap: 80px;
   align-items: center;
+  height: clamp(540px, 56vh, 620px);
+  min-height: 0;
 }
 
 .vz-clients h2 {
@@ -2854,202 +4103,137 @@ useHead(() => ({
   font-size: clamp(30px, 3.6vw, 46px);
 }
 
-.vz-client-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+.vz-client-interactive {
+  --active-client-index: 0;
+  position: relative;
+  z-index: 2;
+  align-self: start;
+  width: 100%;
+  height: 500px;
+  min-height: 0;
+  justify-self: stretch;
 }
 
-.vz-client-tags span {
-  padding: 14px 22px;
+.vz-client-capsules {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(12px, 1.2vw, 18px);
+}
+
+.vz-client-capsules button {
+  height: 64px;
+  min-height: 0;
+  padding: 12px 18px;
   border: 1px solid var(--chipbd);
   border-radius: 999px;
   background: var(--bg);
   color: var(--ink);
+  cursor: pointer;
+  font: inherit;
   font-size: 16px;
+  line-height: 1.2;
+  transition:
+    background 0.26s ease,
+    border-color 0.26s ease,
+    color 0.26s ease;
 }
 
-.vz-stages {
-  position: relative;
-  overflow: hidden;
-  padding: 132px 40px 140px;
-  border-top: 1px solid var(--border2);
-  background: var(--bg);
-  color: var(--ink);
+.vz-client-capsules button:hover,
+.vz-client-capsules button:focus-visible {
+  border-color: var(--ink);
 }
 
-.vz-stages__aura {
-  position: absolute;
-  top: -150px;
-  right: -110px;
-  z-index: 0;
-  width: 780px;
-  height: 660px;
-  background: radial-gradient(ellipse at top right, var(--aura), transparent 62%);
-  pointer-events: none;
-}
-
-.vz-code-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  color: var(--code);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
-  line-height: 1.5;
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.vz-code-layer pre {
-  position: absolute;
-  top: 96px;
-  left: 30px;
-  margin: 0;
-  white-space: pre;
-}
-
-.vz-code-layer pre:last-child {
-  top: 150px;
-  right: 30px;
-  left: auto;
-}
-
-.vz-wrap {
-  position: relative;
-  z-index: 2;
-  max-width: 1240px;
-  margin: 0 auto;
-}
-
-.vz-stages__head {
-  max-width: 1000px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.vz-stages__head .vz-section-label {
-  display: inline-flex;
-  margin-bottom: 26px;
-}
-
-.vz-stages__head h2 {
-  max-width: none;
-  margin: 0;
-  font-size: clamp(40px, 6vw, 82px);
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.vz-stages__head p {
-  max-width: 50ch;
-  margin: 26px auto 0;
-  color: var(--text2);
-  font-size: 18px;
-  line-height: 1.5;
-}
-
-.vz-stage-cards {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  max-width: 1180px;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-  margin: 78px auto 0;
-}
-
-.vz-stage-cards > .vz-stage-card:nth-child(3n + 2) {
-  margin-top: 64px;
-}
-
-.vz-stage-cards > .vz-stage-card:nth-child(3n) {
-  margin-top: 32px;
-}
-
-.vz-stage-card {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  min-height: 246px;
-  padding: 30px 30px 26px;
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  background: var(--surface);
-}
-
-.vz-stage-card--dark {
+.vz-client-capsules button.is-active {
   border-color: var(--ink);
   background: var(--ink);
+  color: var(--bg);
 }
 
-.vz-stage-card__num {
-  position: absolute;
-  right: 16px;
-  bottom: -8px;
-  color: color-mix(in srgb, var(--ink) 6%, transparent);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 104px;
-  font-weight: 500;
-  line-height: 1;
-  pointer-events: none;
-}
-
-.vz-stage-card--dark .vz-stage-card__num {
-  color: color-mix(in srgb, var(--bg) 16%, transparent);
-}
-
-.vz-stage-card__content {
+.vz-client-connector {
   position: relative;
-  z-index: 1;
+  height: 48px;
+  border-bottom: 1px solid var(--border);
 }
 
-.vz-stage-card__content > span {
-  display: inline-block;
-  padding: 6px 12px;
-  border: 1px solid var(--chipbd);
-  border-radius: 999px;
-  color: var(--muted);
+.vz-client-connector span {
+  position: absolute;
+  bottom: -1px;
+  left: calc((100% / 3) * var(--active-client-index) + (100% / 6));
+  width: 1px;
+  height: 38px;
+  background: var(--ink);
+  transform: translateX(-50%);
+  transition: left 0.34s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.vz-client-copy {
+  position: relative;
+  z-index: 2;
+  height: 392px;
+  min-height: 0;
+  max-width: 440px;
+  padding-top: 28px;
+}
+
+.vz-client-copy > span {
+  display: block;
+  color: var(--muted2);
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.08em;
+  font-size: 12px;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.vz-stage-card--dark .vz-stage-card__content > span {
-  border-color: color-mix(in srgb, var(--bg) 42%, transparent);
-  color: var(--bg);
-}
-
-.vz-stage-card h3 {
-  margin: 22px 0 0;
-  color: var(--ink);
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.vz-stage-card--dark h3 {
-  color: var(--bg);
-}
-
-.vz-stage-card p {
+.vz-client-copy h3 {
+  max-width: 13ch;
+  height: 6.45em;
   margin: 14px 0 0;
-  color: var(--text3);
-  font-size: 15px;
-  line-height: 1.55;
+  color: var(--ink);
+  font-size: clamp(28px, 3vw, 42px);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-transform: uppercase;
 }
 
-.vz-stage-card--dark p {
-  color: color-mix(in srgb, var(--bg) 82%, transparent);
+.vz-client-copy p {
+  max-width: 62ch;
+  height: 10.4em;
+  min-height: 0;
+  margin: 18px 0 0;
+  color: var(--text2);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.vz-client-cube-field {
+  --client-cube-size: clamp(390px, 36vw, 540px);
+  position: absolute;
+  top: var(--client-cube-top, 50%);
+  left: var(--client-cube-left, calc(100% - var(--client-cube-size)));
+  z-index: 1;
+  width: var(--client-cube-size);
+  aspect-ratio: 1.08;
+  opacity: 0.96;
+  pointer-events: none;
+}
+
+.vz-client-cube-field canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.vz-wrap {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
 }
 
 .vz-contacts {
   position: relative;
   overflow: hidden;
-  padding: 140px 40px 120px;
+  padding: var(--section-space) 40px;
   border-top: 1px solid var(--border2);
 }
 
@@ -3062,6 +4246,7 @@ useHead(() => ({
 }
 
 .vz-contacts__inner {
+  width: 100%;
   max-width: 1240px;
   margin: 0 auto;
   text-align: center;
@@ -3180,6 +4365,10 @@ useHead(() => ({
   text-transform: uppercase;
 }
 
+.vz-footer__sign strong span {
+  display: inline-block;
+}
+
 .vz-footer__legal {
   display: flex;
   flex-wrap: wrap;
@@ -3191,28 +4380,219 @@ useHead(() => ({
   letter-spacing: 0.06em;
 }
 
+.vz-footer-game {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 40px 68px;
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+}
+
+.vz-footer-game__hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 12px;
+  color: var(--muted2);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vz-footer-game__track {
+  position: relative;
+  overflow: hidden;
+  height: clamp(150px, 16vw, 188px);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background:
+    linear-gradient(180deg, transparent 0%, rgba(154, 160, 168, 0.05) 100%);
+}
+
+.vz-footer-game__track::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.46;
+  background-image:
+    linear-gradient(to right, var(--border2) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border2) 1px, transparent 1px);
+  background-size: 52px 52px;
+  mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
+  pointer-events: none;
+}
+
+.vz-footer-game__ground {
+  position: absolute;
+  right: 0;
+  bottom: 39px;
+  left: 0;
+  height: 1px;
+  background: var(--hair);
+}
+
+.vz-footer-game__ground::before {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -6px;
+  left: 0;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, var(--border) 0 18px, transparent 18px 34px);
+}
+
+.vz-footer-game__dino {
+  position: absolute;
+  bottom: 40px;
+  left: 72px;
+  z-index: 2;
+  width: 50px;
+  height: 56px;
+  transform-origin: 50% 100%;
+  will-change: transform;
+}
+
+.vz-footer-game__dino::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 1px;
+  width: 28px;
+  height: 25px;
+  border-radius: 3px 6px 2px 2px;
+  background: var(--ink);
+}
+
+.vz-footer-game__dino::after,
+.vz-footer-game__dino b {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  width: 8px;
+  height: 17px;
+  background: var(--ink);
+  transform-origin: top center;
+}
+
+.vz-footer-game__dino::after {
+  left: 14px;
+}
+
+.vz-footer-game__dino b {
+  left: 28px;
+}
+
+.vz-footer-game__dino span {
+  position: absolute;
+  right: 12px;
+  bottom: 13px;
+  width: 31px;
+  height: 28px;
+  border-radius: 6px 5px 2px 2px;
+  background: var(--ink);
+}
+
+.vz-footer-game__dino span::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: -16px;
+  width: 20px;
+  height: 10px;
+  background: var(--ink);
+  clip-path: polygon(0 10%, 100% 35%, 100% 100%, 0 72%);
+}
+
+.vz-footer-game__dino i {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  z-index: 1;
+  width: 4px;
+  height: 4px;
+  background: var(--bg);
+}
+
+.vz-footer-game__letter {
+  position: absolute;
+  bottom: 35px;
+  left: 0;
+  z-index: 1;
+  min-width: 58px;
+  color: var(--ink);
+  font-size: clamp(54px, 5.2vw, 82px);
+  font-weight: 700;
+  letter-spacing: -0.08em;
+  line-height: 0.86;
+  text-align: center;
+  text-transform: uppercase;
+  will-change: transform;
+}
+
+.vz-footer-game.is-paused .vz-footer-game__track {
+  opacity: 0.74;
+}
+
+.vz-footer-game.is-crashed .vz-footer-game__track {
+  border-color: var(--ink);
+}
+
+.vz-footer-game.is-running .vz-footer-game__dino::after {
+  animation: vz-dino-leg-a 0.2s steps(2, end) infinite;
+}
+
+.vz-footer-game.is-running .vz-footer-game__dino b {
+  animation: vz-dino-leg-b 0.2s steps(2, end) infinite;
+}
+
+@keyframes vz-dino-leg-a {
+  0%,
+49% { transform: translateY(0); }
+  50%,
+100% { transform: translateY(5px); }
+}
+
+@keyframes vz-dino-leg-b {
+  0%,
+49% { transform: translateY(5px); }
+  50%,
+100% { transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vz-orbit svg,
-  .vz-marquee > div {
+.vz-marquee > div {
+    animation: none !important;
+  }
+
+  .vz-client-copy > *,
+.vz-client-capsules button,
+.vz-client-connector span,
+.vz-hero__negative,
+.vz-hero__negative-plane,
+.vz-section-liquid,
+.vz-footer-game__dino::after,
+.vz-footer-game__dino b {
+    transition: none !important;
     animation: none !important;
   }
 }
 
-@media (min-width: 901px) and (max-height: 840px) {
-  .vz-macbook {
-    --sw: clamp(300px, 33vw, 430px);
-  }
-
-  .vz-services [data-sec-head] {
-    margin-bottom: 26px;
-  }
-
-  .vz-service-caption {
-    min-height: 116px;
+@media (hover: none) {
+  .vz-hero__negative,
+.vz-section-liquid {
+    display: none;
   }
 }
 
 @media (max-width: 900px) {
+  .vz-min {
+    --section-space: 56px;
+  }
+
   .vz-preloader {
     padding: 24px;
   }
@@ -3222,7 +4602,7 @@ useHead(() => ({
   }
 
   .vz-nav__links,
-  .vz-nav__cta {
+.vz-nav__cta {
     display: none;
   }
 
@@ -3231,7 +4611,12 @@ useHead(() => ({
   }
 
   .vz-hero {
-    padding: 112px 20px 60px;
+    --hero-art-bottom: 118px;
+    padding: 112px 20px 24px;
+  }
+
+  .vz-hero > .vz-marquee {
+    margin-top: 16px;
   }
 
   .vz-hero h1 {
@@ -3239,9 +4624,8 @@ useHead(() => ({
   }
 
   .vz-hero__grid,
-  .vz-about__grid,
-  .vz-clients__grid,
-  .vz-services__grid {
+.vz-about__grid,
+.vz-clients__grid {
     grid-template-columns: 1fr;
   }
 
@@ -3250,36 +4634,103 @@ useHead(() => ({
   }
 
   .vz-hero__actions {
+    align-items: flex-start;
     justify-self: start;
   }
 
   .vz-hero__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 14px;
     margin-top: 44px;
   }
 
+  .vz-hero__stats span {
+    padding: 0 12px;
+  }
+
   .vz-about {
-    padding: 72px 20px 60px;
+    padding: 0 20px var(--section-space);
+  }
+
+  .vz-about__liquid {
+    display: none;
   }
 
   .vz-about__grid {
     gap: 22px;
   }
 
-  .vz-about__lead {
-    font-size: 22px;
+  .vz-about__brand {
+    min-height: 0;
   }
 
-  .vz-about__cols {
+  .vz-about__mark {
+    min-height: 158px;
+    margin-top: 22px;
+  }
+
+  .vz-about__mark span {
+    font-size: clamp(52px, 18vw, 82px);
+  }
+
+  .vz-about__roles {
+    margin-top: 22px;
+  }
+
+  .vz-about__note {
+    margin-top: 20px;
+    font-size: 15px;
+  }
+
+  .vz-about__copy {
+    justify-self: stretch;
+    max-width: none;
+  }
+
+  .vz-about__lead {
+    max-width: 14ch;
+    font-size: clamp(30px, 10vw, 42px);
+  }
+
+  .vz-about__principles {
     grid-template-columns: 1fr;
-    gap: 18px;
-    margin-top: 26px;
+    margin-top: 28px;
+  }
+
+  .vz-about__principles article {
+    grid-template-columns: 34px 1fr;
+    gap: 12px;
+    padding: 18px 0;
+  }
+
+  .vz-about__principles article + article {
+    padding-left: 0;
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .vz-about__metrics {
+    grid-template-columns: 1fr;
+    margin-top: 20px;
+  }
+
+  .vz-about__metrics div {
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .vz-about__metrics div + div {
+    border-top: 1px solid var(--border);
+    border-left: 0;
+  }
+
+  .vz-about__metrics span {
+    max-width: none;
+    margin-top: 10px;
   }
 
   .vz-sticky {
     align-items: flex-start;
-    padding-top: 84px;
-    padding-bottom: 20px;
   }
 
   .vz-sticky__inner {
@@ -3303,8 +4754,16 @@ useHead(() => ({
     line-height: 1.15;
   }
 
-  .vz-services h2 {
-    font-size: 26px;
+  .vz-stack {
+    padding: var(--section-space) 0;
+  }
+
+  .vz-stack__sphere {
+    display: none;
+  }
+
+  .vz-stack__timeline {
+    max-width: none;
   }
 
   .vz-stack__line {
@@ -3355,147 +4814,72 @@ useHead(() => ({
     gap: 6px;
   }
 
-  [data-stack-hint] {
-    display: none;
-  }
-
-  .vz-services {
-    min-height: 126vh;
-  }
-
-  .vz-services__grid {
-    gap: 18px;
-  }
-
-  .vz-services__nav {
-    display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 2px 0 8px;
-    border-top: 0;
-    scrollbar-width: none;
-  }
-
-  .vz-services__nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .vz-services__nav button {
-    width: auto;
-    min-width: max-content;
-    flex: 0 0 auto;
-    align-items: center;
-    gap: 8px;
-    padding: 9px 12px;
-    border: 1px solid var(--chipbd);
-    border-radius: 999px;
-    background: var(--bg);
-    box-shadow: 0 1px 0 rgb(0 0 0 / 4%);
-  }
-
-  .vz-services__nav button[data-active="true"] {
-    padding-left: 12px;
-    border-color: var(--ink);
-    background: var(--ink);
-  }
-
-  .vz-services__nav button span:first-child {
-    font-size: 10px;
-  }
-
-  .vz-services__nav button span:last-child {
-    max-width: 150px;
-    overflow: hidden;
-    font-size: 13px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .vz-services__nav button[data-active="true"] span:first-child,
-  .vz-services__nav button[data-active="true"] span:last-child {
-    color: var(--bg);
-  }
-
-  .vz-services__stage {
-    align-items: center;
-    gap: 22px;
-    min-height: 0;
-  }
-
-  .vz-services__devices {
-    min-height: 300px;
-  }
-
-  .vz-macbook {
-    --sw: min(80vw, 350px);
-  }
-
-  .vz-service-caption {
-    min-height: 152px;
-  }
-
-  .vz-service-panel h3 {
-    font-size: 22px;
-  }
-
-  .vz-service-panel p {
-    font-size: 14px;
-  }
-
-  .vz-service-panel [data-serv-metawrap] {
-    margin-top: 14px;
-  }
-
-  .vz-services .vz-scroll-hint {
-    margin-top: 16px;
-  }
-
   .vz-clients {
-    padding: 72px 20px;
-  }
-
-  .vz-stages {
-    padding: 80px 20px 92px;
+    padding: var(--section-space) 20px;
   }
 
   .vz-clients__grid {
     gap: 26px;
+    height: auto;
+    min-height: 0;
   }
 
-  .vz-stage-cards {
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin-top: 50px;
+  .vz-client-interactive {
+    width: 100%;
+    height: 430px;
+    min-height: 0;
   }
 
-  .vz-stage-cards > .vz-stage-card {
-    margin-top: 0;
-    margin-bottom: 18px;
+  .vz-client-capsules {
+    gap: 8px;
   }
 
-  .vz-stage-card {
-    min-height: 220px;
-    padding: 22px 22px 20px;
+  .vz-client-capsules button {
+    height: 58px;
+    min-height: 0;
+    padding: 10px 8px;
+    font-size: 13px;
   }
 
-  .vz-stage-card h3 {
-    font-size: 22px;
+  .vz-client-connector {
+    height: 36px;
   }
 
-  .vz-code-layer {
-    font-size: 10px;
+  .vz-client-connector span {
+    height: 28px;
   }
 
-  .vz-code-layer pre {
-    left: 14px;
+  .vz-client-copy {
+    height: 340px;
+    min-height: 0;
+    padding-top: 22px;
   }
 
-  .vz-code-layer pre:last-child {
-    display: none;
+  .vz-client-cube-field {
+    top: auto;
+    left: auto;
+    right: 0;
+    bottom: 8px;
+    width: 190px;
+    opacity: 0.46;
+    transform: translateX(16%);
+  }
+
+  .vz-client-copy h3 {
+    height: 4.7em;
+    max-width: none;
+    font-size: 25px;
+  }
+
+  .vz-client-copy p {
+    height: 7.75em;
+    min-height: 0;
+    font-size: 15px;
+    line-height: 1.55;
   }
 
   .vz-contacts {
-    padding: 88px 20px 80px;
+    padding: var(--section-space) 20px;
   }
 
   .vz-contacts h2 {
@@ -3534,24 +4918,35 @@ useHead(() => ({
     gap: 6px;
     padding: 16px 20px 34px;
   }
+
+  .vz-footer-game {
+    padding: 0 20px 44px;
+  }
+
+  .vz-footer-game__hud {
+    gap: 10px;
+    font-size: 10px;
+    letter-spacing: 0.11em;
+  }
+
+  .vz-footer-game__track {
+    height: 138px;
+  }
+
+  .vz-footer-game__letter {
+    bottom: 36px;
+    min-width: 48px;
+    font-size: 58px;
+  }
 }
 
 @media (max-width: 900px) and (max-height: 700px) {
-  .vz-sticky {
-    padding-top: 74px;
-  }
-
   .vz-stack-item > div:nth-child(3) > div {
     display: none;
   }
 
   .vz-stack-item p {
     margin-bottom: 0;
-  }
-
-  .vz-stage-card p,
-  .vz-service-panel [data-serv-metawrap] {
-    display: none;
   }
 }
 
@@ -3564,12 +4959,86 @@ useHead(() => ({
     font-size: clamp(26px, 8vw, 40px);
   }
 
-  .vz-stage-cards {
-    grid-template-columns: 1fr;
-  }
-
   .vz-footer__cols {
     gap: 22px 16px;
   }
 }
+
+/* Scoped prod transplants: Services + Development Anatomy only. */
+
+
+.vz-preloader__top,
+.vz-preloader__meta,
+.vz-section-label,
+.vz-hero__meta,
+.vz-hero__kicker,
+.vz-hero__stats,
+.vz-scroll-hint,
+.vz-footer__top,
+.vz-footer__cols > div > span,
+.vz-footer__sign > div,
+.vz-footer__legal {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vz-hero h1 > span,
+.vz-clients h2 > span,
+.vz-contacts h2 > span {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.vz-hero h1 span span,
+.vz-clients h2 span span,
+.vz-contacts h2 span span {
+  display: block;
+}
+
+.vz-about__cols p,
+.vz-sec-meta p {
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+.vz-stack {
+  position: relative;
+  border-top: 1px solid var(--border2);
+}
+
+.vz-sec-head h2,
+.vz-clients h2,
+.vz-contacts h2 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.vz-stack-item > div:last-child > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vz-stack-item span:not([data-dot], [data-halo]) {
+  padding: 7px 13px;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  color: var(--chipink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 900px) {
+
+  .vz-hero__grid,
+.vz-about__grid,
+.vz-clients__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
