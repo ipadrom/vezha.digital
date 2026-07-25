@@ -736,7 +736,7 @@
   position: relative;
   width: 100%;
   max-width: 640px;
-  min-height: 200px;
+  min-height: 246px;
 }
 
 .vz-service-panel {
@@ -749,10 +749,22 @@
   will-change: opacity, transform;
 }
 
-.vz-service-panel__title {
+.vz-service-panel > div.vz-service-panel__title {
+  position: relative;
+  top: auto;
+  right: auto;
+  z-index: 2;
   display: flex;
   align-items: baseline;
   gap: 14px;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: normal;
+  line-height: normal;
+  pointer-events: auto;
+  user-select: auto;
 }
 
 .vz-service-panel__title span {
@@ -767,6 +779,7 @@
     transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
   min-height: 2em;
   margin: 0;
+  color: var(--ink);
   font-size: clamp(23px, 2.3vw, 31px);
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -936,7 +949,7 @@
   }
 
   .vz-service-caption {
-    min-height: 170px;
+    min-height: 226px;
   }
 
   .vz-service-panel h3 {
