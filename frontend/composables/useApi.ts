@@ -47,15 +47,15 @@ export const useApi = () => {
   }
 
   // Public API
-  const getServiceId = (service_id: string) => fetchApi<IServices>(`/services/${service_id}`)
-  const getServices = () => fetchApi<IServices[]>('/services')
-  const getProjects = () => fetchApi<IProjects[]>('/projects')
-  const getAdvantages = () => fetchApi<IAdvantages[]>('/advantages')
-  const getTechStack = () => fetchApi<ITechStack[]>('/tech-stack')
-  const getWorkStages = () => fetchApi<IWorkStages[]>('/work-stages')
-  const getSettings = () => fetchApi<ISettingsResponse>('/settings')
-  const getClientTypes = () => fetchApi<IClientType[]>('/client-types')
-  const getAboutSection = () => fetchApi<IAboutSection[]>('/about-sections')
+  const getServiceId = (service_id: string, lang?: string) => fetchApi<IServices>(`/services/${service_id}`, {}, lang)
+  const getServices = (lang?: string) => fetchApi<IServices[]>('/services', {}, lang)
+  const getProjects = (lang?: string) => fetchApi<IProjects[]>('/projects', {}, lang)
+  const getAdvantages = (lang?: string) => fetchApi<IAdvantages[]>('/advantages', {}, lang)
+  const getTechStack = (lang?: string) => fetchApi<ITechStack[]>('/tech-stack', {}, lang)
+  const getWorkStages = (lang?: string) => fetchApi<IWorkStages[]>('/work-stages', {}, lang)
+  const getSettings = (lang?: string) => fetchApi<ISettingsResponse>('/settings', {}, lang)
+  const getClientTypes = (lang?: string) => fetchApi<IClientType[]>('/client-types', {}, lang)
+  const getAboutSection = (lang?: string) => fetchApi<IAboutSection[]>('/about-sections', {}, lang)
 
   const submitContact = (data: { name: string; contact: string; message: string }) => {
     // Convert reactive to plain object

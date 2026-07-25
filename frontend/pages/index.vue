@@ -2,33 +2,30 @@
   <div ref="rootRef" class="vz-min" :data-theme="theme">
     <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
       <div class="vz-preloader__top">
-        <span>2026 / Загрузка</span>
+        <span>{{ copy.preloader.loading }}</span>
         <span>Vezha / Digital</span>
       </div>
       <div class="vz-preloader__bottom">
         <div class="vz-preloader__count"><span>{{ introProgress.toString().padStart(2, "0") }}</span><span>%</span></div>
-        <div class="vz-preloader__meta">Пространство 000<br />Base · Moscow</div>
+        <div class="vz-preloader__meta">{{ copy.preloader.meta[0] }}<br />{{ copy.preloader.meta[1] }}</div>
       </div>
     </div>
 
-    <nav class="vz-nav" aria-label="Основная навигация">
+    <nav class="vz-nav" :aria-label="copy.nav.aria">
       <a class="vz-logo" href="#hero" aria-label="VEZHA Digital">
         <span>VEZHA</span>
         <small>Digital</small>
       </a>
       <div class="vz-nav__links" data-nav-links>
-        <a href="#about">Кто мы</a>
-        <a href="#stack">Стек</a>
-        <a href="#services">Услуги</a>
-        <a href="#stages">Этапы</a>
-        <a href="#contacts">Контакты</a>
+        <a v-for="item in navItems" :key="item.href" :href="item.href">{{ item.label }}</a>
       </div>
       <div class="vz-nav__actions">
-        <button class="vz-icon-button" type="button" aria-label="Сменить тему" @click="toggleTheme">
+        <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
           {{ theme === "dark" ? "☀" : "☾" }}
         </button>
-        <a class="vz-nav__cta" href="#contacts" data-nav-cta>Обсудить проект</a>
-        <button class="vz-menu-button" type="button" aria-label="Открыть меню" data-nav-toggle @click="isMenuOpen = true">
+        <LandingLanguageSwitcher />
+        <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
+        <button class="vz-menu-button" type="button" :aria-label="copy.nav.menuOpen" data-nav-toggle @click="isMenuOpen = true">
           <span></span>
           <span></span>
         </button>
@@ -41,15 +38,21 @@
           <span>VEZHA</span>
           <small>Digital</small>
         </div>
-        <button class="vz-icon-button" type="button" aria-label="Закрыть меню" @click="isMenuOpen = false">✕</button>
+        <div class="vz-mobile-menu__controls">
+          <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
+            {{ theme === "dark" ? "☀" : "☾" }}
+          </button>
+          <LandingLanguageSwitcher />
+          <button class="vz-icon-button" type="button" :aria-label="copy.nav.menuClose" @click="isMenuOpen = false">✕</button>
+        </div>
       </div>
       <div class="vz-mobile-menu__links">
         <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">{{ item.label }}</a>
       </div>
-      <a class="vz-mobile-menu__cta" href="#contacts" @click="isMenuOpen = false">Обсудить проект →</a>
+      <a class="vz-mobile-menu__cta" href="#contacts" @click="isMenuOpen = false">{{ copy.nav.mobileCta }}</a>
       <div class="vz-mobile-menu__bottom">
-        <span>2026 / Веб-студия</span>
-        <span>Base / Moscow</span>
+        <span>{{ copy.hero.meta[0] }}</span>
+        <span>{{ copy.hero.meta[1] }}</span>
       </div>
     </div>
 
@@ -85,32 +88,24 @@
 
       <div class="vz-hero__inner">
         <div class="vz-hero__meta" data-hero-meta>
-          <span>2026 / Веб-студия</span>
-          <span>Base / Moscow</span>
+          <span>{{ copy.hero.meta[0] }}</span>
+          <span>{{ copy.hero.meta[1] }}</span>
         </div>
         <div class="vz-hero__kicker">
-          <span>Engineering clarity through code</span>
+          <span>{{ copy.hero.kicker }}</span>
         </div>
         <h1>
-          <span><span data-reveal>Продукты,</span></span>
-          <span><span data-reveal>которые работают</span></span>
-          <span><span data-reveal>в вашем бизнесе</span></span>
+          <span v-for="line in copy.hero.title" :key="line"><span data-reveal>{{ line }}</span></span>
         </h1>
         <div class="vz-hero__grid" data-hero-grid>
-          <p>
-            Telegram Mini Apps, боты, сайты, интернет-магазины, AI и корпоративные системы.
-            Команда полного цикла — без субподряда и лишних звеньев.
-          </p>
+          <p>{{ copy.hero.text }}</p>
           <div class="vz-hero__actions">
-            <a class="vz-button vz-button--dark" href="#contacts">Обсудить проект →</a>
-            <a class="vz-button-link" href="#stack">Смотреть стек <span aria-hidden="true">↓</span></a>
+            <a class="vz-button vz-button--dark" href="#contacts">{{ copy.hero.cta }}</a>
+            <a class="vz-button-link" href="#stack">{{ copy.hero.stackLink }} <span aria-hidden="true">↓</span></a>
           </div>
         </div>
         <div class="vz-hero__stats" data-hero-stats>
-          <span>От 40 000 ₽</span>
-          <span>Запуск 1–4 недели</span>
-          <span>Полный цикл</span>
-          <span>Без субподряда</span>
+          <span v-for="stat in copy.hero.stats" :key="stat">{{ stat }}</span>
         </div>
       </div>
 
@@ -120,7 +115,7 @@
         </div>
       </div>
 
-      <div class="vz-marquee" aria-label="Направления разработки">
+      <div class="vz-marquee" :aria-label="copy.marqueeAria">
         <div>
           <span v-for="item in marqueeItems" :key="`a-${item}`">{{ item }} <i>✦</i></span>
           <span v-for="item in marqueeItems" :key="`b-${item}`" aria-hidden="true">{{ item }} <i>✦</i></span>
@@ -133,7 +128,7 @@
       <div class="vz-about__grid">
         <div class="vz-about__brand">
           <div class="vz-section-label">
-            <span>Кто мы</span>
+            <span>{{ copy.about.label }}</span>
             <i>/</i>
             <span data-secnum>01</span>
           </div>
@@ -144,186 +139,83 @@
           <div class="vz-about__roles">
             <div>
               <span>01</span>
-              <strong>Стратегия</strong>
+              <strong>{{ copy.about.roles[0] }}</strong>
             </div>
             <div>
               <span>02</span>
-              <strong>Дизайн</strong>
+              <strong>{{ copy.about.roles[1] }}</strong>
             </div>
             <div>
               <span>03</span>
-              <strong>Разработка</strong>
+              <strong>{{ copy.about.roles[2] }}</strong>
             </div>
           </div>
-          <p class="vz-about__note">Не агентская цепочка, а компактная продуктовая команда, которая отвечает за результат целиком.</p>
+          <p class="vz-about__note">{{ copy.about.note }}</p>
         </div>
         <div class="vz-about__copy">
           <div class="vz-about__eyebrow">
-            <span>Команда полного цикла</span>
-            <span>Один ответственный человек</span>
+            <span>{{ copy.about.eyebrow[0] }}</span>
+            <span>{{ copy.about.eyebrow[1] }}</span>
           </div>
           <p class="vz-about__lead">
-            Команда, которая ведёт проект до запуска
+            {{ copy.about.teamLead }}
           </p>
           <div class="vz-about__principles">
             <article>
               <span>01</span>
-              <p>Вникаем в задачу и предлагаем решения, а не просто закрываем ТЗ. Никакого субподряда и лишних звеньев между вами и результатом.</p>
+              <p>{{ copy.about.paragraphs[0] }}</p>
             </article>
             <article>
               <span>02</span>
-              <p>Нам важно, чтобы продукт реально работал в вашем бизнесе, а не выглядел красиво на сдаче и пылился после запуска.</p>
+              <p>{{ copy.about.paragraphs[1] }}</p>
             </article>
           </div>
           <div class="vz-about__metrics">
             <div>
               <strong>01</strong>
-              <span>человек ведёт проект</span>
+              <span>{{ copy.about.metrics[0] }}</span>
             </div>
             <div>
               <strong>0</strong>
-              <span>субподрядчиков в цепочке</span>
+              <span>{{ copy.about.metrics[1] }}</span>
             </div>
             <div>
               <strong>1-4</strong>
-              <span>недели до первого запуска</span>
+              <span>{{ copy.about.metrics[2] }}</span>
             </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section id="stack" data-stack-section class="vz-stack">
-      <div class="vz-sticky">
-        <div class="vz-sticky__inner">
-          <div class="vz-sec-head" data-sec-head>
-            <div>
-              <div class="vz-section-label">
-                <span>Стек</span>
-                <i>/</i>
-                <span data-secnum>02</span>
-              </div>
-              <h2>Стек подбирается под задачу, а не по трендам</h2>
-            </div>
-            <div class="vz-sec-meta" data-sec-meta>
-              <div><span data-stack-counter>01</span><i> / {{ toNumber(displayStackGroups.length) }}</i></div>
-              <p>Каждый инструмент проверен в реальных проектах и предсказуем в поддержке.</p>
-            </div>
-          </div>
+    <LandingStack
+      :groups="displayStackGroups"
+      :copy="copy.stack"
+      @active-change="handleStackActiveChange"
+      @sphere-ready="handleStackSphereReady"
+    />
 
-          <div
-            ref="stackSphereRef"
-            class="vz-stack__sphere"
-            :data-layer="activeStackLayer"
-            aria-hidden="true"
-          ></div>
-
-          <div class="vz-stack__timeline">
-            <div class="vz-stack__line" data-stack-line><span data-line-fill></span></div>
-            <article
-              v-for="(group, index) in displayStackGroups"
-              :key="group.title"
-              :aria-current="activeStackIndex === index ? 'step' : undefined"
-              :class="{ 'is-active': activeStackIndex === index, 'is-past': index < activeStackIndex }"
-              data-stack-item
-              class="vz-stack-item"
-              role="button"
-              tabindex="0"
-              @click="setActiveStackIndex(index)"
-              @keydown.enter.prevent="setActiveStackIndex(index)"
-              @keydown.space.prevent="setActiveStackIndex(index)"
-            >
-              <div data-label>{{ group.title }}</div>
-              <div>
-                <span data-halo></span>
-                <span data-dot></span>
-              </div>
-              <div>
-                <p>{{ group.description }}</p>
-                <div>
-                  <span v-for="item in group.items" :key="item">{{ item }}</span>
-                </div>
-              </div>
-            </article>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <section
-      id="services"
-      data-services-pin
-      class="vz-services"
-      :style="{ '--services-count': displayServices.length }"
-    >
-      <div class="vz-sticky">
-        <div class="vz-sticky__inner">
-          <div class="vz-sec-head" data-sec-head>
-            <div>
-              <div class="vz-section-label">
-                <span>Услуги</span>
-                <i>/</i>
-                <span data-secnum>03</span>
-              </div>
-              <h2><span><span data-reveal>Что мы делаем</span></span></h2>
-            </div>
-            <div class="vz-services__counter"><span data-serv-counter>01 / 07</span></div>
-          </div>
-
-          <div class="vz-services__grid" data-serv-grid>
-            <div class="vz-services__nav" data-serv-list>
-              <button
-                v-for="(service, index) in displayServices"
-                :key="service.title"
-                data-serv-nav
-                type="button"
-                @click="scrollToService(index)"
-              >
-                <span data-serv-nav-num>{{ service.n }}</span>
-                <span data-serv-nav-label>{{ service.title }}</span>
-              </button>
-            </div>
-
-            <div class="vz-services__stage" data-serv-stage>
-              <article
-                v-for="service in displayServices"
-                :key="service.n"
-                data-serv-panel
-                class="vz-service-panel"
-              >
-                <div>{{ service.n }}</div>
-                <div>
-                  <h3>{{ service.title }}</h3>
-                  <p>{{ service.desc }}</p>
-                  <div data-serv-metawrap>
-                    <span v-for="meta in service.meta" :key="meta">{{ meta }}</span>
-                  </div>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <div class="vz-services__bar"><span data-serv-bar></span></div>
-        </div>
-      </div>
-    </section>
+    <LandingServices
+      :services="displayServices"
+      :copy="copy.services"
+      @active-change="handleServiceActiveChange"
+    />
 
     <section id="clients" class="vz-clients">
       <div class="vz-clients__grid" data-clients-grid>
         <div>
           <div class="vz-section-label">
-            <span>Для любых клиентов</span>
+            <span>{{ copy.clients.label }}</span>
             <i>/</i>
-            <span data-secnum>04</span>
+            <span aria-hidden="true">✦</span>
           </div>
-          <h2><span><span data-reveal>От частного специалиста до крупной компании</span></span></h2>
+          <h2><span><span data-reveal>{{ copy.clients.title }}</span></span></h2>
         </div>
         <div
           class="vz-client-interactive"
           :style="{ '--active-client-index': activeClientSegment }"
         >
-          <div class="vz-client-capsules" role="tablist" aria-label="Тип клиента">
+          <div class="vz-client-capsules" role="tablist" :aria-label="copy.clients.tabAria">
             <button
               v-for="(segment, index) in clientSegments"
               :id="`client-tab-${segment.key}`"
@@ -364,27 +256,11 @@
       </div>
     </section>
 
-    <section id="stages" class="vz-stages">
-      <div class="vz-wrap">
-        <div class="vz-stages__head">
-          <div class="vz-section-label">
-            <span>Этапы работы</span>
-            <i>/</i>
-            <span data-secnum>05</span>
-          </div>
-          <h2><span><span data-reveal>Полный контроль на каждом шаге</span></span></h2>
-          <p>Фиксированные сроки, регулярные отчёты и согласование на каждом этапе. Никаких сюрпризов — только предсказуемый результат.</p>
-        </div>
-        <div class="vz-stage-list">
-          <article v-for="stage in displayStages" :key="stage.n" data-stages-row class="vz-stage-row">
-            <span>{{ stage.n }}</span>
-            <h3>{{ stage.title }}</h3>
-            <p>{{ stage.desc }}</p>
-            <span>{{ stage.dur }}</span>
-          </article>
-        </div>
-      </div>
-    </section>
+    <LandingDevelopmentAnatomy
+      :stages="displayStages"
+      :copy="copy.stages"
+      @revealed="syncNegativeWorlds(true)"
+    />
 
     <section id="contacts" class="vz-contacts">
       <div class="vz-contacts__art" aria-hidden="true">
@@ -393,13 +269,13 @@
       </div>
       <div class="vz-contacts__inner">
         <div class="vz-section-label">
-          <span>Контакты</span>
+          <span>{{ copy.contacts.label }}</span>
           <i>/</i>
-          <span data-secnum>06</span>
+          <span data-secnum>05</span>
         </div>
-        <h2><span><span data-reveal>Обсудим проект и рассчитаем точную стоимость</span></span></h2>
+        <h2><span><span data-reveal>{{ copy.contacts.title }}</span></span></h2>
         <div class="vz-contacts__buttons" data-contacts-btns>
-          <a class="vz-button vz-button--dark" :href="`mailto:${contactEmail}`">Написать нам</a>
+          <a class="vz-button vz-button--dark" :href="`mailto:${contactEmail}`">{{ copy.contacts.emailCta }}</a>
           <a class="vz-button vz-button--light" :href="`mailto:${contactEmail}`">{{ contactEmail }}</a>
         </div>
       </div>
@@ -407,49 +283,47 @@
 
     <footer class="vz-footer">
       <div class="vz-footer__top" data-footer-top>
-        <span>Всё по проекту. В одном месте. Спокойно.</span>
-        <a href="#hero">Конец полотна ↑ В начало</a>
+        <span>{{ copy.footer.tagline }}</span>
+        <a href="#hero">{{ copy.footer.topLink }}</a>
       </div>
       <div class="vz-footer__cols" data-footer-cols>
         <div>
-          <span>Year</span>
+          <span>{{ copy.footer.yearLabel }}</span>
           <strong>2026</strong>
         </div>
         <div>
-          <span>Base</span>
-          <p>Москва<br />Россия</p>
+          <span>{{ copy.footer.baseLabel }}</span>
+          <p>{{ copy.footer.base[0] }}<br />{{ copy.footer.base[1] }}</p>
         </div>
         <div>
-          <span>Contact</span>
+          <span>{{ copy.footer.contactLabel }}</span>
           <nav>
             <a :href="`mailto:${contactEmail}`">{{ contactEmail }} →</a>
             <a href="#hero">vezha.digital ↗</a>
           </nav>
         </div>
         <div>
-          <span>Навигация</span>
+          <span>{{ copy.footer.navLabel }}</span>
           <nav>
-            <a href="#about">Кто мы</a>
-            <a href="#stack">Стек</a>
-            <a href="#services">Услуги</a>
-            <a href="#stages">Этапы</a>
+            <a v-for="item in footerNavItems" :key="item.href" :href="item.href">{{ item.label }}</a>
           </nav>
         </div>
       </div>
       <div class="vz-footer__sign" data-footer-sign>
         <div>
-          <span>2026 / Sign-off</span>
+          <span>{{ copy.footer.signOff }}</span>
           <span>vezha.digital</span>
         </div>
         <strong data-clip-reveal><span data-footer-word>VEZHA</span></strong>
       </div>
       <div class="vz-footer__legal" data-footer-legal>
         <span>© 2026 · VEZHA DIGITAL</span>
-        <span>ИП Анищенко Д. А. · ОГРНИП 326774600075626 · ИНН 773421830976</span>
+        <span>{{ copy.footer.legal }}</span>
       </div>
       <div
         ref="footerGameRef"
         class="vz-footer-game"
+        :aria-label="copy.footer.game.aria"
         :class="{
           'is-running': footerGame.running,
           'is-paused': !footerGame.running && !footerGame.crashed,
@@ -458,7 +332,7 @@
         @pointerdown.prevent="jumpFooterDino"
       >
         <div class="vz-footer-game__hud">
-          <span>VEZHA RUN</span>
+          <span>{{ copy.footer.game.name }}</span>
           <span>{{ footerGameStatus }}</span>
           <span>{{ footerGameScore }}</span>
         </div>
@@ -495,6 +369,8 @@ import type { IServices } from "~/utils/interfaces/IServices";
 import type { ISettings } from "~/utils/interfaces/ISettings";
 import type { ITechStack } from "~/utils/interfaces/ITechStack";
 import type { IWorkStages } from "~/utils/interfaces/IWorkStages";
+import enMessagesRaw from "~/locales/en.json?raw";
+import ruMessagesRaw from "~/locales/ru.json?raw";
 
 definePageMeta({
   layout: false,
@@ -554,6 +430,108 @@ type SectionLiquidTarget = {
 
 type ThreeModule = typeof import("three");
 
+type LocaleCode = "ru" | "en";
+type ThemeMode = "light" | "dark";
+type NavItem = {
+  href: string;
+  label: string;
+};
+
+type LandingCopy = {
+  preloader: {
+    loading: string;
+    meta: [string, string];
+  };
+  nav: {
+    aria: string;
+    themeAria: string;
+    langAria: string;
+    menuOpen: string;
+    menuClose: string;
+    cta: string;
+    mobileCta: string;
+    items: NavItem[];
+  };
+  hero: {
+    meta: [string, string];
+    kicker: string;
+    title: string[];
+    text: string;
+    cta: string;
+    stackLink: string;
+    stats: string[];
+  };
+  marqueeAria: string;
+  marqueeItems: string[];
+  about: {
+    label: string;
+    lead: string;
+    paragraphs: string[];
+    roles: [string, string, string];
+    note: string;
+    eyebrow: [string, string];
+    teamLead: string;
+    metrics: [string, string, string];
+  };
+  stack: {
+    label: string;
+    title: string;
+    meta: string;
+    hint: [string, string];
+    groups: StackGroup[];
+  };
+  services: {
+    label: string;
+    title: string;
+    hint: [string, string];
+    fallback: DisplayService[];
+    fallbackTitle: string;
+    fallbackDesc: string;
+  };
+  clients: {
+    label: string;
+    title: string;
+    tags: string[];
+    tabAria: string;
+    segments: ClientSegment[];
+  };
+  stages: {
+    label: string;
+    title: string;
+    text: string;
+    fallback: DisplayStage[];
+    fallbackDuration: string;
+  };
+  contacts: {
+    label: string;
+    title: string;
+    emailCta: string;
+  };
+  footer: {
+    tagline: string;
+    topLink: string;
+    base: [string, string];
+    yearLabel: string;
+    baseLabel: string;
+    contactLabel: string;
+    signOff: string;
+    navLabel: string;
+    legal: string;
+    game: {
+      name: string;
+      aria: string;
+      ready: string;
+      running: string;
+      crash: string;
+    };
+  };
+  head: {
+    title: string;
+    description: string;
+    ogTitle: string;
+    ogDescription: string;
+  };
+};
 const {
   getServices,
   getProjects,
@@ -562,6 +540,7 @@ const {
   getWorkStages,
   getSettings,
 } = useApi();
+const { locale } = useI18n();
 
 const rootRef = ref<HTMLElement | null>(null);
 const heroRef = ref<HTMLElement | null>(null);
@@ -574,14 +553,14 @@ const footerGameRef = ref<HTMLElement | null>(null);
 const preloaderRef = ref<HTMLElement | null>(null);
 const showPreloader = ref(true);
 const introProgress = ref(0);
-const theme = ref("light");
+const theme = ref<ThemeMode>("light");
 const isMenuOpen = ref(false);
 const activeStackIndex = ref(0);
 const activeClientSegment = ref(0);
 const enableMotionLayer = true;
 const enableSectionLiquid = true;
 
-let activeServiceIndex = 0;
+const activeServiceIndex = ref(0);
 let heroFxRaf = 0;
 let heroFxLastFrame = 0;
 let sectionLiquidRaf = 0;
@@ -599,10 +578,6 @@ let aboutLiquidCleanup: (() => void) | null = null;
 let stackSphereCleanup: (() => void) | null = null;
 let clientCubeCleanup: (() => void) | null = null;
 let updateClientCubeStage: ((index: number) => void) | null = null;
-let stackWheelAccumulator = 0;
-let stackWheelIsLocked = false;
-let stackWheelLockUntil = 0;
-let stackWheelSnapUntil = 0;
 
 const heroFxState = {
   active: false,
@@ -660,90 +635,36 @@ const footerGame = ref({
   velocityY: 0,
 });
 
-const navItems = [
-  { href: "#about", label: "Кто мы" },
-  { href: "#stack", label: "Стек" },
-  { href: "#services", label: "Услуги" },
-  { href: "#stages", label: "Этапы" },
-  { href: "#contacts", label: "Контакты" },
-];
-
-const marqueeItems = [
-  "Веб-разработка под ключ",
-  "Telegram Mini Apps",
-  "Telegram боты",
-  "Веб-сайты",
-  "Интернет-магазины",
-  "AI и автоматизация",
-  "Корпоративные системы",
-];
-
-const fallbackServices: DisplayService[] = [
-  { n: "01", title: "Telegram Mini Apps", desc: "Полноценные приложения внутри Telegram: каталог, профиль, оплата.", meta: ["Каталог", "Оплата", "Профиль"] },
-  { n: "02", title: "Telegram боты", desc: "Автоматизация продаж, записи и поддержки прямо в чате.", meta: ["Продажи", "Запись", "Поддержка"] },
-  { n: "03", title: "Веб-сайты", desc: "Лендинги и корпоративные сайты, которые быстро грузятся и продают.", meta: ["Лендинги", "Корпоративные", "SEO"] },
-  { n: "04", title: "Интернет-магазины", desc: "Каталог, корзина, оплата и интеграции со складом и CRM.", meta: ["Корзина", "Оплата", "CRM"] },
-  { n: "05", title: "AI и автоматизация", desc: "Ассистенты и обработка заявок на стороне ИИ — меньше рутины.", meta: ["Ассистенты", "Заявки", "Интеграции"] },
-  { n: "06", title: "Корпоративные системы", desc: "Внутренние порталы, CRM и учётные системы под ваши процессы.", meta: ["CRM", "Порталы", "Учёт"] },
-  { n: "07", title: "Мобильные приложения", desc: "Нативные и кроссплатформенные приложения для iOS и Android.", meta: ["iOS", "Android", "PWA"] },
-];
-
-const fallbackStackGroups: StackGroup[] = [
-  { title: "Frontend", description: "Интерфейсы, которые быстро грузятся и удобно работают на любом устройстве.", items: ["React", "Vue 3", "Next.js", "TypeScript", "Tailwind"] },
-  { title: "Backend", description: "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.", items: ["Python", "FastAPI", "PostgreSQL", "Redis"] },
-  { title: "DevOps", description: "Стабильный деплой и мониторинг: предсказуемые релизы и аптайм без сюрпризов.", items: ["Docker", "Nginx", "CI/CD", "Linux"] },
-  { title: "Mobile", description: "Мобильные приложения и PWA с нативным ощущением на iOS и Android.", items: ["React Native", "Expo", "PWA", "Flutter"] },
-];
 
 const devOpsTechNames = new Set(["docker", "nginx", "ci/cd", "ci cd", "linux", "kubernetes", "github actions", "gitlab ci"]);
 
-const clientSegments: ClientSegment[] = [
-  {
-    key: "private",
-    label: "Частные лица",
-    eyebrow: "Личный запуск",
-    title: "Сайт, бот или мини-продукт без лишней сложности",
-    text: "Собираем понятную первую версию: портфолио, лендинг, запись, оплату или Telegram-инструмент. Берём на себя структуру, дизайн, запуск и спокойное сопровождение после релиза.",
-  },
-  {
-    key: "small-business",
-    label: "Малый/средний бизнес",
-    eyebrow: "Продажи и процессы",
-    title: "Цифровой контур, который помогает расти каждый день",
-    text: "Делаем сайты, магазины, Mini Apps, CRM-связки и автоматизацию заявок. Подключаем оплату, аналитику, склад, Telegram и внутренние сценарии, чтобы команда тратила меньше времени на ручную работу.",
-  },
-  {
-    key: "enterprise",
-    label: "Корпорации",
-    eyebrow: "Системный уровень",
-    title: "Надёжные сервисы под сложные команды и регламенты",
-    text: "Проектируем корпоративные порталы, личные кабинеты, интеграции и админ-панели с ролями, безопасностью и предсказуемым релизным процессом. Документируем решения и держим архитектуру масштабируемой.",
-  },
-];
-
-const fallbackStages: DisplayStage[] = [
-  { n: "01", title: "Анализ", desc: "Изучаем бизнес, цели и аудиторию, фиксируем техническое задание.", dur: "1–3 дня" },
-  { n: "02", title: "Проектирование", desc: "Прототипы экранов, архитектура системы и UX-логика продукта.", dur: "2–4 дня" },
-  { n: "03", title: "Дизайн", desc: "Визуальная концепция, UI Kit и адаптив под устройства.", dur: "3–7 дней" },
-  { n: "04", title: "Разработка", desc: "Frontend, Backend, API-интеграции и code review.", dur: "7–21 день" },
-  { n: "05", title: "Тестирование", desc: "Функциональное и нагрузочное тестирование, фикс багов.", dur: "2–5 дней" },
-  { n: "06", title: "Запуск", desc: "Деплой на сервер, настройка CI/CD и мониторинга.", dur: "1–2 дня" },
-  { n: "07", title: "Поддержка", desc: "Мониторинг, обновления, доработки и консультации.", dur: "Ongoing" },
-];
+const currentLocale = computed<LocaleCode>(() => (locale.value === "ru" ? "ru" : "en"));
+const enMessages = JSON.parse(enMessagesRaw) as { landing: LandingCopy };
+const ruMessages = JSON.parse(ruMessagesRaw) as { landing: LandingCopy };
+const landingMessages = { ru: ruMessages.landing, en: enMessages.landing };
+const copy = computed(() => landingMessages[currentLocale.value] as LandingCopy);
+const clientSegments = computed(() => copy.value.clients.segments);
+const navItems = computed(() => copy.value.nav.items);
+const footerNavItems = computed(() => navItems.value.filter((item) => item.href !== "#contacts"));
+const marqueeItems = computed(() => copy.value.marqueeItems);
+const fallbackServices = computed(() => copy.value.services.fallback);
+const fallbackStackGroups = computed(() => copy.value.stack.groups);
+const fallbackClients = computed(() => copy.value.clients.tags);
+const fallbackStages = computed(() => copy.value.stages.fallback);
 
 const displayServices = computed<DisplayService[]>(() => {
-  if (!services.value.length) return fallbackServices;
+  if (!services.value.length) return fallbackServices.value;
 
   return services.value.slice(0, 7).map((service, index) => ({
     n: toNumber(index + 1),
-    title: service.name || service.title || fallbackServices[index]?.title || "Услуга",
-    desc: service.description || service.about || fallbackServices[index]?.desc || "Проектируем и запускаем продукт под задачу бизнеса.",
-    meta: service.features?.slice(0, 3).map((feature) => feature.text) || fallbackServices[index]?.meta || [],
+    title: service.name || service.title || fallbackServices.value[index]?.title || copy.value.services.fallbackTitle,
+    desc: service.description || service.about || fallbackServices.value[index]?.desc || copy.value.services.fallbackDesc,
+    meta: service.features?.slice(0, 3).map((feature) => feature.text) || fallbackServices.value[index]?.meta || [],
   }));
 });
 
 const displayStackGroups = computed<StackGroup[]>(() => {
-  if (!techStack.value.length) return fallbackStackGroups;
+  if (!techStack.value.length) return fallbackStackGroups.value;
 
   const grouped = techStack.value.reduce<Record<string, string[]>>((acc, item) => {
     const name = item.name?.trim();
@@ -757,7 +678,7 @@ const displayStackGroups = computed<StackGroup[]>(() => {
     return acc;
   }, {});
 
-  return fallbackStackGroups.map((fallback) => {
+  return fallbackStackGroups.value.map((fallback) => {
     const key = normalizeStackCategory(fallback.title);
 
     return {
@@ -767,29 +688,22 @@ const displayStackGroups = computed<StackGroup[]>(() => {
   });
 });
 
-const activeClient = computed(() => clientSegments[activeClientSegment.value] || clientSegments[0]);
-const activeStackLayer = computed(() => {
-  const title = displayStackGroups.value[activeStackIndex.value]?.title?.toLowerCase() || "frontend";
-  if (title.includes("backend")) return "core";
-  if (title.includes("devops")) return "bridge";
-  if (title.includes("mobile")) return "all";
-  return "surface";
-});
+const activeClient = computed(() => clientSegments.value[activeClientSegment.value] || clientSegments.value[0]);
 const footerGameScore = computed(() => Math.floor(footerGame.value.score).toString().padStart(4, "0"));
 const footerGameStatus = computed(() => {
-  if (footerGame.value.crashed) return "CRASH";
-  if (footerGame.value.running) return "RUNNING";
-  return footerGame.value.status;
+  if (footerGame.value.crashed) return copy.value.footer.game.crash;
+  if (footerGame.value.running) return copy.value.footer.game.running;
+  return copy.value.footer.game.ready;
 });
 
 const displayStages = computed<DisplayStage[]>(() => {
-  if (!workStages.value.length) return fallbackStages;
+  if (!workStages.value.length) return fallbackStages.value;
 
   return workStages.value.slice(0, 7).map((stage, index) => ({
     n: toNumber(stage.step_number || index + 1),
     title: stage.title,
     desc: stage.description || stage.full_description,
-    dur: stage.duration || fallbackStages[index]?.dur || "По плану",
+    dur: stage.duration || fallbackStages.value[index]?.dur || copy.value.stages.fallbackDuration,
   }));
 });
 
@@ -797,10 +711,6 @@ const contactEmail = computed(() => settings.value?.contact_email || "contact@ve
 
 function toNumber(value: number) {
   return value.toString().padStart(2, "0");
-}
-
-function clampServiceIndex(index: number, length = displayServices.value.length) {
-  return Math.max(0, Math.min(Math.max(0, length - 1), index));
 }
 
 function clampStackIndex(index: number, length = displayStackGroups.value.length) {
@@ -841,205 +751,42 @@ function toggleTheme() {
   requestAnimationFrame(() => syncNegativeWorlds(true));
 }
 
-function setActiveStackIndex(index: number) {
-  const nextIndex = clampStackIndex(index);
-  if (activeStackIndex.value === nextIndex) return;
+let publicDataRequestId = 0;
 
-  activeStackIndex.value = nextIndex;
-  updateScrollEffects();
-  syncNegativeWorlds(true);
-}
+async function loadPublicData(lang: LocaleCode = currentLocale.value) {
+  const requestId = ++publicDataRequestId;
+  try {
+    const [
+      servicesData,
+      projectsData,
+      advantagesData,
+      techStackData,
+      workStagesData,
+      settingsData,
+    ] = await Promise.all([
+      getServices(lang),
+      getProjects(lang),
+      getAdvantages(lang),
+      getTechStack(lang),
+      getWorkStages(lang),
+      getSettings(lang),
+    ]);
 
-function normalizeWheelDeltaY(event: WheelEvent) {
-  if (event.deltaMode === 1) return event.deltaY * 16;
-  if (event.deltaMode === 2) return event.deltaY * window.innerHeight;
-  return event.deltaY;
-}
+    if (requestId !== publicDataRequestId || lang !== currentLocale.value) return;
 
-function isStackWheelLockReady(section: HTMLElement) {
-  const rect = section.getBoundingClientRect();
-  const viewportHeight = window.innerHeight;
-  const topGuard = window.innerWidth > 900 ? 76 : 56;
-  const bottomGuard = window.innerWidth > 900 ? 72 : 44;
-  const topLockTolerance = window.innerWidth > 900 ? 14 : 10;
-  const maxVisibleHeight = Math.min(rect.height, viewportHeight);
-  if (maxVisibleHeight <= 0) return false;
-
-  const visibleHeight = clampValue(
-    Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0),
-    0,
-    maxVisibleHeight,
-  );
-  const visibleRatio = visibleHeight / maxVisibleHeight;
-  const sectionFitsViewport = rect.height <= viewportHeight - topGuard - bottomGuard;
-
-  if (sectionFitsViewport) {
-    const targetTop = getStackLockTargetTop(section);
-    const topTolerance = Math.max(48, viewportHeight * 0.055);
-
-    return (
-      Math.abs(rect.top - targetTop) <= topTolerance &&
-      visibleRatio >= 0.98
-    );
+    services.value = servicesData;
+    projects.value = projectsData;
+    advantages.value = advantagesData;
+    techStack.value = techStackData;
+    workStages.value = workStagesData;
+    settings.value = settingsData.settings;
+  } catch (error) {
+    if (requestId !== publicDataRequestId) return;
+    console.info("VEZHA public data fallback is active:", error);
   }
-
-  return (
-    rect.top <= topLockTolerance &&
-    rect.top >= -topGuard &&
-    rect.bottom >= viewportHeight - bottomGuard &&
-    visibleRatio >= 0.94
-  );
 }
 
-function getStackLockTargetTop(section: HTMLElement) {
-  const rect = section.getBoundingClientRect();
-  const viewportHeight = window.innerHeight;
-  const topGuard = window.innerWidth > 900 ? 76 : 56;
-  const bottomGuard = window.innerWidth > 900 ? 72 : 44;
-  const sectionFitsViewport = rect.height <= viewportHeight - topGuard - bottomGuard;
-
-  if (!sectionFitsViewport) return 0;
-
-  const freeSpace = Math.max(0, viewportHeight - rect.height);
-  return Math.max(topGuard, freeSpace / 2);
-}
-
-function getStackLockScrollY(section: HTMLElement) {
-  const rect = section.getBoundingClientRect();
-  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-  return clampValue(window.scrollY + rect.top - getStackLockTargetTop(section), 0, maxScroll);
-}
-
-function shouldSnapStackIntoLock(section: HTMLElement, direction: number) {
-  const rect = section.getBoundingClientRect();
-  const viewportHeight = window.innerHeight;
-  const topGuard = window.innerWidth > 900 ? 76 : 56;
-  const bottomGuard = window.innerWidth > 900 ? 72 : 44;
-  const snapLine = Math.max(28, topGuard * 0.46);
-  const targetTop = getStackLockTargetTop(section);
-  const sectionFitsViewport = rect.height <= viewportHeight - topGuard - bottomGuard;
-  const atStart = activeStackIndex.value <= 0;
-  const atEnd = activeStackIndex.value >= displayStackGroups.value.length - 1;
-
-  if (direction > 0 && atEnd && rect.top < topGuard + 48 && rect.bottom > 0) return false;
-  if (direction < 0 && atStart && rect.top > -48 && rect.top < viewportHeight) return false;
-
-  if (sectionFitsViewport) {
-    const snapWindow = Math.max(84, viewportHeight * 0.095);
-
-    return (
-      rect.top >= targetTop - snapWindow &&
-      rect.top <= targetTop + snapWindow &&
-      rect.bottom <= viewportHeight + bottomGuard &&
-      rect.bottom >= rect.height * 0.62
-    );
-  }
-
-  if (direction > 0) {
-    return (
-      rect.top > -topGuard &&
-      rect.top <= snapLine &&
-      rect.bottom >= viewportHeight - bottomGuard
-    );
-  }
-
-  return (
-    rect.bottom >= viewportHeight - snapLine &&
-    rect.bottom <= viewportHeight + topGuard &&
-    rect.top <= topGuard
-  );
-}
-
-function snapStackIntoLock(section: HTMLElement, direction: number, now: number) {
-  stackWheelAccumulator = 0;
-  stackWheelIsLocked = true;
-  stackWheelSnapUntil = now + 420;
-  stackWheelLockUntil = now + 520;
-
-  setActiveStackIndex(direction > 0 ? 0 : displayStackGroups.value.length - 1);
-  forceSectionLiquidTarget("stack");
-  window.scrollTo({
-    top: getStackLockScrollY(section),
-    behavior: "smooth",
-  });
-}
-
-function releaseStackFromLock(section: HTMLElement, direction: number, now: number) {
-  const rect = section.getBoundingClientRect();
-  const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-  const distance = Math.min(rect.height, window.innerHeight * 0.82);
-  const targetY = clampValue(window.scrollY + distance * direction, 0, maxScroll);
-
-  stackWheelAccumulator = 0;
-  stackWheelIsLocked = false;
-  stackWheelSnapUntil = now + 360;
-  stackWheelLockUntil = now + 360;
-
-  window.scrollTo({
-    top: targetY,
-    behavior: "smooth",
-  });
-}
-
-function handleStackWheel(event: WheelEvent) {
-  if (window.innerWidth <= 900 || displayStackGroups.value.length < 2) return;
-  if (event.ctrlKey) return;
-  const section = rootRef.value?.querySelector<HTMLElement>("[data-stack-section]");
-  if (!section) return;
-
-  const now = performance.now();
-  const delta = normalizeWheelDeltaY(event);
-  if (delta === 0) return;
-  const direction = delta > 0 ? 1 : -1;
-
-  if (now < stackWheelSnapUntil) {
-    if (!event.cancelable) return;
-    event.preventDefault();
-    event.stopPropagation();
-    return;
-  }
-
-  if (!isStackWheelLockReady(section)) {
-    stackWheelAccumulator = 0;
-    stackWheelIsLocked = false;
-    if (!shouldSnapStackIntoLock(section, direction)) return;
-    if (!event.cancelable) return;
-    event.preventDefault();
-    event.stopPropagation();
-    snapStackIntoLock(section, direction, now);
-    return;
-  }
-
-  if (!stackWheelIsLocked) {
-    stackWheelIsLocked = true;
-    forceSectionLiquidTarget("stack");
-  }
-
-  const atStart = activeStackIndex.value <= 0;
-  const atEnd = activeStackIndex.value >= displayStackGroups.value.length - 1;
-
-  if ((direction < 0 && atStart) || (direction > 0 && atEnd)) {
-    stackWheelAccumulator = 0;
-    if (!event.cancelable) return;
-    event.preventDefault();
-    event.stopPropagation();
-    releaseStackFromLock(section, direction, now);
-    return;
-  }
-
-  if (!event.cancelable) return;
-  event.preventDefault();
-  event.stopPropagation();
-
-  if (now < stackWheelLockUntil) return;
-
-  stackWheelAccumulator += delta;
-  if (Math.abs(stackWheelAccumulator) < 64) return;
-
-  setActiveStackIndex(activeStackIndex.value + (stackWheelAccumulator > 0 ? 1 : -1));
-  stackWheelAccumulator = 0;
-  stackWheelLockUntil = now + 520;
-}
+let localeWatcherReady = false;
 
 function createAboutLiquidEnvironment(THREE: ThreeModule) {
   const canvas = document.createElement("canvas");
@@ -1435,7 +1182,7 @@ async function setupStackSphereScene() {
     };
 
     const getLayerTargets = () => {
-      const layer = activeStackLayer.value;
+      const layer = host.dataset.layer || "surface";
       if (layer === "core") return { bridge: 0.16, core: 1, surface: 0.12 };
       if (layer === "bridge") return { bridge: 1, core: 0.38, surface: 0.26 };
       if (layer === "all") return { bridge: 0.82, core: 0.82, surface: 0.86 };
@@ -1708,13 +1455,13 @@ async function setupClientCubeScene() {
     let frameId = 0;
     let isVisible = true;
     let lastFrame = performance.now();
-    let currentStage = clampValue(activeClientSegment.value, 0, clientSegments.length - 1);
+    let currentStage = clampValue(activeClientSegment.value, 0, clientSegments.value.length - 1);
     let transitionFromStage = currentStage;
     let stageChangedAt = performance.now();
 
     const render = () => renderer.render(scene, camera);
     const setStage = (index: number, immediate = false) => {
-      const nextStage = clampValue(index, 0, clientSegments.length - 1);
+      const nextStage = clampValue(index, 0, clientSegments.value.length - 1);
       transitionFromStage = immediate ? nextStage : currentStage;
       currentStage = nextStage;
       stageChangedAt = performance.now();
@@ -2151,11 +1898,6 @@ function isSectionLiquidTargetReadyToEnter(target: SectionLiquidTarget, directio
 function getNextSectionLiquidTarget(targets: SectionLiquidTarget[]) {
   const direction = sectionLiquidScrollDirection;
 
-  if (stackWheelIsLocked) {
-    const stackTarget = targets.find((target) => target.key === "stack");
-    if (stackTarget && stackTarget.key !== sectionLiquidState.lastTargetKey) return stackTarget;
-  }
-
   if (direction) {
     const visibleTargets = targets.filter(isSectionLiquidTargetVisible);
     const directionalFromViewport = visibleTargets.filter((target) => isSectionLiquidTargetReadyToEnter(target, direction));
@@ -2261,22 +2003,6 @@ function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
   sectionLiquidState.targetX = targetX;
   sectionLiquidState.targetY = targetY;
   sectionLiquidState.targetRadius = targetRadius;
-}
-
-function forceSectionLiquidTarget(key: string, snap = false) {
-  if (!enableSectionLiquid) return;
-
-  const target = getSectionLiquidTargets().find((item) => item.key === key);
-  if (!target) return;
-
-  commitSectionLiquidTarget(target, snap);
-  updateNegativeWorldPositions();
-
-  const overlay = sectionLiquidRef.value;
-  if (!overlay) return;
-
-  overlay.classList.toggle("is-active", key !== "hero");
-  overlay.dataset.activeKey = key;
 }
 
 function startSectionLiquid() {
@@ -2705,84 +2431,27 @@ function scanSectionEntrances() {
 }
 
 function updateScrollEffects() {
-  const root = rootRef.value;
-  if (!root) return;
   scanSectionEntrances();
   scanReveals();
-
-  const stack = root.querySelector<HTMLElement>("[data-stack-section]");
-  const stackItems = root.querySelectorAll<HTMLElement>("[data-stack-item]");
-  const stackFill = root.querySelector<HTMLElement>("[data-line-fill]");
-  const stackCounter = root.querySelector<HTMLElement>("[data-stack-counter]");
-
-  if (stack && stackItems.length) {
-    const active = clampStackIndex(activeStackIndex.value, stackItems.length);
-    activeStackIndex.value = active;
-    const progress = stackItems.length > 1 ? active / (stackItems.length - 1) : 1;
-    updateStackSpherePosition();
-
-    stackItems.forEach((item, index) => {
-      const isActive = index === active;
-      const isPast = index < active;
-      item.style.opacity = "1";
-      item.style.transform = "translateY(0)";
-
-      const dot = item.querySelector<HTMLElement>("[data-dot]");
-      const label = item.querySelector<HTMLElement>("[data-label]");
-      const halo = item.querySelector<HTMLElement>("[data-halo]");
-      if (dot) {
-        dot.style.background = isActive ? "var(--ink)" : "var(--dot)";
-        dot.style.borderColor = isActive || isPast ? "var(--ink)" : "var(--dotbd)";
-        dot.style.transform = `scale(${isActive ? 1.3 : 1})`;
-      }
-      if (label) label.style.color = isActive || isPast ? "var(--ink)" : "var(--idle)";
-      if (halo) halo.style.opacity = isActive ? "1" : "0";
-    });
-
-    if (stackFill) stackFill.style.height = `${(progress * 100).toFixed(2)}%`;
-    if (stackCounter) stackCounter.textContent = toNumber(active + 1);
-  }
-
-  const servicesSection = root.querySelector<HTMLElement>("[data-services-pin]");
-  if (!servicesSection) return;
-  const panels = root.querySelectorAll<HTMLElement>("[data-serv-panel]");
-  const navs = root.querySelectorAll<HTMLElement>("[data-serv-nav]");
-  const bar = root.querySelector<HTMLElement>("[data-serv-bar]");
-  const counter = root.querySelector<HTMLElement>("[data-serv-counter]");
-  const active = clampServiceIndex(activeServiceIndex, panels.length);
-  activeServiceIndex = active;
-  const steppedProgress = panels.length > 1 ? active / (panels.length - 1) : 1;
-
-  panels.forEach((panel, index) => {
-    const on = index === active;
-    panel.style.opacity = on ? "1" : "0";
-    panel.style.transform = on ? "translateY(0)" : `translateY(${index < active ? -36 : 36}px)`;
-    panel.style.pointerEvents = on ? "auto" : "none";
-    panel.style.zIndex = on ? "2" : "1";
-    panel.setAttribute("aria-hidden", on ? "false" : "true");
-  });
-
-  navs.forEach((nav, index) => {
-    const on = index === active;
-    const label = nav.querySelector<HTMLElement>("[data-serv-nav-label]");
-    const num = nav.querySelector<HTMLElement>("[data-serv-nav-num]");
-    if (label) {
-      label.style.color = on ? "var(--ink)" : "var(--muted2)";
-      label.style.fontWeight = on ? "600" : "400";
-    }
-    if (num) num.style.color = on ? "var(--ink)" : "var(--hair)";
-    nav.style.borderBottomColor = on ? "var(--ink)" : "var(--border)";
-    nav.style.paddingLeft = on ? "12px" : "2px";
-  });
-
-  if (bar) bar.style.width = `${(steppedProgress * 100).toFixed(2)}%`;
-  if (counter) counter.textContent = `${toNumber(active + 1)} / ${toNumber(panels.length)}`;
 }
 
-function scrollToService(index: number, behavior: ScrollBehavior = "auto") {
-  void behavior;
-  activeServiceIndex = clampServiceIndex(index);
-  updateScrollEffects();
+function handleStackActiveChange(index: number) {
+  if (activeStackIndex.value === index) return;
+  activeStackIndex.value = index;
+  updateStackSpherePosition();
+  syncNegativeWorlds(true);
+}
+
+function handleStackSphereReady(element: HTMLElement) {
+  stackSphereRef.value = element;
+  nextTick(() => {
+    updateStackSpherePosition();
+    void setupStackSphereScene();
+  });
+}
+
+function handleServiceActiveChange(index: number) {
+  activeServiceIndex.value = index;
   syncNegativeWorlds(true);
 }
 
@@ -2795,7 +2464,7 @@ function getNegativeWorldSignature(scope: "hero" | "page") {
     displayStackGroups.value.length,
     displayStages.value.length,
     activeStackIndex.value,
-    activeServiceIndex,
+    activeServiceIndex.value,
     activeClientSegment.value,
   ].join(":");
 }
@@ -2807,6 +2476,7 @@ function cleanupNegativeClone(clone: HTMLElement) {
   clone.classList.remove("vz-motion-ready");
   clone.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #stages, #contacts, .vz-footer").forEach((section) => {
     section.classList.add("is-motion-visible");
+    if (section.matches("#stages")) section.classList.add("is-anatomy-visible");
   });
   clone.querySelectorAll<HTMLElement>(".vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu").forEach((element) => element.remove());
   clone.querySelectorAll<HTMLElement>("[id]").forEach((element) => element.removeAttribute("id"));
@@ -2891,6 +2561,7 @@ function scheduleUpdate() {
 
 onMounted(async () => {
   theme.value = localStorage.getItem("vz_theme") || "light";
+  localeWatcherReady = true;
   runPreloader();
   setupReveals();
   updateScrollEffects();
@@ -2903,50 +2574,17 @@ onMounted(async () => {
   startHeroNegative();
   startSectionLiquid();
   void setupAboutLiquidScene();
-  void setupStackSphereScene();
   void setupClientCubeScene();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
-  window.addEventListener("wheel", handleStackWheel, { passive: false, capture: true });
   window.addEventListener("resize", scheduleUpdate);
-
-  try {
-    const [
-      servicesData,
-      projectsData,
-      advantagesData,
-      techStackData,
-      workStagesData,
-      settingsData,
-    ] = await Promise.all([
-      getServices(),
-      getProjects(),
-      getAdvantages(),
-      getTechStack(),
-      getWorkStages(),
-      getSettings(),
-    ]);
-
-    services.value = servicesData;
-    projects.value = projectsData;
-    advantages.value = advantagesData;
-    techStack.value = techStackData;
-    workStages.value = workStagesData;
-    settings.value = settingsData.settings;
-    await nextTick();
-    setupReveals();
-    updateScrollEffects();
-    updateStackSpherePosition();
-    updateClientCubePosition();
-    syncNegativeWorlds(true);
-    startHeroNegative();
-  } catch (error) {
-    console.info("VEZHA public data fallback is active:", error);
-    await nextTick();
-    updateStackSpherePosition();
-    updateClientCubePosition();
-    syncNegativeWorlds(true);
-    startHeroNegative();
-  }
+  await loadPublicData();
+  await nextTick();
+  setupReveals();
+  updateScrollEffects();
+  updateStackSpherePosition();
+  updateClientCubePosition();
+  syncNegativeWorlds(true);
+  startHeroNegative();
 });
 
 watch(activeClientSegment, async () => {
@@ -2958,7 +2596,6 @@ watch(activeClientSegment, async () => {
 
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scheduleUpdate);
-  window.removeEventListener("wheel", handleStackWheel, { capture: true });
   window.removeEventListener("resize", scheduleUpdate);
   if (raf) cancelAnimationFrame(raf);
   if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
@@ -2975,6 +2612,15 @@ watch(displayStackGroups, () => {
   void nextTick(updateStackSpherePosition);
 });
 
+watch(currentLocale, async (nextLocale) => {
+  document.documentElement.lang = currentLocale.value;
+  if (!localeWatcherReady) return;
+  await loadPublicData(nextLocale);
+  await nextTick();
+  setupReveals();
+  updateScrollEffects();
+});
+
 watch(displayServices, async () => {
   await nextTick();
   updateScrollEffects();
@@ -2982,15 +2628,20 @@ watch(displayServices, async () => {
   startSectionLiquid();
 });
 
-useHead({
-  title: "VEZHA Digital - Веб-разработка под ключ",
+const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t);document.documentElement.style.colorScheme=t}catch(e){}}();`;
+
+useHead(() => ({
+  htmlAttrs: {
+    lang: currentLocale.value,
+  },
+  title: copy.value.head.title,
   meta: [
     {
       name: "description",
-      content: "Разработка Telegram Mini Apps, ботов, веб-сайтов, интернет-магазинов, AI и корпоративных систем.",
+      content: copy.value.head.description,
     },
-    { property: "og:title", content: "VEZHA Digital - продукты, которые работают в бизнесе" },
-    { property: "og:description", content: "Команда полного цикла для Telegram, web, AI и корпоративных систем." },
+    { property: "og:title", content: copy.value.head.ogTitle },
+    { property: "og:description", content: copy.value.head.ogDescription },
     { property: "og:type", content: "website" },
   ],
   link: [
@@ -3001,7 +2652,14 @@ useHead({
       href: "https://fonts.googleapis.com/css2?family=Onest:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap",
     },
   ],
-});
+  script: [
+    {
+      key: "vz-theme-init",
+      innerHTML: themeInitScript,
+      tagPosition: "head",
+    },
+  ],
+}));
 </script>
 
 <style>
@@ -3166,16 +2824,9 @@ useHead({
 .vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__lead,
 .vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__principles article,
 .vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__metrics div,
-.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-sec-head,
-.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__nav button,
-.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__stage,
-.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__bar,
 .vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-section-label,
 .vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-capsules button,
 .vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-copy > *,
-.vz-motion-ready .vz-stages:not(.is-motion-visible) .vz-section-label,
-.vz-motion-ready .vz-stages:not(.is-motion-visible) .vz-stages__head p,
-.vz-motion-ready .vz-stages:not(.is-motion-visible) .vz-stage-row,
 .vz-motion-ready .vz-contacts:not(.is-motion-visible) .vz-section-label,
 .vz-motion-ready .vz-contacts:not(.is-motion-visible) .vz-contacts__buttons,
 .vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__top,
@@ -3189,7 +2840,6 @@ useHead({
 }
 
 .vz-motion-ready .vz-client-connector,
-.vz-motion-ready .vz-stage-list,
 .vz-motion-ready .vz-footer__top,
 .vz-motion-ready .vz-footer__sign {
   transform-origin: left center;
@@ -3200,7 +2850,6 @@ useHead({
 }
 
 .vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-connector,
-.vz-motion-ready .vz-stages:not(.is-motion-visible) .vz-stage-list,
 .vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__top,
 .vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign {
   opacity: 0;
@@ -3225,15 +2874,8 @@ useHead({
 .vz-motion-ready .vz-about.is-motion-visible .vz-about__lead,
 .vz-motion-ready .vz-about.is-motion-visible .vz-about__principles article,
 .vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div,
-.vz-motion-ready .vz-services.is-motion-visible .vz-sec-head,
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button,
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__stage,
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__bar,
 .vz-motion-ready .vz-clients.is-motion-visible .vz-section-label,
 .vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy > *,
-.vz-motion-ready .vz-stages.is-motion-visible .vz-section-label,
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stages__head p,
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row,
 .vz-motion-ready .vz-contacts.is-motion-visible .vz-section-label,
 .vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__buttons,
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__top,
@@ -3246,7 +2888,6 @@ useHead({
 }
 
 .vz-motion-ready .vz-clients.is-motion-visible .vz-client-connector,
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-list,
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__top,
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign {
   animation: vz-motion-line-x 0.9s cubic-bezier(0.76, 0, 0.24, 1) both;
@@ -3274,20 +2915,6 @@ useHead({
 .vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div:nth-child(3) { animation-delay: 0.5s; }
 .vz-motion-ready .vz-about.is-motion-visible .vz-about__note { animation-delay: 0.58s; }
 
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button {
-  animation-duration: 0.72s;
-}
-
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(1) { animation-delay: 0.14s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(2) { animation-delay: 0.2s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(3) { animation-delay: 0.26s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(4) { animation-delay: 0.32s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(5) { animation-delay: 0.38s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(6) { animation-delay: 0.44s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(7) { animation-delay: 0.5s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__stage { animation-delay: 0.22s; }
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__bar { animation-delay: 0.56s; }
-
 .vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button {
   animation: vz-motion-pop 0.82s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -3307,16 +2934,6 @@ useHead({
 
 .vz-motion-ready .vz-client-copy h3 { animation-delay: 0.04s; }
 .vz-motion-ready .vz-client-copy p { animation-delay: 0.1s; }
-
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stages__head p { animation-delay: 0.16s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-list { animation-delay: 0.24s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row:nth-child(1) { animation-delay: 0.3s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row:nth-child(2) { animation-delay: 0.38s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row:nth-child(3) { animation-delay: 0.46s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row:nth-child(4) { animation-delay: 0.54s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row:nth-child(5) { animation-delay: 0.62s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row:nth-child(6) { animation-delay: 0.7s; }
-.vz-motion-ready .vz-stages.is-motion-visible .vz-stage-row:nth-child(7) { animation-delay: 0.78s; }
 
 .vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__buttons { animation-delay: 0.32s; }
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(1) { animation-delay: 0.14s; }
@@ -3350,10 +2967,7 @@ useHead({
 .vz-footer__top,
 .vz-footer__cols > div > span,
 .vz-footer__sign > div,
-.vz-footer__legal,
-.vz-services__counter,
-.vz-stage-row > span:first-child,
-.vz-stage-row > span:last-child {
+.vz-footer__legal {
   font-family: "JetBrains Mono", monospace;
 }
 
@@ -3458,7 +3072,6 @@ useHead({
 .vz-icon-button,
 .vz-menu-button {
   display: flex;
-  width: 38px;
   height: 38px;
   align-items: center;
   justify-content: center;
@@ -3468,6 +3081,11 @@ useHead({
   background: transparent;
   color: var(--ink);
   cursor: pointer;
+}
+
+.vz-icon-button,
+.vz-menu-button {
+  width: 38px;
 }
 
 .vz-nav__cta,
@@ -3513,6 +3131,12 @@ useHead({
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.vz-mobile-menu__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .vz-mobile-menu__links {
@@ -3706,9 +3330,7 @@ useHead({
 }
 
 .vz-hero h1 > span,
-.vz-services h2 > span,
 .vz-clients h2 > span,
-.vz-stages h2 > span,
 .vz-contacts h2 > span {
   display: block;
   overflow: hidden;
@@ -3720,9 +3342,7 @@ useHead({
 }
 
 .vz-hero h1 span span,
-.vz-services h2 span span,
 .vz-clients h2 span span,
-.vz-stages h2 span span,
 .vz-contacts h2 span span {
   display: block;
 }
@@ -4193,10 +3813,7 @@ useHead({
 }
 
 .vz-about__principles p,
-.vz-sec-meta p,
-.vz-stage-row p,
-.vz-stages__head p,
-.vz-service-panel p {
+.vz-sec-meta p {
   color: var(--text2);
   line-height: 1.65;
 }
@@ -4241,18 +3858,12 @@ useHead({
   line-height: 1.35;
 }
 
-.vz-stack,
-.vz-services {
+.vz-stack {
   position: relative;
   border-top: 1px solid var(--border2);
 }
 
 .vz-stack {
-  padding: var(--section-space) 0;
-}
-
-.vz-services {
-  --services-count: 7;
   padding: var(--section-space) 0;
 }
 
@@ -4279,7 +3890,6 @@ useHead({
 
 .vz-sec-head h2,
 .vz-clients h2,
-.vz-stages h2,
 .vz-contacts h2 {
   margin: 0;
   font-weight: 600;
@@ -4446,15 +4056,13 @@ useHead({
   transform: translateX(0);
 }
 
-.vz-stack-item > div:last-child > div,
-.vz-service-panel [data-serv-metawrap] {
+.vz-stack-item > div:last-child > div {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.vz-stack-item span:not([data-dot], [data-halo]),
-.vz-service-panel [data-serv-metawrap] span {
+.vz-stack-item span:not([data-dot], [data-halo]) {
   padding: 7px 13px;
   border: 1px solid var(--chipbd);
   border-radius: 999px;
@@ -4464,219 +4072,8 @@ useHead({
   letter-spacing: 0.03em;
 }
 
-.vz-services h2,
-.vz-stages h2 {
-  font-size: clamp(34px, 4.4vw, 56px);
-}
-
-.vz-services__counter {
-  flex-shrink: 0;
-  color: var(--ink);
-  font-size: 14px;
-  letter-spacing: 0.08em;
-}
-
-.vz-services__grid {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 70px;
-  align-items: stretch;
-}
-
-.vz-services__nav {
-  border-top: 1px solid var(--border);
-  display: grid;
-  grid-auto-rows: 54px;
-}
-
-.vz-services__nav button {
-  display: flex;
-  width: 100%;
-  align-items: baseline;
-  gap: 16px;
-  padding: 13px 2px;
-  border: 0;
-  border-bottom: 1px solid var(--border);
-  background: transparent;
-  cursor: pointer;
-  min-height: 54px;
-  text-align: left;
-  transition: padding-left 0.3s cubic-bezier(0.76, 0, 0.24, 1);
-}
-
-.vz-services__nav button span:first-child {
-  color: var(--hair);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-}
-
-.vz-services__nav button span:last-child {
-  color: var(--muted2);
-  font-size: 17px;
-  letter-spacing: -0.01em;
-  transition: color 0.24s ease;
-}
-
-.vz-services__stage {
-  position: relative;
-  height: clamp(380px, 44vh, 440px);
-  min-height: 0;
-}
-
-.vz-service-panel {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  opacity: 0;
-  will-change: opacity, transform;
-  transform: translateY(36px);
-  transition:
-    opacity 0.32s ease,
-    transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.vz-service-panel > div:first-child {
-  position: absolute;
-  top: -34px;
-  right: 0;
-  z-index: 0;
-  color: var(--ghost);
-  font-family: "JetBrains Mono", monospace;
-  font-size: clamp(120px, 17vw, 240px);
-  font-weight: 500;
-  letter-spacing: -0.04em;
-  line-height: 0.8;
-  pointer-events: none;
-  user-select: none;
-  transform: translateY(12px) scale(0.98);
-  transition:
-    opacity 0.42s ease,
-    transform 0.58s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.vz-service-panel > div:last-child {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  min-height: 100%;
-  flex-direction: column;
-  max-width: 640px;
-}
-
-.vz-service-panel h3 {
-  min-height: 2em;
-  margin: 8px 0 0;
-  font-size: clamp(38px, 4.6vw, 60px);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
-  text-transform: uppercase;
-  transition:
-    opacity 0.4s ease,
-    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.vz-service-panel p {
-  max-width: 50ch;
-  min-height: 64px;
-  margin: 28px 0 0;
-  font-size: 19px;
-  line-height: 1.55;
-  transition:
-    opacity 0.4s ease,
-    transform 0.52s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.vz-service-panel [data-serv-metawrap] {
-  min-height: 108px;
-  margin-top: auto;
-  padding-top: 28px;
-  border-top: 1px solid var(--border);
-  align-content: flex-start;
-  transition:
-    opacity 0.38s ease,
-    transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.vz-service-panel [data-serv-metawrap] span {
-  padding: 8px 15px;
-  transition:
-    opacity 0.34s ease,
-    transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.vz-service-panel[aria-hidden="true"] > div:first-child,
-.vz-service-panel[aria-hidden="true"] h3,
-.vz-service-panel[aria-hidden="true"] p,
-.vz-service-panel[aria-hidden="true"] [data-serv-metawrap] {
-  opacity: 0;
-  transform: translateY(22px);
-}
-
-.vz-service-panel[aria-hidden="true"] > div:first-child {
-  transform: translateY(-10px) scale(0.96);
-}
-
-.vz-service-panel[aria-hidden="true"] [data-serv-metawrap] span {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.vz-service-panel[aria-hidden="false"] > div:first-child {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.vz-service-panel[aria-hidden="false"] h3,
-.vz-service-panel[aria-hidden="false"] p,
-.vz-service-panel[aria-hidden="false"] [data-serv-metawrap],
-.vz-service-panel[aria-hidden="false"] [data-serv-metawrap] span {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.vz-service-panel[aria-hidden="false"] h3 {
-  transition-delay: 0.06s;
-}
-
-.vz-service-panel[aria-hidden="false"] p {
-  transition-delay: 0.13s;
-}
-
-.vz-service-panel[aria-hidden="false"] [data-serv-metawrap] {
-  transition-delay: 0.2s;
-}
-
-.vz-service-panel[aria-hidden="false"] [data-serv-metawrap] span:nth-child(2) {
-  transition-delay: 0.25s;
-}
-
-.vz-service-panel[aria-hidden="false"] [data-serv-metawrap] span:nth-child(3) {
-  transition-delay: 0.3s;
-}
-
-.vz-services__bar {
-  position: relative;
-  overflow: hidden;
-  height: 2px;
-  margin-top: 48px;
-  background: var(--border);
-}
-
-.vz-services__bar span {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 0%;
-  height: 2px;
-  background: var(--ink);
-  transition: width 0.12s linear;
-}
-
 .vz-about,
 .vz-clients,
-.vz-stages,
 .vz-contacts {
   display: flex;
   align-items: center;
@@ -4827,70 +4224,10 @@ useHead({
   height: 100%;
 }
 
-.vz-stages {
-  padding: var(--section-space) 40px;
-  border-top: 1px solid var(--border2);
-}
-
 .vz-wrap {
   width: 100%;
   max-width: 1240px;
   margin: 0 auto;
-}
-
-.vz-stages__head {
-  margin-bottom: 56px;
-}
-
-.vz-stages__head h2 {
-  max-width: 20ch;
-  margin-top: 20px;
-}
-
-.vz-stages__head p {
-  max-width: 60ch;
-  margin: 22px 0 0;
-  color: var(--text3);
-  font-size: 17px;
-  line-height: 1.6;
-}
-
-.vz-stage-list {
-  border-top: 1px solid var(--border);
-}
-
-.vz-stage-row {
-  display: grid;
-  grid-template-columns: 90px 280px 1fr 130px;
-  gap: 30px;
-  align-items: baseline;
-  padding: 28px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.vz-stage-row > span:first-child {
-  color: var(--muted2);
-  font-size: 14px;
-}
-
-.vz-stage-row h3 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.vz-stage-row p {
-  margin: 0;
-  color: var(--text3);
-  font-size: 15px;
-  line-height: 1.55;
-}
-
-.vz-stage-row > span:last-child {
-  color: var(--muted);
-  font-size: 13px;
-  text-align: right;
 }
 
 .vz-contacts {
@@ -5213,39 +4550,32 @@ useHead({
 
 @keyframes vz-dino-leg-a {
   0%,
-  49% { transform: translateY(0); }
+49% { transform: translateY(0); }
   50%,
-  100% { transform: translateY(5px); }
+100% { transform: translateY(5px); }
 }
 
 @keyframes vz-dino-leg-b {
   0%,
-  49% { transform: translateY(5px); }
+49% { transform: translateY(5px); }
   50%,
-  100% { transform: translateY(0); }
+100% { transform: translateY(0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .vz-orbit svg,
-  .vz-marquee > div {
+.vz-marquee > div {
     animation: none !important;
   }
 
-  .vz-service-panel,
-  .vz-service-panel > div:first-child,
-  .vz-service-panel h3,
-  .vz-service-panel p,
-  .vz-service-panel [data-serv-metawrap],
-  .vz-service-panel [data-serv-metawrap] span,
   .vz-client-copy > *,
-  .vz-client-capsules button,
-  .vz-client-connector span,
-  .vz-hero__negative,
-  .vz-hero__negative-plane,
-  .vz-section-liquid,
-  .vz-services__bar span,
-  .vz-footer-game__dino::after,
-  .vz-footer-game__dino b {
+.vz-client-capsules button,
+.vz-client-connector span,
+.vz-hero__negative,
+.vz-hero__negative-plane,
+.vz-section-liquid,
+.vz-footer-game__dino::after,
+.vz-footer-game__dino b {
     transition: none !important;
     animation: none !important;
   }
@@ -5253,7 +4583,7 @@ useHead({
 
 @media (hover: none) {
   .vz-hero__negative,
-  .vz-section-liquid {
+.vz-section-liquid {
     display: none;
   }
 }
@@ -5272,7 +4602,7 @@ useHead({
   }
 
   .vz-nav__links,
-  .vz-nav__cta {
+.vz-nav__cta {
     display: none;
   }
 
@@ -5294,9 +4624,8 @@ useHead({
   }
 
   .vz-hero__grid,
-  .vz-about__grid,
-  .vz-clients__grid,
-  .vz-services__grid {
+.vz-about__grid,
+.vz-clients__grid {
     grid-template-columns: 1fr;
   }
 
@@ -5425,12 +4754,7 @@ useHead({
     line-height: 1.15;
   }
 
-  .vz-services h2 {
-    font-size: 26px;
-  }
-
-  .vz-stack,
-  .vz-services {
+  .vz-stack {
     padding: var(--section-space) 0;
   }
 
@@ -5490,38 +4814,7 @@ useHead({
     gap: 6px;
   }
 
-  [data-serv-list] {
-    display: none;
-  }
-
-  .vz-services__stage {
-    height: 390px;
-    min-height: 0;
-  }
-
-  .vz-service-panel > div:first-child {
-    top: -8px;
-    font-size: 84px;
-  }
-
-  .vz-service-panel h3 {
-    font-size: 30px;
-  }
-
-  .vz-service-panel p {
-    min-height: 76px;
-    margin-top: 18px;
-    font-size: 16px;
-  }
-
-  .vz-service-panel [data-serv-metawrap] {
-    min-height: 118px;
-    margin-top: 22px;
-    padding-top: 20px;
-  }
-
-  .vz-clients,
-  .vz-stages {
+  .vz-clients {
     padding: var(--section-space) 20px;
   }
 
@@ -5583,35 +4876,6 @@ useHead({
     min-height: 0;
     font-size: 15px;
     line-height: 1.55;
-  }
-
-  .vz-stage-row {
-    grid-template-columns: 26px 1fr;
-    gap: 2px 12px;
-    padding: 20px 0;
-  }
-
-  .vz-stage-row > span:first-child {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .vz-stage-row h3 {
-    grid-column: 2;
-    grid-row: 1;
-  }
-
-  .vz-stage-row p {
-    grid-column: 2;
-    grid-row: 2;
-    margin-top: 6px;
-  }
-
-  .vz-stage-row > span:last-child {
-    grid-column: 2;
-    grid-row: 3;
-    margin-top: 8px;
-    text-align: left;
   }
 
   .vz-contacts {
@@ -5699,4 +4963,82 @@ useHead({
     gap: 22px 16px;
   }
 }
+
+/* Scoped prod transplants: Services + Development Anatomy only. */
+
+
+.vz-preloader__top,
+.vz-preloader__meta,
+.vz-section-label,
+.vz-hero__meta,
+.vz-hero__kicker,
+.vz-hero__stats,
+.vz-scroll-hint,
+.vz-footer__top,
+.vz-footer__cols > div > span,
+.vz-footer__sign > div,
+.vz-footer__legal {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vz-hero h1 > span,
+.vz-clients h2 > span,
+.vz-contacts h2 > span {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.vz-hero h1 span span,
+.vz-clients h2 span span,
+.vz-contacts h2 span span {
+  display: block;
+}
+
+.vz-about__cols p,
+.vz-sec-meta p {
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+.vz-stack {
+  position: relative;
+  border-top: 1px solid var(--border2);
+}
+
+.vz-sec-head h2,
+.vz-clients h2,
+.vz-contacts h2 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.vz-stack-item > div:last-child > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vz-stack-item span:not([data-dot], [data-halo]) {
+  padding: 7px 13px;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  color: var(--chipink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 900px) {
+
+  .vz-hero__grid,
+.vz-about__grid,
+.vz-clients__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
