@@ -193,29 +193,44 @@
 
 .vz-code-layer {
   position: absolute;
-  inset: 0;
+  inset: 300px 0 40px;
   z-index: 0;
   overflow: hidden;
   color: var(--code);
   font-family: "JetBrains Mono", monospace;
   font-size: 13px;
   line-height: 1.5;
-  opacity: 0.55;
+  opacity: 0.46;
   pointer-events: none;
 }
 
 .vz-code-layer pre {
   position: absolute;
-  top: 96px;
-  left: 30px;
+  top: 0;
+  left: max(24px, calc(50% - 720px));
+  width: min(38vw, 520px);
   margin: 0;
   white-space: pre;
 }
 
 .vz-code-layer pre:last-child {
-  top: 150px;
-  right: 30px;
+  top: 120px;
+  right: max(24px, calc(50% - 720px));
   left: auto;
+}
+
+.vz-code-caret {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  margin-left: 2px;
+  background: currentColor;
+  vertical-align: -0.16em;
+  animation: vz-code-caret 0.8s steps(1) infinite;
+}
+
+@keyframes vz-code-caret {
+  50% { opacity: 0; }
 }
 
 .vz-stages__head {
@@ -251,25 +266,26 @@
   position: relative;
   z-index: 2;
   display: grid;
-  max-width: 1180px;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
+  max-width: 1320px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 22px;
   margin: 78px auto 0;
 }
 
-.vz-stage-cards > .vz-stage-card:nth-child(3n + 2) {
-  margin-top: 64px;
+.vz-stage-cards > .vz-stage-card:nth-child(4n + 2),
+.vz-stage-cards > .vz-stage-card:nth-child(4n + 4) {
+  margin-top: 36px;
 }
 
-.vz-stage-cards > .vz-stage-card:nth-child(3n) {
-  margin-top: 32px;
+.vz-stage-cards > .vz-stage-card:nth-child(4n + 3) {
+  margin-top: 18px;
 }
 
 .vz-stage-card {
   position: relative;
   overflow: hidden;
   width: 100%;
-  min-height: 246px;
+  min-height: 232px;
   padding: 30px 30px 26px;
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -379,6 +395,21 @@
 
   .vz-code-layer pre:last-child {
     display: none;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1199px) {
+
+  .vz-stage-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .vz-stage-cards > .vz-stage-card {
+    margin-top: 0;
+  }
+
+  .vz-stage-cards > .vz-stage-card:nth-child(3n + 2) {
+    margin-top: 24px;
   }
 }
 

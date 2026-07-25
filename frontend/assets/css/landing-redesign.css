@@ -192,7 +192,7 @@
   --services-count: 7;
   border-top: 1px solid var(--border2);
   position: relative;
-  min-height: 132vh;
+  min-height: 0;
 }
 
 .vz-services h2 {
@@ -264,20 +264,20 @@
 }
 
 .vz-services__stage {
-  height: clamp(380px, 44vh, 440px);
+  height: auto;
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
-  min-height: 0;
+  gap: 22px;
+  min-height: 552px;
 }
 
 .vz-services__devices {
   position: relative;
   display: grid;
   width: 100%;
-  min-height: 372px;
+  min-height: 330px;
   align-items: center;
   justify-items: center;
 }
@@ -736,7 +736,7 @@
   position: relative;
   width: 100%;
   max-width: 640px;
-  min-height: 128px;
+  min-height: 200px;
 }
 
 .vz-service-panel {
@@ -864,7 +864,7 @@
   }
 
   .vz-services {
-    min-height: 126vh;
+    min-height: 0;
   }
 
   .vz-services__grid {
@@ -924,7 +924,7 @@
   .vz-services__stage {
     align-items: center;
     gap: 22px;
-    min-height: 0;
+    min-height: 492px;
   }
 
   .vz-services__devices {
@@ -936,7 +936,7 @@
   }
 
   .vz-service-caption {
-    min-height: 152px;
+    min-height: 170px;
   }
 
   .vz-service-panel h3 {

@@ -1,39 +1,8 @@
 <template>
   <section id="stages" ref="rootRef" class="vz-stages" data-stages-dark>
     <div class="vz-code-layer" data-code-layer aria-hidden="true">
-      <pre>import SwiftUI
-import Observation
-
-@Observable
-final class ProjectStore {
-    private(set) var projects: [Project] = []
-    private let api: ProjectAPI
-
-    init(api: ProjectAPI = .live) {
-        self.api = api
-    }
-
-    func refresh() async throws {
-        projects = try await api.projects()
-    }
-}</pre>
-      <pre>struct ProjectBoard: View {
-    @State private var store = ProjectStore()
-
-    var body: some View {
-        ScrollView {
-            LazyVGrid(columns: [.adaptive(minimum: 280)]) {
-                ForEach(store.projects) { project in
-                    ProjectCard(project: project)
-                }
-            }
-            .padding(24)
-        }
-        .task {
-            try? await store.refresh()
-        }
-    }
-}</pre>
+      <pre>{{ typedCode[0] }}<span class="vz-code-caret"></span></pre>
+      <pre>{{ typedCode[1] }}<span class="vz-code-caret"></span></pre>
     </div>
 
     <div class="vz-stages__aura" aria-hidden="true"></div>
@@ -68,6 +37,7 @@ final class ProjectStore {
 
 <script setup lang="ts">
 import { useDevelopmentAnatomyReveal } from "~/composables/landing/useDevelopmentAnatomyReveal";
+import { useBackgroundCodeTyping } from "~/composables/landing/useBackgroundCodeTyping";
 
 type DevelopmentStage = { n: string; title: string; desc: string; dur: string };
 type DevelopmentAnatomyCopy = { label: string; title: string; text: string };
@@ -75,8 +45,39 @@ type DevelopmentAnatomyCopy = { label: string; title: string; text: string };
 defineProps<{ stages: DevelopmentStage[]; copy: DevelopmentAnatomyCopy }>();
 const emit = defineEmits<{ revealed: [] }>();
 const rootRef = ref<HTMLElement | null>(null);
+const goCode = [
+  `package project
 
-useDevelopmentAnatomyReveal(rootRef, () => emit("revealed"));
+import (
+    "context"
+    "net/http"
+)
+
+type Service struct {
+    repo ProjectRepository
+}
+
+func (s *Service) Projects(ctx context.Context) ([]Project, error) {
+    return s.repo.List(ctx)
+}`,
+  `func RegisterRoutes(router *http.ServeMux, service *Service) {
+    router.HandleFunc("GET /api/projects", func(w http.ResponseWriter, r *http.Request) {
+        projects, err := service.Projects(r.Context())
+        if err != nil {
+            http.Error(w, "service unavailable", http.StatusServiceUnavailable)
+            return
+        }
+
+        writeJSON(w, http.StatusOK, projects)
+    })
+}`,
+] as const;
+const { typedCode, start: startCodeTyping } = useBackgroundCodeTyping(goCode);
+
+useDevelopmentAnatomyReveal(rootRef, () => {
+  startCodeTyping();
+  emit("revealed");
+});
 </script>
 
 <style src="~/assets/css/landing-development-anatomy.css"></style>

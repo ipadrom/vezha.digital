@@ -178,8 +178,8 @@
           "title": "Backend",
           "description": "Reliable server logic that handles load and scales cleanly.",
           "items": [
-            "Python",
-            "FastAPI",
+            "Go",
+            "Gin",
             "PostgreSQL",
             "Redis"
           ]

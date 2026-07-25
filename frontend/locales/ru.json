@@ -178,8 +178,8 @@
           "title": "Backend",
           "description": "Надёжная серверная часть, которая не ляжет под нагрузкой и легко масштабируется.",
           "items": [
-            "Python",
-            "FastAPI",
+            "Go",
+            "Gin",
             "PostgreSQL",
             "Redis"
           ]

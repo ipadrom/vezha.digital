@@ -78,14 +78,14 @@
                             </div>
                           </div>
                           <div v-else class="vz-screen-mobile">
-                            <pre class="vz-code-pane">// App/MainView.swift
-import SwiftUI
+                            <pre class="vz-code-pane">// cmd/app/main.go
+package main
 
-@main
-struct VezhaApp: App {
-    var body: some Scene {
-        WindowGroup { CatalogView() }
-    }
+import "net/http"
+
+func main() {
+    api := newAPI()
+    http.ListenAndServe(":8080", api)
 }</pre>
                             <div class="vz-phone-pane"><div class="vz-phone"><span></span><b></b><i></i></div></div>
                           </div>
