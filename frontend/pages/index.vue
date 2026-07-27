@@ -2123,19 +2123,20 @@ function animateSectionLiquid(now: number) {
   sectionLiquidState.lastX = sectionLiquidState.currentX;
   sectionLiquidState.lastY = sectionLiquidState.currentY;
 
+  const overlayRect = overlay.getBoundingClientRect();
   const bounds = {
-    bottom: window.innerHeight,
+    bottom: window.innerHeight - overlayRect.top,
     height: window.innerHeight,
-    left: 0,
-    right: window.innerWidth,
-    top: 0,
+    left: -overlayRect.left,
+    right: window.innerWidth - overlayRect.left,
+    top: -overlayRect.top,
     width: window.innerWidth,
   };
   const moveIntensity = clampValue(Math.max(sectionLiquidState.speed, directDistance / 340), 0, 1);
   const renderRadius = sectionLiquidState.radius * (1 - moveIntensity * 0.34);
   const path = buildHeroLiquidPath(
-    sectionLiquidState.currentX,
-    sectionLiquidState.currentY,
+    sectionLiquidState.currentX - overlayRect.left,
+    sectionLiquidState.currentY - overlayRect.top,
     renderRadius,
     now * 0.001,
     sectionLiquidState.speed,
@@ -2586,14 +2587,22 @@ function syncNegativeWorlds(force = false) {
 
 function updateNegativeWorldPositions() {
   const root = rootRef.value;
+  const overlay = sectionLiquidRef.value;
   const pageHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-negative-world='page']");
-  if (root && pageHost) {
+  if (root && overlay && pageHost) {
     const rect = root.getBoundingClientRect();
-    const height = Math.max(root.scrollHeight, document.documentElement.scrollHeight, window.innerHeight);
+    const documentLeft = rect.left + window.scrollX;
+    const documentTop = rect.top + window.scrollY;
+    const height = Math.max(root.scrollHeight, root.offsetHeight, window.innerHeight);
 
-    pageHost.style.left = formatStablePx(rect.left);
-    pageHost.style.top = formatStablePx(rect.top);
-    pageHost.style.width = formatStablePx(rect.width);
+    overlay.style.left = formatStablePx(documentLeft);
+    overlay.style.top = formatStablePx(documentTop);
+    overlay.style.width = formatStablePx(rect.width);
+    overlay.style.height = `${height}px`;
+
+    pageHost.style.left = "0px";
+    pageHost.style.top = "0px";
+    pageHost.style.width = "100%";
     pageHost.style.minHeight = `${height}px`;
   }
 }
@@ -3452,9 +3461,12 @@ useHead(() => ({
 }
 
 .vz-section-liquid {
-  position: fixed;
-  inset: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 170;
+  width: 100%;
+  min-height: 100vh;
   overflow: hidden;
   opacity: 0;
   pointer-events: none;

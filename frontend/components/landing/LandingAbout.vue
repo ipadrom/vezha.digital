@@ -361,48 +361,82 @@ onBeforeUnmount(() => emit("flow-ready", null));
   position: relative;
   width: 125%;
   min-height: clamp(320px, 40vh, 390px);
-  margin: clamp(20px, 3.6vh, 32px) 0 46px -25%;
+  margin-top: clamp(20px, 3.6vh, 32px);
+  margin-left: -25%;
+  margin-bottom: 46px;
   overflow: visible;
 }
 
 .vz-about__flow-replay {
   position: absolute;
-  z-index: 4;
+  z-index: 3;
   top: 0;
   right: 0;
   padding: 7px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: var(--bg);
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
   color: var(--muted);
-  font: 500 9px/1 "JetBrains Mono", monospace;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9px;
+  font-weight: 500;
   letter-spacing: 0.12em;
+  line-height: 1;
   text-transform: uppercase;
   cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.vz-about__flow-replay:hover,
+.vz-about__flow-replay:focus-visible {
+  border-color: color-mix(in srgb, #5aa9ff 48%, var(--border));
+  background: color-mix(in srgb, #5aa9ff 6%, var(--bg));
+  color: var(--ink);
+  outline: none;
 }
 
 .vz-about__flow-zones {
   position: absolute;
+  z-index: 0;
   inset: 0;
   display: grid;
   grid-template-columns: 32fr 49fr 19fr;
+  pointer-events: none;
 }
 
 .vz-about__flow-zone {
   position: relative;
+  min-width: 0;
+  isolation: isolate;
 }
 
 .vz-about__flow-zone:not(:last-child) {
   border-right: 1px solid color-mix(in srgb, var(--ink) 9%, transparent);
 }
 
+.vz-about__flow-zone--vezha {
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, #5aa9ff 2.5%, transparent) 48%,
+    transparent
+  );
+}
+
 .vz-about__flow-zone span {
   position: absolute;
+  z-index: 1;
   bottom: -34px;
   left: 50%;
   color: var(--muted2);
-  font: 500 10px/1 "JetBrains Mono", monospace;
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 500;
   letter-spacing: 0.18em;
+  line-height: 1;
   text-transform: uppercase;
   transform: translateX(-50%);
   white-space: nowrap;
@@ -422,57 +456,71 @@ onBeforeUnmount(() => emit("flow-ready", null));
   fill: none;
   stroke: color-mix(in srgb, var(--muted2) 34%, transparent);
   stroke-linecap: round;
+  stroke-linejoin: round;
   stroke-width: 1.48;
   vector-effect: non-scaling-stroke;
 }
 
-.vz-about__flow-lines path.vz-about__flow-pulse {
-  stroke: #5aa9ff;
-  stroke-width: 1.1;
-  filter: drop-shadow(0 0 5px rgba(90, 169, 255, 0.52));
+.vz-about__flow-lines path.is-primary {
+  stroke: color-mix(in srgb, var(--ink) 22%, var(--border));
+  stroke-width: 1.55;
 }
 
-.vz-about__flow-node,
-.vz-about__flow-stage {
+.vz-about__flow-lines path.vz-about__flow-pulse {
+  fill: none;
+  stroke: #5aa9ff;
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 5px rgba(90, 169, 255, 0.52));
+  vector-effect: none;
+}
+
+.vz-about__flow-node {
+  --flow-stage-color: #5aa9ff;
   position: absolute;
   z-index: 2;
   left: var(--x);
   top: var(--y);
+  display: grid;
+  width: clamp(76px, 6.8vw, 88px);
+  aspect-ratio: 1;
+  place-items: center;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 94%, transparent);
   color: var(--ink);
   font-family: "JetBrains Mono", monospace;
+  font-size: clamp(10px, 0.82vw, 12px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
   text-align: center;
   text-transform: uppercase;
   transform: translate(-50%, -50%);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
 .vz-about__flow-node--vezha {
-  --x: 32%;
-  --y: 50%;
-  display: grid;
-  width: 88px;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--bg);
-  font-size: 11px;
+  --flow-stage-color: #9b6cff;
+  border-color: color-mix(in srgb, var(--ink) 20%, var(--border));
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 6%, transparent);
 }
 
 .vz-about__flow-node--business {
   --x: 16%;
   --y: 50%;
-}
-
-.vz-about__flow-node--product {
-  --x: 90.5%;
-  --y: 50%;
-}
-
-.vz-about__flow-node--business,
-.vz-about__flow-node--product {
+  display: block;
   width: clamp(118px, 10.5vw, 144px);
   min-height: 100px;
-  transform: translate(-50%, 0);
+  aspect-ratio: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .vz-about__business-content,
@@ -493,8 +541,8 @@ onBeforeUnmount(() => emit("flow-ready", null));
   width: clamp(48px, 4vw, 56px);
   height: auto;
   box-sizing: content-box;
-  margin-bottom: -32px;
   padding: 4px;
+  margin-bottom: -32px;
   overflow: visible;
   background: var(--bg);
   fill: none;
@@ -514,10 +562,25 @@ onBeforeUnmount(() => emit("flow-ready", null));
   line-height: 1.15;
 }
 
+.vz-about__flow-node--vezha { --x: 32%; --y: 50%; }
+
 .vz-about__flow-stage {
-  width: 72px;
+  --flow-stage-color: #5aa9ff;
+  position: absolute;
+  z-index: 2;
+  left: var(--x);
+  top: var(--y);
+  width: clamp(62px, 5.4vw, 72px);
   aspect-ratio: 1;
-  font-size: 9px;
+  color: var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(9px, 0.7vw, 10px);
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
 }
 
 .vz-about__flow-stage-base,
@@ -526,10 +589,8 @@ onBeforeUnmount(() => emit("flow-ready", null));
   inset: 0;
   display: grid;
   place-items: center;
-  padding: 7px;
   border: 1px solid var(--border);
   border-radius: 8px;
-  background: var(--bg);
 }
 
 .vz-about__flow-stage-base {
@@ -541,6 +602,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 .vz-about__flow-stage-card {
   z-index: 1;
+  padding: 7px;
   overflow-wrap: anywhere;
   background: color-mix(in srgb, var(--bg) 97%, transparent);
   box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 5%, transparent);
@@ -548,10 +610,45 @@ onBeforeUnmount(() => emit("flow-ready", null));
   will-change: transform;
 }
 
-.vz-about__flow-stage--design { --x: 44%; --y: 70%; }
-.vz-about__flow-stage--ux { --x: 53%; --y: 30%; }
-.vz-about__flow-stage--development { --x: 63%; --y: 66%; }
-.vz-about__flow-stage--testing { --x: 74%; --y: 34%; }
+.vz-about__flow-stage--design {
+  --x: 44%;
+  --y: 70%;
+}
+
+.vz-about__flow-stage--ux {
+  --x: 53%;
+  --y: 30%;
+}
+
+.vz-about__flow-stage--development {
+  --x: 63%;
+  --y: 66%;
+}
+
+.vz-about__flow-stage--testing {
+  --x: 74%;
+  --y: 34%;
+}
+
+.vz-about__flow-node--product {
+  --x: 90.5%;
+  --y: 50%;
+  display: block;
+  width: clamp(118px, 10.5vw, 144px);
+  min-height: 100px;
+  aspect-ratio: auto;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.vz-about__flow-node--business,
+.vz-about__flow-node--product {
+  transform: translate(-50%, 0);
+}
 
 .vz-about__flow.is-signal .vz-about__flow-node--vezha {
   animation: vz-flow-node-receive 0.38s 0.84s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -582,10 +679,10 @@ onBeforeUnmount(() => emit("flow-ready", null));
     box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 6%, transparent);
   }
   50% {
-    border-color: color-mix(in srgb, #9b6cff 68%, var(--border));
-    background: color-mix(in srgb, #9b6cff 7%, var(--bg));
+    border-color: color-mix(in srgb, var(--flow-stage-color) 68%, var(--border));
+    background: color-mix(in srgb, var(--flow-stage-color) 7%, var(--bg));
     color: var(--ink);
-    box-shadow: 0 0 22px color-mix(in srgb, #9b6cff 24%, transparent);
+    box-shadow: 0 0 22px color-mix(in srgb, var(--flow-stage-color) 24%, transparent);
   }
 }
 
@@ -599,9 +696,9 @@ onBeforeUnmount(() => emit("flow-ready", null));
   }
   45%,
   62% {
-    border-color: color-mix(in srgb, #5aa9ff 68%, var(--border));
-    background: color-mix(in srgb, #5aa9ff 7%, var(--bg));
-    box-shadow: 0 14px 24px color-mix(in srgb, #5aa9ff 24%, transparent);
+    border-color: color-mix(in srgb, var(--flow-stage-color) 68%, var(--border));
+    background: color-mix(in srgb, var(--flow-stage-color) 7%, var(--bg));
+    box-shadow: 0 14px 24px color-mix(in srgb, var(--flow-stage-color) 24%, transparent);
     transform: translateY(-9px);
   }
 }
