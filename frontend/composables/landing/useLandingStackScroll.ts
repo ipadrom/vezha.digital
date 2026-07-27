@@ -16,7 +16,9 @@ export function useLandingStackScroll(
     const total = Math.max(1, section.offsetHeight - window.innerHeight);
     const nextProgress = Math.max(0, Math.min(1, -section.getBoundingClientRect().top / total));
     const count = Math.max(1, itemCount.value);
-    const nextIndex = Math.min(count - 1, Math.floor(nextProgress * count));
+    const nextIndex = count > 1
+      ? Math.min(count - 1, Math.floor(nextProgress * (count - 1) + 1e-6))
+      : 0;
 
     progress.value = nextProgress;
     if (activeIndex.value !== nextIndex) activeIndex.value = nextIndex;
@@ -40,8 +42,9 @@ export function useLandingStackScroll(
     const maxProgress = count > 1 ? nextIndex / (count - 1) : 0;
     const scrollRange = Math.max(0, section.offsetHeight - window.innerHeight);
 
+    const sectionTop = window.scrollY + section.getBoundingClientRect().top;
     window.scrollTo({
-      top: section.offsetTop + scrollRange * maxProgress,
+      top: Math.ceil(sectionTop + scrollRange * maxProgress),
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
     });
   }

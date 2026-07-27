@@ -22,8 +22,8 @@
           aria-hidden="true"
         ></div>
 
-        <div class="vz-stack__timeline">
-          <div class="vz-stack__line" data-stack-line>
+        <div ref="timelineRef" class="vz-stack__timeline">
+          <div class="vz-stack__line" data-stack-line :style="lineStyle">
             <span data-line-fill :style="{ height: `${progress * 100}%` }"></span>
           </div>
           <article
@@ -70,6 +70,8 @@ const emit = defineEmits<{
 
 const rootRef = ref<HTMLElement | null>(null);
 const sphereRef = ref<HTMLElement | null>(null);
+const timelineRef = ref<HTMLElement | null>(null);
+const lineStyle = ref<Record<string, string>>({});
 const itemCount = computed(() => props.groups.length);
 const total = computed(() => String(props.groups.length).padStart(2, "0"));
 const { activeIndex, progress, scrollToIndex } = useLandingStackScroll(
@@ -91,13 +93,51 @@ const stackSphere = useLandingStackSphere({
   activeLayer,
 });
 
+let timelineResizeObserver: ResizeObserver | null = null;
+
+function updateTimelineGeometry() {
+  const timeline = timelineRef.value;
+  if (!timeline) return;
+
+  const dots = timeline.querySelectorAll<HTMLElement>("[data-dot]");
+  const firstDot = dots.item(0);
+  const lastDot = dots.item(dots.length - 1);
+  if (!firstDot || !lastDot) return;
+
+  const timelineRect = timeline.getBoundingClientRect();
+  const firstRect = firstDot.getBoundingClientRect();
+  const lastRect = lastDot.getBoundingClientRect();
+  const start = firstRect.top + firstRect.height / 2 - timelineRect.top;
+  const end = lastRect.top + lastRect.height / 2 - timelineRect.top;
+
+  lineStyle.value = {
+    top: `${start.toFixed(3)}px`,
+    bottom: "auto",
+    height: `${Math.max(0, end - start).toFixed(3)}px`,
+  };
+}
+
 onMounted(async () => {
   await nextTick();
+  updateTimelineGeometry();
+  if (timelineRef.value) {
+    timelineResizeObserver = new ResizeObserver(updateTimelineGeometry);
+    timelineResizeObserver.observe(timelineRef.value);
+  }
   stackSphere.updatePosition();
   void stackSphere.setup();
 });
 
-onBeforeUnmount(stackSphere.cleanup);
+watch(itemCount, async () => {
+  await nextTick();
+  updateTimelineGeometry();
+});
+
+onBeforeUnmount(() => {
+  timelineResizeObserver?.disconnect();
+  timelineResizeObserver = null;
+  stackSphere.cleanup();
+});
 </script>
 
 <style scoped>
@@ -128,10 +168,16 @@ onBeforeUnmount(stackSphere.cleanup);
     overflow: visible;
   }
 
-  .vz-stack-item > div:last-child {
+.vz-stack-item > div:last-child {
     max-height: none;
     opacity: 1;
     transform: none;
   }
+}
+
+.vz-stack-item [data-halo] {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 </style>

@@ -61,9 +61,9 @@
           </button>
 
           <div class="vz-about__flow-zones" aria-hidden="true">
-            <div class="vz-about__flow-zone"><span>{{ copy.zones[0] }}</span></div>
+            <div class="vz-about__flow-zone vz-about__flow-zone--client"><span>{{ copy.zones[0] }}</span></div>
             <div class="vz-about__flow-zone vz-about__flow-zone--vezha"><span>{{ copy.zones[1] }}</span></div>
-            <div class="vz-about__flow-zone"><span>{{ copy.zones[2] }}</span></div>
+            <div class="vz-about__flow-zone vz-about__flow-zone--product"><span>{{ copy.zones[2] }}</span></div>
           </div>
 
           <svg
@@ -103,11 +103,11 @@
 
           <div class="vz-about__flow-node vz-about__flow-node--business">
             <Transition name="vz-flow-business">
-              <div :key="activeBusiness.label" class="vz-about__flow-content">
-                <svg class="vz-about__flow-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <div :key="activeBusiness.label" class="vz-about__business-content">
+                <svg class="vz-about__business-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path v-for="path in activeBusiness.iconPaths" :key="path" :d="path" />
                 </svg>
-                <span>{{ activeBusiness.label }}</span>
+                <span class="vz-about__business-label">{{ activeBusiness.label }}</span>
               </div>
             </Transition>
           </div>
@@ -129,12 +129,12 @@
               <div
                 v-if="flowPhase === 'result' && activeProduct"
                 :key="activeProduct.label"
-                class="vz-about__flow-content"
+                class="vz-about__product-content"
               >
-                <svg class="vz-about__flow-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <svg class="vz-about__product-icon" viewBox="0 0 24 24" aria-hidden="true">
                   <path v-for="path in activeProduct.iconPaths" :key="path" :d="path" />
                 </svg>
-                <span>{{ activeProduct.label }}</span>
+                <span class="vz-about__product-label">{{ activeProduct.label }}</span>
               </div>
             </Transition>
           </div>
@@ -475,19 +475,27 @@ onBeforeUnmount(() => emit("flow-ready", null));
   transform: translate(-50%, 0);
 }
 
-.vz-about__flow-content {
+.vz-about__business-content,
+.vz-about__product-content {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
-.vz-about__flow-icon {
-  width: 56px;
+.vz-about__business-icon,
+.vz-about__product-icon {
+  width: clamp(48px, 4vw, 56px);
+  height: auto;
+  box-sizing: content-box;
   margin-bottom: -32px;
   padding: 4px;
+  overflow: visible;
   background: var(--bg);
   fill: none;
   stroke: currentColor;
@@ -495,6 +503,15 @@ onBeforeUnmount(() => emit("flow-ready", null));
   stroke-linecap: round;
   stroke-linejoin: round;
   transform: translateY(-50%);
+}
+
+.vz-about__business-label,
+.vz-about__product-label {
+  display: block;
+  width: 100%;
+  min-height: 2.3em;
+  overflow-wrap: anywhere;
+  line-height: 1.15;
 }
 
 .vz-about__flow-stage {
@@ -516,8 +533,19 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 .vz-about__flow-stage-base {
+  z-index: 0;
+  background: color-mix(in srgb, var(--ink) 4%, var(--bg));
+  box-shadow: 0 10px 20px color-mix(in srgb, var(--ink) 7%, transparent);
   transform: translateY(7px);
-  opacity: 0.55;
+}
+
+.vz-about__flow-stage-card {
+  z-index: 1;
+  overflow-wrap: anywhere;
+  background: color-mix(in srgb, var(--bg) 97%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 5%, transparent);
+  transform: translateY(0);
+  will-change: transform;
 }
 
 .vz-about__flow-stage--design { --x: 44%; --y: 70%; }
@@ -525,33 +553,93 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__flow-stage--development { --x: 63%; --y: 66%; }
 .vz-about__flow-stage--testing { --x: 74%; --y: 34%; }
 
-.vz-about__flow.is-signal .vz-about__flow-node--vezha,
-.vz-about__flow.is-signal .vz-about__flow-stage-card {
-  animation: vz-flow-pulse 0.55s ease both;
+.vz-about__flow.is-signal .vz-about__flow-node--vezha {
+  animation: vz-flow-node-receive 0.38s 0.84s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-@keyframes vz-flow-pulse {
+.vz-about__flow.is-signal .vz-about__flow-stage--design .vz-about__flow-stage-card {
+  animation: vz-flow-stage-lift 0.45s 1.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-about__flow.is-signal .vz-about__flow-stage--ux .vz-about__flow-stage-card {
+  animation: vz-flow-stage-lift 0.45s 1.77s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-about__flow.is-signal .vz-about__flow-stage--development .vz-about__flow-stage-card {
+  animation: vz-flow-stage-lift 0.45s 2.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-about__flow.is-signal .vz-about__flow-stage--testing .vz-about__flow-stage-card {
+  animation: vz-flow-stage-lift 0.45s 2.67s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes vz-flow-node-receive {
+  0%,
+  100% {
+    border-color: var(--border);
+    background: color-mix(in srgb, var(--bg) 94%, transparent);
+    color: var(--ink);
+    box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 6%, transparent);
+  }
   50% {
-    border-color: #5aa9ff;
-    box-shadow: 0 0 22px rgba(90, 169, 255, 0.24);
-    transform: translateY(-7px);
+    border-color: color-mix(in srgb, #9b6cff 68%, var(--border));
+    background: color-mix(in srgb, #9b6cff 7%, var(--bg));
+    color: var(--ink);
+    box-shadow: 0 0 22px color-mix(in srgb, #9b6cff 24%, transparent);
+  }
+}
+
+@keyframes vz-flow-stage-lift {
+  0%,
+  100% {
+    border-color: var(--border);
+    background: color-mix(in srgb, var(--bg) 97%, transparent);
+    box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 5%, transparent);
+    transform: translateY(0);
+  }
+  45%,
+  62% {
+    border-color: color-mix(in srgb, #5aa9ff 68%, var(--border));
+    background: color-mix(in srgb, #5aa9ff 7%, var(--bg));
+    box-shadow: 0 14px 24px color-mix(in srgb, #5aa9ff 24%, transparent);
+    transform: translateY(-9px);
   }
 }
 
 .vz-flow-business-enter-active,
-.vz-flow-business-leave-active,
-.vz-flow-product-enter-active,
-.vz-flow-product-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+.vz-flow-business-leave-active {
+  transition:
+    opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.vz-flow-business-enter-from,
+.vz-flow-business-enter-from {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+
+.vz-flow-business-leave-to {
+  opacity: 0;
+  transform: translateX(10px);
+}
+
+.vz-flow-product-enter-active {
+  transition:
+    opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vz-flow-product-leave-active {
+  transition:
+    opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 .vz-flow-product-enter-from {
   opacity: 0;
   transform: translateX(-8px);
 }
 
-.vz-flow-business-leave-to,
 .vz-flow-product-leave-to {
   opacity: 0;
   transform: translateX(8px);
