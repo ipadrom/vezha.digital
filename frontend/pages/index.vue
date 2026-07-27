@@ -347,6 +347,12 @@ let sectionLiquidRaf = 0;
 let sectionLiquidLastFrame = 0;
 let sectionLiquidLastScrollY = 0;
 let sectionLiquidScrollDirection = 0;
+let sectionLiquidStackLock: {
+  x: number;
+  y: number;
+  radius: number;
+  stickyBounds: { top: number; left: number; width: number; height: number } | null;
+} | null = null;
 let negativeStackSyncQueued = false;
 let footerGameRaf = 0;
 let footerGameLastFrame = 0;
@@ -1908,6 +1914,19 @@ function getSectionLiquidTargetCenter(target: SectionLiquidTarget) {
   return (target.rect.top + target.rect.bottom) / 2;
 }
 
+function getStackLiquidScrollLock(targets: SectionLiquidTarget[]) {
+  if (sectionLiquidState.lastTargetKey !== "stack") return null;
+
+  const stackTarget = targets.find((target) => target.key === "stack");
+  if (
+    !stackTarget
+    || stackTarget.sectionRect.top > 0
+    || stackTarget.sectionRect.bottom < window.innerHeight
+  ) return null;
+
+  return stackTarget;
+}
+
 function formatStablePx(value: number) {
   return `${Number(value.toFixed(3))}px`;
 }
@@ -2089,9 +2108,41 @@ function animateSectionLiquid(now: number) {
   } else {
     const nextTarget = getNextSectionLiquidTarget(targets);
     if (nextTarget) commitSectionLiquidTarget(nextTarget);
-    else syncCurrentSectionLiquidTarget(targets);
+    else if (!sectionLiquidStackLock) syncCurrentSectionLiquidTarget(targets);
   }
 
+  const stackScrollLock = getStackLiquidScrollLock(targets);
+  if (stackScrollLock) {
+    if (!sectionLiquidStackLock) {
+      const sticky = rootRef.value?.querySelector<HTMLElement>(
+        "[data-stack-section] > .vz-sticky",
+      );
+      const stickyRect = sticky?.getBoundingClientRect();
+      sectionLiquidStackLock = {
+        x: stackScrollLock.rect.left + stackScrollLock.rect.width / 2,
+        y: stackScrollLock.rect.top + stackScrollLock.rect.height / 2,
+        radius: getSectionLiquidRadius(stackScrollLock),
+        stickyBounds: stickyRect
+          ? {
+              top: stickyRect.top,
+              left: stickyRect.left,
+              width: stickyRect.width,
+              height: stickyRect.height,
+            }
+          : null,
+      };
+    }
+
+    sectionLiquidState.targetX = sectionLiquidStackLock.x;
+    sectionLiquidState.targetY = sectionLiquidStackLock.y;
+    sectionLiquidState.targetRadius = sectionLiquidStackLock.radius;
+  } else if (sectionLiquidState.lastTargetKey === "stack" && sectionLiquidScrollDirection < 0) {
+    sectionLiquidStackLock = null;
+  } else if (sectionLiquidState.lastTargetKey !== "stack") {
+    sectionLiquidStackLock = null;
+  }
+
+  overlay.classList.toggle("is-stack-active", sectionLiquidState.lastTargetKey === "stack");
   updateNegativeWorldPositions();
   syncSectionLiquidTargetOverlay(targets);
 
@@ -2115,6 +2166,25 @@ function animateSectionLiquid(now: number) {
   sectionLiquidState.arcX *= Math.pow(0.9, frame);
   sectionLiquidState.arcY *= Math.pow(0.82, frame);
   sectionLiquidState.radius += (targetRadius - sectionLiquidState.radius) * 0.08 * frame;
+
+  const lockDistance = Math.hypot(
+    sectionLiquidState.targetX - sectionLiquidState.currentX,
+    sectionLiquidState.targetY - sectionLiquidState.currentY,
+  );
+  const lockVelocity = Math.hypot(
+    sectionLiquidState.velocityX,
+    sectionLiquidState.velocityY,
+  );
+  if (sectionLiquidStackLock && lockDistance < 0.75 && lockVelocity < 0.15) {
+    sectionLiquidState.currentX = sectionLiquidState.targetX;
+    sectionLiquidState.currentY = sectionLiquidState.targetY;
+    sectionLiquidState.lastX = sectionLiquidState.targetX;
+    sectionLiquidState.lastY = sectionLiquidState.targetY;
+    sectionLiquidState.arcX = 0;
+    sectionLiquidState.arcY = 0;
+    sectionLiquidState.velocityX = 0;
+    sectionLiquidState.velocityY = 0;
+  }
 
   const velocityX = sectionLiquidState.currentX - sectionLiquidState.lastX;
   const velocityY = sectionLiquidState.currentY - sectionLiquidState.lastY;
@@ -2370,7 +2440,7 @@ function getClosedCurvePath(points: Array<{ x: number; y: number }>, bounds?: He
 }
 
 function formatPathNumber(value: number) {
-  return value.toFixed(1);
+  return value.toFixed(3);
 }
 
 function runPreloader() {
@@ -2641,10 +2711,47 @@ function updateNegativeWorldPositions() {
   const pageHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-negative-world='page']");
   if (root && overlay && pageHost) {
     const rect = root.getBoundingClientRect();
+    const height = Math.max(root.scrollHeight, root.offsetHeight, window.innerHeight);
+    const cloneStackSticky = pageHost.querySelector<HTMLElement>(
+      "[data-negative-clone='true'] [data-stack-section] > .vz-sticky",
+    );
+    const sourceStackSticky = root.querySelector<HTMLElement>(
+      "[data-stack-section] > .vz-sticky",
+    );
+
+    if (sectionLiquidState.lastTargetKey === "stack") {
+      overlay.style.left = "0px";
+      overlay.style.top = "0px";
+      overlay.style.width = formatStablePx(window.innerWidth);
+      overlay.style.height = formatStablePx(window.innerHeight);
+
+      const stickyRect = sectionLiquidStackLock?.stickyBounds
+        ?? sourceStackSticky?.getBoundingClientRect()
+        ?? null;
+      if (stickyRect && cloneStackSticky) {
+        cloneStackSticky.style.position = "fixed";
+        cloneStackSticky.style.top = formatStablePx(stickyRect.top);
+        cloneStackSticky.style.right = "auto";
+        cloneStackSticky.style.bottom = "auto";
+        cloneStackSticky.style.left = formatStablePx(stickyRect.left);
+        cloneStackSticky.style.width = formatStablePx(stickyRect.width);
+        cloneStackSticky.style.height = formatStablePx(stickyRect.height);
+      }
+      return;
+    }
+
+    if (cloneStackSticky) {
+      cloneStackSticky.style.position = "";
+      cloneStackSticky.style.top = "";
+      cloneStackSticky.style.right = "";
+      cloneStackSticky.style.bottom = "";
+      cloneStackSticky.style.left = "";
+      cloneStackSticky.style.width = "";
+      cloneStackSticky.style.height = "";
+    }
+
     const documentLeft = rect.left + window.scrollX;
     const documentTop = rect.top + window.scrollY;
-    const height = Math.max(root.scrollHeight, root.offsetHeight, window.innerHeight);
-
     overlay.style.left = formatStablePx(documentLeft);
     overlay.style.top = formatStablePx(documentTop);
     overlay.style.width = formatStablePx(rect.width);
@@ -3550,6 +3657,25 @@ useHead(() => ({
   opacity: 1;
 }
 
+.vz-section-liquid.is-stack-active {
+  position: fixed;
+}
+
+.vz-section-liquid.is-stack-active .vz-negative-world {
+  visibility: hidden;
+}
+
+.vz-section-liquid.is-stack-active
+  .vz-negative-world
+  [data-negative-clone="true"]
+  [data-stack-section]
+  > .vz-sticky {
+  visibility: visible;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
+}
+
 .vz-section-liquid__target {
   position: absolute;
   z-index: 2;
@@ -3978,6 +4104,12 @@ useHead(() => ({
 
 .vz-stack {
   padding: var(--section-space) 0;
+}
+
+.vz-stack > .vz-sticky {
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 .vz-sticky {
@@ -4966,8 +5098,8 @@ useHead(() => ({
 
   .vz-stack h2 {
     max-width: none;
-    font-size: 18px;
-    line-height: 1.15;
+    font-size: 26px;
+    line-height: 1.05;
   }
 
   .vz-stack {
