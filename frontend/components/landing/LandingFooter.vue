@@ -3,14 +3,22 @@
     <div class="vz-footer__top" data-footer-top>
       <a href="#hero">{{ copy.topLink }}</a>
     </div>
-    <div class="vz-footer__cols" data-footer-cols>
+    <div
+      class="vz-footer__cols"
+      :class="{ 'vz-footer__cols--without-base': !copy.base.some(Boolean) }"
+      data-footer-cols
+    >
       <div>
         <span>{{ copy.yearLabel }}</span>
         <strong>2026</strong>
       </div>
-      <div>
+      <div v-if="copy.base.some(Boolean)">
         <span>{{ copy.baseLabel }}</span>
-        <p>{{ copy.base[0] }}<br />{{ copy.base[1] }}</p>
+        <p>
+          <template v-for="(item, index) in copy.base.filter(Boolean)" :key="item">
+            <br v-if="index" />{{ item }}
+          </template>
+        </p>
       </div>
       <div>
         <span>{{ copy.contactLabel }}</span>
@@ -35,7 +43,7 @@
     </div>
     <div class="vz-footer__legal" data-footer-legal>
       <span>© 2026 · VEZHA DIGITAL</span>
-      <span>{{ copy.legal }}</span>
+      <span v-if="copy.legal">{{ copy.legal }}</span>
     </div>
     <div
       ref="gameRef"

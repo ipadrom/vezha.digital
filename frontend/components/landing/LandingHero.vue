@@ -18,8 +18,7 @@
 
     <div class="vz-hero__inner">
       <div class="vz-hero__meta" data-hero-meta>
-        <span>{{ copy.meta[0] }}</span>
-        <span>{{ copy.meta[1] }}</span>
+        <span v-for="item in copy.meta.filter(Boolean)" :key="item">{{ item }}</span>
       </div>
       <div class="vz-hero__kicker">
         <span>{{ copy.kicker }}</span>

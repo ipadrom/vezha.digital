@@ -7,7 +7,11 @@
       </div>
       <div class="vz-preloader__bottom">
         <div class="vz-preloader__count"><span>{{ introProgress.toString().padStart(2, "0") }}</span><span>%</span></div>
-        <div class="vz-preloader__meta">{{ copy.preloader.meta[0] }}<br />{{ copy.preloader.meta[1] }}</div>
+        <div class="vz-preloader__meta">
+          <template v-for="(item, index) in copy.preloader.meta.filter(Boolean)" :key="item">
+            <br v-if="index" />{{ item }}
+          </template>
+        </div>
       </div>
     </div>
 
@@ -23,7 +27,6 @@
         <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
           {{ theme === "dark" ? "☀" : "☾" }}
         </button>
-        <LandingLanguageSwitcher />
         <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
         <button class="vz-menu-button" type="button" :aria-label="copy.nav.menuOpen" data-nav-toggle @click="isMenuOpen = true">
           <span></span>
@@ -42,7 +45,6 @@
           <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
             {{ theme === "dark" ? "☀" : "☾" }}
           </button>
-          <LandingLanguageSwitcher />
           <button class="vz-icon-button" type="button" :aria-label="copy.nav.menuClose" @click="isMenuOpen = false">✕</button>
         </div>
       </div>
@@ -3527,40 +3529,6 @@ useHead(() => ({
   transform-origin: 50% 50%;
 }
 
-.vz-corner {
-  position: absolute;
-  width: 11px;
-  height: 11px;
-}
-
-.vz-corner i,
-.vz-corner b {
-  position: absolute;
-  display: block;
-  background: var(--muted2);
-}
-
-.vz-corner i {
-  top: 0;
-  left: 50%;
-  width: 1px;
-  height: 100%;
-  transform: translateX(-50%);
-}
-
-.vz-corner b {
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  transform: translateY(-50%);
-}
-
-.vz-corner--1 { top: 26px; left: 26px; }
-.vz-corner--2 { top: 26px; right: 26px; }
-.vz-corner--3 { bottom: 26px; left: 26px; }
-.vz-corner--4 { right: 26px; bottom: 26px; }
-
 .vz-hero__negative {
   position: absolute;
   inset: 0;
@@ -4760,6 +4728,10 @@ useHead(() => ({
   padding: 64px 40px 52px;
 }
 
+.vz-footer__cols.vz-footer__cols--without-base {
+  grid-template-columns: repeat(3, 1fr);
+}
+
 .vz-footer__cols > div > span {
   display: block;
   margin-bottom: 14px;
@@ -5428,6 +5400,10 @@ useHead(() => ({
     grid-template-columns: 1fr 1fr;
     gap: 26px 20px;
     padding: 44px 20px 36px;
+  }
+
+  .vz-footer__cols.vz-footer__cols--without-base {
+    grid-template-columns: 1fr 1fr;
   }
 
   .vz-footer__sign {
