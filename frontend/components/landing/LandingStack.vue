@@ -58,6 +58,7 @@
 
 <script setup lang="ts">
 import { useLandingStackScroll } from "~/composables/landing/useLandingStackScroll";
+import { useLandingStackSphere } from "~/composables/landing/useLandingStackSphere";
 
 type StackGroup = { title: string; description: string; items: string[] };
 type StackCopy = { label: string; title: string; meta: string; hint: [string, string] };
@@ -65,7 +66,6 @@ type StackCopy = { label: string; title: string; meta: string; hint: [string, st
 const props = defineProps<{ groups: StackGroup[]; copy: StackCopy }>();
 const emit = defineEmits<{
   activeChange: [index: number, progress: number];
-  sphereReady: [element: HTMLElement];
 }>();
 
 const rootRef = ref<HTMLElement | null>(null);
@@ -86,9 +86,18 @@ const activeLayer = computed(() => {
   return "surface";
 });
 
-onMounted(() => {
-  if (sphereRef.value) emit("sphereReady", sphereRef.value);
+const stackSphere = useLandingStackSphere({
+  hostRef: sphereRef,
+  activeLayer,
 });
+
+onMounted(async () => {
+  await nextTick();
+  stackSphere.updatePosition();
+  void stackSphere.setup();
+});
+
+onBeforeUnmount(stackSphere.cleanup);
 </script>
 
 <style scoped>

@@ -69,130 +69,31 @@
       </div>
     </Teleport>
 
-    <section
-      id="hero"
-      ref="heroRef"
-      class="vz-hero"
-      @pointerenter="updateHeroNegative"
-      @pointermove="updateHeroNegative"
-      @pointerleave="resetHeroNegative"
-    >
-      <div class="vz-hero__art" aria-hidden="true">
-        <div class="vz-aura vz-aura--top"></div>
-        <div class="vz-orbit">
-          <svg data-orbit viewBox="0 0 200 200" fill="none">
-            <circle cx="100" cy="100" r="98" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 7" />
-          </svg>
-        </div>
-      </div>
+    <LandingHero
+      :copy="copy.hero"
+      :marquee-aria="copy.marqueeAria"
+      :marquee-items="marqueeItems"
+      @pointer-enter="updateHeroNegative"
+      @pointer-move="updateHeroNegative"
+      @pointer-leave="resetHeroNegative"
+      @hero-ready="setHeroHosts"
+    />
 
-      <div class="vz-hero__inner">
-        <div class="vz-hero__meta" data-hero-meta>
-          <span>{{ copy.hero.meta[0] }}</span>
-          <span>{{ copy.hero.meta[1] }}</span>
-        </div>
-        <div class="vz-hero__kicker">
-          <span>{{ copy.hero.kicker }}</span>
-        </div>
-        <h1>
-          <span v-for="line in copy.hero.title" :key="line"><span data-reveal>{{ line }}</span></span>
-        </h1>
-        <div class="vz-hero__grid" data-hero-grid>
-          <p>{{ copy.hero.text }}</p>
-          <div class="vz-hero__actions">
-            <a class="vz-button vz-button--dark" href="#contacts">{{ copy.hero.cta }}</a>
-            <a class="vz-button-link" href="#stack">{{ copy.hero.stackLink }} <span aria-hidden="true">↓</span></a>
-          </div>
-        </div>
-        <div class="vz-hero__stats" data-hero-stats>
-          <span v-for="stat in copy.hero.stats" :key="stat">{{ stat }}</span>
-        </div>
-      </div>
-
-      <div ref="heroNegativeRef" class="vz-hero__negative vz-hero__negative--main" aria-hidden="true">
-        <div class="vz-hero__negative-plane" data-hero-negative-plane>
-          <div class="vz-negative-world vz-negative-world--hero" data-negative-world="hero"></div>
-        </div>
-      </div>
-
-      <div class="vz-marquee" :aria-label="copy.marqueeAria">
-        <div>
-          <span v-for="item in marqueeItems" :key="`a-${item}`">{{ item }} <i>✦</i></span>
-          <span v-for="item in marqueeItems" :key="`b-${item}`" aria-hidden="true">{{ item }} <i>✦</i></span>
-        </div>
-      </div>
-    </section>
-
-    <section id="about" class="vz-about">
-      <div ref="aboutLiquidRef" class="vz-about__liquid" aria-hidden="true"></div>
-      <div class="vz-about__grid">
-        <div class="vz-about__brand">
-          <div class="vz-section-label">
-            <span>{{ copy.about.label }}</span>
-            <i>/</i>
-            <span data-secnum>01</span>
-          </div>
-          <div class="vz-about__mark" aria-hidden="true">
-            <span>VEZHA</span>
-            <i>digital</i>
-          </div>
-          <div class="vz-about__roles">
-            <div>
-              <span>01</span>
-              <strong>{{ copy.about.roles[0] }}</strong>
-            </div>
-            <div>
-              <span>02</span>
-              <strong>{{ copy.about.roles[1] }}</strong>
-            </div>
-            <div>
-              <span>03</span>
-              <strong>{{ copy.about.roles[2] }}</strong>
-            </div>
-          </div>
-          <p class="vz-about__note">{{ copy.about.note }}</p>
-        </div>
-        <div class="vz-about__copy">
-          <div class="vz-about__eyebrow">
-            <span>{{ copy.about.eyebrow[0] }}</span>
-            <span>{{ copy.about.eyebrow[1] }}</span>
-          </div>
-          <p class="vz-about__lead">
-            {{ copy.about.teamLead }}
-          </p>
-          <div class="vz-about__principles">
-            <article>
-              <span>01</span>
-              <p>{{ copy.about.paragraphs[0] }}</p>
-            </article>
-            <article>
-              <span>02</span>
-              <p>{{ copy.about.paragraphs[1] }}</p>
-            </article>
-          </div>
-          <div class="vz-about__metrics">
-            <div>
-              <strong>01</strong>
-              <span>{{ copy.about.metrics[0] }}</span>
-            </div>
-            <div>
-              <strong>0</strong>
-              <span>{{ copy.about.metrics[1] }}</span>
-            </div>
-            <div>
-              <strong>1-4</strong>
-              <span>{{ copy.about.metrics[2] }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    <LandingAbout
+      :copy="copy.about"
+      :flow-phase="aboutFlowPhase"
+      :flow-cycle-key="aboutFlowCycleKey"
+      :snake-segments="aboutFlowSnakeSegments"
+      :active-business="activeAboutBusiness"
+      :active-product="activeAboutProduct"
+      @replay="replayAboutFlow"
+      @flow-ready="setAboutFlowHost"
+    />
 
     <LandingStack
       :groups="displayStackGroups"
       :copy="copy.stack"
       @active-change="handleStackActiveChange"
-      @sphere-ready="handleStackSphereReady"
     />
 
     <LandingServices
@@ -201,60 +102,12 @@
       @active-change="handleServiceActiveChange"
     />
 
-    <section id="clients" class="vz-clients">
-      <div class="vz-clients__grid" data-clients-grid>
-        <div>
-          <div class="vz-section-label">
-            <span>{{ copy.clients.label }}</span>
-            <i>/</i>
-            <span aria-hidden="true">✦</span>
-          </div>
-          <h2><span><span data-reveal>{{ copy.clients.title }}</span></span></h2>
-        </div>
-        <div
-          class="vz-client-interactive"
-          :style="{ '--active-client-index': activeClientSegment }"
-        >
-          <div class="vz-client-capsules" role="tablist" :aria-label="copy.clients.tabAria">
-            <button
-              v-for="(segment, index) in clientSegments"
-              :id="`client-tab-${segment.key}`"
-              :key="segment.key"
-              :aria-controls="`client-panel-${segment.key}`"
-              :aria-selected="activeClientSegment === index"
-              :class="{ 'is-active': activeClientSegment === index }"
-              role="tab"
-              type="button"
-              @click="activeClientSegment = index"
-              @focus="activeClientSegment = index"
-            >
-              {{ segment.label }}
-            </button>
-          </div>
-
-          <div class="vz-client-connector" aria-hidden="true">
-            <span></span>
-          </div>
-
-          <article
-            :id="`client-panel-${activeClient.key}`"
-            :aria-labelledby="`client-tab-${activeClient.key}`"
-            class="vz-client-copy"
-            role="tabpanel"
-          >
-            <span :key="`${activeClient.key}-eyebrow`">{{ activeClient.eyebrow }}</span>
-            <h3 :key="`${activeClient.key}-title`">{{ activeClient.title }}</h3>
-            <p :key="`${activeClient.key}-text`">{{ activeClient.text }}</p>
-          </article>
-        </div>
-        <div
-          ref="clientCubeRef"
-          class="vz-client-cube-field"
-          :data-client-cube-stage="activeClient.key"
-          aria-hidden="true"
-        ></div>
-      </div>
-    </section>
+    <LandingClients
+      v-model:active-index="activeClientSegment"
+      :copy="copy.clients"
+      :segments="clientSegments"
+      @cube-ready="setClientCubeHost"
+    />
 
     <LandingDevelopmentAnatomy
       :stages="displayStages"
@@ -262,107 +115,24 @@
       @revealed="syncNegativeWorlds(true)"
     />
 
-    <section id="contacts" class="vz-contacts">
-      <div class="vz-contacts__art" aria-hidden="true">
-        <div></div>
-        <span v-for="corner in 4" :key="corner" :class="`vz-corner vz-corner--${corner}`"><i></i><b></b></span>
-      </div>
-      <div class="vz-contacts__inner">
-        <div class="vz-section-label">
-          <span>{{ copy.contacts.label }}</span>
-          <i>/</i>
-          <span data-secnum>05</span>
-        </div>
-        <h2><span><span data-reveal>{{ copy.contacts.title }}</span></span></h2>
-        <div class="vz-contacts__buttons" data-contacts-btns>
-          <a class="vz-button vz-button--dark" :href="`mailto:${contactEmail}`">{{ copy.contacts.emailCta }}</a>
-          <a class="vz-button vz-button--light" :href="`mailto:${contactEmail}`">{{ contactEmail }}</a>
-        </div>
-      </div>
-    </section>
+    <LandingContacts :copy="copy.contacts" :contact-email="contactEmail" />
 
-    <footer class="vz-footer">
-      <div class="vz-footer__top" data-footer-top>
-        <span>{{ copy.footer.tagline }}</span>
-        <a href="#hero">{{ copy.footer.topLink }}</a>
-      </div>
-      <div class="vz-footer__cols" data-footer-cols>
-        <div>
-          <span>{{ copy.footer.yearLabel }}</span>
-          <strong>2026</strong>
-        </div>
-        <div>
-          <span>{{ copy.footer.baseLabel }}</span>
-          <p>{{ copy.footer.base[0] }}<br />{{ copy.footer.base[1] }}</p>
-        </div>
-        <div>
-          <span>{{ copy.footer.contactLabel }}</span>
-          <nav>
-            <a :href="`mailto:${contactEmail}`">{{ contactEmail }} →</a>
-            <a href="#hero">vezha.digital ↗</a>
-          </nav>
-        </div>
-        <div>
-          <span>{{ copy.footer.navLabel }}</span>
-          <nav>
-            <a v-for="item in footerNavItems" :key="item.href" :href="item.href">{{ item.label }}</a>
-          </nav>
-        </div>
-      </div>
-      <div class="vz-footer__sign" data-footer-sign>
-        <div>
-          <span>{{ copy.footer.signOff }}</span>
-          <span>vezha.digital</span>
-        </div>
-        <strong data-clip-reveal><span data-footer-word>VEZHA</span></strong>
-      </div>
-      <div class="vz-footer__legal" data-footer-legal>
-        <span>© 2026 · VEZHA DIGITAL</span>
-        <span>{{ copy.footer.legal }}</span>
-      </div>
-      <div
-        ref="footerGameRef"
-        class="vz-footer-game"
-        :aria-label="copy.footer.game.aria"
-        :class="{
-          'is-running': footerGame.running,
-          'is-paused': !footerGame.running && !footerGame.crashed,
-          'is-crashed': footerGame.crashed,
-        }"
-        @pointerdown.prevent="jumpFooterDino"
-      >
-        <div class="vz-footer-game__hud">
-          <span>{{ copy.footer.game.name }}</span>
-          <span>{{ footerGameStatus }}</span>
-          <span>{{ footerGameScore }}</span>
-        </div>
-        <div class="vz-footer-game__track" data-footer-game-track>
-          <div
-            class="vz-footer-game__dino"
-            :style="{ transform: `translateY(${-footerGame.dinoY}px)` }"
-            aria-hidden="true"
-          >
-            <span></span>
-            <i></i>
-            <b></b>
-          </div>
-          <span
-            v-for="obstacle in footerObstacles"
-            :key="obstacle.id"
-            class="vz-footer-game__letter"
-            :style="{ transform: `translateX(${obstacle.x}px)` }"
-            aria-hidden="true"
-          >
-            {{ obstacle.letter }}
-          </span>
-          <div class="vz-footer-game__ground" aria-hidden="true"></div>
-        </div>
-      </div>
-    </footer>
+    <LandingFooter
+      :copy="copy.footer"
+      :contact-email="contactEmail"
+      :nav-items="footerNavItems"
+      :game="footerGame"
+      :game-status="footerGameStatus"
+      :game-score="footerGameScore"
+      :obstacles="footerObstacles"
+      @jump="jumpFooterDino"
+      @game-ready="setFooterGameHost"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import LandingAbout from "~/components/landing/LandingAbout.vue";
 import type { IAdvantages } from "~/utils/interfaces/IAdvantages";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 import type { IServices } from "~/utils/interfaces/IServices";
@@ -402,6 +172,11 @@ type ClientSegment = {
   eyebrow: string;
   title: string;
   text: string;
+};
+
+type AboutFlowItem = {
+  label: string;
+  iconPaths: string[];
 };
 
 type FooterObstacle = {
@@ -465,13 +240,17 @@ type LandingCopy = {
   marqueeItems: string[];
   about: {
     label: string;
-    lead: string;
-    paragraphs: string[];
-    roles: [string, string, string];
+    paragraphs: [string, string];
     note: string;
     eyebrow: [string, string];
     teamLead: string;
     metrics: [string, string, string];
+    flowAria: string;
+    replay: string;
+    zones: [string, string, string];
+    stages: [string, string, string, string];
+    business: [string, string, string, string];
+    products: [string, string, string, string];
   };
   stack: {
     label: string;
@@ -546,6 +325,7 @@ const rootRef = ref<HTMLElement | null>(null);
 const heroRef = ref<HTMLElement | null>(null);
 const heroNegativeRef = ref<HTMLElement | null>(null);
 const sectionLiquidRef = ref<HTMLElement | null>(null);
+const aboutFlowRef = ref<HTMLElement | null>(null);
 const aboutLiquidRef = ref<HTMLElement | null>(null);
 const stackSphereRef = ref<HTMLElement | null>(null);
 const clientCubeRef = ref<HTMLElement | null>(null);
@@ -575,6 +355,8 @@ let footerGameSpawnIn = 0;
 let footerGameStartBlockedUntil = 0;
 let footerGameNeedsReentry = false;
 let aboutLiquidCleanup: (() => void) | null = null;
+let aboutFlowResultTimer: ReturnType<typeof setTimeout> | null = null;
+let aboutFlowObserver: IntersectionObserver | null = null;
 let stackSphereCleanup: (() => void) | null = null;
 let clientCubeCleanup: (() => void) | null = null;
 let updateClientCubeStage: ((index: number) => void) | null = null;
@@ -644,6 +426,62 @@ const enMessages = JSON.parse(enMessagesRaw) as { landing: LandingCopy };
 const ruMessages = JSON.parse(ruMessagesRaw) as { landing: LandingCopy };
 const landingMessages = { ru: ruMessages.landing, en: enMessages.landing };
 const copy = computed(() => landingMessages[currentLocale.value] as LandingCopy);
+
+const aboutBusinessIcons = [
+  [
+    "M20 21a8 8 0 0 0-16 0",
+    "M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z",
+  ],
+  [
+    "M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z",
+    "M9 14 7 22l5-3 5 3-2-8",
+  ],
+  [
+    "M14.7 6.3a4 4 0 0 0-5-5l2.1 2.1-2.8 2.8-2.1-2.1a4 4 0 0 0 5 5l-8.6 8.6a2 2 0 0 0 2.8 2.8l8.6-8.6a4 4 0 0 0 5-5l-2.1 2.1-2.8-2.8 2.1-2.1a4 4 0 0 0-5 0Z",
+  ],
+  [
+    "M4 21V3h10v18",
+    "M14 9h6v12",
+    "M2 21h20",
+    "M7 7h1M11 7h1M7 11h1M11 11h1M7 15h1M11 15h1M17 13h1M17 17h1",
+  ],
+];
+
+const aboutProductIcons = [
+  [
+    "M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3Z",
+    "M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6",
+    "M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6",
+  ],
+  ["M22 2 11 13", "M22 2 15 22l-4-9-9-4 20-7Z"],
+  ["M3 4h18v16H3V4Z", "M3 8h18", "M7 6h.01"],
+  ["M3 4h2l2 12h10l3-8H6", "M9 21h.01M17 21h.01"],
+];
+
+const aboutBusinessItems = computed<AboutFlowItem[]>(() => copy.value.about.business.map((label, index) => ({
+  label,
+  iconPaths: aboutBusinessIcons[index] || aboutBusinessIcons[0]!,
+})));
+const aboutProductItems = computed<AboutFlowItem[]>(() => copy.value.about.products.map((label, index) => ({
+  label,
+  iconPaths: aboutProductIcons[index] || aboutProductIcons[0]!,
+})));
+const aboutFlowSnakeSegments = [
+  { key: "design", path: "M 32 50 C 37 50 39 70 44 70", begin: "1.07s" },
+  { key: "ux", path: "M 44 70 C 49 70 48 30 53 30", begin: "1.52s" },
+  { key: "development", path: "M 53 30 C 58 30 58 66 63 66", begin: "1.97s" },
+  { key: "testing", path: "M 63 66 C 68 66 69 34 74 34", begin: "2.42s" },
+  { key: "product", path: "M 74 34 C 80 34 82 50 86.5 50", begin: "2.87s" },
+];
+const aboutFlowResultDelayMs = 3200;
+const aboutFlowBusinessIndex = ref(0);
+const activeAboutProduct = ref<AboutFlowItem | null>(null);
+const aboutFlowPhase = ref<"signal" | "result">("result");
+const aboutFlowCycleKey = ref(0);
+const activeAboutBusiness = computed<AboutFlowItem>(() => (
+  aboutBusinessItems.value[aboutFlowBusinessIndex.value] || aboutBusinessItems.value[0]!
+));
+
 const clientSegments = computed(() => copy.value.clients.segments);
 const navItems = computed(() => copy.value.nav.items);
 const footerNavItems = computed(() => navItems.value.filter((item) => item.href !== "#contacts"));
@@ -709,6 +547,90 @@ const displayStages = computed<DisplayStage[]>(() => {
 });
 
 const contactEmail = computed(() => settings.value?.contact_email || "contact@vezha.digital");
+
+function setAboutFlowHost(element: HTMLElement | null) {
+  aboutFlowRef.value = element;
+}
+
+function setHeroHosts(hero: HTMLElement | null, negative: HTMLElement | null) {
+  heroRef.value = hero;
+  heroNegativeRef.value = negative;
+}
+
+function setClientCubeHost(element: HTMLElement | null) {
+  clientCubeRef.value = element;
+}
+
+function setFooterGameHost(element: HTMLElement | null) {
+  footerGameRef.value = element;
+}
+
+function pickNextAboutProduct(): AboutFlowItem | null {
+  const items = aboutProductItems.value;
+  if (items.length <= 1) return items[0] || null;
+
+  let next = activeAboutProduct.value;
+  while (next?.label === activeAboutProduct.value?.label) {
+    next = items[Math.floor(Math.random() * items.length)] || null;
+  }
+  return next;
+}
+
+function clearAboutFlowResultTimer() {
+  if (!aboutFlowResultTimer) return;
+  clearTimeout(aboutFlowResultTimer);
+  aboutFlowResultTimer = null;
+}
+
+function runAboutFlowCycle(advanceBusiness = true) {
+  clearAboutFlowResultTimer();
+  if (advanceBusiness) {
+    aboutFlowBusinessIndex.value = (aboutFlowBusinessIndex.value + 1) % aboutBusinessItems.value.length;
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    activeAboutProduct.value = pickNextAboutProduct();
+    aboutFlowPhase.value = "result";
+    return;
+  }
+
+  activeAboutProduct.value = null;
+  aboutFlowPhase.value = "signal";
+  aboutFlowCycleKey.value += 1;
+  aboutFlowResultTimer = setTimeout(() => {
+    activeAboutProduct.value = pickNextAboutProduct();
+    aboutFlowPhase.value = "result";
+    aboutFlowResultTimer = null;
+  }, aboutFlowResultDelayMs);
+}
+
+function replayAboutFlow() {
+  runAboutFlowCycle(true);
+}
+
+function setupAboutFlowObserver() {
+  if (!aboutFlowRef.value) return;
+  aboutFlowObserver?.disconnect();
+
+  if (!("IntersectionObserver" in window)) {
+    runAboutFlowCycle(false);
+    return;
+  }
+
+  aboutFlowObserver = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    runAboutFlowCycle(false);
+    aboutFlowObserver?.disconnect();
+    aboutFlowObserver = null;
+  }, { threshold: 0.42 });
+  aboutFlowObserver.observe(aboutFlowRef.value);
+}
+
+function stopAboutFlow() {
+  aboutFlowObserver?.disconnect();
+  aboutFlowObserver = null;
+  clearAboutFlowResultTimer();
+}
 
 function toNumber(value: number) {
   return value.toString().padStart(2, "0");
@@ -1071,7 +993,10 @@ async function setupStackSphereScene() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.setAttribute("aria-hidden", "true");
-    host.replaceChildren(renderer.domElement);
+    const labelLayer = document.createElement("div");
+    labelLayer.className = "vz-stack__sphere-labels";
+    labelLayer.setAttribute("aria-hidden", "true");
+    host.replaceChildren(renderer.domElement, labelLayer);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
@@ -1112,6 +1037,86 @@ async function setupStackSphereScene() {
 
     const surfacePoints = createStackSpherePoints(THREE, 118, 1.62, 0.98);
     const corePoints = createStackSpherePoints(THREE, 72, 0.62, 1);
+    type StackLabelLayer = "surface" | "core" | "bridge" | "all";
+    type StackLabelPoint = {
+      element: HTMLSpanElement;
+      point: import("three").Vector3;
+      layer: StackLabelLayer;
+      projectionGroup: import("three").Object3D;
+    };
+    type StackLabelSpec = {
+      angle: number;
+      color: string;
+      label: string;
+      layer: StackLabelLayer;
+      projectionGroup: import("three").Object3D;
+      radius: number;
+      radiusZ: number;
+      slug: string;
+      y: number;
+    };
+
+    const labelSpecs: StackLabelSpec[] = [
+      { layer: "surface", label: "React", slug: "react", color: "#61DAFB", angle: 2.75, y: 0.66, radius: 1.72, radiusZ: 1.62, projectionGroup: rootGroup },
+      { layer: "surface", label: "Vue 3", slug: "vuedotjs", color: "#4FC08D", angle: 2.19, y: 0.28, radius: 1.72, radiusZ: 1.62, projectionGroup: rootGroup },
+      { layer: "surface", label: "Next.js", slug: "nextdotjs", color: "#111318", angle: 1.63, y: -0.08, radius: 1.72, radiusZ: 1.62, projectionGroup: rootGroup },
+      { layer: "surface", label: "TypeScript", slug: "typescript", color: "#3178C6", angle: 1.07, y: 0.46, radius: 1.72, radiusZ: 1.62, projectionGroup: rootGroup },
+      { layer: "surface", label: "Tailwind", slug: "tailwindcss", color: "#06B6D4", angle: 0.51, y: -0.48, radius: 1.72, radiusZ: 1.62, projectionGroup: rootGroup },
+      { layer: "core", label: "Go", slug: "go", color: "#00ADD8", angle: 2.55, y: 0.28, radius: 0.82, radiusZ: 0.76, projectionGroup: coreGroup },
+      { layer: "core", label: "Gin", slug: "gin", color: "#008ECF", angle: 1.25, y: -0.18, radius: 0.82, radiusZ: 0.76, projectionGroup: coreGroup },
+      { layer: "core", label: "PostgreSQL", slug: "postgresql", color: "#4169E1", angle: -0.15, y: 0.16, radius: 0.82, radiusZ: 0.76, projectionGroup: coreGroup },
+      { layer: "core", label: "Redis", slug: "redis", color: "#DC382D", angle: -1.55, y: -0.3, radius: 0.82, radiusZ: 0.76, projectionGroup: coreGroup },
+      { layer: "bridge", label: "Docker", slug: "docker", color: "#2496ED", angle: 2.8, y: 0.48, radius: 1.28, radiusZ: 1.2, projectionGroup: bridgeGroup },
+      { layer: "bridge", label: "Nginx", slug: "nginx", color: "#009639", angle: 1.25, y: -0.34, radius: 1.28, radiusZ: 1.2, projectionGroup: bridgeGroup },
+      { layer: "bridge", label: "CI/CD", slug: "githubactions", color: "#7C3AED", angle: -0.2, y: 0.32, radius: 1.28, radiusZ: 1.2, projectionGroup: bridgeGroup },
+      { layer: "bridge", label: "Linux", slug: "linux", color: "#F5B800", angle: -1.7, y: -0.46, radius: 1.28, radiusZ: 1.2, projectionGroup: bridgeGroup },
+      { layer: "all", label: "React Native", slug: "react", color: "#61DAFB", angle: 2.65, y: 0.44, radius: 1.5, radiusZ: 1.4, projectionGroup: rootGroup },
+      { layer: "all", label: "Expo", slug: "expo", color: "#111318", angle: 1.2, y: -0.24, radius: 1.5, radiusZ: 1.4, projectionGroup: rootGroup },
+      { layer: "all", label: "PWA", slug: "pwa", color: "#5A0FC8", angle: -0.2, y: 0.3, radius: 1.5, radiusZ: 1.4, projectionGroup: rootGroup },
+      { layer: "all", label: "Flutter", slug: "flutter", color: "#54C5F8", angle: -1.65, y: -0.4, radius: 1.5, radiusZ: 1.4, projectionGroup: rootGroup },
+    ];
+
+    const createStackLabelElement = (spec: StackLabelSpec) => {
+      const element = document.createElement("span");
+      const icon = document.createElement("span");
+      const image = document.createElement("img");
+      const text = document.createElement("span");
+
+      element.className = "vz-stack__sphere-label";
+      element.dataset.layer = spec.layer;
+      element.style.opacity = "0";
+      icon.className = "vz-stack__sphere-label-icon";
+      icon.style.setProperty("--stack-tech-color", spec.color);
+      image.src = `https://cdn.simpleicons.org/${spec.slug}/ffffff`;
+      image.alt = "";
+      image.decoding = "async";
+      icon.appendChild(image);
+      text.className = "vz-stack__sphere-label-text";
+      text.textContent = spec.label;
+      element.append(icon, text);
+      labelLayer.appendChild(element);
+      return element;
+    };
+
+    const stackLabelPoints = labelSpecs.flatMap<StackLabelPoint>((spec) => {
+      const point = new THREE.Vector3(
+        Math.cos(spec.angle) * spec.radius,
+        spec.y,
+        Math.sin(spec.angle) * spec.radiusZ,
+      );
+      const element = createStackLabelElement(spec);
+      const loopElement = createStackLabelElement(spec);
+      return [
+        { element, point, layer: spec.layer, projectionGroup: spec.projectionGroup },
+        {
+          element: loopElement,
+          point: new THREE.Vector3(-point.x, point.y, -point.z),
+          layer: spec.layer,
+          projectionGroup: spec.projectionGroup,
+        },
+      ];
+    });
+
     const surfacePointGeometry = new THREE.BufferGeometry().setFromPoints(surfacePoints);
     const corePointGeometry = new THREE.BufferGeometry().setFromPoints(corePoints);
     const surfaceLineGeometry = createStackLineGeometry(THREE, surfacePoints, createStackSpherePairs(surfacePoints, 5, 0.72));
@@ -1173,6 +1178,47 @@ async function setupStackSphereScene() {
     let isVisible = true;
     const positionInterval = window.setInterval(updateStackSpherePosition, 300);
 
+    const fadeRange = (value: number, from: number, to: number) => (
+      clampValue((value - from) / (to - from), 0, 1)
+    );
+    const updateStackLabels = () => {
+      const width = Math.max(1, host.clientWidth);
+      const height = Math.max(1, host.clientHeight);
+      const activeLayer = (host.dataset.layer || "surface") as StackLabelLayer;
+      rootGroup.updateMatrixWorld(true);
+      camera.updateMatrixWorld(true);
+
+      stackLabelPoints.forEach((item, index) => {
+        const world = item.point.clone();
+        item.projectionGroup.localToWorld(world);
+        const counterpart = stackLabelPoints[index % 2 === 0 ? index + 1 : index - 1]!;
+        const counterpartWorld = counterpart.point.clone();
+        counterpart.projectionGroup.localToWorld(counterpartWorld);
+        const projected = world.clone().project(camera);
+        const x = (projected.x * 0.5 + 0.5) * width;
+        const y = (-projected.y * 0.5 + 0.5) * height;
+        const edgeFade = (
+          fadeRange(projected.x, -0.96, -0.84)
+          * (1 - fadeRange(projected.x, 0.76, 0.9))
+        );
+        const frontFade = fadeRange(world.z, -0.1, 0.14);
+        const isFrontOfPair = (
+          world.z > counterpartWorld.z
+          || (world.z === counterpartWorld.z && index % 2 === 0)
+        );
+        const opacity = (
+          activeLayer === item.layer && isFrontOfPair
+            ? clampValue(edgeFade * frontFade, 0, 1)
+            : 0
+        );
+        const scale = 0.78 + frontFade * 0.2;
+
+        item.element.style.opacity = opacity.toFixed(3);
+        item.element.style.zIndex = String(Math.round(100 + world.z * 20));
+        item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+      });
+    };
+
     const resize = () => {
       updateStackSpherePosition();
       const width = Math.max(1, host.clientWidth);
@@ -1181,6 +1227,7 @@ async function setupStackSphereScene() {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
       renderer.render(scene, camera);
+      updateStackLabels();
     };
 
     const getLayerTargets = () => {
@@ -1217,6 +1264,7 @@ async function setupStackSphereScene() {
         rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
         rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
         renderer.render(scene, camera);
+        updateStackLabels();
       }
 
       frameId = requestAnimationFrame(tick);
@@ -1251,6 +1299,7 @@ async function setupStackSphereScene() {
       trackedMaterials.forEach(({ material }) => material.dispose());
       renderer.dispose();
       renderer.domElement.remove();
+      labelLayer.remove();
       stackSphereCleanup = null;
     };
   } catch (error) {
@@ -2575,7 +2624,7 @@ onMounted(async () => {
   updateClientCubePosition();
   startHeroNegative();
   startSectionLiquid();
-  void setupAboutLiquidScene();
+  setupAboutFlowObserver();
   void setupClientCubeScene();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
@@ -2602,7 +2651,7 @@ onBeforeUnmount(() => {
   if (raf) cancelAnimationFrame(raf);
   if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
   if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
-  aboutLiquidCleanup?.();
+  stopAboutFlow();
   stackSphereCleanup?.();
   clientCubeCleanup?.();
   stopFooterGameLoop();
@@ -3952,15 +4001,96 @@ useHead(() => ({
   z-index: 0;
   width: var(--stack-sphere-size);
   aspect-ratio: 1;
-  opacity: 0.86;
   pointer-events: none;
-  mask-image: radial-gradient(circle at 50% 50%, #000 56%, rgba(0, 0, 0, 0.72) 72%, transparent 88%);
 }
 
 .vz-stack__sphere canvas {
   display: block;
   width: 100%;
   height: 100%;
+  opacity: 0.86;
+  mask-image: radial-gradient(circle at 50% 50%, #000 56%, rgba(0, 0, 0, 0.72) 72%, transparent 88%);
+}
+
+.vz-stack__sphere-labels {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.vz-stack__sphere-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 92px;
+  height: 34px;
+  padding: 0 12px 0 10px;
+  border: 1px solid color-mix(in srgb, var(--ink) 10%, var(--border));
+  border-radius: 9px;
+  background: var(--bg);
+  box-shadow:
+    0 8px 22px color-mix(in srgb, var(--ink) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  will-change: opacity, transform;
+}
+
+.vz-stack__sphere-label-icon {
+  display: inline-flex;
+  flex: 0 0 17px;
+  width: 17px;
+  height: 17px;
+  color: var(--stack-tech-color);
+}
+
+.vz-stack__sphere-label-icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+.vz-stack__sphere-label--core {
+  min-width: 84px;
+  height: 32px;
+  padding-inline: 9px 11px;
+}
+
+.vz-stack__sphere-label--bridge {
+  min-width: 82px;
+  height: 32px;
+  padding-inline: 9px 11px;
+  border-radius: 7px;
+}
+
+.vz-stack__sphere-label-icon--text {
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: var(--stack-tech-color);
+  color: #fff;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.vz-stack__sphere-label-icon--text img {
+  display: block;
+  width: 11px;
+  height: 11px;
+}
+
+.vz-stack__sphere-label-text {
+  transform: translateY(0.5px);
 }
 
 .vz-stack__line {
@@ -5062,6 +5192,34 @@ useHead(() => ({
 .vz-about__grid,
 .vz-clients__grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Final alignment guard: later transplant rules must not override contact centering. */
+.vz-contacts__inner {
+  display: flex;
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.vz-contacts__inner > h2 {
+  width: min(100%, 18ch);
+  margin-inline: auto;
+}
+
+.vz-contacts__buttons {
+  width: fit-content;
+  margin-inline: auto;
+}
+
+@media (max-width: 900px) {
+  .vz-contacts__buttons {
+    width: 100%;
+    max-width: 520px;
   }
 }
 
