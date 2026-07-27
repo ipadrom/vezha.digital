@@ -8,6 +8,49 @@ export function useLandingStackScroll(
   const activeIndex = ref(0);
   const progress = ref(0);
   let raf = 0;
+  let mobileAutoplayTimer: ReturnType<typeof window.setInterval> | null = null;
+  let manualMobileSelection = false;
+
+  function setMobileIndex(index: number) {
+    const count = Math.max(1, itemCount.value);
+    const nextIndex = ((index % count) + count) % count;
+    const nextProgress = count > 1 ? nextIndex / (count - 1) : 0;
+
+    activeIndex.value = nextIndex;
+    progress.value = nextProgress;
+    onIndexChange(nextIndex, nextProgress);
+  }
+
+  function stopMobileAutoplay() {
+    if (!mobileAutoplayTimer) return;
+    window.clearInterval(mobileAutoplayTimer);
+    mobileAutoplayTimer = null;
+  }
+
+  function startMobileAutoplay() {
+    if (
+      mobileAutoplayTimer
+      || manualMobileSelection
+      || window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) return;
+
+    mobileAutoplayTimer = window.setInterval(() => {
+      const section = rootRef.value;
+      if (
+        !section
+        || manualMobileSelection
+        || document.hidden
+        || window.innerWidth > 900
+      ) return;
+
+      const rect = section.getBoundingClientRect();
+      const isVisible = rect.top < window.innerHeight * 0.82
+        && rect.bottom > window.innerHeight * 0.18;
+      if (!isVisible) return;
+
+      setMobileIndex(activeIndex.value + 1);
+    }, 3200);
+  }
 
   function updateFromScroll() {
     const section = rootRef.value;
@@ -42,9 +85,9 @@ export function useLandingStackScroll(
     const nextIndex = Math.max(0, Math.min(count - 1, index));
     const maxProgress = count > 1 ? nextIndex / (count - 1) : 0;
     if (window.innerWidth <= 900) {
-      activeIndex.value = nextIndex;
-      progress.value = maxProgress;
-      onIndexChange(nextIndex, maxProgress);
+      manualMobileSelection = true;
+      stopMobileAutoplay();
+      setMobileIndex(nextIndex);
       return;
     }
 
@@ -60,6 +103,7 @@ export function useLandingStackScroll(
   onMounted(() => {
     window.addEventListener("scroll", scheduleUpdate, { passive: true });
     window.addEventListener("resize", scheduleUpdate, { passive: true });
+    startMobileAutoplay();
     nextTick(scheduleUpdate);
   });
 
@@ -67,6 +111,7 @@ export function useLandingStackScroll(
     window.removeEventListener("scroll", scheduleUpdate);
     window.removeEventListener("resize", scheduleUpdate);
     if (raf) cancelAnimationFrame(raf);
+    stopMobileAutoplay();
   });
 
   watch(itemCount, () => nextTick(scheduleUpdate));

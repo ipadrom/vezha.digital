@@ -4564,8 +4564,11 @@ useHead(() => ({
 }
 
 .vz-client-capsules button {
+  display: flex;
   height: 64px;
   min-height: 0;
+  align-items: center;
+  justify-content: center;
   padding: 12px 18px;
   border: 1px solid var(--chipbd);
   border-radius: 999px;
@@ -5246,6 +5249,10 @@ useHead(() => ({
     padding-right: 0;
     font-size: 18px;
     text-align: left;
+  }
+
+  .vz-stack-item:not(.is-active) > div:first-child {
+    color: var(--muted2);
   }
 
   .vz-stack-item > div:nth-child(2) {

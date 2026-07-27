@@ -1837,6 +1837,11 @@
 }
 
 @media (max-width: 900px) {
+  .vz-services__grid {
+    grid-template-columns: minmax(0, 1fr);
+    column-gap: 0;
+  }
+
   .vz-services__nav,
   .vz-services__stage {
     grid-column: 1;
@@ -2042,8 +2047,9 @@
   }
 
   .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
-    min-height: 27px;
-    padding: 5px 9px;
-    font-size: 9px;
+    min-height: 0;
+    padding: 5px 10px;
+    font-size: 11px;
+    line-height: normal;
   }
 }
