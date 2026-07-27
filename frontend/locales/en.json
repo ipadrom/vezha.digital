@@ -112,7 +112,7 @@
       ],
       "text": "Telegram Mini Apps, bots, websites, online stores, AI and corporate systems. A full-cycle team with no subcontractors or extra layers.",
       "cta": "Discuss a project →",
-      "stackLink": "View stack",
+      "servicesLink": "View services",
       "stats": [
         "From $500",
         "Launch in 1-4 weeks",
@@ -522,7 +522,6 @@
       "emailCta": "Email us"
     },
     "footer": {
-      "tagline": "Everything about the project. In one place. Calmly.",
       "topLink": "End of page ↑ Back to top",
       "base": [
         "Moscow",

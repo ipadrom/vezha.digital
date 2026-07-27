@@ -31,7 +31,7 @@
         <p>{{ copy.text }}</p>
         <div class="vz-hero__actions">
           <a class="vz-button vz-button--dark" href="#contacts">{{ copy.cta }}</a>
-          <a class="vz-button-link" href="#stack">{{ copy.stackLink }} <span aria-hidden="true">↓</span></a>
+          <a class="vz-button-link" href="#services">{{ copy.servicesLink }} <span aria-hidden="true">↓</span></a>
         </div>
       </div>
       <div class="vz-hero__stats" data-hero-stats>
@@ -62,7 +62,7 @@ defineProps<{
     title: string[];
     text: string;
     cta: string;
-    stackLink: string;
+    servicesLink: string;
     stats: string[];
   };
   marqueeAria: string;

@@ -1,7 +1,6 @@
 <template>
   <footer class="vz-footer">
     <div class="vz-footer__top" data-footer-top>
-      <span>{{ copy.tagline }}</span>
       <a href="#hero">{{ copy.topLink }}</a>
     </div>
     <div class="vz-footer__cols" data-footer-cols>
@@ -82,7 +81,6 @@
 <script setup lang="ts">
 defineProps<{
   copy: {
-    tagline: string;
     topLink: string;
     base: [string, string];
     yearLabel: string;

@@ -233,7 +233,7 @@ type LandingCopy = {
     title: string[];
     text: string;
     cta: string;
-    stackLink: string;
+    servicesLink: string;
     stats: string[];
   };
   marqueeAria: string;
@@ -303,7 +303,6 @@ type LandingCopy = {
     emailCta: string;
   };
   footer: {
-    tagline: string;
     topLink: string;
     base: [string, string];
     yearLabel: string;
@@ -4719,6 +4718,7 @@ useHead(() => ({
 }
 
 .vz-footer {
+  position: relative;
   border-top: 1px solid var(--border);
   background: var(--bg);
 }
@@ -4732,11 +4732,16 @@ useHead(() => ({
 }
 
 .vz-footer__top {
+  position: absolute;
+  right: max(40px, calc((100% - 1240px) / 2 + 40px));
+  bottom: calc(100% + 18px);
+  z-index: 2;
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 24px 40px;
-  border-bottom: 1px solid var(--border);
+  justify-content: flex-end;
+  width: max-content;
+  max-width: calc(100% - 80px);
+  margin: 0;
+  padding: 0;
   color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.14em;
@@ -4745,6 +4750,7 @@ useHead(() => ({
 
 .vz-footer__top a {
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .vz-footer__cols {
@@ -5411,9 +5417,11 @@ useHead(() => ({
   }
 
   .vz-footer__top {
-    flex-direction: column;
-    gap: 8px;
-    padding: 20px;
+    right: 20px;
+    bottom: calc(100% + 14px);
+    flex-direction: row;
+    max-width: calc(100% - 40px);
+    padding: 0;
   }
 
   .vz-footer__cols {
