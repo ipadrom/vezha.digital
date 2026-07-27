@@ -347,6 +347,7 @@ let sectionLiquidRaf = 0;
 let sectionLiquidLastFrame = 0;
 let sectionLiquidLastScrollY = 0;
 let sectionLiquidScrollDirection = 0;
+let negativeStackSyncQueued = false;
 let footerGameRaf = 0;
 let footerGameLastFrame = 0;
 let footerGameLastScrollY = 0;
@@ -2488,10 +2489,11 @@ function updateScrollEffects() {
 }
 
 function handleStackActiveChange(index: number) {
-  if (activeStackIndex.value === index) return;
-  activeStackIndex.value = index;
-  updateStackSpherePosition();
-  syncNegativeWorlds(true);
+  if (activeStackIndex.value !== index) {
+    activeStackIndex.value = index;
+    updateStackSpherePosition();
+  }
+  queueNegativeStackStateSync();
 }
 
 function handleStackSphereReady(element: HTMLElement) {
@@ -2515,7 +2517,6 @@ function getNegativeWorldSignature(scope: "hero" | "page") {
     displayServices.value.length,
     displayStackGroups.value.length,
     displayStages.value.length,
-    activeStackIndex.value,
     activeServiceIndex.value,
     activeClientSegment.value,
   ].join(":");
@@ -2558,6 +2559,55 @@ function mountNegativeClone(host: HTMLElement, source: HTMLElement) {
   const clone = source.cloneNode(true) as HTMLElement;
   cleanupNegativeClone(clone);
   host.appendChild(clone);
+}
+
+function syncNegativeStackState() {
+  const source = rootRef.value?.querySelector<HTMLElement>("[data-stack-section]");
+  const clone = sectionLiquidRef.value?.querySelector<HTMLElement>(
+    "[data-negative-world='page'] [data-stack-section]",
+  );
+  if (!source || !clone) return;
+
+  const sourceItems = source.querySelectorAll<HTMLElement>("[data-stack-item]");
+  const cloneItems = clone.querySelectorAll<HTMLElement>("[data-stack-item]");
+  cloneItems.forEach((item, index) => {
+    const sourceItem = sourceItems.item(index);
+    if (!sourceItem) return;
+
+    item.classList.toggle("is-active", sourceItem.classList.contains("is-active"));
+    item.classList.toggle("is-past", sourceItem.classList.contains("is-past"));
+    const ariaCurrent = sourceItem.getAttribute("aria-current");
+    if (ariaCurrent) item.setAttribute("aria-current", ariaCurrent);
+    else item.removeAttribute("aria-current");
+  });
+
+  const sourceCounter = source.querySelector<HTMLElement>("[data-stack-counter]");
+  const cloneCounter = clone.querySelector<HTMLElement>("[data-stack-counter]");
+  if (sourceCounter && cloneCounter && cloneCounter.textContent !== sourceCounter.textContent) {
+    cloneCounter.textContent = sourceCounter.textContent;
+  }
+
+  const sourceFill = source.querySelector<HTMLElement>("[data-line-fill]");
+  const cloneFill = clone.querySelector<HTMLElement>("[data-line-fill]");
+  if (sourceFill && cloneFill && cloneFill.style.height !== sourceFill.style.height) {
+    cloneFill.style.height = sourceFill.style.height;
+  }
+
+  const sourceSphere = source.querySelector<HTMLElement>(".vz-stack__sphere");
+  const cloneSphere = clone.querySelector<HTMLElement>(".vz-stack__sphere");
+  const sphereLayer = sourceSphere?.dataset.layer;
+  if (cloneSphere && sphereLayer && cloneSphere.dataset.layer !== sphereLayer) {
+    cloneSphere.dataset.layer = sphereLayer;
+  }
+}
+
+function queueNegativeStackStateSync() {
+  if (negativeStackSyncQueued) return;
+  negativeStackSyncQueued = true;
+  void nextTick(() => {
+    negativeStackSyncQueued = false;
+    syncNegativeStackState();
+  });
 }
 
 function syncNegativeWorlds(force = false) {
