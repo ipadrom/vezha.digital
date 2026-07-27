@@ -5218,6 +5218,8 @@ useHead(() => ({
 
   .vz-stack__timeline {
     grid-column: 1;
+    display: grid;
+    row-gap: 12px;
     max-width: none;
   }
 

@@ -2012,8 +2012,8 @@
 
 .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
   min-height: 29px;
-  padding: 6px 11px;
-  font-size: 10px;
+  padding: 7px 13px;
+  font-size: 12px;
 }
 
 @media (max-width: 900px) {
