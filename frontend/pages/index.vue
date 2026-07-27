@@ -4159,7 +4159,7 @@ useHead(() => ({
   position: absolute;
   top: 8px;
   bottom: 8px;
-  left: 281px;
+  left: 279.5px;
   width: 1px;
   background: var(--border);
 }
