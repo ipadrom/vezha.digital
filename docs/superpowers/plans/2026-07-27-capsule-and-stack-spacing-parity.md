@@ -12,6 +12,7 @@
 
 - Desktop service capsules use `padding: 7px 13px` and `font-size: 12px`.
 - Mobile service and Stack capsules remain `padding: 5px 10px` and `font-size: 11px`.
+- Service capsules use `line-height: 1.6` and no fixed minimum height so their rendered height matches Stack capsules.
 - Mobile Stack timeline uses `row-gap: 12px`.
 - `.vz-stack__mobile-layout` remains `min-height: 218px`.
 - Do not perform browser visual QA; verify source contracts and the Nuxt production build.
@@ -29,9 +30,9 @@
 
 - [ ] **Step 1: Run the failing source contract**
 
-Run a PowerShell assertion that expects `.vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span` to contain `padding: 7px 13px` and `font-size: 12px`.
+Run a PowerShell assertion that expects `.vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span` to contain `padding: 7px 13px`, `font-size: 12px`, `line-height: 1.6`, and `min-height: 0`.
 
-Expected: FAIL because the current rule uses `6px 11px` and `10px`.
+Expected: FAIL because the current rule still uses `min-height: 29px` and inherits `line-height: 1` from the general service capsule rule.
 
 - [ ] **Step 2: Apply the minimal CSS change**
 
@@ -39,15 +40,16 @@ Change only the desktop service capsule rule:
 
 ```css
 .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
-  min-height: 29px;
+  min-height: 0;
   padding: 7px 13px;
   font-size: 12px;
+  line-height: 1.6;
 }
 ```
 
 - [ ] **Step 3: Re-run the source contract**
 
-Expected: PASS while the mobile override remains `5px 10px` and `11px`.
+Expected: PASS while the mobile override remains `5px 10px` and `11px`, with `line-height: 1.6`.
 
 ### Task 2: Increase mobile Stack dot spacing
 
