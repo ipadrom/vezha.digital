@@ -3467,7 +3467,7 @@ useHead(() => ({
   z-index: 170;
   width: 100%;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: clip;
   opacity: 0;
   pointer-events: none;
   background: transparent;
