@@ -152,6 +152,31 @@
         "person leads the project",
         "subcontractors in the chain",
         "weeks to first launch"
+      ],
+      "flowAria": "How a business task becomes a product",
+      "replay": "Replay",
+      "zones": [
+        "Client",
+        "VEZHA.DIGITAL",
+        "Product"
+      ],
+      "stages": [
+        "Design",
+        "UX/UI",
+        "Development",
+        "Testing"
+      ],
+      "business": [
+        "Independent specialist",
+        "Expert",
+        "Studio",
+        "Company"
+      ],
+      "products": [
+        "CRM",
+        "Telegram Mini App",
+        "Website",
+        "Online store"
       ]
     },
     "stack": {
