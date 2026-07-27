@@ -48,14 +48,18 @@
     <div
       ref="gameRef"
       class="vz-footer-game"
-      :aria-label="copy.game.aria"
       :class="{
         'is-running': game.running,
         'is-paused': !game.running && !game.crashed,
         'is-crashed': game.crashed,
       }"
-      @pointerdown.prevent="$emit('jump')"
     >
+      <button
+        class="vz-footer-game__hitbox"
+        type="button"
+        :aria-label="copy.game.aria"
+        @click="$emit('jump')"
+      ></button>
       <div class="vz-footer-game__hud">
         <span>{{ copy.game.name }}</span>
         <span>{{ gameStatus }}</span>

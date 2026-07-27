@@ -1711,11 +1711,11 @@ function getFooterGameTrack() {
 }
 
 function isFooterGameVisible() {
-  const el = getFooterGameTrack();
+  const el = footerGameRef.value;
   if (!el) return false;
 
   const rect = el.getBoundingClientRect();
-  return rect.top < window.innerHeight * 0.94 && rect.bottom > window.innerHeight * 0.08;
+  return rect.top < window.innerHeight && rect.bottom > 0;
 }
 
 function resetFooterGame() {
@@ -4805,12 +4805,30 @@ useHead(() => ({
 }
 
 .vz-footer-game {
+  position: relative;
   max-width: 1240px;
   margin: 0 auto;
   padding: 0 40px 68px;
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
+}
+
+.vz-footer-game__hitbox {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.vz-footer-game__hitbox:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -2px;
 }
 
 .vz-footer-game__hud {
