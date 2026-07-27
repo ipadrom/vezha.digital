@@ -26,13 +26,21 @@
             </button>
           </div>
 
+          <a class="vz-services__aside-cta" href="#contacts">
+            <small>{{ copy.asideCta.eyebrow }}</small>
+            <strong>
+              <span>{{ copy.asideCta.link }}</span>
+              <b aria-hidden="true">→</b>
+            </strong>
+            <em>{{ copy.asideCta.note }}</em>
+          </a>
+
           <div class="vz-services__stage" data-serv-stage>
             <div class="vz-services__devices" data-serv-devices>
               <div class="vz-device-mac" data-device-mac>
                 <div class="vz-macbook" data-macbook>
                   <div class="vz-macbook__tilt">
                     <div class="vz-macbook__lid" data-mac-lid>
-                      <div class="vz-macbook__notch"></div>
                       <div class="vz-macbook__screen-wrap" data-screen-wrap>
                         <div
                           v-for="(screen, index) in serviceScreens"
@@ -42,12 +50,25 @@
                           :class="['vz-screen', `vz-screen--${screen}`]"
                         >
                           <div v-if="screen === 'miniapp'" class="vz-screen-miniapp">
+                            <div class="vz-service-ui vz-service-ui--miniapp">
+                              <header><span></span><b>{{ copy.screens.miniapp.app }}</b><i>•••</i></header>
+                              <main><small>{{ copy.screens.miniapp.collection }}</small><strong>{{ copy.screens.miniapp.select }}<br>{{ copy.screens.miniapp.order }}<br>{{ copy.screens.miniapp.done }}</strong><div><i><b>{{ copy.screens.miniapp.firstItem }}</b><small>€ 45</small></i><i><b>{{ copy.screens.miniapp.secondItem }}</b><small>€ 80</small></i></div></main>
+                              <footer><span>{{ copy.screens.miniapp.continue }}</span><b>→</b></footer>
+                            </div>
                             <div class="vz-screen-topbar"><span></span><i>Mini app</i></div>
                             <div class="vz-screen-hero-line"></div>
                             <div class="vz-screen-cards"><b></b><b></b></div>
                             <div class="vz-screen-button"></div>
                           </div>
                           <div v-else-if="screen === 'bot'" class="vz-screen-chat">
+                            <div class="vz-service-ui vz-service-ui--bot">
+                              <header><span></span><b>{{ copy.screens.bot.app }}</b><i>•••</i></header>
+                              <small>{{ copy.screens.bot.today }}</small>
+                              <div class="vz-ui-message is-in">{{ copy.screens.bot.incoming }}</div>
+                              <div class="vz-ui-message is-out">{{ copy.screens.bot.outgoing }}</div>
+                              <nav><button>{{ copy.screens.bot.site }}</button><button>{{ copy.screens.bot.miniapp }}</button></nav>
+                              <footer><span>{{ copy.screens.bot.message }}</span><b>↑</b></footer>
+                            </div>
                             <div class="vz-screen-chatbar"><span></span><b></b></div>
                             <div class="vz-bubble vz-bubble--left"></div>
                             <div class="vz-bubble vz-bubble--right"></div>
@@ -55,14 +76,33 @@
                             <div class="vz-chat-input"></div>
                           </div>
                           <div v-else-if="screen === 'site'" class="vz-screen-site">
+                            <div class="vz-service-ui vz-service-ui--site">
+                              <header><span></span><i>{{ copy.screens.site.browser }}</i></header>
+                              <main><small>{{ copy.screens.site.eyebrow }}</small><strong>{{ copy.screens.site.products }}<br><em>{{ copy.screens.site.thatWork }}</em></strong><div></div></main>
+                              <footer><span>{{ copy.screens.site.strategy }}</span><span>{{ copy.screens.site.design }}</span><span>{{ copy.screens.site.code }}</span></footer>
+                            </div>
                             <div class="vz-browserbar"><span></span><i>vezha.digital</i></div>
                             <div class="vz-site-grid"><div></div><b></b></div>
                           </div>
                           <div v-else-if="screen === 'shop'" class="vz-screen-shop">
+                            <div class="vz-service-ui vz-service-ui--shop">
+                              <header><strong>{{ copy.screens.shop.brand }}</strong><span>{{ copy.screens.shop.catalog }}</span><b>02</b></header>
+                              <nav><span>{{ copy.screens.shop.all }}</span><i>{{ copy.screens.shop.filter }} ↗</i></nav>
+                              <main><article v-for="product in 3" :key="product"><div><i></i></div><small>{{ copy.screens.shop[`item${product}`] }}</small><strong>{{ 120 + product * 35 }} €</strong></article></main>
+                            </div>
                             <div class="vz-shop-top"><span></span><b>2</b></div>
                             <div class="vz-shop-grid"><i v-for="cell in 6" :key="cell"></i></div>
                           </div>
                           <div v-else-if="screen === 'ai'" class="vz-screen-ai">
+                            <div class="vz-service-ui vz-service-ui--ai">
+                              <header><span>{{ copy.screens.ai.title }}</span><b>{{ copy.screens.ai.live }}</b></header>
+                              <main>
+                                <article><small>01</small><strong>{{ copy.screens.ai.request }}</strong><i></i></article><span>→</span>
+                                <article class="is-accent"><small>02</small><strong>{{ copy.screens.ai.analysis }}</strong><i></i></article><span>→</span>
+                                <article class="is-dark"><small>03</small><strong>{{ copy.screens.ai.crm }}</strong><i></i></article>
+                              </main>
+                              <footer><span>{{ copy.screens.ai.newLeads }} <b>24</b></span><span>{{ copy.screens.ai.processed }} <b>21</b></span><span>{{ copy.screens.ai.saved }} <b>68%</b></span></footer>
+                            </div>
                             <div class="vz-ai-top"><span>✦</span><b></b></div>
                             <div class="vz-bubble vz-bubble--right"></div>
                             <div class="vz-ai-answer"><span>✦</span><i></i></div>
@@ -70,6 +110,14 @@
                             <div class="vz-ai-flow"><b></b><b></b><b></b></div>
                           </div>
                           <div v-else-if="screen === 'corp'" class="vz-screen-corp">
+                            <div class="vz-service-ui vz-service-ui--corp">
+                              <aside><b>V</b><i></i><i></i><i></i><span></span></aside>
+                              <main>
+                                <header><strong>{{ copy.screens.corp.workspace }}</strong><span>{{ copy.screens.corp.date }}</span></header>
+                                <section><article><small>01</small><b>148</b></article><article><small>02</small><b>92%</b></article><article><small>03</small><b>06</b></article></section>
+                                <div><header><b>{{ copy.screens.corp.project }}</b><b>{{ copy.screens.corp.owner }}</b><b>{{ copy.screens.corp.status }}</b></header><p><span>{{ copy.screens.corp.platform }}</span><span>AK</span><i>{{ copy.screens.corp.active }}</i></p><p><span>{{ copy.screens.corp.portal }}</span><span>MV</span><i>{{ copy.screens.corp.review }}</i></p><p><span>{{ copy.screens.corp.system }}</span><span>DS</span><i>{{ copy.screens.corp.ready }}</i></p></div>
+                              </main>
+                            </div>
                             <div class="vz-corp-side"></div>
                             <div class="vz-corp-main">
                               <div class="vz-corp-head"></div>
@@ -78,6 +126,13 @@
                             </div>
                           </div>
                           <div v-else class="vz-screen-mobile">
+                            <div class="vz-service-ui vz-service-ui--mobile">
+                              <header><span></span><b>{{ copy.screens.mobile.greeting }}</b><i>•••</i></header>
+                              <main><small>{{ copy.screens.mobile.balance }}</small><strong>€ 24,680</strong><span>+12.8%</span></main>
+                              <section><article><i>↗</i><b>{{ copy.screens.mobile.send }}</b></article><article><i>+</i><b>{{ copy.screens.mobile.add }}</b></article></section>
+                              <div><b>{{ copy.screens.mobile.activity }}</b><p><span>{{ copy.screens.mobile.firstPayment }}</span><strong>− € 19</strong></p><p><span>{{ copy.screens.mobile.secondPayment }}</span><strong>− € 340</strong></p></div>
+                              <nav><i></i><i></i><i></i><i></i></nav>
+                            </div>
                             <pre class="vz-code-pane">// cmd/app/main.go
 package main
 
@@ -101,19 +156,32 @@ func main() {
             </div>
 
             <div class="vz-service-caption" data-serv-caption>
-              <article v-for="service in services" :key="service.n" data-serv-panel class="vz-service-panel">
+              <article v-for="(service, index) in services" :key="service.n" data-serv-panel class="vz-service-panel">
                 <div class="vz-service-panel__title"><span>{{ service.n }}</span><h3>{{ service.title }}</h3></div>
                 <p>{{ service.desc }}</p>
-                <div data-serv-metawrap><span v-for="meta in service.meta" :key="meta">{{ meta }}</span></div>
+                <div class="vz-service-commercial">
+                  <div class="vz-service-commercial__metrics">
+                    <div>
+                      <small>{{ copy.commercialLabels.price }}</small>
+                      <strong>{{ copy.commercial[index]?.price }}</strong>
+                    </div>
+                    <div>
+                      <small>{{ copy.commercialLabels.timeline }}</small>
+                      <strong>{{ copy.commercial[index]?.timeline }}</strong>
+                    </div>
+                  </div>
+                  <div class="vz-service-commercial__included">
+                    <small>{{ copy.commercialLabels.included }}</small>
+                    <div data-serv-metawrap>
+                      <span v-for="item in copy.commercial[index]?.included ?? []" :key="item">{{ item }}</span>
+                    </div>
+                  </div>
+                </div>
               </article>
             </div>
           </div>
         </div>
 
-        <div class="vz-services__bar"><span data-serv-bar></span></div>
-        <div class="vz-scroll-hint" data-serv-hint>
-          <span>{{ copy.hint[0] }}</span><span>→</span><span>{{ copy.hint[1] }}</span>
-        </div>
       </div>
     </div>
   </section>
@@ -123,7 +191,27 @@ func main() {
 import { useLandingServices } from "~/composables/landing/useLandingServices";
 
 type LandingService = { n: string; title: string; desc: string; meta: string[] };
-type LandingServicesCopy = { label: string; title: string; hint: [string, string] };
+type LandingServicesCopy = {
+  label: string;
+  title: string;
+  hint: [string, string];
+  screens: Record<string, Record<string, string>>;
+  commercialLabels: {
+    price: string;
+    timeline: string;
+    included: string;
+  };
+  commercial: Array<{
+    price: string;
+    timeline: string;
+    included: [string, string, string, string];
+  }>;
+  asideCta: {
+    eyebrow: string;
+    link: string;
+    note: string;
+  };
+};
 
 const props = defineProps<{ services: LandingService[]; copy: LandingServicesCopy }>();
 const emit = defineEmits<{ activeChange: [index: number] }>();

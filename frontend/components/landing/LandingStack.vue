@@ -15,42 +15,50 @@
           </div>
         </div>
 
-        <div
-          ref="sphereRef"
-          class="vz-stack__sphere"
-          :data-layer="activeLayer"
-          aria-hidden="true"
-        ></div>
-
-        <div ref="timelineRef" class="vz-stack__timeline">
-          <div class="vz-stack__line" data-stack-line :style="lineStyle">
-            <span data-line-fill :style="{ height: `${progress * 100}%` }"></span>
-          </div>
-          <article
-            v-for="(group, index) in groups"
-            :key="group.title"
-            :aria-current="activeIndex === index ? 'step' : undefined"
-            :class="{ 'is-active': activeIndex === index, 'is-past': index < activeIndex }"
-            data-stack-item
-            class="vz-stack-item"
-            role="button"
-            tabindex="0"
-            @click="scrollToIndex(index)"
-            @keydown.enter.prevent="scrollToIndex(index)"
-            @keydown.space.prevent="scrollToIndex(index)"
-          >
-            <div data-label>{{ group.title }}</div>
-            <div><span data-halo></span><span data-dot></span></div>
-            <div>
-              <p>{{ group.description }}</p>
-              <div><span v-for="item in group.items" :key="item">{{ item }}</span></div>
+        <div class="vz-stack__mobile-layout">
+          <div ref="timelineRef" class="vz-stack__timeline">
+            <div class="vz-stack__line" data-stack-line :style="lineStyle">
+              <span data-line-fill :style="{ height: `${progress * 100}%` }"></span>
             </div>
-          </article>
+            <article
+              v-for="(group, index) in groups"
+              :key="group.title"
+              :aria-current="activeIndex === index ? 'step' : undefined"
+              :class="{ 'is-active': activeIndex === index, 'is-past': index < activeIndex }"
+              data-stack-item
+              class="vz-stack-item"
+              role="button"
+              tabindex="0"
+              @click="scrollToIndex(index)"
+              @keydown.enter.prevent="scrollToIndex(index)"
+              @keydown.space.prevent="scrollToIndex(index)"
+            >
+              <div data-label>{{ group.title }}</div>
+              <div><span data-halo></span><span data-dot></span></div>
+              <div>
+                <p>{{ group.description }}</p>
+                <div><span v-for="item in group.items" :key="item">{{ item }}</span></div>
+              </div>
+            </article>
+          </div>
+
+          <div v-if="activeGroup" class="vz-stack__mobile-details">
+            <p>{{ activeGroup.description }}</p>
+            <div>
+              <span v-for="item in activeGroup.items" :key="item">{{ item }}</span>
+            </div>
+          </div>
         </div>
 
-        <div class="vz-scroll-hint" data-stack-hint>
-          <span>{{ copy.hint[0] }}</span><span>↓</span><span>{{ copy.hint[1] }}</span>
+        <div class="vz-stack__sphere-window">
+          <div
+            ref="sphereRef"
+            class="vz-stack__sphere"
+            :data-layer="activeLayer"
+            aria-hidden="true"
+          ></div>
         </div>
+
       </div>
     </div>
   </section>
@@ -80,6 +88,7 @@ const { activeIndex, progress, scrollToIndex } = useLandingStackScroll(
   (index, value) => emit("activeChange", index, value),
 );
 const counter = computed(() => String(activeIndex.value + 1).padStart(2, "0"));
+const activeGroup = computed(() => props.groups[activeIndex.value] || null);
 const activeLayer = computed(() => {
   const title = props.groups[activeIndex.value]?.title?.toLowerCase() || "frontend";
   if (title.includes("backend")) return "core";

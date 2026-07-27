@@ -12,6 +12,7 @@ export function useLandingStackScroll(
   function updateFromScroll() {
     const section = rootRef.value;
     if (!section) return;
+    if (window.innerWidth <= 900) return;
 
     const total = Math.max(1, section.offsetHeight - window.innerHeight);
     const nextProgress = Math.max(0, Math.min(1, -section.getBoundingClientRect().top / total));
@@ -40,6 +41,13 @@ export function useLandingStackScroll(
 
     const nextIndex = Math.max(0, Math.min(count - 1, index));
     const maxProgress = count > 1 ? nextIndex / (count - 1) : 0;
+    if (window.innerWidth <= 900) {
+      activeIndex.value = nextIndex;
+      progress.value = maxProgress;
+      onIndexChange(nextIndex, maxProgress);
+      return;
+    }
+
     const scrollRange = Math.max(0, section.offsetHeight - window.innerHeight);
 
     const sectionTop = window.scrollY + section.getBoundingClientRect().top;

@@ -263,6 +263,22 @@ type LandingCopy = {
     label: string;
     title: string;
     hint: [string, string];
+    screens: Record<string, Record<string, string>>;
+    commercialLabels: {
+      price: string;
+      timeline: string;
+      included: string;
+    };
+    commercial: Array<{
+      price: string;
+      timeline: string;
+      included: [string, string, string, string];
+    }>;
+    asideCta: {
+      eyebrow: string;
+      link: string;
+      note: string;
+    };
     fallback: DisplayService[];
     fallbackTitle: string;
     fallbackDesc: string;
@@ -339,7 +355,6 @@ const activeStackIndex = ref(0);
 const activeClientSegment = ref(0);
 const enableMotionLayer = true;
 const enableSectionLiquid = true;
-
 const activeServiceIndex = ref(0);
 let heroFxRaf = 0;
 let heroFxLastFrame = 0;
@@ -1892,6 +1907,17 @@ function getSectionLiquidTargets() {
 }
 
 function getSectionLiquidRadius(target: SectionLiquidTarget) {
+  if (window.innerWidth <= 900) {
+    const mobileWidth = window.innerWidth * 0.11;
+    const mobileTargetWidth = target.rect.width * 0.16;
+    const mobileTargetHeight = target.rect.height * (target.key === "footer" ? 0.38 : 0.56);
+    return clampValue(
+      Math.max(52, Math.min(mobileWidth, mobileTargetWidth, mobileTargetHeight)),
+      48,
+      70,
+    );
+  }
+
   const wideLimit = window.innerWidth * 0.13;
   const byWidth = target.rect.width * 0.2;
   const byHeight = target.rect.height * (target.key === "footer" ? 0.46 : 0.72);
@@ -1915,6 +1941,7 @@ function getSectionLiquidTargetCenter(target: SectionLiquidTarget) {
 }
 
 function getStackLiquidScrollLock(targets: SectionLiquidTarget[]) {
+  if (window.innerWidth <= 900) return null;
   if (sectionLiquidState.lastTargetKey !== "stack") return null;
 
   const stackTarget = targets.find((target) => target.key === "stack");
@@ -2032,9 +2059,52 @@ function hideSectionLiquidTargetOverlay() {
   if (targetHost) targetHost.hidden = true;
 }
 
+function clearSectionLiquidTextAlignment() {
+  sectionLiquidRef.value
+    ?.querySelectorAll<HTMLElement>("[data-liquid-text-aligned], [data-liquid-clone-aligned]")
+    .forEach((element) => {
+      element.style.translate = "";
+      element.removeAttribute("data-liquid-text-aligned");
+      element.removeAttribute("data-liquid-clone-aligned");
+    });
+}
+
 function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
-  void targets;
+  clearSectionLiquidTextAlignment();
   hideSectionLiquidTargetOverlay();
+  if (!sectionLiquidState.lastTargetKey) return;
+  if (window.innerWidth > 900 && sectionLiquidState.lastTargetKey === "stack") return;
+
+  const target = targets.find(({ key }) => key === sectionLiquidState.lastTargetKey);
+  const cloneRoot = sectionLiquidRef.value?.querySelector<HTMLElement>(
+    "[data-negative-world='page'] [data-negative-clone='true']",
+  );
+  if (!target || !cloneRoot) return;
+
+  const cloneSelectors: Record<string, string> = {
+    hero: "[data-negative-section='hero'] h1",
+    about: "[data-negative-section='about'] .vz-about__mark span",
+    stack: "[data-negative-section='stack'] .vz-sec-head h2",
+    services: "[data-negative-section='services'] .vz-sec-head h2",
+    clients: "[data-negative-section='clients'] h2",
+    stages: "[data-negative-section='stages'] h2",
+    contacts: "[data-negative-section='contacts'] h2",
+    footer: "[data-negative-section='footer'] .vz-footer__sign strong",
+  };
+  const cloneTarget = cloneRoot.querySelector<HTMLElement>(
+    cloneSelectors[target.key] ?? "",
+  );
+  if (!cloneTarget) return;
+
+  const sourceText = target.element.querySelector<HTMLElement>("[data-reveal]")
+    ?? target.element;
+  const cloneText = cloneTarget.querySelector<HTMLElement>("span span")
+    ?? cloneTarget;
+  const sourceRect = sourceText.getBoundingClientRect();
+  const cloneRect = cloneText.getBoundingClientRect();
+
+  cloneTarget.style.translate = `${formatStablePx(sourceRect.left - cloneRect.left)} ${formatStablePx(sourceRect.top - cloneRect.top)}`;
+  cloneTarget.dataset.liquidCloneAligned = "true";
 }
 
 function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
@@ -2094,6 +2164,8 @@ function animateSectionLiquid(now: number) {
   sectionLiquidLastFrame = now;
   updateSectionLiquidScrollDirection();
   const targets = getSectionLiquidTargets();
+  const useStackScrollLock = window.innerWidth > 900;
+  if (!useStackScrollLock) sectionLiquidStackLock = null;
 
   if (!targets.length && !sectionLiquidState.initialized) {
     overlay.classList.remove("is-active");
@@ -2142,7 +2214,10 @@ function animateSectionLiquid(now: number) {
     sectionLiquidStackLock = null;
   }
 
-  overlay.classList.toggle("is-stack-active", sectionLiquidState.lastTargetKey === "stack");
+  overlay.classList.toggle(
+    "is-stack-active",
+    useStackScrollLock && sectionLiquidState.lastTargetKey === "stack",
+  );
   updateNegativeWorldPositions();
   syncSectionLiquidTargetOverlay(targets);
 
@@ -2205,6 +2280,7 @@ function animateSectionLiquid(now: number) {
   };
   const moveIntensity = clampValue(Math.max(sectionLiquidState.speed, directDistance / 340), 0, 1);
   const renderRadius = sectionLiquidState.radius * (1 - moveIntensity * 0.34);
+  const activeKey = sectionLiquidState.lastTargetKey;
   const path = buildHeroLiquidPath(
     sectionLiquidState.currentX - overlayRect.left,
     sectionLiquidState.currentY - overlayRect.top,
@@ -2215,7 +2291,6 @@ function animateSectionLiquid(now: number) {
     bounds,
   );
 
-  const activeKey = sectionLiquidState.lastTargetKey;
   overlay.classList.toggle("is-active", Boolean(activeKey) && activeKey !== "hero");
   overlay.dataset.activeKey = activeKey;
   applyHeroClip(overlay, path);
@@ -2598,6 +2673,7 @@ function cleanupNegativeClone(clone: HTMLElement) {
   clone.removeAttribute("id");
   clone.classList.remove("vz-motion-ready");
   clone.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #stages, #contacts, .vz-footer").forEach((section) => {
+    section.dataset.negativeSection = section.id || (section.classList.contains("vz-footer") ? "footer" : "");
     section.classList.add("is-motion-visible");
     if (section.matches("#stages")) section.classList.add("is-anatomy-visible");
   });
@@ -2719,7 +2795,7 @@ function updateNegativeWorldPositions() {
       "[data-stack-section] > .vz-sticky",
     );
 
-    if (sectionLiquidState.lastTargetKey === "stack") {
+    if (window.innerWidth > 900 && sectionLiquidState.lastTargetKey === "stack") {
       overlay.style.left = "0px";
       overlay.style.top = "0px";
       overlay.style.width = formatStablePx(window.innerWidth);
@@ -3530,8 +3606,8 @@ useHead(() => ({
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 58px;
-  color: var(--muted2);
+  margin-top: 10px;
+  color: var(--muted);
   font-size: 12px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -4187,6 +4263,18 @@ useHead(() => ({
   max-width: min(760px, calc(100% - 430px));
 }
 
+.vz-stack__mobile-details {
+  display: none;
+}
+
+.vz-stack__mobile-layout {
+  display: contents;
+}
+
+.vz-stack__sphere-window {
+  display: contents;
+}
+
 .vz-stack__sphere {
   --stack-sphere-size: clamp(300px, 28vw, 430px);
   position: absolute;
@@ -4438,6 +4526,12 @@ useHead(() => ({
   background: var(--bg);
 }
 
+@media (min-width: 901px) {
+  .vz-clients {
+    padding-bottom: calc(var(--section-space) + 64px);
+  }
+}
+
 .vz-clients__grid {
   position: relative;
   grid-template-columns: 360px 1fr;
@@ -4509,7 +4603,7 @@ useHead(() => ({
   bottom: -1px;
   left: calc((100% / 3) * var(--active-client-index) + (100% / 6));
   width: 1px;
-  height: 38px;
+  height: 100%;
   background: var(--ink);
   transform: translateX(-50%);
   transition: left 0.34s cubic-bezier(0.76, 0, 0.24, 1);
@@ -4930,12 +5024,6 @@ useHead(() => ({
   }
 }
 
-@media (hover: none) {
-  .vz-hero__negative {
-    display: none;
-  }
-}
-
 @media (max-width: 900px) {
   .vz-min {
     --section-space: 56px;
@@ -5106,12 +5194,36 @@ useHead(() => ({
     padding: var(--section-space) 0;
   }
 
+  .vz-stack__sphere-window {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    width: calc(100% + 40px);
+    height: clamp(150px, 54vw, 220px);
+    margin: 18px -20px calc(var(--section-space) * -1);
+  }
+
   .vz-stack__sphere {
-    display: none;
+    --stack-sphere-size: min(108vw, 430px);
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: block;
+    width: var(--stack-sphere-size);
+    transform: translateX(-50%);
   }
 
   .vz-stack__timeline {
+    grid-column: 1;
     max-width: none;
+  }
+
+  .vz-stack__mobile-layout {
+    position: relative;
+    display: grid;
+    grid-template-columns: 132px minmax(0, 1fr);
+    gap: 16px;
+    min-height: 218px;
   }
 
   .vz-stack__line {
@@ -5124,8 +5236,8 @@ useHead(() => ({
     align-items: start;
     min-height: 0;
     column-gap: 12px;
-    row-gap: 2px;
-    padding: 7px 0;
+    row-gap: 4px;
+    padding: 4px 0;
   }
 
   .vz-stack-item > div:first-child {
@@ -5141,9 +5253,52 @@ useHead(() => ({
     grid-row: 1;
   }
 
+  .vz-stack-item:not(.is-active) [data-dot] {
+    border-color: var(--dotbd);
+    background: var(--bg);
+    transform: none;
+  }
+
   .vz-stack-item > div:nth-child(3) {
-    grid-column: 2;
-    grid-row: 2;
+    display: none;
+  }
+
+  .vz-stack__mobile-details {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 148px;
+    display: block;
+    min-height: 112px;
+    margin: 0;
+  }
+
+  .vz-stack__mobile-details p {
+    max-width: none;
+    margin: 0 0 8px;
+    color: var(--text2);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .vz-stack__mobile-details > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .vz-stack__mobile-details span {
+    padding: 5px 10px;
+    border: 1px solid var(--chipbd);
+    border-radius: 999px;
+    color: var(--chipink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+  }
+
+  [data-stack-hint] {
+    display: none;
   }
 
   .vz-stack-item p {
@@ -5174,7 +5329,7 @@ useHead(() => ({
 
   .vz-client-interactive {
     width: 100%;
-    height: 430px;
+    height: auto;
     min-height: 0;
   }
 
@@ -5194,23 +5349,23 @@ useHead(() => ({
   }
 
   .vz-client-connector span {
-    height: 28px;
+    height: 100%;
   }
 
   .vz-client-copy {
-    height: 340px;
+    height: auto;
     min-height: 0;
     padding-top: 22px;
   }
 
   .vz-client-cube-field {
-    top: auto;
-    left: auto;
-    right: 0;
-    bottom: 8px;
-    width: 190px;
-    opacity: 0.46;
-    transform: translateX(16%);
+    top: 322px;
+    left: 66.6667%;
+    right: auto;
+    bottom: auto;
+    width: 210px;
+    opacity: 0.72;
+    transform: translateX(-50%);
   }
 
   .vz-client-copy h3 {
@@ -5220,8 +5375,9 @@ useHead(() => ({
   }
 
   .vz-client-copy p {
-    height: 7.75em;
+    height: auto;
     min-height: 0;
+    margin-top: 122px;
     font-size: 15px;
     line-height: 1.55;
   }

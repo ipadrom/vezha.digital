@@ -33,17 +33,28 @@ export function useLandingServices(
       panel.setAttribute("aria-hidden", isActive ? "false" : "true");
     });
 
-    screens.forEach((screen, index) => {
+    screens.forEach((screen) => {
+      const index = Number(screen.dataset.si);
       const isActive = index === active;
-      screen.style.transform = `translateX(${((index - active) * 102).toFixed(2)}%) scale(${isActive ? "1" : "0.96"})`;
+      screen.dataset.active = isActive ? "true" : "false";
+      screen.style.transform = `translateY(${isActive ? "0" : index < active ? "-12px" : "12px"}) scale(${isActive ? "1" : "0.985"})`;
       screen.style.opacity = isActive ? "1" : "0";
       screen.style.zIndex = isActive ? "3" : "2";
+      screen.style.pointerEvents = isActive ? "auto" : "none";
     });
+
+    const deviceByIndex = ["phone", "phone", "laptop", "laptop", "laptop", "laptop", "phone"] as const;
+    const activeDevice = deviceByIndex[active] ?? "laptop";
+    root.dataset.activeServiceDevice = activeDevice;
 
     const easedOpen = intro * intro * (3 - 2 * intro);
     const lid = root.querySelector<HTMLElement>("[data-mac-lid]");
     const screenWrap = root.querySelector<HTMLElement>("[data-screen-wrap]");
-    if (lid) lid.style.transform = `rotateX(${(-(1 - easedOpen) * 68).toFixed(1)}deg) translateY(${((1 - easedOpen) * 5).toFixed(1)}px)`;
+    if (lid) {
+      lid.style.transform = activeDevice === "laptop"
+        ? `rotateX(${(-(1 - easedOpen) * 68).toFixed(1)}deg) translateY(${((1 - easedOpen) * 5).toFixed(1)}px)`
+        : "rotateX(0deg) translateY(0)";
+    }
     if (screenWrap) screenWrap.style.opacity = Math.max(0, Math.min(1, (easedOpen - 0.22) / 0.48)).toFixed(3);
 
     navs.forEach((nav, index) => {

@@ -238,6 +238,124 @@
         "Auto",
         "services rotate on their own"
       ],
+      "screens": {
+        "miniapp": {
+          "app": "Mini app",
+          "collection": "New collection",
+          "select": "Select.",
+          "order": "Order.",
+          "done": "Done.",
+          "continue": "Continue",
+          "firstItem": "Bag",
+          "secondItem": "Sneakers"
+        },
+        "bot": {
+          "app": "VEZHA Bot",
+          "today": "Today",
+          "incoming": "How can I help?",
+          "outgoing": "I need a project estimate",
+          "site": "Website",
+          "miniapp": "Mini App",
+          "message": "Message"
+        },
+        "site": {
+          "browser": "VEZHA / Digital product",
+          "eyebrow": "Engineering / 01",
+          "products": "Products",
+          "thatWork": "that work",
+          "strategy": "Strategy",
+          "design": "Design",
+          "code": "Code"
+        },
+        "shop": {
+          "brand": "Store / 26",
+          "catalog": "Catalog",
+          "all": "All items",
+          "filter": "Filter",
+          "item1": "Headphones",
+          "item2": "Speaker",
+          "item3": "Camera"
+        },
+        "ai": {
+          "title": "AI flow",
+          "live": "Live",
+          "request": "Request",
+          "analysis": "AI analysis",
+          "crm": "CRM",
+          "newLeads": "New leads",
+          "processed": "Processed",
+          "saved": "Time saved"
+        },
+        "corp": {
+          "workspace": "Workspace",
+          "date": "Mon / 27",
+          "project": "Project",
+          "owner": "Owner",
+          "status": "Status",
+          "platform": "Platform",
+          "portal": "Portal",
+          "system": "System",
+          "active": "Active",
+          "review": "Review",
+          "ready": "Ready"
+        },
+        "mobile": {
+          "greeting": "Good morning",
+          "balance": "Total balance",
+          "send": "Send",
+          "add": "Add funds",
+          "activity": "Recent activity",
+          "firstPayment": "Service subscription",
+          "secondPayment": "Design payment"
+        }
+      },
+      "commercialLabels": {
+        "price": "Price",
+        "timeline": "Launch time",
+        "included": "Included in the price"
+      },
+      "commercial": [
+        {
+          "price": "from ₽250,000",
+          "timeline": "from 4 weeks",
+          "included": ["UX scenarios", "UI design", "Mini App development", "Telegram integration"]
+        },
+        {
+          "price": "from ₽120,000",
+          "timeline": "from 2 weeks",
+          "included": ["Conversation flows", "Bot development", "Payments and CRM", "Launch and analytics"]
+        },
+        {
+          "price": "from ₽180,000",
+          "timeline": "from 3 weeks",
+          "included": ["Structure and prototype", "UI design", "Frontend and CMS", "SEO and analytics"]
+        },
+        {
+          "price": "from ₽350,000",
+          "timeline": "from 6 weeks",
+          "included": ["Catalog and UX", "Store design", "Payments and CRM", "Launch and analytics"]
+        },
+        {
+          "price": "from ₽280,000",
+          "timeline": "from 4 weeks",
+          "included": ["Process audit", "AI scenarios", "API integrations", "Monitoring"]
+        },
+        {
+          "price": "from ₽500,000",
+          "timeline": "from 8 weeks",
+          "included": ["Business analysis", "UX/UI system", "Roles and security", "Integrations"]
+        },
+        {
+          "price": "from ₽450,000",
+          "timeline": "from 8 weeks",
+          "included": ["UX/UI design", "iOS and Android", "API integrations", "Publishing"]
+        }
+      ],
+      "asideCta": {
+        "eyebrow": "Need something different?",
+        "link": "Discuss your project",
+        "note": "We reply within one business day"
+      },
       "fallbackTitle": "Service",
       "fallbackDesc": "We design and launch a product around the business task.",
       "fallback": [
