@@ -3955,7 +3955,7 @@ useHead(() => ({
   font-size: clamp(32px, 4vw, 52px);
 }
 
-#stack .vz-sec-head h2 {
+.vz-stack .vz-sec-head h2 {
   transform: translateX(-0.055em);
 }
 

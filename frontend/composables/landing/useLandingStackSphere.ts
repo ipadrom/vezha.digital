@@ -408,7 +408,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         ),
         new THREE.LineSegments(
           bridgeStickGeometry,
-          trackMaterial(new THREE.LineBasicMaterial({ color: 0x343942 }), "bridge", 0.72),
+          trackMaterial(new THREE.LineBasicMaterial({ color: 0x5d6470 }), "bridge", 0.34),
         ),
       );
 
@@ -433,7 +433,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       const getLayerTargets = () => {
         const layer = activeStackLayer.value;
         if (layer === "core") return { bridge: 0.16, core: 1, surface: 0.12 };
-        if (layer === "bridge") return { bridge: 1, core: 0.38, surface: 0.26 };
+        if (layer === "bridge") return { bridge: 1, core: 0.26, surface: 0.26 };
         if (layer === "all") return { bridge: 0.82, core: 0.82, surface: 0.86 };
         return { bridge: 0.16, core: 0.1, surface: 1 };
       };
@@ -445,7 +445,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         rootGroup.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
 
-        stackLabelPoints.forEach((item, index) => {
+        const projectedLabels = stackLabelPoints.map((item, index) => {
           const world = item.point.clone();
           item.projectionGroup.localToWorld(world);
           const counterpart = stackLabelPoints[index % 2 === 0 ? index + 1 : index - 1];
@@ -472,9 +472,54 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           const opacity = clampValue(layerVisibility * pairVisibility * leftFade * rightFade * frontFade, 0, 1);
           const scale = 0.78 + frontFade * 0.18;
 
+          return {
+            item,
+            opacity,
+            scale,
+            worldZ: world.z,
+            x,
+            y,
+            layoutY: y,
+          };
+        });
+
+        const labelGap = 8;
+        const labelEdge = 24;
+        const visible = projectedLabels
+          .filter((label) => label.opacity > 0.02)
+          .sort((a, b) => a.y - b.y);
+
+        for (let index = 1; index < visible.length; index += 1) {
+          const current = visible[index];
+          for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {
+            const previous = visible[previousIndex];
+            const currentWidth = current.item.element.offsetWidth * current.scale;
+            const previousWidth = previous.item.element.offsetWidth * previous.scale;
+            const horizontalGap = Math.abs(current.x - previous.x);
+            const canOverlapHorizontally = horizontalGap < (currentWidth + previousWidth) / 2 + labelGap;
+            if (!canOverlapHorizontally) continue;
+
+            const currentHeight = current.item.element.offsetHeight * current.scale;
+            const previousHeight = previous.item.element.offsetHeight * previous.scale;
+            current.layoutY = Math.max(
+              current.layoutY,
+              previous.layoutY + (currentHeight + previousHeight) / 2 + labelGap,
+            );
+          }
+        }
+
+        const overflow = visible.length
+          ? Math.max(0, visible[visible.length - 1].layoutY - (height - labelEdge))
+          : 0;
+        if (overflow) visible.forEach((label) => { label.layoutY -= overflow; });
+
+        const underflow = visible.length ? Math.max(0, labelEdge - visible[0].layoutY) : 0;
+        if (underflow) visible.forEach((label) => { label.layoutY += underflow; });
+
+        projectedLabels.forEach(({ item, opacity, scale, worldZ, x, layoutY }) => {
           item.element.style.opacity = opacity.toFixed(3);
-          item.element.style.zIndex = String(Math.round(100 + world.z * 20));
-          item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+          item.element.style.zIndex = String(Math.round(100 + worldZ * 20));
+          item.element.style.transform = `translate3d(${x}px, ${layoutY}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
         });
       };
 
