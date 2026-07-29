@@ -33,7 +33,7 @@
 
 **Interfaces:**
 - Consumes: existing `StackVisualLayer`, `StackBaseLayer`, and Mobile technology metadata.
-- Produces: `MobileOrbitId`, `MOBILE_ORBIT_TRACKS`, revised `MOBILE_ORBIT_TECH`, `getMobileOrbitPoint(angle, orbitId)`, `getMobileOrbitAngle(elapsedMs, orbitId, phase)`, `getStackLayerTargets(layer, compactMobile)`, and `getStackGroupScale(layer, visualLayer, compactMobile)`.
+- Produces: `MobileOrbitId`, `MobileOrbitMode`, `MOBILE_ORBIT_TRACKS`, revised `MOBILE_ORBIT_TECH`, `getMobileOrbitPoint(angle, orbitId)`, `getMobileOrbitAngle(elapsedMs, orbitId, phase)`, `getMobileTechnologyPoint(spec, elapsedMs, mode)`, `getMobileLabelDepthStyle(worldZ)`, `resolveMobileOrbitMode(layer, viewportWidth)`, `getStackLayerTargets(layer, compactMobile)`, and `getStackGroupScale(layer, visualLayer, compactMobile)`.
 
 - [ ] **Step 1: Replace the old single-orbit assertions with failing two-orbit tests**
 
@@ -43,10 +43,13 @@ Add these imports and assertions in `frontend/tests/landingStackOrbit.test.ts`:
 import {
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
+  getMobileLabelDepthStyle,
   getMobileOrbitAngle,
   getMobileOrbitPoint,
+  getMobileTechnologyPoint,
   getStackGroupScale,
   getStackLayerTargets,
+  resolveMobileOrbitMode,
   resolveStackVisualLayer,
 } from "../utils/landingStackOrbit";
 
@@ -60,10 +63,6 @@ test("assigns technologies to two compact Mobile tracks", () => {
       ["Flutter", "outer"],
     ],
   );
-  assert.equal(MOBILE_ORBIT_TRACKS.outer.durationMs, 14_000);
-  assert.equal(MOBILE_ORBIT_TRACKS.inner.durationMs, 10_000);
-  assert.equal(MOBILE_ORBIT_TRACKS.outer.direction, 1);
-  assert.equal(MOBILE_ORBIT_TRACKS.inner.direction, -1);
 });
 
 test("returns deterministic points for both orbit ellipses", () => {
@@ -93,6 +92,35 @@ test("uses compact-only Mobile shell opacity and core scale", () => {
   assert.equal(getStackGroupScale("core", "mobile", true), 0.86);
   assert.equal(getStackGroupScale("core", "mobile", false), 1.192);
 });
+
+test("resolves compact orbit mode only for Mobile at the 900px boundary", () => {
+  assert.equal(resolveMobileOrbitMode("mobile", 900), "compact");
+  assert.equal(resolveMobileOrbitMode("mobile", 901), "desktop");
+  assert.equal(resolveMobileOrbitMode("surface", 390), "hidden");
+});
+
+test("moves only compact Mobile technologies along their assigned tracks", () => {
+  const outerAtZero = { orbit: "outer" as const, phase: 0 };
+  assert.deepEqual(
+    getMobileTechnologyPoint(outerAtZero, 3_500, "compact"),
+    { x: 0, y: 1.08, z: 0 },
+  );
+  assert.deepEqual(
+    getMobileTechnologyPoint(outerAtZero, 3_500, "desktop"),
+    { x: 2.02, y: 0, z: 0 },
+  );
+});
+
+test("dims and shrinks labels behind the core without hiding them", () => {
+  assert.deepEqual(getMobileLabelDepthStyle(-1.2), {
+    opacity: 0.58,
+    scale: 0.78,
+  });
+  assert.deepEqual(getMobileLabelDepthStyle(1.2), {
+    opacity: 1,
+    scale: 0.96,
+  });
+});
 ```
 
 - [ ] **Step 2: Run the unit test and verify the new contract fails**
@@ -112,6 +140,7 @@ Replace the single-orbit metadata in `frontend/utils/landingStackOrbit.ts` with:
 
 ```ts
 export type MobileOrbitId = "outer" | "inner";
+export type MobileOrbitMode = "hidden" | "desktop" | "compact";
 
 export const MOBILE_ORBIT_TRACKS = {
   outer: {
@@ -158,7 +187,38 @@ export function getMobileOrbitAngle(
   const track = MOBILE_ORBIT_TRACKS[orbit];
   return phase + (elapsedMs / track.durationMs) * Math.PI * 2 * track.direction;
 }
+
+export function resolveMobileOrbitMode(
+  layer: StackVisualLayer,
+  viewportWidth: number,
+): MobileOrbitMode {
+  if (layer !== "mobile") return "hidden";
+  return viewportWidth <= 900 ? "compact" : "desktop";
+}
+
+export function getMobileTechnologyPoint(
+  spec: { orbit: MobileOrbitId; phase: number },
+  elapsedMs: number,
+  mode: Exclude<MobileOrbitMode, "hidden">,
+) {
+  const angle = mode === "compact"
+    ? getMobileOrbitAngle(elapsedMs, spec.orbit, spec.phase)
+    : spec.phase;
+  return getMobileOrbitPoint(angle, mode === "compact" ? spec.orbit : "outer");
+}
+
+export function getMobileLabelDepthStyle(worldZ: number) {
+  const depth = Math.max(0, Math.min(1, (worldZ + 1.2) / 2.4));
+  return {
+    opacity: Number((0.58 + depth * 0.42).toFixed(3)),
+    scale: Number((0.78 + depth * 0.18).toFixed(3)),
+  };
+}
 ```
+
+Delete the previous `readFile` source-text test from
+`frontend/tests/landingStackOrbit.test.ts`; the new tests cover observable
+orbit behavior directly.
 
 Update the layer and group helpers:
 
@@ -217,44 +277,16 @@ git commit -m "feat: model compact mobile satellite tracks"
 - Modify: `frontend/composables/landing/useLandingStackSphere.ts`
 
 **Interfaces:**
-- Consumes: all Task 1 exports.
+- Consumes: the tested Task 1 mode, frame-position, depth-style, layer-target, and group-scale functions.
 - Produces: one unchanged desktop orbit group, two compact orbit groups, four independently animated Mobile label anchors, and compact-only sphere targets.
 
-- [ ] **Step 1: Add a failing source contract for compact rendering**
-
-Extend the existing renderer source test:
-
-```ts
-test("the sphere renderer supports two compact satellite tracks", async () => {
-  const source = await readFile(
-    new URL("../composables/landing/useLandingStackSphere.ts", import.meta.url),
-    "utf8",
-  );
-  assert.match(source, /MOBILE_ORBIT_TRACKS/);
-  assert.match(source, /getMobileOrbitAngle/);
-  assert.match(source, /compactOrbitGroups/);
-  assert.match(source, /isCompactMobile/);
-  assert.match(source, /getStackGroupScale/);
-});
-```
-
-- [ ] **Step 2: Run the test and verify the renderer contract fails**
-
-Run:
-
-```powershell
-npx esbuild tests/landingStackOrbit.test.ts --bundle --platform=node --format=esm --outfile=.codex-logs/landingStackOrbit.test.mjs
-node --test .codex-logs/landingStackOrbit.test.mjs
-```
-
-Expected: the new source-contract test fails because the compact renderer names are absent.
-
-- [ ] **Step 3: Create separate desktop and compact orbit groups**
+- [ ] **Step 1: Create separate desktop and compact orbit groups**
 
 In `frontend/composables/landing/useLandingStackSphere.ts`:
 
-- Import `MOBILE_ORBIT_TRACKS`, `getMobileOrbitAngle`, `getStackGroupScale`, and
-  `type MobileOrbitId`.
+- Import `MOBILE_ORBIT_TRACKS`, `getMobileLabelDepthStyle`,
+  `getMobileTechnologyPoint`, `getStackGroupScale`,
+  `resolveMobileOrbitMode`, and `type MobileOrbitId`.
 - Rename the existing `orbitGroup` to `desktopOrbitGroup` without changing its
   rotation, line opacity, pulse, or desktop label positions.
 - Create `compactOrbitGroups: Record<MobileOrbitId, THREE.Group>` and set their
@@ -268,15 +300,16 @@ In `frontend/composables/landing/useLandingStackSphere.ts`:
 The compact paths are selected by:
 
 ```ts
-const isCompactMobile = () => (
-  activeStackLayer.value === "mobile" && window.innerWidth <= 900
+const getMobileOrbitMode = () => (
+  resolveMobileOrbitMode(activeStackLayer.value, window.innerWidth)
 );
+const isCompactMobile = () => getMobileOrbitMode() === "compact";
 ```
 
 The desktop path remains selected when Mobile is active and
 `window.innerWidth > 900`.
 
-- [ ] **Step 4: Make Mobile labels switch projection groups and move independently**
+- [ ] **Step 2: Make Mobile labels switch projection groups and move independently**
 
 Store each Mobile label with `orbit`, `phase`, and a mutable local `point`:
 
@@ -297,10 +330,11 @@ Before every render, update compact label anchors:
 const updateMobileLabelPoints = (elapsedMs: number) => {
   const compact = isCompactMobile();
   mobileLabelPoints.forEach((item) => {
-    const angle = compact
-      ? getMobileOrbitAngle(elapsedMs, item.orbit, item.phase)
-      : item.phase;
-    const point = getMobileOrbitPoint(angle, compact ? item.orbit : "outer");
+    const point = getMobileTechnologyPoint(
+      item,
+      elapsedMs,
+      compact ? "compact" : "desktop",
+    );
     item.point.set(point.x, point.y, point.z);
     item.projectionGroup = compact
       ? compactOrbitGroups[item.orbit]
@@ -314,28 +348,28 @@ animation. Do not rotate the compact groups: label motion must come from their
 changing orbital angle. Keep the existing slow `desktopOrbitGroup.rotation.z`
 animation only for desktop Mobile.
 
-- [ ] **Step 5: Add front/back depth without rotating the DOM labels**
+- [ ] **Step 3: Add front/back depth without rotating the DOM labels**
 
 In `updateStackLabels`, derive Mobile depth from the projected world `z`:
 
 ```ts
-const mobileDepth = item.layer === "mobile"
-  ? fadeRange(world.z, -1.2, 1.2)
-  : 1;
+const mobileDepthStyle = item.layer === "mobile"
+  ? getMobileLabelDepthStyle(world.z)
+  : null;
 const frontFade = item.layer === "mobile"
-  ? 0.58 + mobileDepth * 0.42
+  ? mobileDepthStyle!.opacity
   : isSurfaceLabel
     ? fadeRange(world.z, -0.06, 0.08)
     : fadeRange(world.z, -0.12, 0.12);
 const scale = item.layer === "mobile"
-  ? 0.78 + mobileDepth * 0.18
+  ? mobileDepthStyle!.scale
   : 0.78 + frontFade * 0.18;
 ```
 
 Continue applying only `translate3d(...) translate(-50%, -50%) scale(...)` to
 the DOM element. Do not add CSS or Three.js rotation to label text.
 
-- [ ] **Step 6: Apply compact-only shell opacity and core scale**
+- [ ] **Step 4: Apply compact-only shell opacity and core scale**
 
 Replace the local target and scale calculations with:
 
@@ -354,7 +388,7 @@ This makes the compact Mobile surface fully transparent and sets the core
 scale to `0.86`, while preserving every pre-existing scale outside that exact
 state.
 
-- [ ] **Step 7: Implement reduced-motion and responsive transitions**
+- [ ] **Step 5: Implement reduced-motion and responsive transitions**
 
 - In `renderStaticState()`, call `updateMobileLabelPoints(0)`, show both compact
   tracks when `isCompactMobile()` is true, and show the desktop track otherwise.
@@ -365,7 +399,7 @@ state.
 - When leaving Mobile, fade both compact orbit materials to `0` and restore the
   existing selected stack layer.
 
-- [ ] **Step 8: Run the unit test and verify it passes**
+- [ ] **Step 6: Run the unit test and verify it still passes**
 
 Run:
 
@@ -376,7 +410,7 @@ node --test .codex-logs/landingStackOrbit.test.mjs
 
 Expected: all tests pass with zero failures.
 
-- [ ] **Step 9: Commit the renderer**
+- [ ] **Step 7: Commit the renderer**
 
 ```powershell
 git add frontend/composables/landing/useLandingStackSphere.ts frontend/tests/landingStackOrbit.test.ts
