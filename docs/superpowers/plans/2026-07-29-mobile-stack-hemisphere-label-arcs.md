@@ -24,7 +24,8 @@
 - Keep desktop label projection and desktop visual behavior unchanged.
 - Keep reduced-motion mode static with four visible labels.
 - Add no packages, image assets, content fields, or API changes.
-- Stop after local verification and local launch so the user can perform visual review; do not push without a new explicit publication instruction.
+- After local verification, integrate the feature into `main` and push it to
+  `origin/main` as explicitly authorized by the user.
 
 ---
 
@@ -493,7 +494,7 @@ git commit -m "feat: render four compact hemisphere labels"
 
 ---
 
-### Task 3: Fresh verification and local visual-review handoff
+### Task 3: Fresh verification and publication
 
 **Files:**
 - Verify: `frontend/utils/landingStackOrbit.ts`
@@ -503,7 +504,8 @@ git commit -m "feat: render four compact hemisphere labels"
 
 **Interfaces:**
 - Consumes: the completed compact lane model and renderer from Tasks 1 and 2.
-- Produces: a clean local build and a running local site for user-owned visual review.
+- Produces: a clean local build, a running local site, and the verified feature
+  published to `origin/main`.
 
 - [ ] **Step 1: Confirm only intended tracked files changed**
 
@@ -557,10 +559,44 @@ Invoke-WebRequest -UseBasicParsing http://127.0.0.1:3000/ | Select-Object -Expan
 
 Expected: `200`.
 
-- [ ] **Step 5: Hand off for visual review without publishing**
+- [ ] **Step 5: Synchronize the feature branch with remote main**
 
-Report that the implementation is available at `http://127.0.0.1:3000/`, list
-the focused test count and production-build result, and ask the user to inspect
-Frontend, Backend, DevOps, and Mobile at a phone-sized viewport. Do not push or
-publish until the user explicitly approves the rendered result.
+Run from the feature worktree:
 
+```powershell
+git fetch origin main
+git rev-list --left-right --count origin/main...HEAD
+```
+
+Expected: the left count is `0`. If the remote moved, rebase the feature branch
+onto `origin/main`, then rerun the focused tests and production build.
+
+- [ ] **Step 6: Fast-forward main and run final verification**
+
+Run from the primary repository checkout:
+
+```powershell
+git merge --ff-only codex/mobile-stack-hemisphere-label-arcs
+Set-Location frontend
+npx esbuild tests/landingStackOrbit.test.ts --bundle --platform=node --format=esm --outfile=.codex-logs/landingStackOrbit.test.mjs
+node --test .codex-logs/landingStackOrbit.test.mjs
+npm run build
+Set-Location ..
+```
+
+Expected: the fast-forward succeeds, all focused tests pass, and Nuxt exits
+with code `0`.
+
+- [ ] **Step 7: Push and verify origin/main**
+
+Run:
+
+```powershell
+git push origin main
+git fetch origin main
+git rev-parse HEAD
+git rev-parse origin/main
+```
+
+Expected: local and remote hashes are identical. Report the published commit,
+test count, build result, and local review URL.
