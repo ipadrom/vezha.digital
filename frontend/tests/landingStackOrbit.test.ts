@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   MOBILE_ORBIT_TECH,
+  getCompactMobileRootRotation,
   getMobileLabelDepthStyle,
   getMobileOrbitAngle,
   getMobileOrbitPoint,
@@ -46,9 +47,9 @@ test("returns deterministic points for both orbit ellipses", () => {
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "inner"), { x: 0, y: 0.92, z: 0 });
 });
 
-test("advances the tracks in opposite directions at different speeds", () => {
-  assert.equal(getMobileOrbitAngle(3_500, "outer", 0), Math.PI / 2);
-  assert.equal(getMobileOrbitAngle(2_500, "inner", 0), -Math.PI / 2);
+test("advances the slower tracks in opposite directions", () => {
+  assert.equal(getMobileOrbitAngle(8_000, "outer", 0), Math.PI / 2);
+  assert.equal(getMobileOrbitAngle(6_000, "inner", 0), -Math.PI / 2);
   assert.equal(getMobileOrbitAngle(0, "outer", Math.PI), Math.PI);
 });
 
@@ -63,8 +64,23 @@ test("uses compact-only Mobile shell opacity and core scale", () => {
     core: 0.48,
     surface: 0.58,
   });
-  assert.equal(getStackGroupScale("core", "mobile", true), 0.86);
+  assert.equal(getStackGroupScale("core", "mobile", true), 0.5);
   assert.equal(getStackGroupScale("core", "mobile", false), 1.192);
+});
+
+test("keeps compact Mobile root drift slow and tightly bounded", () => {
+  assert.deepEqual(getCompactMobileRootRotation(0), {
+    x: -0.16,
+    y: -0.4,
+    z: 0.08,
+  });
+
+  for (let elapsedMs = 0; elapsedMs <= 360_000; elapsedMs += 10_000) {
+    const rotation = getCompactMobileRootRotation(elapsedMs);
+    assert.ok(rotation.x >= -0.172 && rotation.x <= -0.148);
+    assert.ok(rotation.y >= -0.41 && rotation.y <= -0.39);
+    assert.ok(rotation.z >= 0.072 && rotation.z <= 0.088);
+  }
 });
 
 test("resolves compact orbit mode only for Mobile at the 900px boundary", () => {
@@ -76,11 +92,11 @@ test("resolves compact orbit mode only for Mobile at the 900px boundary", () => 
 test("moves only compact Mobile technologies along their assigned tracks", () => {
   const outerAtZero = { orbit: "outer" as const, phase: 0 };
   assert.deepEqual(
-    getMobileTechnologyPoint(outerAtZero, 3_500, "compact"),
+    getMobileTechnologyPoint(outerAtZero, 8_000, "compact"),
     { x: 0, y: 1.08, z: 0 },
   );
   assert.deepEqual(
-    getMobileTechnologyPoint(outerAtZero, 3_500, "desktop"),
+    getMobileTechnologyPoint(outerAtZero, 8_000, "desktop"),
     { x: 2.02, y: 0, z: 0 },
   );
 });

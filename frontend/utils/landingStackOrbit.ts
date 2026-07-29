@@ -7,14 +7,14 @@ export type MobileOrbitMode = "hidden" | "desktop" | "compact";
 export const MOBILE_ORBIT_TRACKS = {
   outer: {
     direction: 1,
-    durationMs: 14_000,
+    durationMs: 32_000,
     radiusX: 2.02,
     radiusY: 1.08,
     rotation: [1.02, 0.28, -0.22],
   },
   inner: {
     direction: -1,
-    durationMs: 10_000,
+    durationMs: 24_000,
     radiusX: 1.72,
     radiusY: 0.92,
     rotation: [0.82, -0.38, 0.62],
@@ -97,7 +97,7 @@ export function getStackGroupScale(
   visualLayer: StackVisualLayer,
   compactMobile = false,
 ) {
-  if (compactMobile && visualLayer === "mobile" && layer === "core") return 0.86;
+  if (compactMobile && visualLayer === "mobile" && layer === "core") return 0.5;
   const target = getStackLayerTargets(visualLayer, compactMobile)[layer];
   return layer === "core" ? 1 + target * 0.4 : 1 + target * 0.055;
 }
@@ -161,5 +161,13 @@ export function getMobileLabelDepthStyle(worldZ: number) {
   return {
     opacity: Number((0.58 + depth * 0.42).toFixed(3)),
     scale: Number((0.78 + depth * 0.18).toFixed(3)),
+  };
+}
+
+export function getCompactMobileRootRotation(elapsedMs: number) {
+  return {
+    x: -0.16 + Math.sin(elapsedMs * 0.00005) * 0.012,
+    y: -0.4 + Math.sin(elapsedMs * 0.00004) * 0.01,
+    z: 0.08 + Math.sin(elapsedMs * 0.000035) * 0.008,
   };
 }
