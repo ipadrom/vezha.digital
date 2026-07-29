@@ -1,8 +1,14 @@
 import { watch, type ComputedRef, type Ref } from "vue";
 import {
   MOBILE_ORBIT_TECH,
+  MOBILE_ORBIT_TRACKS,
+  getMobileLabelDepthStyle,
   getMobileOrbitPoint,
+  getMobileTechnologyPoint,
+  getStackGroupScale,
   getStackLayerTargets,
+  resolveMobileOrbitMode,
+  type MobileOrbitId,
   type StackVisualLayer,
 } from "~/utils/landingStackOrbit";
 
@@ -186,9 +192,23 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       const surfaceGroup = new THREE.Group();
       const bridgeGroup = new THREE.Group();
       const coreGroup = new THREE.Group();
-      const orbitGroup = new THREE.Group();
-      orbitGroup.rotation.set(1.02, 0.28, -0.22);
-      rootGroup.add(bridgeGroup, surfaceGroup, coreGroup, orbitGroup);
+      const desktopOrbitGroup = new THREE.Group();
+      desktopOrbitGroup.rotation.set(1.02, 0.28, -0.22);
+      const compactOrbitGroups: Record<MobileOrbitId, import("three").Group> = {
+        outer: new THREE.Group(),
+        inner: new THREE.Group(),
+      };
+      (Object.keys(compactOrbitGroups) as MobileOrbitId[]).forEach((orbit) => {
+        compactOrbitGroups[orbit].rotation.set(...MOBILE_ORBIT_TRACKS[orbit].rotation);
+      });
+      rootGroup.add(
+        bridgeGroup,
+        surfaceGroup,
+        coreGroup,
+        desktopOrbitGroup,
+        compactOrbitGroups.outer,
+        compactOrbitGroups.inner,
+      );
 
       const trackedGroups = [
         { group: surfaceGroup, layer: "surface" as const, scale: 1 },
@@ -367,10 +387,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         const icon = document.createElement("span");
         const image = document.createElement("img");
         const text = document.createElement("span");
-        const orbitPoint = getMobileOrbitPoint(spec.angle, spec.radiusScale);
+        const orbitPoint = getMobileTechnologyPoint(spec, 0, "desktop");
 
         element.className = "vz-stack__sphere-label vz-stack__sphere-label--mobile";
-        element.dataset.orbitPlacement = spec.placement;
+        element.dataset.orbit = spec.orbit;
         icon.className = "vz-stack__sphere-label-icon vz-stack__sphere-label-icon--text";
         icon.style.setProperty("--stack-tech-color", spec.color);
         image.src = `https://cdn.simpleicons.org/${spec.slug}/ffffff`;
@@ -385,7 +405,11 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           element,
           point: new THREE.Vector3(orbitPoint.x, orbitPoint.y, orbitPoint.z),
           layer: "mobile" as const,
-          projectionGroup: orbitGroup,
+          orbit: spec.orbit,
+          phase: spec.phase,
+          desktopPhase: spec.desktopPhase,
+          radiusScale: spec.radiusScale,
+          projectionGroup: desktopOrbitGroup,
         };
       });
       const stackLabelPoints = [
@@ -401,21 +425,21 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       const bridgeGeometry = createStackBridgeGeometry(THREE, corePoints, surfacePoints);
       const coreShellGeometry = new THREE.IcosahedronGeometry(0.68, 3);
       const coreInnerGeometry = new THREE.IcosahedronGeometry(0.34, 2);
-      const orbitPoints = Array.from({ length: 97 }, (_, index) => {
+      const desktopOrbitPoints = Array.from({ length: 97 }, (_, index) => {
         const point = getMobileOrbitPoint((index / 96) * Math.PI * 2);
         return new THREE.Vector3(point.x, point.y, point.z);
       });
-      const orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
-      const orbitPulseGeometry = new THREE.BufferGeometry().setFromPoints([
+      const desktopOrbitGeometry = new THREE.BufferGeometry().setFromPoints(desktopOrbitPoints);
+      const desktopOrbitPulseGeometry = new THREE.BufferGeometry().setFromPoints([
         new THREE.Vector3(),
       ]);
-      const orbitMaterial = new THREE.LineBasicMaterial({
+      const desktopOrbitMaterial = new THREE.LineBasicMaterial({
         color: 0x6f7683,
         depthWrite: false,
         opacity: 0,
         transparent: true,
       });
-      const orbitPulseMaterial = new THREE.PointsMaterial({
+      const desktopOrbitPulseMaterial = new THREE.PointsMaterial({
         color: 0x6fe7ff,
         depthWrite: false,
         opacity: 0,
@@ -423,10 +447,33 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         sizeAttenuation: true,
         transparent: true,
       });
-      const orbitLine = new THREE.Line(orbitGeometry, orbitMaterial);
-      const orbitPulse = new THREE.Points(orbitPulseGeometry, orbitPulseMaterial);
-      orbitGroup.add(orbitLine, orbitPulse);
-      orbitMaterials.push(orbitMaterial, orbitPulseMaterial);
+      const desktopOrbitLine = new THREE.Line(desktopOrbitGeometry, desktopOrbitMaterial);
+      const desktopOrbitPulse = new THREE.Points(desktopOrbitPulseGeometry, desktopOrbitPulseMaterial);
+      desktopOrbitGroup.add(desktopOrbitLine, desktopOrbitPulse);
+      orbitMaterials.push(desktopOrbitMaterial, desktopOrbitPulseMaterial);
+      const compactOrbitOpacity: Record<MobileOrbitId, number> = {
+        outer: 0.74,
+        inner: 0.62,
+      };
+      const compactOrbitMaterials = {} as Record<MobileOrbitId, import("three").LineBasicMaterial>;
+      const compactOrbitGeometries: import("three").BufferGeometry[] = [];
+      (Object.keys(compactOrbitGroups) as MobileOrbitId[]).forEach((orbit) => {
+        const points = Array.from({ length: 97 }, (_, index) => {
+          const point = getMobileOrbitPoint((index / 96) * Math.PI * 2, orbit);
+          return new THREE.Vector3(point.x, point.y, point.z);
+        });
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({
+          color: orbit === "outer" ? 0x788392 : 0x5f8c9d,
+          depthWrite: false,
+          opacity: 0,
+          transparent: true,
+        });
+        compactOrbitGroups[orbit].add(new THREE.Line(geometry, material));
+        compactOrbitGeometries.push(geometry);
+        compactOrbitMaterials[orbit] = material;
+        orbitMaterials.push(material);
+      });
       geometries.push(
         surfacePointGeometry,
         corePointGeometry,
@@ -436,8 +483,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         coreShellGeometry,
         coreInnerGeometry,
         bridgeStickGeometry,
-        orbitGeometry,
-        orbitPulseGeometry,
+        desktopOrbitGeometry,
+        desktopOrbitPulseGeometry,
+        ...compactOrbitGeometries,
       );
 
       surfaceGroup.add(
@@ -499,12 +547,33 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         else renderer.render(scene, camera);
       };
 
-      const getLayerTargets = () => getStackLayerTargets(activeStackLayer.value);
+      const getMobileOrbitMode = () => (
+        resolveMobileOrbitMode(activeStackLayer.value, window.innerWidth)
+      );
+      const isCompactMobile = () => getMobileOrbitMode() === "compact";
+      const getLayerTargets = () => (
+        getStackLayerTargets(activeStackLayer.value, isCompactMobile())
+      );
+      const getGroupScale = (layer: "surface" | "core" | "bridge") => (
+        getStackGroupScale(layer, activeStackLayer.value, isCompactMobile())
+      );
+      const updateMobileLabelPoints = (elapsedMs: number) => {
+        const mode = getMobileOrbitMode();
+        const visibleMode = mode === "compact" ? "compact" : "desktop";
+        mobileLabelPoints.forEach((item) => {
+          const point = getMobileTechnologyPoint(item, elapsedMs, visibleMode);
+          item.point.set(point.x, point.y, point.z);
+          item.projectionGroup = mode === "compact"
+            ? compactOrbitGroups[item.orbit]
+            : desktopOrbitGroup;
+        });
+      };
 
       const fadeRange = (value: number, from: number, to: number) => clampValue((value - from) / (to - from), 0, 1);
       const updateStackLabels = () => {
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
+        const compactMobile = isCompactMobile();
         rootGroup.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
 
@@ -528,8 +597,11 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           const rightFade = isSurfaceLabel
             ? 1 - fadeRange(projected.x, 0.79, 0.86)
             : 1 - fadeRange(projected.x, 0.72, 0.86);
+          const mobileDepthStyle = item.layer === "mobile" && compactMobile
+            ? getMobileLabelDepthStyle(world.z)
+            : null;
           const frontFade = item.layer === "mobile"
-            ? 1
+            ? mobileDepthStyle?.opacity ?? 1
             : isSurfaceLabel
               ? fadeRange(world.z, -0.06, 0.08)
               : fadeRange(world.z, -0.12, 0.12);
@@ -544,7 +616,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             ? 1
             : 0;
           const opacity = clampValue(layerVisibility * pairVisibility * leftFade * rightFade * frontFade, 0, 1);
-          const scale = 0.78 + frontFade * 0.18;
+          const scale = mobileDepthStyle?.scale ?? 0.78 + frontFade * 0.18;
 
           return {
             item,
@@ -597,27 +669,31 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         });
       };
 
-      const setOrbitPulsePoint = (angle: number) => {
+      const setDesktopOrbitPulsePoint = (angle: number) => {
         const pulsePoint = getMobileOrbitPoint(angle);
-        orbitPulse.position.set(pulsePoint.x, pulsePoint.y, pulsePoint.z);
+        desktopOrbitPulse.position.set(pulsePoint.x, pulsePoint.y, pulsePoint.z);
       };
 
       const renderStaticState = () => {
         const targets = getLayerTargets();
-        const orbitVisibility = Number(activeStackLayer.value === "mobile");
+        const orbitMode = getMobileOrbitMode();
+        const desktopOrbitVisibility = Number(orbitMode === "desktop");
+        const compactOrbitVisibility = Number(orbitMode === "compact");
         trackedMaterials.forEach(({ baseOpacity, layer, material }) => {
           material.opacity = baseOpacity * targets[layer];
         });
         trackedGroups.forEach((item) => {
-          item.scale = item.layer === "core"
-            ? 1 + targets[item.layer] * 0.4
-            : 1 + targets[item.layer] * 0.055;
+          item.scale = getGroupScale(item.layer);
           item.group.scale.setScalar(item.scale);
         });
-        orbitGroup.rotation.set(1.02, 0.28, -0.22);
-        orbitMaterial.opacity = 0.42 * orbitVisibility;
-        orbitPulseMaterial.opacity = 0.96 * orbitVisibility;
-        setOrbitPulsePoint(-0.2);
+        desktopOrbitGroup.rotation.set(1.02, 0.28, -0.22);
+        desktopOrbitMaterial.opacity = 0.42 * desktopOrbitVisibility;
+        desktopOrbitPulseMaterial.opacity = 0.96 * desktopOrbitVisibility;
+        (Object.keys(compactOrbitMaterials) as MobileOrbitId[]).forEach((orbit) => {
+          compactOrbitMaterials[orbit].opacity = compactOrbitOpacity[orbit] * compactOrbitVisibility;
+        });
+        updateMobileLabelPoints(0);
+        setDesktopOrbitPulsePoint(-0.2);
         renderer.render(scene, camera);
         updateStackLabels();
       };
@@ -636,25 +712,37 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           }
 
           const targets = getLayerTargets();
-          const orbitVisibility = Number(activeStackLayer.value === "mobile");
+          const orbitMode = getMobileOrbitMode();
+          const desktopOrbitVisibility = Number(orbitMode === "desktop");
+          const compactOrbitVisibility = Number(orbitMode === "compact");
           trackedMaterials.forEach(({ baseOpacity, layer, material }) => {
             const targetOpacity = baseOpacity * targets[layer];
             material.opacity += (targetOpacity - material.opacity) * 0.08 * frame;
           });
 
           trackedGroups.forEach((item) => {
-            const targetScale = item.layer === "core"
-              ? 1 + targets[item.layer] * 0.4
-              : 1 + targets[item.layer] * 0.055;
+            const targetScale = getGroupScale(item.layer);
             item.scale += (targetScale - item.scale) * 0.06 * frame;
             item.group.scale.setScalar(item.scale);
           });
-          orbitMaterial.opacity += (0.42 * orbitVisibility - orbitMaterial.opacity) * 0.08 * frame;
-          orbitPulseMaterial.opacity += (0.96 * orbitVisibility - orbitPulseMaterial.opacity) * 0.1 * frame;
-          if (activeStackLayer.value === "mobile") {
-            orbitGroup.rotation.z += 0.0012 * frame;
+          desktopOrbitMaterial.opacity += (
+            0.42 * desktopOrbitVisibility - desktopOrbitMaterial.opacity
+          ) * 0.08 * frame;
+          desktopOrbitPulseMaterial.opacity += (
+            0.96 * desktopOrbitVisibility - desktopOrbitPulseMaterial.opacity
+          ) * 0.1 * frame;
+          (Object.keys(compactOrbitMaterials) as MobileOrbitId[]).forEach((orbit) => {
+            const material = compactOrbitMaterials[orbit];
+            const targetOpacity = compactOrbitOpacity[orbit] * compactOrbitVisibility;
+            material.opacity += (targetOpacity - material.opacity) * 0.1 * frame;
+          });
+          if (orbitMode === "desktop") {
+            updateMobileLabelPoints(0);
+            desktopOrbitGroup.rotation.z += 0.0012 * frame;
             const pulseAngle = (now * 0.00034) % (Math.PI * 2);
-            setOrbitPulsePoint(pulseAngle);
+            setDesktopOrbitPulsePoint(pulseAngle);
+          } else if (orbitMode === "compact") {
+            updateMobileLabelPoints(now);
           }
 
           rootGroup.rotation.y += 0.0022 * frame;
