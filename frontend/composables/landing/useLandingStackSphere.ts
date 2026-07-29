@@ -2,6 +2,7 @@ import { watch, type ComputedRef, type Ref } from "vue";
 import {
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
+  getCompactMobileRootRotation,
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
@@ -745,9 +746,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             updateMobileLabelPoints(now);
           }
 
-          rootGroup.rotation.y += 0.0022 * frame;
-          rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
-          rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
+          if (orbitMode === "compact") {
+            const targetRotation = getCompactMobileRootRotation(now);
+            const driftEase = 0.035 * frame;
+            rootGroup.rotation.x += (targetRotation.x - rootGroup.rotation.x) * driftEase;
+            rootGroup.rotation.y += (targetRotation.y - rootGroup.rotation.y) * driftEase;
+            rootGroup.rotation.z += (targetRotation.z - rootGroup.rotation.z) * driftEase;
+          } else {
+            rootGroup.rotation.y += 0.0022 * frame;
+            rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
+            rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
+          }
           renderer.render(scene, camera);
           updateStackLabels();
         }
