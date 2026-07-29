@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   MOBILE_ORBIT_TECH,
@@ -38,4 +39,15 @@ test("places native technologies on the orbit and PWA at the intersection", () =
 test("returns deterministic points on the orbit ellipse", () => {
   assert.deepEqual(getMobileOrbitPoint(0, 1), { x: 2.02, y: 0, z: 0 });
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, 1), { x: 0, y: 1.08, z: 0 });
+});
+
+test("the sphere renderer consumes the dedicated Mobile state", async () => {
+  const source = await readFile(
+    new URL("../composables/landing/useLandingStackSphere.ts", import.meta.url),
+    "utf8",
+  );
+  assert.match(source, /MOBILE_ORBIT_TECH/);
+  assert.match(source, /orbitGroup/);
+  assert.match(source, /orbitPulse/);
+  assert.match(source, /item\.layer === "mobile"/);
 });

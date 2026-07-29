@@ -4321,6 +4321,14 @@ useHead(() => ({
   border-radius: 7px;
 }
 
+.vz-stack__sphere-label--mobile {
+  min-width: 88px;
+  height: 32px;
+  padding-inline: 9px 11px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
 .vz-stack__sphere-label-icon--text {
   align-items: center;
   justify-content: center;
@@ -5210,6 +5218,10 @@ useHead(() => ({
     display: block;
     width: var(--stack-sphere-size);
     transform: translateX(-50%);
+  }
+
+  .vz-stack__sphere-label--mobile {
+    font-size: 0.92em;
   }
 
   .vz-stack__timeline {
