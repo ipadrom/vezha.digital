@@ -1,10 +1,14 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
 import test from "node:test";
 import {
   MOBILE_ORBIT_TECH,
+  getMobileLabelDepthStyle,
+  getMobileOrbitAngle,
   getMobileOrbitPoint,
+  getMobileTechnologyPoint,
+  getStackGroupScale,
   getStackLayerTargets,
+  resolveMobileOrbitMode,
   resolveStackVisualLayer,
 } from "../utils/landingStackOrbit";
 
@@ -15,7 +19,7 @@ test("maps stack titles to visual states", () => {
   assert.equal(resolveStackVisualLayer("Mobile"), "mobile");
 });
 
-test("keeps every system layer visible but secondary for Mobile", () => {
+test("keeps the desktop Mobile layers at their existing emphasis", () => {
   assert.deepEqual(getStackLayerTargets("mobile"), {
     bridge: 0.52,
     core: 0.48,
@@ -23,31 +27,71 @@ test("keeps every system layer visible but secondary for Mobile", () => {
   });
 });
 
-test("places native technologies on the orbit and PWA at the intersection", () => {
+test("assigns technologies to two compact Mobile tracks", () => {
   assert.deepEqual(
-    MOBILE_ORBIT_TECH.map(({ label, placement }) => [label, placement]),
+    MOBILE_ORBIT_TECH.map(({ label, orbit }) => [label, orbit]),
     [
-      ["React Native", "orbit"],
-      ["Expo", "orbit"],
-      ["PWA", "intersection"],
-      ["Flutter", "orbit"],
+      ["React Native", "outer"],
+      ["Expo", "inner"],
+      ["PWA", "inner"],
+      ["Flutter", "outer"],
     ],
   );
-  assert.ok(MOBILE_ORBIT_TECH.find((item) => item.label === "PWA")!.radiusScale < 1);
 });
 
-test("returns deterministic points on the orbit ellipse", () => {
-  assert.deepEqual(getMobileOrbitPoint(0, 1), { x: 2.02, y: 0, z: 0 });
-  assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, 1), { x: 0, y: 1.08, z: 0 });
+test("returns deterministic points for both orbit ellipses", () => {
+  assert.deepEqual(getMobileOrbitPoint(0, "outer"), { x: 2.02, y: 0, z: 0 });
+  assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "outer"), { x: 0, y: 1.08, z: 0 });
+  assert.deepEqual(getMobileOrbitPoint(0, "inner"), { x: 1.72, y: 0, z: 0 });
+  assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "inner"), { x: 0, y: 0.92, z: 0 });
 });
 
-test("the sphere renderer consumes the dedicated Mobile state", async () => {
-  const source = await readFile(
-    new URL("../composables/landing/useLandingStackSphere.ts", import.meta.url),
-    "utf8",
+test("advances the tracks in opposite directions at different speeds", () => {
+  assert.equal(getMobileOrbitAngle(3_500, "outer", 0), Math.PI / 2);
+  assert.equal(getMobileOrbitAngle(2_500, "inner", 0), -Math.PI / 2);
+  assert.equal(getMobileOrbitAngle(0, "outer", Math.PI), Math.PI);
+});
+
+test("uses compact-only Mobile shell opacity and core scale", () => {
+  assert.deepEqual(getStackLayerTargets("mobile", true), {
+    bridge: 0.52,
+    core: 0.48,
+    surface: 0,
+  });
+  assert.deepEqual(getStackLayerTargets("mobile", false), {
+    bridge: 0.52,
+    core: 0.48,
+    surface: 0.58,
+  });
+  assert.equal(getStackGroupScale("core", "mobile", true), 0.86);
+  assert.equal(getStackGroupScale("core", "mobile", false), 1.192);
+});
+
+test("resolves compact orbit mode only for Mobile at the 900px boundary", () => {
+  assert.equal(resolveMobileOrbitMode("mobile", 900), "compact");
+  assert.equal(resolveMobileOrbitMode("mobile", 901), "desktop");
+  assert.equal(resolveMobileOrbitMode("surface", 390), "hidden");
+});
+
+test("moves only compact Mobile technologies along their assigned tracks", () => {
+  const outerAtZero = { orbit: "outer" as const, phase: 0 };
+  assert.deepEqual(
+    getMobileTechnologyPoint(outerAtZero, 3_500, "compact"),
+    { x: 0, y: 1.08, z: 0 },
   );
-  assert.match(source, /MOBILE_ORBIT_TECH/);
-  assert.match(source, /orbitGroup/);
-  assert.match(source, /orbitPulse/);
-  assert.match(source, /item\.layer === "mobile"/);
+  assert.deepEqual(
+    getMobileTechnologyPoint(outerAtZero, 3_500, "desktop"),
+    { x: 2.02, y: 0, z: 0 },
+  );
+});
+
+test("dims and shrinks labels behind the core without hiding them", () => {
+  assert.deepEqual(getMobileLabelDepthStyle(-1.2), {
+    opacity: 0.58,
+    scale: 0.78,
+  });
+  assert.deepEqual(getMobileLabelDepthStyle(1.2), {
+    opacity: 1,
+    scale: 0.96,
+  });
 });
