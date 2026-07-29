@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import { useLandingStackScroll } from "~/composables/landing/useLandingStackScroll";
 import { useLandingStackSphere } from "~/composables/landing/useLandingStackSphere";
+import { resolveStackVisualLayer } from "~/utils/landingStackOrbit";
 
 type StackGroup = { title: string; description: string; items: string[] };
 type StackCopy = { label: string; title: string; meta: string; hint: [string, string] };
@@ -89,13 +90,9 @@ const { activeIndex, progress, scrollToIndex } = useLandingStackScroll(
 );
 const counter = computed(() => String(activeIndex.value + 1).padStart(2, "0"));
 const activeGroup = computed(() => props.groups[activeIndex.value] || null);
-const activeLayer = computed(() => {
-  const title = props.groups[activeIndex.value]?.title?.toLowerCase() || "frontend";
-  if (title.includes("backend")) return "core";
-  if (title.includes("devops")) return "bridge";
-  if (title.includes("mobile")) return "all";
-  return "surface";
-});
+const activeLayer = computed(() => (
+  resolveStackVisualLayer(props.groups[activeIndex.value]?.title)
+));
 
 const stackSphere = useLandingStackSphere({
   hostRef: sphereRef,
