@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Move Backend's outer label routes toward the poles and prevent a trailing Backend label from appearing too close to another label on the same route.
+**Goal:** Move Backend's outer label routes toward the poles and delay a trailing Backend label at the left edge until the same route has enough space.
 
-**Architecture:** Add a dedicated Backend route profile to the pure route utility, preserving the existing numeric scale API for Frontend parity tests. Replace the desktop label renderer's single pass with a projection pass and a visibility pass so collision decisions use actual projected centers and measured DOM widths.
+**Architecture:** Add a dedicated Backend route profile to the pure route utility, preserving the existing numeric scale API for Frontend parity tests. Replace the desktop label renderer's single pass with a projection pass and a clock-control pass so collision decisions use actual projected centers and measured DOM widths, while blocked labels pause their effective route time at the left edge.
 
 **Tech Stack:** TypeScript, Vue 3/Nuxt 3, Three.js, Node test runner, esbuild
 
@@ -13,7 +13,7 @@
 - Backend route radius remains `0.81`.
 - Backend lane heights are `[0.58, 0.16, -0.16, -0.58]`.
 - A trailing Backend label is hidden below `14px` edge clearance.
-- Collision visibility transitions from hidden to visible across the next `24px`.
+- A blocked label's route clock does not advance; once unblocked, the existing route fade-in starts from the left edge.
 - Frontend, DevOps, Mobile, traversal timing, endpoint fading, and lane wrapping remain unchanged.
 
 ---
@@ -117,29 +117,47 @@ Use the minimum clearance among peers ahead on the same lane. Return `1` when no
 
 Run the Task 1 test command. Expected: all tests pass.
 
-### Task 3: Apply collision gating to rendered Backend labels
+### Task 3: Pause conflicting Backend route clocks
 
 **Files:**
 - Modify: `frontend/composables/landing/useLandingStackSphere.ts`
 
 **Interfaces:**
-- Consumes: `BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE` and `getBackendStackLabelClearanceFactor`.
+- Consumes: `BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE`, `getBackendStackLabelClearanceFactor`, and `advanceBackendStackLabelClock`.
 
-- [ ] **Step 1: Add a projection pass**
-
-Replace the desktop `forEach` with a `map` that returns the item, route state, projected `x`/`y`, `world.z`, and `item.element.offsetWidth`.
-
-- [ ] **Step 2: Add a visibility pass**
-
-For each Backend layout, call:
+- [ ] **Step 1: Add the failing clock test**
 
 ```ts
-const target = getBackendStackLabelClearanceFactor(layout, backendLayouts);
+const initial = advanceBackendStackLabelClock(1_000, null, false);
+const moving = advanceBackendStackLabelClock(1_200, initial.state, false);
+const paused = advanceBackendStackLabelClock(1_500, moving.state, true);
+const stillPaused = advanceBackendStackLabelClock(1_800, paused.state, true);
+const resumed = advanceBackendStackLabelClock(2_000, stillPaused.state, false);
+
+assert.equal(initial.effectiveElapsedMs, 0);
+assert.equal(moving.effectiveElapsedMs, 200);
+assert.equal(paused.effectiveElapsedMs, 200);
+assert.equal(stillPaused.effectiveElapsedMs, 200);
+assert.equal(resumed.effectiveElapsedMs, 400);
 ```
 
-Maintain `Map<HTMLElement, { factor: number; lastX: number }>` state. A blocked target sets `factor` to `0`; an increasing target advances by at most `(x - lastX) / 24` per frame. Multiply route opacity by the resulting factor. Other layers use factor `1`.
+- [ ] **Step 2: Implement the clock helper**
 
-- [ ] **Step 3: Verify tests and build**
+```ts
+type BackendStackLabelClockState = {
+  delayMs: number;
+  lastElapsedMs: number;
+  originElapsedMs: number;
+};
+```
+
+On every blocked frame, add the frame delta to `delayMs`; effective route time is `elapsedMs - originElapsedMs - delayMs`.
+
+- [ ] **Step 3: Add projection and clock-control passes**
+
+Project tentative Backend layouts from their individual effective times. If a label is still in its route fade-in and clearance is blocked, advance its clock with `waiting: true`, recompute the frozen layout, and render its ordinary route opacity. Do not multiply opacity by a separate collision factor.
+
+- [ ] **Step 4: Verify tests and build**
 
 ```powershell
 .\node_modules\.bin\esbuild.cmd tests\landingStackOrbit.test.ts --bundle --platform=node --format=esm --outfile=.codex-test\landingStackOrbit.test.mjs
@@ -149,11 +167,11 @@ node --test .codex-test\landingStackOrbit.test.mjs
 
 Expected: tests and build exit with code `0`.
 
-- [ ] **Step 4: Verify in the browser**
+- [ ] **Step 5: Verify in the browser**
 
-At `http://localhost:3001/#stack` with viewport `1440×900`, activate Backend. Confirm counter `02 / 04`, visible canvas, outer label centers near the upper and lower poles, no intersecting visible label rectangles, and no relevant console errors.
+At `http://localhost:3001/#stack` with viewport `1440×900`, activate Backend. Confirm counter `02 / 04`, visible canvas, outer label centers near the upper and lower poles, no intersecting visible label rectangles, delayed appearance near the left edge, and no relevant console errors.
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```powershell
 git add frontend/tests/landingStackOrbit.test.ts frontend/utils/landingStackOrbit.ts frontend/composables/landing/useLandingStackSphere.ts
