@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_ORBIT_TECH,
   getCompactMobileRootRotation,
+  getBackendStackLabelClearanceFactor,
   getDesktopStackLabelRouteState,
   getMobileLabelDepthStyle,
   getMobileOrbitAngle,
@@ -170,6 +172,36 @@ test("scales backend desktop routes to half the frontend sphere", () => {
   assert.equal(backend.progress, frontend.progress);
   assert.equal(backend.laneIndex, frontend.laneIndex);
   assert.equal(backend.jitterPx, frontend.jitterPx);
+});
+
+test("moves backend outer routes toward the poles", () => {
+  const laneYs = Array.from({ length: 4 }, (_, traversal) => (
+    getDesktopStackLabelRouteState(
+      DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * traversal,
+      0,
+      4,
+      BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
+    ).point.y
+  ));
+
+  assert.deepEqual(laneYs, [0.58, 0.16, -0.16, -0.58]);
+});
+
+test("gates backend label appearance by same-lane edge clearance", () => {
+  const candidate = { centerX: 100, laneIndex: 0, width: 84 };
+
+  assert.equal(getBackendStackLabelClearanceFactor(candidate, [
+    { centerX: 198, laneIndex: 0, width: 84 },
+  ]), 0);
+  assert.equal(getBackendStackLabelClearanceFactor(candidate, [
+    { centerX: 210, laneIndex: 0, width: 84 },
+  ]), 0.5);
+  assert.equal(getBackendStackLabelClearanceFactor(candidate, [
+    { centerX: 222, laneIndex: 0, width: 84 },
+  ]), 1);
+  assert.equal(getBackendStackLabelClearanceFactor(candidate, [
+    { centerX: 198, laneIndex: 1, width: 84 },
+  ]), 1);
 });
 
 test("hands desktop labels off invisibly and wraps lane four to lane one", () => {

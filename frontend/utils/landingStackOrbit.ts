@@ -12,6 +12,25 @@ export const DESKTOP_STACK_LABEL_LANES = [
   { y: -0.7 },
 ] as const;
 
+export type DesktopStackLabelRouteProfile = {
+  geometryScale: number;
+  laneYs: readonly number[];
+};
+
+export const BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE = {
+  geometryScale: 0.5,
+  laneYs: [0.58, 0.16, -0.16, -0.58],
+} as const satisfies DesktopStackLabelRouteProfile;
+
+export type BackendStackLabelCollisionBox = {
+  centerX: number;
+  laneIndex: number;
+  width: number;
+};
+
+const BACKEND_STACK_LABEL_MIN_CLEARANCE_PX = 14;
+export const BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX = 24;
+
 const DESKTOP_STACK_LABEL_RADIUS = 1.62;
 const DESKTOP_STACK_LABEL_MAX_ANGLE = 1.32;
 const DESKTOP_STACK_LABEL_FADE_IN_PORTION = 0.12;
@@ -88,24 +107,72 @@ function getDesktopStackLabelJitter(labelIndex: number, traversal: number) {
   return Math.abs(seed) % 7 - 3;
 }
 
+export function getBackendStackLabelClearanceFactor(
+  candidate: BackendStackLabelCollisionBox,
+  peers: readonly BackendStackLabelCollisionBox[],
+) {
+  let minimumClearance = Number.POSITIVE_INFINITY;
+
+  peers.forEach((peer) => {
+    if (
+      peer.laneIndex !== candidate.laneIndex
+      || peer.centerX <= candidate.centerX
+    ) {
+      return;
+    }
+
+    const clearance = peer.centerX - peer.width / 2
+      - (candidate.centerX + candidate.width / 2);
+    minimumClearance = Math.min(minimumClearance, clearance);
+  });
+
+  if (!Number.isFinite(minimumClearance)) return 1;
+
+  const normalized = Math.min(
+    1,
+    Math.max(
+      0,
+      (minimumClearance - BACKEND_STACK_LABEL_MIN_CLEARANCE_PX)
+        / BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
+    ),
+  );
+
+  return Number((
+    normalized * normalized * (3 - 2 * normalized)
+  ).toFixed(6));
+}
+
 export function getDesktopStackLabelRouteState(
   elapsedMs: number,
   labelIndex: number,
   labelCount: number,
-  geometryScale = 1,
+  routeProfileOrScale: DesktopStackLabelRouteProfile | number = 1,
 ) {
   const safeIndex = Math.max(0, Math.floor(labelIndex));
   const safeCount = Math.max(1, Math.floor(labelCount));
-  const safeScale = Math.max(0, geometryScale);
+  const routeProfile = typeof routeProfileOrScale === "number"
+    ? null
+    : routeProfileOrScale;
+  const requestedScale = routeProfile
+    ? routeProfile.geometryScale
+    : routeProfileOrScale;
+  const safeScale = Math.max(0, requestedScale);
+  const laneYs = routeProfile?.laneYs.length
+    ? routeProfile.laneYs
+    : DESKTOP_STACK_LABEL_LANES.map((lane) => lane.y);
   const phase = (safeIndex % safeCount) / safeCount;
   const routePosition = Math.max(0, elapsedMs) / DESKTOP_STACK_LABEL_ROUTE_DURATION_MS
     + phase;
   const traversal = Math.floor(routePosition);
   const progress = Number((routePosition - traversal).toFixed(6));
-  const laneIndex = (safeIndex + traversal) % DESKTOP_STACK_LABEL_LANES.length;
-  const lane = DESKTOP_STACK_LABEL_LANES[laneIndex];
+  const laneIndex = (safeIndex + traversal) % laneYs.length;
+  const laneY = laneYs[laneIndex];
+  const routeRadius = routeProfile
+    ? DESKTOP_STACK_LABEL_RADIUS * safeScale
+    : DESKTOP_STACK_LABEL_RADIUS;
+  const coordinateScale = routeProfile ? 1 : safeScale;
   const latitudeRadius = Math.sqrt(
-    Math.max(0, DESKTOP_STACK_LABEL_RADIUS ** 2 - lane.y ** 2),
+    Math.max(0, routeRadius ** 2 - laneY ** 2),
   );
   const horizontalLimit = Math.sin(DESKTOP_STACK_LABEL_MAX_ANGLE)
     * latitudeRadius;
@@ -126,9 +193,9 @@ export function getDesktopStackLabelRouteState(
     laneIndex,
     opacity: Number(opacity.toFixed(6)),
     point: {
-      x: Number((baseX * safeScale).toFixed(6)),
-      y: Number((lane.y * safeScale).toFixed(6)),
-      z: Number((baseZ * safeScale).toFixed(6)),
+      x: Number((baseX * coordinateScale).toFixed(6)),
+      y: Number((laneY * coordinateScale).toFixed(6)),
+      z: Number((baseZ * coordinateScale).toFixed(6)),
     },
     progress,
   };

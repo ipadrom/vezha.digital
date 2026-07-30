@@ -1,9 +1,12 @@
 import { watch, type ComputedRef, type Ref } from "vue";
 import {
+  BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
+  BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
   getCompactMobileRootRotation,
+  getBackendStackLabelClearanceFactor,
   getDesktopStackLabelRouteState,
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
@@ -153,6 +156,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       let intersectionObserver: IntersectionObserver | null = null;
       let motionPreference: MediaQueryList | null = null;
       let motionPreferenceListener: ((event: MediaQueryListEvent) => void) | null = null;
+      const backendLabelRevealStates = new Map<
+        HTMLElement,
+        { factor: number; lastX: number }
+      >();
 
       disposePartial = () => {
         if (frameId) cancelAnimationFrame(frameId);
@@ -604,18 +611,21 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
         if (window.innerWidth > 900) {
           desktopLabelRoutesGroup.updateMatrixWorld(true);
-          stackLabelPoints.forEach((item) => {
+          const desktopLayouts = stackLabelPoints.flatMap((item) => {
             const isActive = activeStackLayer.value === item.layer;
             if (!isActive || !item.desktopRoutePrimary) {
               item.element.style.opacity = "0";
-              return;
+              backendLabelRevealStates.delete(item.element);
+              return [];
             }
 
             const route = getDesktopStackLabelRouteState(
               elapsedMs,
               item.desktopRouteIndex,
               item.desktopRouteCount,
-              item.layer === "core" ? 0.5 : 1,
+              item.layer === "core"
+                ? BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE
+                : 1,
             );
             const world = new THREE.Vector3(
               route.point.x,
@@ -626,11 +636,57 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             const projected = world.clone().project(camera);
             const x = (projected.x * 0.5 + 0.5) * width;
             const y = (-projected.y * 0.5 + 0.5) * height + route.jitterPx;
-            const scale = 0.96;
 
-            item.element.style.opacity = route.opacity.toFixed(3);
+            return [{
+              centerX: x,
+              item,
+              laneIndex: route.laneIndex,
+              route,
+              width: item.element.offsetWidth || 84,
+              world,
+              x,
+              y,
+            }];
+          });
+          const backendLayouts = desktopLayouts.filter(({ item }) => (
+            item.layer === "core"
+          ));
+
+          desktopLayouts.forEach((layout) => {
+            const { item, route, world, x, y } = layout;
+            let collisionFactor = 1;
+
+            if (item.layer === "core") {
+              const targetFactor = getBackendStackLabelClearanceFactor(
+                layout,
+                backendLayouts,
+              );
+              const previous = backendLabelRevealStates.get(item.element);
+
+              if (!previous) {
+                collisionFactor = targetFactor;
+              } else if (targetFactor <= previous.factor) {
+                collisionFactor = targetFactor;
+              } else {
+                const travelledPx = Math.max(0, x - previous.lastX);
+                collisionFactor = Math.min(
+                  targetFactor,
+                  previous.factor
+                    + travelledPx / BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
+                );
+              }
+
+              backendLabelRevealStates.set(item.element, {
+                factor: collisionFactor,
+                lastX: x,
+              });
+            }
+
+            item.element.style.opacity = (
+              route.opacity * collisionFactor
+            ).toFixed(3);
             item.element.style.zIndex = String(Math.round(100 + world.z * 20));
-            item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale})`;
+            item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(0.96)`;
           });
           return;
         }
