@@ -1,0 +1,32 @@
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import test from "node:test";
+
+const landingPage = readFileSync(
+  new URL("../pages/index.vue", import.meta.url),
+  "utf8",
+);
+
+const sharedRule = landingPage.match(
+  /\.vz-stack-item span:not\(\[data-dot\], \[data-halo\]\),\s*\.vz-hero__stats span\s*\{([^}]*)\}/,
+)?.[1] ?? "";
+
+test("shares compact capsule styling between stack and hero", () => {
+  assert.ok(sharedRule, "shared compact capsule rule is missing");
+
+  for (const declaration of [
+    "padding: 7px 13px;",
+    "border: 1px solid var(--chipbd);",
+    "border-radius: 999px;",
+    "color: var(--chipink);",
+    'font-family: "JetBrains Mono", monospace;',
+    "font-size: 12px;",
+    "letter-spacing: 0.03em;",
+    "text-transform: none;",
+  ]) {
+    assert.ok(
+      sharedRule.includes(declaration),
+      `shared compact capsule rule is missing: ${declaration}`,
+    );
+  }
+});
