@@ -22,6 +22,16 @@ export const BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE = {
   laneYs: [0.58, 0.16, -0.16, -0.58],
 } as const satisfies DesktopStackLabelRouteProfile;
 
+export const MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE = {
+  geometryScale: 1,
+  laneYs: [1.35, 0.99, 0.63, 0.27],
+} as const satisfies DesktopStackLabelRouteProfile;
+
+export const MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE = {
+  geometryScale: 0.62,
+  laneYs: [0.98, 0.72, 0.46, 0.2],
+} as const satisfies DesktopStackLabelRouteProfile;
+
 export type BackendStackLabelCollisionBox = {
   centerX: number;
   laneIndex: number;
@@ -271,8 +281,10 @@ export function getStackGroupScale(
   layer: StackBaseLayer,
   visualLayer: StackVisualLayer,
   compactMobile = false,
+  mobileViewport = false,
 ) {
   if (compactMobile && visualLayer === "mobile" && layer === "core") return 0.5;
+  if (mobileViewport && visualLayer === "core" && layer === "core") return 1.52;
   const target = getStackLayerTargets(visualLayer, compactMobile)[layer];
   return layer === "core" ? 1 + target * 0.4 : 1 + target * 0.055;
 }

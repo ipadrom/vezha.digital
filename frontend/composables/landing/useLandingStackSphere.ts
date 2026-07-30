@@ -3,6 +3,8 @@ import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_STACK_LABEL_FADE_IN_PORTION,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
+  MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+  MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
   advanceBackendStackLabelClock,
@@ -16,6 +18,7 @@ import {
   getStackLayerTargets,
   resolveMobileOrbitMode,
   type BackendStackLabelClockState,
+  type DesktopStackLabelRouteProfile,
   type MobileOrbitId,
   type StackVisualLayer,
 } from "~/utils/landingStackOrbit";
@@ -158,7 +161,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       let intersectionObserver: IntersectionObserver | null = null;
       let motionPreference: MediaQueryList | null = null;
       let motionPreferenceListener: ((event: MediaQueryListEvent) => void) | null = null;
-      const backendLabelClockStates = new Map<
+      const stackLabelClockStates = new Map<
         HTMLElement,
         BackendStackLabelClockState
       >();
@@ -589,7 +592,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         getStackLayerTargets(activeStackLayer.value, isCompactMobile())
       );
       const getGroupScale = (layer: "surface" | "core" | "bridge") => (
-        getStackGroupScale(layer, activeStackLayer.value, isCompactMobile())
+        getStackGroupScale(
+          layer,
+          activeStackLayer.value,
+          isCompactMobile(),
+          window.innerWidth <= 900,
+        )
       );
       const updateMobileLabelPoints = (elapsedMs: number) => {
         const mode = getMobileOrbitMode();
@@ -611,97 +619,152 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         rootGroup.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
 
-        if (window.innerWidth > 900) {
-          desktopLabelRoutesGroup.updateMatrixWorld(true);
-          const projectDesktopLabel = (
-            item: (typeof stackLabelPoints)[number],
-            routeElapsedMs: number,
-          ) => {
-            const route = getDesktopStackLabelRouteState(
-              routeElapsedMs,
-              item.desktopRouteIndex,
-              item.desktopRouteCount,
-              item.layer === "core"
-                ? BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE
-                : 1,
-            );
-            const world = new THREE.Vector3(
-              route.point.x,
-              route.point.y,
-              route.point.z,
-            );
-            desktopLabelRoutesGroup.localToWorld(world);
-            const projected = world.clone().project(camera);
-            const x = (projected.x * 0.5 + 0.5) * width;
-            const y = (-projected.y * 0.5 + 0.5) * height + route.jitterPx;
+        const projectLatitudeLabel = (
+          item: (typeof stackLabelPoints)[number],
+          routeElapsedMs: number,
+          routeProfile: DesktopStackLabelRouteProfile | number,
+          flattenRouteY: boolean,
+          jitterScale: number,
+        ) => {
+          const route = getDesktopStackLabelRouteState(
+            routeElapsedMs,
+            item.desktopRouteIndex,
+            item.desktopRouteCount,
+            routeProfile,
+          );
+          const world = new THREE.Vector3(
+            route.point.x,
+            route.point.y,
+            route.point.z,
+          );
+          desktopLabelRoutesGroup.localToWorld(world);
+          const projected = world.clone().project(camera);
+          const yProjected = flattenRouteY
+            ? new THREE.Vector3(0, route.point.y, 0).project(camera)
+            : projected;
+          const x = (projected.x * 0.5 + 0.5) * width;
+          const y = (-yProjected.y * 0.5 + 0.5) * height
+            + route.jitterPx * jitterScale;
 
-            return {
-              centerX: x,
-              item,
-              laneIndex: route.laneIndex,
-              route,
-              routeElapsedMs,
-              width: item.element.offsetWidth || 84,
-              world,
-              x,
-              y,
-            };
+          return {
+            centerX: x,
+            item,
+            laneIndex: route.laneIndex,
+            route,
+            routeElapsedMs,
+            width: item.element.offsetWidth || 84,
+            world,
+            x,
+            y,
           };
+        };
 
+        const renderLatitudeLabels = (
+          routeProfile: DesktopStackLabelRouteProfile | number,
+          labelScale: number,
+          delayConflicts: boolean,
+          flattenRouteY = false,
+          jitterScale = 1,
+        ) => {
+          desktopLabelRoutesGroup.updateMatrixWorld(true);
           const tentativeLayouts = stackLabelPoints.flatMap((item) => {
             const isActive = activeStackLayer.value === item.layer;
             if (!isActive || !item.desktopRoutePrimary) {
               item.element.style.opacity = "0";
-              backendLabelClockStates.delete(item.element);
+              stackLabelClockStates.delete(item.element);
               return [];
             }
 
-            const clockState = backendLabelClockStates.get(item.element);
-            const routeElapsedMs = item.layer === "core" && clockState
+            const clockState = delayConflicts
+              ? stackLabelClockStates.get(item.element)
+              : null;
+            const routeElapsedMs = clockState
               ? Math.max(
                   0,
                   elapsedMs
                     - clockState.originElapsedMs
                     - clockState.delayMs,
                 )
-              : item.layer === "core"
+              : delayConflicts
                 ? 0
                 : elapsedMs;
 
-            return [projectDesktopLabel(item, routeElapsedMs)];
+            return [projectLatitudeLabel(
+              item,
+              routeElapsedMs,
+              routeProfile,
+              flattenRouteY,
+              jitterScale,
+            )];
           });
-          const backendLayouts = tentativeLayouts.filter(({ item }) => (
-            item.layer === "core"
-          ));
+          const conflictLayouts = delayConflicts ? tentativeLayouts : [];
 
           const desktopLayouts = tentativeLayouts.map((layout) => {
             const { item, route } = layout;
-            if (item.layer !== "core") return layout;
+            if (!delayConflicts) return layout;
 
             const waiting = (
               route.progress <= DESKTOP_STACK_LABEL_FADE_IN_PORTION
               && getBackendStackLabelClearanceFactor(
                 layout,
-                backendLayouts,
+                conflictLayouts,
               ) === 0
             );
             const clock = advanceBackendStackLabelClock(
               elapsedMs,
-              backendLabelClockStates.get(item.element) || null,
+              stackLabelClockStates.get(item.element) || null,
               waiting,
             );
-            backendLabelClockStates.set(item.element, clock.state);
+            stackLabelClockStates.set(item.element, clock.state);
 
             return clock.effectiveElapsedMs === layout.routeElapsedMs
               ? layout
-              : projectDesktopLabel(item, clock.effectiveElapsedMs);
+              : projectLatitudeLabel(
+                  item,
+                  clock.effectiveElapsedMs,
+                  routeProfile,
+                  flattenRouteY,
+                  jitterScale,
+                );
           });
 
           desktopLayouts.forEach(({ item, route, world, x, y }) => {
             item.element.style.opacity = route.opacity.toFixed(3);
             item.element.style.zIndex = String(Math.round(100 + world.z * 20));
-            item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(0.96)`;
+            item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${labelScale})`;
           });
+        };
+
+        if (window.innerWidth > 900) {
+          renderLatitudeLabels(
+            activeStackLayer.value === "core"
+              ? BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE
+              : 1,
+            0.96,
+            activeStackLayer.value === "core",
+          );
+          return;
+        }
+
+        if (activeStackLayer.value === "surface") {
+          renderLatitudeLabels(
+            MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
+            0.92,
+            true,
+            true,
+            0.6,
+          );
+          return;
+        }
+
+        if (activeStackLayer.value === "core") {
+          renderLatitudeLabels(
+            MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+            0.82,
+            true,
+            true,
+            0.6,
+          );
           return;
         }
 

@@ -4,6 +4,8 @@ import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
+  MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+  MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   advanceBackendStackLabelClock,
   getCompactMobileRootRotation,
@@ -72,6 +74,11 @@ test("uses compact-only Mobile shell opacity and core scale", () => {
   });
   assert.equal(getStackGroupScale("core", "mobile", true), 0.5);
   assert.equal(getStackGroupScale("core", "mobile", false), 1.192);
+});
+
+test("slightly enlarges only the mobile viewport Backend core", () => {
+  assert.equal(getStackGroupScale("core", "core", false, true), 1.52);
+  assert.equal(getStackGroupScale("core", "core", false, false), 1.4);
 });
 
 test("keeps compact Mobile root drift slow and tightly bounded", () => {
@@ -186,6 +193,58 @@ test("moves backend outer routes toward the poles", () => {
   ));
 
   assert.deepEqual(laneYs, [0.58, 0.16, -0.16, -0.58]);
+});
+
+test("fits four frontend latitude chords into the visible mobile sphere", () => {
+  const routes = Array.from({ length: 4 }, (_, traversal) => (
+    getDesktopStackLabelRouteState(
+      DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * traversal,
+      0,
+      4,
+      MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
+    )
+  ));
+
+  assert.deepEqual(routes.map(({ point }) => point.y), [
+    1.35,
+    0.99,
+    0.63,
+    0.27,
+  ]);
+  assert.deepEqual(routes.map(({ point }) => Number(
+    Math.hypot(point.x, point.z).toFixed(4),
+  )), [
+    0.8944,
+    1.2807,
+    1.4907,
+    1.5954,
+  ]);
+});
+
+test("fits four backend latitude chords into its enlarged mobile core", () => {
+  const routes = Array.from({ length: 4 }, (_, traversal) => (
+    getDesktopStackLabelRouteState(
+      DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * traversal,
+      0,
+      4,
+      MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+    )
+  ));
+
+  assert.deepEqual(routes.map(({ point }) => point.y), [
+    0.98,
+    0.72,
+    0.46,
+    0.2,
+  ]);
+  assert.deepEqual(routes.map(({ point }) => Number(
+    Math.hypot(point.x, point.z).toFixed(4),
+  )), [
+    0.2198,
+    0.6994,
+    0.8918,
+    0.9831,
+  ]);
 });
 
 test("gates backend label appearance by same-lane edge clearance", () => {
