@@ -43,3 +43,14 @@ test("keeps hero capsules at their intrinsic width", () => {
     "hero capsule grid should not stretch items across their columns",
   );
 });
+
+test("keeps mobile hero capsule labels on one line", () => {
+  assert.ok(
+    sharedRule.includes("white-space: nowrap;"),
+    "compact capsule labels should not wrap",
+  );
+  assert.ok(
+    landingPage.includes("grid-template-columns: repeat(2, max-content);"),
+    "mobile hero capsule columns should use their content width",
+  );
+});

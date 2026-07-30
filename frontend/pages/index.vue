@@ -4479,6 +4479,7 @@ useHead(() => ({
   font-size: 12px;
   letter-spacing: 0.03em;
   text-transform: none;
+  white-space: nowrap;
 }
 
 .vz-about,
@@ -5079,8 +5080,8 @@ useHead(() => ({
   }
 
   .vz-hero__stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 14px;
+    grid-template-columns: repeat(2, max-content);
+    gap: 10px 12px;
     margin-top: 44px;
   }
 
