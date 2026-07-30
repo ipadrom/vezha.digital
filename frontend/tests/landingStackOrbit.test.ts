@@ -1,8 +1,11 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  DESKTOP_STACK_LABEL_LANES,
+  DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_ORBIT_TECH,
   getCompactMobileRootRotation,
+  getDesktopStackLabelRouteState,
   getMobileLabelDepthStyle,
   getMobileOrbitAngle,
   getMobileOrbitPoint,
@@ -110,4 +113,72 @@ test("dims and shrinks labels behind the core without hiding them", () => {
     opacity: 1,
     scale: 0.96,
   });
+});
+
+test("moves desktop labels left to right on four latitude routes", () => {
+  const start = getDesktopStackLabelRouteState(0, 0, 4);
+  const middle = getDesktopStackLabelRouteState(
+    DESKTOP_STACK_LABEL_ROUTE_DURATION_MS / 2,
+    0,
+    4,
+  );
+  const end = getDesktopStackLabelRouteState(
+    DESKTOP_STACK_LABEL_ROUTE_DURATION_MS - 1,
+    0,
+    4,
+  );
+
+  assert.equal(DESKTOP_STACK_LABEL_LANES.length, 4);
+  assert.equal(start.laneIndex, 0);
+  assert.ok(start.point.x < middle.point.x);
+  assert.ok(middle.point.x < end.point.x);
+  assert.equal(start.opacity, 0);
+  assert.equal(middle.opacity, 1);
+  assert.ok(end.opacity < 0.001);
+});
+
+test("hands desktop labels off invisibly and wraps lane four to lane one", () => {
+  const secondLane = getDesktopStackLabelRouteState(
+    DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
+    0,
+    4,
+  );
+  const firstLaneAgain = getDesktopStackLabelRouteState(
+    DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * 4,
+    0,
+    4,
+  );
+
+  assert.equal(secondLane.laneIndex, 1);
+  assert.equal(secondLane.progress, 0);
+  assert.equal(secondLane.opacity, 0);
+  assert.equal(firstLaneAgain.laneIndex, 0);
+  assert.equal(firstLaneAgain.progress, 0);
+  assert.equal(firstLaneAgain.opacity, 0);
+});
+
+test("phases desktop labels evenly instead of switching them together", () => {
+  assert.deepEqual(
+    Array.from({ length: 4 }, (_, index) => (
+      getDesktopStackLabelRouteState(0, index, 4).progress
+    )),
+    [0, 0.25, 0.5, 0.75],
+  );
+});
+
+test("keeps desktop traversal jitter stable and within three pixels", () => {
+  for (let traversal = 0; traversal < 12; traversal += 1) {
+    const elapsed = traversal * DESKTOP_STACK_LABEL_ROUTE_DURATION_MS + 1_234;
+    const first = getDesktopStackLabelRouteState(elapsed, 2, 5);
+    const repeated = getDesktopStackLabelRouteState(elapsed, 2, 5);
+    const laterOnSameRoute = getDesktopStackLabelRouteState(
+      elapsed + 500,
+      2,
+      5,
+    );
+
+    assert.equal(first.jitterPx, repeated.jitterPx);
+    assert.equal(first.jitterPx, laterOnSameRoute.jitterPx);
+    assert.ok(first.jitterPx >= -3 && first.jitterPx <= 3);
+  }
 });

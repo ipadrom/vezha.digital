@@ -4,6 +4,18 @@ export type StackLayerTargets = Record<StackBaseLayer, number>;
 export type MobileOrbitId = "outer" | "inner";
 export type MobileOrbitMode = "hidden" | "desktop" | "compact";
 
+export const DESKTOP_STACK_LABEL_ROUTE_DURATION_MS = 18_000;
+export const DESKTOP_STACK_LABEL_LANES = [
+  { y: 0.72 },
+  { y: 0.26 },
+  { y: -0.22 },
+  { y: -0.7 },
+] as const;
+
+const DESKTOP_STACK_LABEL_RADIUS = 1.62;
+const DESKTOP_STACK_LABEL_MAX_ANGLE = 1.32;
+const DESKTOP_STACK_LABEL_FADE_PORTION = 0.12;
+
 export const MOBILE_ORBIT_TRACKS = {
   outer: {
     direction: 1,
@@ -67,6 +79,52 @@ export const MOBILE_ORBIT_TECH = [
     slug: "flutter",
   },
 ] as const;
+
+function getDesktopStackLabelJitter(labelIndex: number, traversal: number) {
+  let seed = Math.imul(labelIndex + 1, 0x45d9f3b)
+    ^ Math.imul(traversal + 1, 0x27d4eb2d);
+  seed ^= seed >>> 16;
+  return Math.abs(seed) % 7 - 3;
+}
+
+export function getDesktopStackLabelRouteState(
+  elapsedMs: number,
+  labelIndex: number,
+  labelCount: number,
+) {
+  const safeIndex = Math.max(0, Math.floor(labelIndex));
+  const safeCount = Math.max(1, Math.floor(labelCount));
+  const phase = (safeIndex % safeCount) / safeCount;
+  const routePosition = Math.max(0, elapsedMs) / DESKTOP_STACK_LABEL_ROUTE_DURATION_MS
+    + phase;
+  const traversal = Math.floor(routePosition);
+  const progress = Number((routePosition - traversal).toFixed(6));
+  const laneIndex = (safeIndex + traversal) % DESKTOP_STACK_LABEL_LANES.length;
+  const lane = DESKTOP_STACK_LABEL_LANES[laneIndex];
+  const angle = -DESKTOP_STACK_LABEL_MAX_ANGLE
+    + progress * DESKTOP_STACK_LABEL_MAX_ANGLE * 2;
+  const latitudeRadius = Math.sqrt(
+    Math.max(0, DESKTOP_STACK_LABEL_RADIUS ** 2 - lane.y ** 2),
+  );
+  const edgeVisibility = Math.min(
+    1,
+    progress / DESKTOP_STACK_LABEL_FADE_PORTION,
+    (1 - progress) / DESKTOP_STACK_LABEL_FADE_PORTION,
+  );
+  const opacity = edgeVisibility * edgeVisibility * (3 - 2 * edgeVisibility);
+
+  return {
+    jitterPx: getDesktopStackLabelJitter(safeIndex, traversal),
+    laneIndex,
+    opacity: Number(opacity.toFixed(6)),
+    point: {
+      x: Number((Math.sin(angle) * latitudeRadius).toFixed(6)),
+      y: lane.y,
+      z: Number((Math.cos(angle) * latitudeRadius * 0.98).toFixed(6)),
+    },
+    progress,
+  };
+}
 
 export function resolveStackVisualLayer(title = ""): StackVisualLayer {
   const normalized = title.toLowerCase();
