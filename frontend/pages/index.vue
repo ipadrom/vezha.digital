@@ -3828,6 +3828,7 @@ useHead(() => ({
   display: grid;
   grid-template-columns: repeat(4, minmax(0, max-content));
   align-items: center;
+  justify-items: start;
   gap: 12px;
   margin-top: 48px;
   padding-top: 0;

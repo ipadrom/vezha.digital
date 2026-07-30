@@ -11,6 +11,12 @@ const sharedRule = landingPage.match(
   /\.vz-stack-item span:not\(\[data-dot\], \[data-halo\]\),\s*\.vz-hero__stats span\s*\{([^}]*)\}/,
 )?.[1] ?? "";
 
+const heroStatsRule = [...landingPage.matchAll(
+  /\.vz-hero__stats\s*\{([^}]*)\}/g,
+)]
+  .map((match) => match[1] ?? "")
+  .find((rule) => rule.includes("display: grid")) ?? "";
+
 test("shares compact capsule styling between stack and hero", () => {
   assert.ok(sharedRule, "shared compact capsule rule is missing");
 
@@ -29,4 +35,11 @@ test("shares compact capsule styling between stack and hero", () => {
       `shared compact capsule rule is missing: ${declaration}`,
     );
   }
+});
+
+test("keeps hero capsules at their intrinsic width", () => {
+  assert.ok(
+    heroStatsRule.includes("justify-items: start;"),
+    "hero capsule grid should not stretch items across their columns",
+  );
 });
