@@ -1,10 +1,11 @@
 import { watch, type ComputedRef, type Ref } from "vue";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
-  BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
+  DESKTOP_STACK_LABEL_FADE_IN_PORTION,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
+  advanceBackendStackLabelClock,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
   getDesktopStackLabelRouteState,
@@ -14,6 +15,7 @@ import {
   getStackGroupScale,
   getStackLayerTargets,
   resolveMobileOrbitMode,
+  type BackendStackLabelClockState,
   type MobileOrbitId,
   type StackVisualLayer,
 } from "~/utils/landingStackOrbit";
@@ -156,9 +158,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       let intersectionObserver: IntersectionObserver | null = null;
       let motionPreference: MediaQueryList | null = null;
       let motionPreferenceListener: ((event: MediaQueryListEvent) => void) | null = null;
-      const backendLabelRevealStates = new Map<
+      const backendLabelClockStates = new Map<
         HTMLElement,
-        { factor: number; lastX: number }
+        BackendStackLabelClockState
       >();
 
       disposePartial = () => {
@@ -611,16 +613,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
         if (window.innerWidth > 900) {
           desktopLabelRoutesGroup.updateMatrixWorld(true);
-          const desktopLayouts = stackLabelPoints.flatMap((item) => {
-            const isActive = activeStackLayer.value === item.layer;
-            if (!isActive || !item.desktopRoutePrimary) {
-              item.element.style.opacity = "0";
-              backendLabelRevealStates.delete(item.element);
-              return [];
-            }
-
+          const projectDesktopLabel = (
+            item: (typeof stackLabelPoints)[number],
+            routeElapsedMs: number,
+          ) => {
             const route = getDesktopStackLabelRouteState(
-              elapsedMs,
+              routeElapsedMs,
               item.desktopRouteIndex,
               item.desktopRouteCount,
               item.layer === "core"
@@ -637,54 +635,70 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             const x = (projected.x * 0.5 + 0.5) * width;
             const y = (-projected.y * 0.5 + 0.5) * height + route.jitterPx;
 
-            return [{
+            return {
               centerX: x,
               item,
               laneIndex: route.laneIndex,
               route,
+              routeElapsedMs,
               width: item.element.offsetWidth || 84,
               world,
               x,
               y,
-            }];
+            };
+          };
+
+          const tentativeLayouts = stackLabelPoints.flatMap((item) => {
+            const isActive = activeStackLayer.value === item.layer;
+            if (!isActive || !item.desktopRoutePrimary) {
+              item.element.style.opacity = "0";
+              backendLabelClockStates.delete(item.element);
+              return [];
+            }
+
+            const clockState = backendLabelClockStates.get(item.element);
+            const routeElapsedMs = item.layer === "core" && clockState
+              ? Math.max(
+                  0,
+                  elapsedMs
+                    - clockState.originElapsedMs
+                    - clockState.delayMs,
+                )
+              : item.layer === "core"
+                ? 0
+                : elapsedMs;
+
+            return [projectDesktopLabel(item, routeElapsedMs)];
           });
-          const backendLayouts = desktopLayouts.filter(({ item }) => (
+          const backendLayouts = tentativeLayouts.filter(({ item }) => (
             item.layer === "core"
           ));
 
-          desktopLayouts.forEach((layout) => {
-            const { item, route, world, x, y } = layout;
-            let collisionFactor = 1;
+          const desktopLayouts = tentativeLayouts.map((layout) => {
+            const { item, route } = layout;
+            if (item.layer !== "core") return layout;
 
-            if (item.layer === "core") {
-              const targetFactor = getBackendStackLabelClearanceFactor(
+            const waiting = (
+              route.progress <= DESKTOP_STACK_LABEL_FADE_IN_PORTION
+              && getBackendStackLabelClearanceFactor(
                 layout,
                 backendLayouts,
-              );
-              const previous = backendLabelRevealStates.get(item.element);
+              ) === 0
+            );
+            const clock = advanceBackendStackLabelClock(
+              elapsedMs,
+              backendLabelClockStates.get(item.element) || null,
+              waiting,
+            );
+            backendLabelClockStates.set(item.element, clock.state);
 
-              if (!previous) {
-                collisionFactor = targetFactor;
-              } else if (targetFactor <= previous.factor) {
-                collisionFactor = targetFactor;
-              } else {
-                const travelledPx = Math.max(0, x - previous.lastX);
-                collisionFactor = Math.min(
-                  targetFactor,
-                  previous.factor
-                    + travelledPx / BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
-                );
-              }
+            return clock.effectiveElapsedMs === layout.routeElapsedMs
+              ? layout
+              : projectDesktopLabel(item, clock.effectiveElapsedMs);
+          });
 
-              backendLabelRevealStates.set(item.element, {
-                factor: collisionFactor,
-                lastX: x,
-              });
-            }
-
-            item.element.style.opacity = (
-              route.opacity * collisionFactor
-            ).toFixed(3);
+          desktopLayouts.forEach(({ item, route, world, x, y }) => {
+            item.element.style.opacity = route.opacity.toFixed(3);
             item.element.style.zIndex = String(Math.round(100 + world.z * 20));
             item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(0.96)`;
           });

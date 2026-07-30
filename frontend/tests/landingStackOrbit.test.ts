@@ -5,6 +5,7 @@ import {
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_ORBIT_TECH,
+  advanceBackendStackLabelClock,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
   getDesktopStackLabelRouteState,
@@ -202,6 +203,28 @@ test("gates backend label appearance by same-lane edge clearance", () => {
   assert.equal(getBackendStackLabelClearanceFactor(candidate, [
     { centerX: 198, laneIndex: 1, width: 84 },
   ]), 1);
+});
+
+test("pauses a blocked backend label route and resumes from the same point", () => {
+  const initial = advanceBackendStackLabelClock(1_000, null, false);
+  const moving = advanceBackendStackLabelClock(1_200, initial.state, false);
+  const paused = advanceBackendStackLabelClock(1_500, moving.state, true);
+  const stillPaused = advanceBackendStackLabelClock(
+    1_800,
+    paused.state,
+    true,
+  );
+  const resumed = advanceBackendStackLabelClock(
+    2_000,
+    stillPaused.state,
+    false,
+  );
+
+  assert.equal(initial.effectiveElapsedMs, 0);
+  assert.equal(moving.effectiveElapsedMs, 200);
+  assert.equal(paused.effectiveElapsedMs, 200);
+  assert.equal(stillPaused.effectiveElapsedMs, 200);
+  assert.equal(resumed.effectiveElapsedMs, 400);
 });
 
 test("hands desktop labels off invisibly and wraps lane four to lane one", () => {

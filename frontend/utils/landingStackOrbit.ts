@@ -28,12 +28,18 @@ export type BackendStackLabelCollisionBox = {
   width: number;
 };
 
+export type BackendStackLabelClockState = {
+  delayMs: number;
+  lastElapsedMs: number;
+  originElapsedMs: number;
+};
+
 const BACKEND_STACK_LABEL_MIN_CLEARANCE_PX = 14;
 export const BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX = 24;
 
 const DESKTOP_STACK_LABEL_RADIUS = 1.62;
 const DESKTOP_STACK_LABEL_MAX_ANGLE = 1.32;
-const DESKTOP_STACK_LABEL_FADE_IN_PORTION = 0.12;
+export const DESKTOP_STACK_LABEL_FADE_IN_PORTION = 0.12;
 const DESKTOP_STACK_LABEL_FADE_OUT_PORTION = 0.28;
 
 export const MOBILE_ORBIT_TRACKS = {
@@ -140,6 +146,42 @@ export function getBackendStackLabelClearanceFactor(
   return Number((
     normalized * normalized * (3 - 2 * normalized)
   ).toFixed(6));
+}
+
+export function advanceBackendStackLabelClock(
+  elapsedMs: number,
+  state: BackendStackLabelClockState | null,
+  waiting: boolean,
+) {
+  const safeElapsedMs = Math.max(0, elapsedMs);
+  if (!state) {
+    const initialState = {
+      delayMs: 0,
+      lastElapsedMs: safeElapsedMs,
+      originElapsedMs: safeElapsedMs,
+    };
+
+    return {
+      effectiveElapsedMs: 0,
+      state: initialState,
+    };
+  }
+
+  const frameMs = Math.max(0, safeElapsedMs - state.lastElapsedMs);
+  const delayMs = state.delayMs + (waiting ? frameMs : 0);
+  const nextState = {
+    delayMs,
+    lastElapsedMs: safeElapsedMs,
+    originElapsedMs: state.originElapsedMs,
+  };
+
+  return {
+    effectiveElapsedMs: Math.max(
+      0,
+      safeElapsedMs - nextState.originElapsedMs - delayMs,
+    ),
+    state: nextState,
+  };
 }
 
 export function getDesktopStackLabelRouteState(
