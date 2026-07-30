@@ -267,7 +267,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         element: document.createElement("span"),
         y: [0.66, 0.28, -0.08, 0.46, -0.48][index] || 0,
       }));
-      const frontendLabelPoints = frontendLabelSpecs.flatMap((spec) => {
+      const frontendLabelPoints = frontendLabelSpecs.flatMap((spec, index) => {
         const icon = document.createElement("span");
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
