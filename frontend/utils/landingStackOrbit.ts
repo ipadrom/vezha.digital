@@ -92,9 +92,11 @@ export function getDesktopStackLabelRouteState(
   elapsedMs: number,
   labelIndex: number,
   labelCount: number,
+  geometryScale = 1,
 ) {
   const safeIndex = Math.max(0, Math.floor(labelIndex));
   const safeCount = Math.max(1, Math.floor(labelCount));
+  const safeScale = Math.max(0, geometryScale);
   const phase = (safeIndex % safeCount) / safeCount;
   const routePosition = Math.max(0, elapsedMs) / DESKTOP_STACK_LABEL_ROUTE_DURATION_MS
     + phase;
@@ -114,17 +116,19 @@ export function getDesktopStackLabelRouteState(
     (1 - progress) / DESKTOP_STACK_LABEL_FADE_OUT_PORTION,
   );
   const opacity = edgeVisibility * edgeVisibility * (3 - 2 * edgeVisibility);
+  const baseX = Number(x.toFixed(6));
+  const baseZ = Number((
+    Math.sqrt(Math.max(0, latitudeRadius ** 2 - x ** 2)) * 0.98
+  ).toFixed(6));
 
   return {
     jitterPx: getDesktopStackLabelJitter(safeIndex, traversal),
     laneIndex,
     opacity: Number(opacity.toFixed(6)),
     point: {
-      x: Number(x.toFixed(6)),
-      y: lane.y,
-      z: Number((
-        Math.sqrt(Math.max(0, latitudeRadius ** 2 - x ** 2)) * 0.98
-      ).toFixed(6)),
+      x: Number((baseX * safeScale).toFixed(6)),
+      y: Number((lane.y * safeScale).toFixed(6)),
+      z: Number((baseZ * safeScale).toFixed(6)),
     },
     progress,
   };

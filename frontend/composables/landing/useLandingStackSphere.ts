@@ -615,6 +615,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
               elapsedMs,
               item.desktopRouteIndex,
               item.desktopRouteCount,
+              item.layer === "core" ? 0.5 : 1,
             );
             const world = new THREE.Vector3(
               route.point.x,

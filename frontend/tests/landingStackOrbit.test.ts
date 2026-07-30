@@ -158,6 +158,20 @@ test("keeps moving at the right edge while fading out before arrival", () => {
   assert.ok(atEdge.point.x > at90.point.x);
 });
 
+test("scales backend desktop routes to half the frontend sphere", () => {
+  const elapsed = DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * 0.43;
+  const frontend = getDesktopStackLabelRouteState(elapsed, 0, 4);
+  const backend = getDesktopStackLabelRouteState(elapsed, 0, 4, 0.5);
+
+  assert.equal(backend.point.x, Number((frontend.point.x * 0.5).toFixed(6)));
+  assert.equal(backend.point.y, Number((frontend.point.y * 0.5).toFixed(6)));
+  assert.equal(backend.point.z, Number((frontend.point.z * 0.5).toFixed(6)));
+  assert.equal(backend.opacity, frontend.opacity);
+  assert.equal(backend.progress, frontend.progress);
+  assert.equal(backend.laneIndex, frontend.laneIndex);
+  assert.equal(backend.jitterPx, frontend.jitterPx);
+});
+
 test("hands desktop labels off invisibly and wraps lane four to lane one", () => {
   const secondLane = getDesktopStackLabelRouteState(
     DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
