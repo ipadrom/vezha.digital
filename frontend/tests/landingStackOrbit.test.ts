@@ -137,6 +137,27 @@ test("moves desktop labels left to right on four latitude routes", () => {
   assert.ok(end.opacity < 0.001);
 });
 
+test("keeps moving at the right edge while fading out before arrival", () => {
+  const atProgress = (progress: number) => getDesktopStackLabelRouteState(
+    DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * progress,
+    0,
+    1,
+  );
+  const at70 = atProgress(0.7);
+  const at80 = atProgress(0.8);
+  const at90 = atProgress(0.9);
+  const atEdge = atProgress(0.999);
+  const firstStep = at80.point.x - at70.point.x;
+  const secondStep = at90.point.x - at80.point.x;
+
+  assert.ok(Math.abs(firstStep - secondStep) < 0.001);
+  assert.equal(at70.opacity, 1);
+  assert.ok(at80.opacity < at70.opacity);
+  assert.ok(at90.opacity < at80.opacity);
+  assert.ok(atEdge.opacity < 0.001);
+  assert.ok(atEdge.point.x > at90.point.x);
+});
+
 test("hands desktop labels off invisibly and wraps lane four to lane one", () => {
   const secondLane = getDesktopStackLabelRouteState(
     DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,

@@ -14,7 +14,8 @@ export const DESKTOP_STACK_LABEL_LANES = [
 
 const DESKTOP_STACK_LABEL_RADIUS = 1.62;
 const DESKTOP_STACK_LABEL_MAX_ANGLE = 1.32;
-const DESKTOP_STACK_LABEL_FADE_PORTION = 0.12;
+const DESKTOP_STACK_LABEL_FADE_IN_PORTION = 0.12;
+const DESKTOP_STACK_LABEL_FADE_OUT_PORTION = 0.28;
 
 export const MOBILE_ORBIT_TRACKS = {
   outer: {
@@ -101,15 +102,16 @@ export function getDesktopStackLabelRouteState(
   const progress = Number((routePosition - traversal).toFixed(6));
   const laneIndex = (safeIndex + traversal) % DESKTOP_STACK_LABEL_LANES.length;
   const lane = DESKTOP_STACK_LABEL_LANES[laneIndex];
-  const angle = -DESKTOP_STACK_LABEL_MAX_ANGLE
-    + progress * DESKTOP_STACK_LABEL_MAX_ANGLE * 2;
   const latitudeRadius = Math.sqrt(
     Math.max(0, DESKTOP_STACK_LABEL_RADIUS ** 2 - lane.y ** 2),
   );
+  const horizontalLimit = Math.sin(DESKTOP_STACK_LABEL_MAX_ANGLE)
+    * latitudeRadius;
+  const x = -horizontalLimit + progress * horizontalLimit * 2;
   const edgeVisibility = Math.min(
     1,
-    progress / DESKTOP_STACK_LABEL_FADE_PORTION,
-    (1 - progress) / DESKTOP_STACK_LABEL_FADE_PORTION,
+    progress / DESKTOP_STACK_LABEL_FADE_IN_PORTION,
+    (1 - progress) / DESKTOP_STACK_LABEL_FADE_OUT_PORTION,
   );
   const opacity = edgeVisibility * edgeVisibility * (3 - 2 * edgeVisibility);
 
@@ -118,9 +120,11 @@ export function getDesktopStackLabelRouteState(
     laneIndex,
     opacity: Number(opacity.toFixed(6)),
     point: {
-      x: Number((Math.sin(angle) * latitudeRadius).toFixed(6)),
+      x: Number(x.toFixed(6)),
       y: lane.y,
-      z: Number((Math.cos(angle) * latitudeRadius * 0.98).toFixed(6)),
+      z: Number((
+        Math.sqrt(Math.max(0, latitudeRadius ** 2 - x ** 2)) * 0.98
+      ).toFixed(6)),
     },
     progress,
   };
