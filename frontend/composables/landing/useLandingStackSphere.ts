@@ -1,8 +1,10 @@
 import { watch, type ComputedRef, type Ref } from "vue";
 import {
+  DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
   getCompactMobileRootRotation,
+  getDesktopStackLabelRouteState,
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
@@ -188,7 +190,8 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
       const rootGroup = new THREE.Group();
       rootGroup.rotation.set(-0.16, -0.4, 0.08);
-      scene.add(rootGroup);
+      const desktopLabelRoutesGroup = new THREE.Group();
+      scene.add(rootGroup, desktopLabelRoutesGroup);
 
       const surfaceGroup = new THREE.Group();
       const bridgeGroup = new THREE.Group();
@@ -289,11 +292,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
         return [{
           ...spec,
+          desktopRouteCount: frontendLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
           point,
           layer: "surface" as const,
           projectionGroup: rootGroup,
         }, {
           ...spec,
+          desktopRouteCount: frontendLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: false,
           element: loopElement,
           point: new THREE.Vector3(-point.x, point.y, -point.z),
           layer: "surface" as const,
@@ -306,7 +315,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         { color: "#4169E1", slug: "postgresql", label: "PostgreSQL", angle: -0.15, y: 0.16 },
         { color: "#DC382D", slug: "redis", label: "Redis", angle: -1.55, y: -0.3 },
       ];
-      const coreLabelPoints = coreLabelSpecs.flatMap((spec) => {
+      const coreLabelPoints = coreLabelSpecs.flatMap((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
         const image = document.createElement("img");
@@ -326,11 +335,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         labelLayer.appendChild(loopElement);
 
         return [{
+          desktopRouteCount: coreLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
           element,
           point,
           layer: "core" as const,
           projectionGroup: coreGroup,
         }, {
+          desktopRouteCount: coreLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: false,
           element: loopElement,
           point: new THREE.Vector3(-point.x, point.y, -point.z),
           layer: "core" as const,
@@ -344,7 +359,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         { color: "#F5B800", slug: "linux", label: "Linux", angle: -1.7, y: -0.46 },
       ];
       const bridgeStickPositions: number[] = [];
-      const bridgeLabelPoints = bridgeLabelSpecs.flatMap((spec) => {
+      const bridgeLabelPoints = bridgeLabelSpecs.flatMap((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
         const image = document.createElement("img");
@@ -370,11 +385,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         const loopElement = element.cloneNode(true) as HTMLSpanElement;
         labelLayer.appendChild(loopElement);
         return [{
+          desktopRouteCount: bridgeLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
           element,
           point,
           layer: "bridge" as const,
           projectionGroup: bridgeGroup,
         }, {
+          desktopRouteCount: bridgeLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: false,
           element: loopElement,
           point: new THREE.Vector3(-point.x, point.y, -point.z),
           layer: "bridge" as const,
@@ -383,7 +404,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       });
       const bridgeStickGeometry = new THREE.BufferGeometry();
       bridgeStickGeometry.setAttribute("position", new THREE.Float32BufferAttribute(bridgeStickPositions, 3));
-      const mobileLabelPoints = MOBILE_ORBIT_TECH.map((spec) => {
+      const mobileLabelPoints = MOBILE_ORBIT_TECH.map((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
         const image = document.createElement("img");
@@ -403,6 +424,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         labelLayer.appendChild(element);
 
         return {
+          desktopRouteCount: MOBILE_ORBIT_TECH.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
           element,
           point: new THREE.Vector3(orbitPoint.x, orbitPoint.y, orbitPoint.z),
           layer: "mobile" as const,
@@ -571,12 +595,44 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       };
 
       const fadeRange = (value: number, from: number, to: number) => clampValue((value - from) / (to - from), 0, 1);
-      const updateStackLabels = () => {
+      const updateStackLabels = (elapsedMs = 0) => {
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
         const compactMobile = isCompactMobile();
         rootGroup.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
+
+        if (window.innerWidth > 900) {
+          desktopLabelRoutesGroup.updateMatrixWorld(true);
+          stackLabelPoints.forEach((item) => {
+            const isActive = activeStackLayer.value === item.layer;
+            if (!isActive || !item.desktopRoutePrimary) {
+              item.element.style.opacity = "0";
+              return;
+            }
+
+            const route = getDesktopStackLabelRouteState(
+              elapsedMs,
+              item.desktopRouteIndex,
+              item.desktopRouteCount,
+            );
+            const world = new THREE.Vector3(
+              route.point.x,
+              route.point.y,
+              route.point.z,
+            );
+            desktopLabelRoutesGroup.localToWorld(world);
+            const projected = world.clone().project(camera);
+            const x = (projected.x * 0.5 + 0.5) * width;
+            const y = (-projected.y * 0.5 + 0.5) * height + route.jitterPx;
+            const scale = 0.96;
+
+            item.element.style.opacity = route.opacity.toFixed(3);
+            item.element.style.zIndex = String(Math.round(100 + world.z * 20));
+            item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${scale})`;
+          });
+          return;
+        }
 
         const projectedLabels = stackLabelPoints.map((item, index) => {
           const world = item.point.clone();
@@ -696,7 +752,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         updateMobileLabelPoints(0);
         setDesktopOrbitPulsePoint(-0.2);
         renderer.render(scene, camera);
-        updateStackLabels();
+        updateStackLabels(DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * 0.18);
       };
       renderStaticLayer = () => {
         if (reduceMotion) renderStaticState();
@@ -758,7 +814,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
           }
           renderer.render(scene, camera);
-          updateStackLabels();
+          updateStackLabels(now);
         }
 
         frameId = requestAnimationFrame(tick);

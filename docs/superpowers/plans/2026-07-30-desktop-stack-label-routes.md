@@ -135,9 +135,9 @@ on the first point and remain available for compact/mobile projection.
 
 - [ ] **Step 2: Add a fixed desktop route projection group**
 
-Create a non-animated Three.js group with the accepted Stack orientation
-`(-0.16, -0.4, 0.08)`. Use it only to project the pure route points into the
-DOM label layer.
+Create a non-animated, front-facing Three.js group. Use it only to project the
+pure route points into the DOM label layer so the latitude routes stay centered
+while the symmetric wireframe sphere rotates behind them.
 
 - [ ] **Step 3: Route desktop labels before legacy projection**
 
@@ -183,4 +183,3 @@ Invoke-WebRequest http://localhost:3001 -UseBasicParsing
 ```
 
 Expected: HTTP status `200`.
-
