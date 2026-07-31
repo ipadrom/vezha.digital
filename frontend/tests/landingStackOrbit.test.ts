@@ -15,11 +15,32 @@ import {
   getMobileOrbitAngle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
+  getStackBridgeAttachmentPoint,
   getStackGroupScale,
   getStackLayerTargets,
   resolveMobileOrbitMode,
   resolveStackVisualLayer,
 } from "../utils/landingStackOrbit";
+
+test("places a desktop DevOps label at 75% of its bridge stick", () => {
+  assert.deepEqual(
+    getStackBridgeAttachmentPoint(
+      { x: 0.82, y: 0.36, z: 0.78 },
+      { x: 1.28, y: 0.5, z: 1.2 },
+    ),
+    { x: 1.165, y: 0.465, z: 1.095 },
+  );
+});
+
+test("uses the same 75% attachment on a mirrored bridge stick", () => {
+  assert.deepEqual(
+    getStackBridgeAttachmentPoint(
+      { x: -0.82, y: 0.36, z: -0.78 },
+      { x: -1.28, y: 0.5, z: -1.2 },
+    ),
+    { x: -1.165, y: 0.465, z: -1.095 },
+  );
+});
 
 test("maps stack titles to visual states", () => {
   assert.equal(resolveStackVisualLayer("Frontend"), "surface");

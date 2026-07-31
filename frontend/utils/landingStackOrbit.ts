@@ -3,6 +3,27 @@ export type StackVisualLayer = StackBaseLayer | "mobile";
 export type StackLayerTargets = Record<StackBaseLayer, number>;
 export type MobileOrbitId = "outer" | "inner";
 export type MobileOrbitMode = "hidden" | "desktop" | "compact";
+export type StackPoint3 = {
+  x: number;
+  y: number;
+  z: number;
+};
+
+export function getStackBridgeAttachmentPoint(
+  anchor: StackPoint3,
+  outerPoint: StackPoint3,
+  ratio = 0.75,
+): StackPoint3 {
+  const safeRatio = Math.max(0, Math.min(1, ratio));
+  const interpolate = (start: number, end: number) =>
+    Number((start + (end - start) * safeRatio).toFixed(6));
+
+  return {
+    x: interpolate(anchor.x, outerPoint.x),
+    y: interpolate(anchor.y, outerPoint.y),
+    z: interpolate(anchor.z, outerPoint.z),
+  };
+}
 
 export const DESKTOP_STACK_LABEL_ROUTE_DURATION_MS = 18_000;
 export const DESKTOP_STACK_LABEL_LANES = [
