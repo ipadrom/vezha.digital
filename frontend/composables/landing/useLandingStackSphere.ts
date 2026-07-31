@@ -4,6 +4,7 @@ import {
   DESKTOP_STACK_LABEL_FADE_IN_PORTION,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+  MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
@@ -830,6 +831,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           renderLatitudeLabels(
             MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
             0.82,
+            true,
+            true,
+            0.6,
+          );
+          return;
+        }
+
+        if (window.innerWidth <= 900 && activeStackLayer.value === "bridge") {
+          renderLatitudeLabels(
+            MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
+            0.92,
             true,
             true,
             0.6,

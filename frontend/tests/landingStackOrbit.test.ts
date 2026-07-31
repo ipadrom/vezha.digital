@@ -5,6 +5,7 @@ import {
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+  MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   advanceBackendStackLabelClock,
@@ -309,6 +310,26 @@ test("fits four backend latitude chords into its enlarged mobile core", () => {
     0.8918,
     0.9831,
   ]);
+});
+
+test("fits four DevOps latitude chords into the visible mobile hemisphere", () => {
+  const routes = Array.from({ length: 4 }, (_, traversal) => (
+    getDesktopStackLabelRouteState(
+      DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * traversal,
+      0,
+      4,
+      MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
+    )
+  ));
+
+  assert.deepEqual(routes.map(({ point }) => point.y), [
+    1.35,
+    0.99,
+    0.63,
+    0.27,
+  ]);
+  assert.ok(routes.every(({ point }) => point.z > 0));
+  assert.equal(Math.min(...routes.map(({ point }) => point.y)), 0.27);
 });
 
 test("gates backend label appearance by same-lane edge clearance", () => {
