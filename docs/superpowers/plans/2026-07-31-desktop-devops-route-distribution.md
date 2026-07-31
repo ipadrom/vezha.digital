@@ -4,7 +4,7 @@
 
 **Goal:** Distribute the four desktop DevOps stick-attached labels across four separated horizontal routes in the order Docker, CI/CD, Nginx, Linux from top to bottom.
 
-**Architecture:** Export the approved vertical route levels from the existing pure stack orbit utility and consume them from the bridge label specifications. The current stick angles, 75% attachment interpolation, shared `bridgeGroup` rotation, mirrored pairs, and mobile behavior remain unchanged.
+**Architecture:** Add a pure utility that converts a DevOps technology and angle into the inner and outer points of its approved bridge route, then consume those points from the sphere composable. The current stick angles, 75% attachment interpolation, shared `bridgeGroup` rotation, mirrored pairs, and mobile behavior remain unchanged.
 
 **Tech Stack:** Vue 3, Nuxt 3, TypeScript, Three.js, Node test runner, esbuild
 
@@ -19,7 +19,7 @@
 
 ---
 
-### Task 1: Tested DevOps route levels
+### Task 1: Tested DevOps bridge route geometry
 
 **Files:**
 - Modify: `frontend/utils/landingStackOrbit.ts`
@@ -27,29 +27,27 @@
 - Modify: `frontend/composables/landing/useLandingStackSphere.ts`
 
 **Interfaces:**
-- Produces: `DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS`, a readonly map from `Docker | CI/CD | Nginx | Linux` to the approved outer endpoint `y` value.
-- Consumes: bridge label specifications in `useLandingStackSphere.ts` read the map while retaining their existing colors, slugs, labels, and angles.
+- Produces: `getDesktopDevOpsBridgeRoute(label: DesktopDevOpsBridgeLabel, angle: number): { anchor: StackPoint3; outerPoint: StackPoint3 }`.
+- Consumes: bridge label specifications in `useLandingStackSphere.ts` pass their existing label and angle to the helper.
 
-- [ ] **Step 1: Write the failing route-level test**
+- [ ] **Step 1: Write the failing route-geometry test**
 
-Import `DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS` and add:
+Import `getDesktopDevOpsBridgeRoute` and add a test that exercises the actual bridge points and their existing 75% attachment behavior:
 
 ```ts
 test("separates desktop DevOps labels into four ordered bridge routes", () => {
-  assert.deepEqual(DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS, {
-    Docker: 0.72,
-    "CI/CD": 0.24,
-    Nginx: -0.22,
-    Linux: -0.68,
-  });
+  const labels = ["Docker", "CI/CD", "Nginx", "Linux"] as const;
+  const routes = labels.map((label) => getDesktopDevOpsBridgeRoute(label, 0));
 
-  assert.deepEqual(
-    ["Docker", "CI/CD", "Nginx", "Linux"]
-      .map((label) => DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS[
-        label as keyof typeof DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS
-      ]),
-    [0.72, 0.24, -0.22, -0.68],
-  );
+  assert.deepEqual(routes.map(({ outerPoint }) => outerPoint.y), [
+    0.72,
+    0.24,
+    -0.22,
+    -0.68,
+  ]);
+  assert.deepEqual(routes.map(({ anchor, outerPoint }) => (
+    getStackBridgeAttachmentPoint(anchor, outerPoint).y
+  )), [0.6696, 0.2232, -0.2046, -0.6324]);
 });
 ```
 
@@ -62,19 +60,43 @@ Run from `frontend`:
 node --test .codex-test\landingStackOrbit.test.mjs
 ```
 
-Expected: bundling fails because `DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS` is not exported.
+Expected: bundling fails because `getDesktopDevOpsBridgeRoute` is not exported.
 
-- [ ] **Step 3: Add the minimal route-level configuration**
+- [ ] **Step 3: Add the minimal pure bridge-route helper**
 
 Add to `frontend/utils/landingStackOrbit.ts`:
 
 ```ts
-export const DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS = {
+export type DesktopDevOpsBridgeLabel = "Docker" | "CI/CD" | "Nginx" | "Linux";
+
+const DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS = {
   Docker: 0.72,
   "CI/CD": 0.24,
   Nginx: -0.22,
   Linux: -0.68,
 } as const;
+
+export function getDesktopDevOpsBridgeRoute(
+  label: DesktopDevOpsBridgeLabel,
+  angle: number,
+) {
+  const y = DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS[label];
+  const directionX = Math.cos(angle);
+  const directionZ = Math.sin(angle);
+
+  return {
+    anchor: {
+      x: directionX * 0.82,
+      y: y * 0.72,
+      z: directionZ * 0.78,
+    },
+    outerPoint: {
+      x: directionX * 1.28,
+      y,
+      z: directionZ * 1.2,
+    },
+  };
+}
 ```
 
 - [ ] **Step 4: Run the tests to verify GREEN**
@@ -88,9 +110,9 @@ node --test .codex-test\landingStackOrbit.test.mjs
 
 Expected: all stack orbit tests pass.
 
-- [ ] **Step 5: Connect each bridge specification to its approved level**
+- [ ] **Step 5: Connect each bridge specification to its approved geometry**
 
-Import the map in `useLandingStackSphere.ts` and change only `y` values:
+Keep the existing specification colors, slugs, labels, and angles, removing only the inline `y` values:
 
 ```ts
 const bridgeLabelSpecs = [
@@ -99,30 +121,42 @@ const bridgeLabelSpecs = [
     slug: "docker",
     label: "Docker",
     angle: 2.8,
-    y: DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS.Docker,
   },
   {
     color: "#009639",
     slug: "nginx",
     label: "Nginx",
     angle: 1.25,
-    y: DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS.Nginx,
   },
   {
     color: "#7C3AED",
     slug: "githubactions",
     label: "CI/CD",
     angle: -0.2,
-    y: DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS["CI/CD"],
   },
   {
     color: "#F5B800",
     slug: "linux",
     label: "Linux",
     angle: -1.7,
-    y: DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS.Linux,
   },
-];
+] as const;
+```
+
+Use the helper while constructing each stick:
+
+```ts
+const route = getDesktopDevOpsBridgeRoute(spec.label, spec.angle);
+const point = new THREE.Vector3(
+  route.outerPoint.x,
+  route.outerPoint.y,
+  route.outerPoint.z,
+);
+const anchor = new THREE.Vector3(
+  route.anchor.x,
+  route.anchor.y,
+  route.anchor.z,
+);
 ```
 
 - [ ] **Step 6: Verify build and local server**
@@ -143,4 +177,3 @@ Delete only `frontend/.codex-test/landingStackOrbit.test.mjs`, then run:
 git add frontend/utils/landingStackOrbit.ts frontend/tests/landingStackOrbit.test.ts frontend/composables/landing/useLandingStackSphere.ts
 git commit -m "feat: distribute desktop devops routes"
 ```
-
