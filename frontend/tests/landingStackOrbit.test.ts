@@ -10,6 +10,7 @@ import {
   advanceBackendStackLabelClock,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
+  getDesktopDevOpsBridgeRoute,
   getDesktopStackLabelRouteState,
   getMobileLabelDepthStyle,
   getMobileOrbitAngle,
@@ -40,6 +41,21 @@ test("uses the same 75% attachment on a mirrored bridge stick", () => {
     ),
     { x: -1.165, y: 0.465, z: -1.095 },
   );
+});
+
+test("separates desktop DevOps labels into four ordered bridge routes", () => {
+  const labels = ["Docker", "CI/CD", "Nginx", "Linux"] as const;
+  const routes = labels.map((label) => getDesktopDevOpsBridgeRoute(label, 0));
+
+  assert.deepEqual(routes.map(({ outerPoint }) => outerPoint.y), [
+    0.72,
+    0.24,
+    -0.22,
+    -0.68,
+  ]);
+  assert.deepEqual(routes.map(({ anchor, outerPoint }) => (
+    getStackBridgeAttachmentPoint(anchor, outerPoint).y
+  )), [0.6696, 0.2232, -0.2046, -0.6324]);
 });
 
 test("maps stack titles to visual states", () => {

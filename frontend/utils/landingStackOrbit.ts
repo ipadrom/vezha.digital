@@ -25,6 +25,37 @@ export function getStackBridgeAttachmentPoint(
   };
 }
 
+export type DesktopDevOpsBridgeLabel = "Docker" | "CI/CD" | "Nginx" | "Linux";
+
+const DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS = {
+  Docker: 0.72,
+  "CI/CD": 0.24,
+  Nginx: -0.22,
+  Linux: -0.68,
+} as const satisfies Record<DesktopDevOpsBridgeLabel, number>;
+
+export function getDesktopDevOpsBridgeRoute(
+  label: DesktopDevOpsBridgeLabel,
+  angle: number,
+) {
+  const y = DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS[label];
+  const directionX = Math.cos(angle);
+  const directionZ = Math.sin(angle);
+
+  return {
+    anchor: {
+      x: directionX * 0.82,
+      y: y * 0.72,
+      z: directionZ * 0.78,
+    },
+    outerPoint: {
+      x: directionX * 1.28,
+      y,
+      z: directionZ * 1.2,
+    },
+  };
+}
+
 export const DESKTOP_STACK_LABEL_ROUTE_DURATION_MS = 18_000;
 export const DESKTOP_STACK_LABEL_LANES = [
   { y: 0.72 },

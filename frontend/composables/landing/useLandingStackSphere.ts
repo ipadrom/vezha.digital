@@ -10,6 +10,7 @@ import {
   advanceBackendStackLabelClock,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
+  getDesktopDevOpsBridgeRoute,
   getDesktopStackLabelRouteState,
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
@@ -366,11 +367,11 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         }];
       });
       const bridgeLabelSpecs = [
-        { color: "#2496ED", slug: "docker", label: "Docker", angle: 2.8, y: 0.48 },
-        { color: "#009639", slug: "nginx", label: "Nginx", angle: 1.25, y: -0.34 },
-        { color: "#7C3AED", slug: "githubactions", label: "CI/CD", angle: -0.2, y: 0.32 },
-        { color: "#F5B800", slug: "linux", label: "Linux", angle: -1.7, y: -0.46 },
-      ];
+        { color: "#2496ED", slug: "docker", label: "Docker", angle: 2.8 },
+        { color: "#009639", slug: "nginx", label: "Nginx", angle: 1.25 },
+        { color: "#7C3AED", slug: "githubactions", label: "CI/CD", angle: -0.2 },
+        { color: "#F5B800", slug: "linux", label: "Linux", angle: -1.7 },
+      ] as const;
       const bridgeStickPositions: number[] = [];
       const bridgeLabelPoints = bridgeLabelSpecs.flatMap((spec, index) => {
         const element = document.createElement("span");
@@ -388,10 +389,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         element.append(icon, text);
         labelLayer.appendChild(element);
 
-        const directionX = Math.cos(spec.angle);
-        const directionZ = Math.sin(spec.angle);
-        const point = new THREE.Vector3(directionX * 1.28, spec.y, directionZ * 1.2);
-        const anchor = new THREE.Vector3(directionX * 0.82, spec.y * 0.72, directionZ * 0.78);
+        const route = getDesktopDevOpsBridgeRoute(spec.label, spec.angle);
+        const point = new THREE.Vector3(
+          route.outerPoint.x,
+          route.outerPoint.y,
+          route.outerPoint.z,
+        );
+        const anchor = new THREE.Vector3(
+          route.anchor.x,
+          route.anchor.y,
+          route.anchor.z,
+        );
         const mirroredPoint = new THREE.Vector3(-point.x, point.y, -point.z);
         const mirroredAnchor = new THREE.Vector3(-anchor.x, anchor.y, -anchor.z);
         const attachedPoint = getStackBridgeAttachmentPoint(anchor, point);
