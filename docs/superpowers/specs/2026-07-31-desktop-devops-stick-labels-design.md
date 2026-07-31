@@ -36,6 +36,26 @@ The mobile point remains the existing outer point. A separate
 `desktopAttachedPoint` is stored for desktop projection so this feature cannot
 change mobile DevOps placement.
 
+## Desktop Route Distribution
+
+The four desktop DevOps sticks keep their existing angular phases and receive
+four separated vertical levels. From top to bottom, the visible routes are:
+
+1. Docker at `y = 0.72`;
+2. CI/CD at `y = 0.24`;
+3. Nginx at `y = -0.22`;
+4. Linux at `y = -0.68`.
+
+Each value above remains the outer endpoint's `y`; the inner endpoint keeps
+the existing `spec.y * 0.72` compression. The label remains at the interpolated
+75% attachment point, so its projected route follows the stick continuously.
+
+All four sticks continue rotating as one `bridgeGroup`. Their fixed, separated
+heights therefore appear as four horizontal curved routes around the sphere,
+matching the supplied sketch without introducing an independent label orbit.
+The existing angular values remain unchanged to preserve the current spacing
+around the sphere and avoid synchronizing all labels on the same side.
+
 ## Rendering Behavior
 
 - Desktop DevOps bypasses the latitude-route renderer.
@@ -66,9 +86,10 @@ Backend.
 - Unit-test interpolation at 75%, including a mirrored stick.
 - At 1440x900, activate DevOps and verify all four visible label centers stay
   on their projected stick segments during multiple animation frames.
+- Confirm the visible labels occupy four distinct vertical bands in the order
+  Docker, CI/CD, Nginx, Linux from top to bottom.
 - Confirm no visible label rectangles overlap.
 - Confirm Frontend and Backend still use latitude routes.
 - Confirm mobile DevOps positions are unchanged at 390x844.
 - Confirm no relevant browser console errors and the Nuxt production build
   succeeds.
-
