@@ -11,8 +11,8 @@ route.
 - Apply the change only when the viewport is wider than 900px and DevOps is
   active.
 - Keep Frontend, Backend, Mobile, and all mobile DevOps behavior unchanged.
-- Preserve the existing bridge geometry, rotation speed, colors, label
-  contents, and transition between stack sections.
+- Preserve the existing bridge angles, outer endpoints, rotation speed,
+  colors, label contents, and transition between stack sections.
 
 ## Attachment Geometry
 
@@ -36,6 +36,23 @@ The mobile point remains the existing outer point. A separate
 `desktopAttachedPoint` is stored for desktop projection so this feature cannot
 change mobile DevOps placement.
 
+### Core connection
+
+The inner endpoint of every desktop DevOps stick lies on the radial line from
+the sphere center through its outer endpoint. Its local bridge-group radius is
+`0.690654`, which corresponds to a world-space radius just inside the visible
+core shell while DevOps is active:
+
+```text
+innerRadius = (0.66 * 1.104) / 1.055 = 0.690654
+```
+
+Here, `0.66` is slightly inside the core shell radius `0.68`, `1.104` is the
+active DevOps core-group scale, and `1.055` is the active bridge-group scale.
+The small inward overlap prevents antialiasing or the faceted shell from
+showing a gap. The 75% label attachment is recalculated from this extended
+inner endpoint, so it stays on the stick.
+
 ## Desktop Route Distribution
 
 The four desktop DevOps sticks keep their existing angular phases and receive
@@ -55,6 +72,25 @@ heights therefore appear as four horizontal curved routes around the sphere,
 matching the supplied sketch without introducing an independent label orbit.
 The existing angular values remain unchanged to preserve the current spacing
 around the sphere and avoid synchronizing all labels on the same side.
+
+## DevOps Material Balance
+
+Keep the core's solid inner fill visible in DevOps. While DevOps is active,
+match its wire and point materials to the Frontend shell and reduce only the
+fill so the additional solid surface does not make the core look heavier:
+
+- Frontend shell lines: base opacity `0.22`;
+- Frontend shell points: base opacity `0.80`;
+- core inner fill: base opacity `0.04`, never zero;
+- core shell wireframe and internal lines: base opacity `0.22`;
+- core points: base opacity `0.80`;
+- general bridge network: keep base opacity `0.34`;
+- DevOps label sticks: raise base opacity from `0.34` to `0.70`.
+
+These are DevOps-only base-opacity overrides layered over the existing active
+layer multipliers. The current base opacities remain unchanged in Frontend,
+Backend, and Mobile. Only the label sticks become stronger in DevOps; the
+surrounding bridge network stays unchanged.
 
 ## Rendering Behavior
 
@@ -88,6 +124,10 @@ Backend.
   on their projected stick segments during multiple animation frames.
 - Confirm the visible labels occupy four distinct vertical bands in the order
   Docker, CI/CD, Nginx, Linux from top to bottom.
+- Confirm every visible stick reaches slightly inside the core shell without a
+  gap and each label remains at 75% of the extended stick.
+- Confirm the core fill remains visible, its wireframe matches the Frontend
+  shell transparency, and label sticks are stronger than the bridge network.
 - Confirm no visible label rectangles overlap.
 - Confirm Frontend and Backend still use latitude routes.
 - Confirm mobile DevOps positions are unchanged at 390x844.
