@@ -14,6 +14,7 @@ import {
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
+  getStackBridgeAttachmentPoint,
   getStackGroupScale,
   getStackLayerTargets,
   resolveMobileOrbitMode,
@@ -391,8 +392,22 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         const directionZ = Math.sin(spec.angle);
         const point = new THREE.Vector3(directionX * 1.28, spec.y, directionZ * 1.2);
         const anchor = new THREE.Vector3(directionX * 0.82, spec.y * 0.72, directionZ * 0.78);
+        const mirroredPoint = new THREE.Vector3(-point.x, point.y, -point.z);
+        const mirroredAnchor = new THREE.Vector3(-anchor.x, anchor.y, -anchor.z);
+        const attachedPoint = getStackBridgeAttachmentPoint(anchor, point);
+        const mirroredAttachedPoint = getStackBridgeAttachmentPoint(
+          mirroredAnchor,
+          mirroredPoint,
+        );
         bridgeStickPositions.push(anchor.x, anchor.y, anchor.z, point.x, point.y, point.z);
-        bridgeStickPositions.push(-anchor.x, anchor.y, -anchor.z, -point.x, point.y, -point.z);
+        bridgeStickPositions.push(
+          mirroredAnchor.x,
+          mirroredAnchor.y,
+          mirroredAnchor.z,
+          mirroredPoint.x,
+          mirroredPoint.y,
+          mirroredPoint.z,
+        );
 
         const loopElement = element.cloneNode(true) as HTMLSpanElement;
         labelLayer.appendChild(loopElement);
@@ -400,6 +415,11 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           desktopRouteCount: bridgeLabelSpecs.length,
           desktopRouteIndex: index,
           desktopRoutePrimary: true,
+          desktopAttachedPoint: new THREE.Vector3(
+            attachedPoint.x,
+            attachedPoint.y,
+            attachedPoint.z,
+          ),
           element,
           point,
           layer: "bridge" as const,
@@ -408,8 +428,13 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           desktopRouteCount: bridgeLabelSpecs.length,
           desktopRouteIndex: index,
           desktopRoutePrimary: false,
+          desktopAttachedPoint: new THREE.Vector3(
+            mirroredAttachedPoint.x,
+            mirroredAttachedPoint.y,
+            mirroredAttachedPoint.z,
+          ),
           element: loopElement,
-          point: new THREE.Vector3(-point.x, point.y, -point.z),
+          point: mirroredPoint,
           layer: "bridge" as const,
           projectionGroup: bridgeGroup,
         }];
@@ -735,7 +760,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           });
         };
 
-        if (window.innerWidth > 900) {
+        const desktopBridge = window.innerWidth > 900
+          && activeStackLayer.value === "bridge";
+
+        if (window.innerWidth > 900 && !desktopBridge) {
           renderLatitudeLabels(
             activeStackLayer.value === "core"
               ? BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE
@@ -769,12 +797,23 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         }
 
         const projectedLabels = stackLabelPoints.map((item, index) => {
-          const world = item.point.clone();
+          const point = desktopBridge
+            && "desktopAttachedPoint" in item
+            && item.desktopAttachedPoint
+            ? item.desktopAttachedPoint
+            : item.point;
+          const world = point.clone();
           item.projectionGroup.localToWorld(world);
           const counterpart = item.layer === "mobile"
             ? null
             : stackLabelPoints[index % 2 === 0 ? index + 1 : index - 1];
-          const counterpartWorld = counterpart?.point.clone() || null;
+          const counterpartPoint = counterpart
+            && desktopBridge
+            && "desktopAttachedPoint" in counterpart
+            && counterpart.desktopAttachedPoint
+            ? counterpart.desktopAttachedPoint
+            : counterpart?.point;
+          const counterpartWorld = counterpartPoint?.clone() || null;
           if (counterpart && counterpartWorld) {
             counterpart.projectionGroup.localToWorld(counterpartWorld);
           }
@@ -826,32 +865,34 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           .filter((label) => label.opacity > 0.02)
           .sort((a, b) => a.y - b.y);
 
-        for (let index = 1; index < visible.length; index += 1) {
-          const current = visible[index];
-          for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {
-            const previous = visible[previousIndex];
-            const currentWidth = current.item.element.offsetWidth * current.scale;
-            const previousWidth = previous.item.element.offsetWidth * previous.scale;
-            const horizontalGap = Math.abs(current.x - previous.x);
-            const canOverlapHorizontally = horizontalGap < (currentWidth + previousWidth) / 2 + labelGap;
-            if (!canOverlapHorizontally) continue;
+        if (!desktopBridge) {
+          for (let index = 1; index < visible.length; index += 1) {
+            const current = visible[index];
+            for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {
+              const previous = visible[previousIndex];
+              const currentWidth = current.item.element.offsetWidth * current.scale;
+              const previousWidth = previous.item.element.offsetWidth * previous.scale;
+              const horizontalGap = Math.abs(current.x - previous.x);
+              const canOverlapHorizontally = horizontalGap < (currentWidth + previousWidth) / 2 + labelGap;
+              if (!canOverlapHorizontally) continue;
 
-            const currentHeight = current.item.element.offsetHeight * current.scale;
-            const previousHeight = previous.item.element.offsetHeight * previous.scale;
-            current.layoutY = Math.max(
-              current.layoutY,
-              previous.layoutY + (currentHeight + previousHeight) / 2 + labelGap,
-            );
+              const currentHeight = current.item.element.offsetHeight * current.scale;
+              const previousHeight = previous.item.element.offsetHeight * previous.scale;
+              current.layoutY = Math.max(
+                current.layoutY,
+                previous.layoutY + (currentHeight + previousHeight) / 2 + labelGap,
+              );
+            }
           }
+
+          const overflow = visible.length
+            ? Math.max(0, visible[visible.length - 1].layoutY - (height - labelEdge))
+            : 0;
+          if (overflow) visible.forEach((label) => { label.layoutY -= overflow; });
+
+          const underflow = visible.length ? Math.max(0, labelEdge - visible[0].layoutY) : 0;
+          if (underflow) visible.forEach((label) => { label.layoutY += underflow; });
         }
-
-        const overflow = visible.length
-          ? Math.max(0, visible[visible.length - 1].layoutY - (height - labelEdge))
-          : 0;
-        if (overflow) visible.forEach((label) => { label.layoutY -= overflow; });
-
-        const underflow = visible.length ? Math.max(0, labelEdge - visible[0].layoutY) : 0;
-        if (underflow) visible.forEach((label) => { label.layoutY += underflow; });
 
         projectedLabels.forEach(({ item, opacity, scale, worldZ, x, layoutY }) => {
           item.element.style.opacity = opacity.toFixed(3);
