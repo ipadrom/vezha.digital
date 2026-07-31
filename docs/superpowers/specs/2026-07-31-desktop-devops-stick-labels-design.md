@@ -75,22 +75,22 @@ around the sphere and avoid synchronizing all labels on the same side.
 
 ## DevOps Material Balance
 
-Keep the core's solid inner fill visible in DevOps. While DevOps is active,
-match its wire and point materials to the Frontend shell and reduce only the
-fill so the additional solid surface does not make the core look heavier:
+Keep the core's solid inner fill completely unchanged. While DevOps is active,
+match only its wire and point materials to the Frontend shell:
 
 - Frontend shell lines: base opacity `0.22`;
 - Frontend shell points: base opacity `0.80`;
-- core inner fill: base opacity `0.04`, never zero;
+- core inner fill: keep the existing base opacity `0.18`;
 - core shell wireframe and internal lines: base opacity `0.22`;
 - core points: base opacity `0.80`;
 - general bridge network: keep base opacity `0.34`;
 - DevOps label sticks: raise base opacity from `0.34` to `0.70`.
 
-These are DevOps-only base-opacity overrides layered over the existing active
-layer multipliers. The current base opacities remain unchanged in Frontend,
-Backend, and Mobile. Only the label sticks become stronger in DevOps; the
-surrounding bridge network stays unchanged.
+The wireframe, internal-line, point, and stick changes are DevOps-only
+base-opacity overrides layered over the existing active-layer multipliers.
+The core fill stays at `0.18` in every layer. The current material behavior
+remains unchanged in Frontend, Backend, and Mobile. Only the label sticks
+become stronger in DevOps; the surrounding bridge network stays unchanged.
 
 ## Rendering Behavior
 
@@ -126,8 +126,9 @@ Backend.
   Docker, CI/CD, Nginx, Linux from top to bottom.
 - Confirm every visible stick reaches slightly inside the core shell without a
   gap and each label remains at 75% of the extended stick.
-- Confirm the core fill remains visible, its wireframe matches the Frontend
-  shell transparency, and label sticks are stronger than the bridge network.
+- Confirm the core fill is visually unchanged, its wireframe matches the
+  Frontend shell transparency, and label sticks are stronger than the bridge
+  network.
 - Confirm no visible label rectangles overlap.
 - Confirm Frontend and Backend still use latitude routes.
 - Confirm mobile DevOps positions are unchanged at 390x844.
