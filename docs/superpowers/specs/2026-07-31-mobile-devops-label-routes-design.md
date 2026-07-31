@@ -1,33 +1,33 @@
-# Mobile DevOps Label Routes Design
+# Mobile DevOps Stick-Attached Labels Design
 
 ## Goal
 
-On viewports up to and including 900px, place the four DevOps labels on four
-left-to-right latitude routes across the visible front hemisphere, keeping a
-safe gap above the lower visible edge.
+Attach mobile DevOps labels to the same 3D sticks as desktop DevOps so every
+label remains synchronized with its stick throughout rotation.
 
 ## Behavior
 
-- Use four ordered mobile latitudes: `1.35`, `0.99`, `0.63`, and `0.27`.
-- Use the outer-sphere geometry scale `1`, matching the visible mobile
-  Frontend hemisphere.
-- Keep the existing route movement, edge fading, stable pixel jitter, lane
-  handoff, and appearance-delay behavior.
-- Flatten projected route height so each latitude remains visually horizontal.
-- Use label scale `0.92` and jitter scale `0.6`, matching the mobile Frontend
-  presentation.
-- Keep the lowest latitude at `0.27` to preserve the lower-edge gap.
+- Apply stick attachment whenever DevOps is active, including widths at and
+  below 900px.
+- Place each label at 75% from its inner anchor to its outer endpoint.
+- Keep the four approved stick levels and their existing lower-edge spacing.
+- Project the attachment through `bridgeGroup`, which also owns the stick
+  geometry, so label and stick rotate together.
+- Keep primary/mirrored depth selection and edge fading.
+- Do not apply independent latitude movement or post-projection collision
+  displacement to DevOps labels.
 
-## Desktop Boundary
+## Boundaries
 
-Above 900px, DevOps labels remain attached to their matching rotating sticks at
-75% from the inner anchor to the outer endpoint. The desktop stick geometry,
-route levels, materials, and rotation remain unchanged.
+Frontend and Backend continue using their existing mobile latitude routes.
+Mobile-section technologies continue using their orbit system. DevOps sphere
+geometry, stick geometry, rotation, label scale, and material opacity remain
+unchanged.
 
 ## Verification
 
-- A pure route-profile test verifies exactly four ordered latitudes.
-- Route-state checks verify every path lies on the front hemisphere and the
-  lowest path retains the `0.27` lower boundary.
+- A pure policy test verifies that DevOps uses stick attachment at mobile,
+  boundary, and desktop widths.
+- Existing interpolation tests continue to verify the exact 75% point.
 - The full stack-orbit suite and Nuxt production build must pass.
 
