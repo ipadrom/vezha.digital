@@ -614,7 +614,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       bridgeGroup.add(
         new THREE.LineSegments(
           bridgeGeometry,
-          trackMaterial(new THREE.LineBasicMaterial({ color: 0x5d6470 }), "bridge", 0.34),
+          trackMaterial(
+            new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+            "bridge",
+            0.34,
+            "bridge-network",
+          ),
         ),
         new THREE.LineSegments(
           bridgeStickGeometry,

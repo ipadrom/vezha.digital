@@ -8,6 +8,7 @@ export type StackMaterialRole =
   | "core-shell"
   | "core-lines"
   | "core-points"
+  | "bridge-network"
   | "bridge-stick";
 export type StackPoint3 = {
   x: number;
@@ -23,7 +24,7 @@ export function getStackMaterialBaseOpacity(
   if (visualLayer !== "bridge") return defaultOpacity;
   if (role === "core-shell" || role === "core-lines") return 0.22;
   if (role === "core-points") return 0.8;
-  if (role === "bridge-stick") return 0.7;
+  if (role === "bridge-network" || role === "bridge-stick") return 0.65;
   return defaultOpacity;
 }
 

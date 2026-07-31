@@ -69,7 +69,8 @@ test("balances only DevOps core framing and label sticks", () => {
   assert.equal(getStackMaterialBaseOpacity(0.28, "core-shell", "bridge"), 0.22);
   assert.equal(getStackMaterialBaseOpacity(0.46, "core-lines", "bridge"), 0.22);
   assert.equal(getStackMaterialBaseOpacity(0.96, "core-points", "bridge"), 0.8);
-  assert.equal(getStackMaterialBaseOpacity(0.34, "bridge-stick", "bridge"), 0.7);
+  assert.equal(getStackMaterialBaseOpacity(0.34, "bridge-network", "bridge"), 0.65);
+  assert.equal(getStackMaterialBaseOpacity(0.34, "bridge-stick", "bridge"), 0.65);
   assert.equal(getStackMaterialBaseOpacity(0.34, "default", "bridge"), 0.34);
 
   assert.equal(getStackMaterialBaseOpacity(0.28, "core-shell", "core"), 0.28);
