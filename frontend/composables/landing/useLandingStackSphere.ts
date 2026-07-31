@@ -4,7 +4,6 @@ import {
   DESKTOP_STACK_LABEL_FADE_IN_PORTION,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
-  MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
@@ -21,6 +20,7 @@ import {
   getStackLayerTargets,
   getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
+  shouldUseStackBridgeAttachment,
   type BackendStackLabelClockState,
   type DesktopStackLabelRouteProfile,
   type MobileOrbitId,
@@ -802,10 +802,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           });
         };
 
-        const desktopBridge = window.innerWidth > 900
-          && activeStackLayer.value === "bridge";
+        const stickAttachedBridge = shouldUseStackBridgeAttachment(
+          activeStackLayer.value,
+          window.innerWidth,
+        );
 
-        if (window.innerWidth > 900 && !desktopBridge) {
+        if (window.innerWidth > 900 && !stickAttachedBridge) {
           renderLatitudeLabels(
             activeStackLayer.value === "core"
               ? BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE
@@ -838,19 +840,8 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           return;
         }
 
-        if (window.innerWidth <= 900 && activeStackLayer.value === "bridge") {
-          renderLatitudeLabels(
-            MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
-            0.92,
-            true,
-            true,
-            0.6,
-          );
-          return;
-        }
-
         const projectedLabels = stackLabelPoints.map((item, index) => {
-          const point = desktopBridge
+          const point = stickAttachedBridge
             && "desktopAttachedPoint" in item
             && item.desktopAttachedPoint
             ? item.desktopAttachedPoint
@@ -861,7 +852,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             ? null
             : stackLabelPoints[index % 2 === 0 ? index + 1 : index - 1];
           const counterpartPoint = counterpart
-            && desktopBridge
+            && stickAttachedBridge
             && "desktopAttachedPoint" in counterpart
             && counterpart.desktopAttachedPoint
             ? counterpart.desktopAttachedPoint
@@ -918,7 +909,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           .filter((label) => label.opacity > 0.02)
           .sort((a, b) => a.y - b.y);
 
-        if (!desktopBridge) {
+        if (!stickAttachedBridge) {
           for (let index = 1; index < visible.length; index += 1) {
             const current = visible[index];
             for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {

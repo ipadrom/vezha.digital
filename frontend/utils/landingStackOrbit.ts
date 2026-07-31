@@ -106,11 +106,6 @@ export const MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE = {
   laneYs: [0.98, 0.72, 0.46, 0.2],
 } as const satisfies DesktopStackLabelRouteProfile;
 
-export const MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE = {
-  geometryScale: 1,
-  laneYs: [1.35, 0.99, 0.63, 0.27],
-} as const satisfies DesktopStackLabelRouteProfile;
-
 export type BackendStackLabelCollisionBox = {
   centerX: number;
   laneIndex: number;
@@ -338,6 +333,13 @@ export function resolveStackVisualLayer(title = ""): StackVisualLayer {
   if (normalized.includes("devops")) return "bridge";
   if (normalized.includes("mobile")) return "mobile";
   return "surface";
+}
+
+export function shouldUseStackBridgeAttachment(
+  layer: StackVisualLayer,
+  _viewportWidth: number,
+) {
+  return layer === "bridge";
 }
 
 export function getStackLayerTargets(

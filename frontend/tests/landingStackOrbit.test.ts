@@ -5,7 +5,6 @@ import {
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
-  MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   advanceBackendStackLabelClock,
@@ -23,6 +22,7 @@ import {
   getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
   resolveStackVisualLayer,
+  shouldUseStackBridgeAttachment,
 } from "../utils/landingStackOrbit";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
@@ -312,24 +312,11 @@ test("fits four backend latitude chords into its enlarged mobile core", () => {
   ]);
 });
 
-test("fits four DevOps latitude chords into the visible mobile hemisphere", () => {
-  const routes = Array.from({ length: 4 }, (_, traversal) => (
-    getDesktopStackLabelRouteState(
-      DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * traversal,
-      0,
-      4,
-      MOBILE_DEVOPS_STACK_LABEL_ROUTE_PROFILE,
-    )
-  ));
-
-  assert.deepEqual(routes.map(({ point }) => point.y), [
-    1.35,
-    0.99,
-    0.63,
-    0.27,
-  ]);
-  assert.ok(routes.every(({ point }) => point.z > 0));
-  assert.equal(Math.min(...routes.map(({ point }) => point.y)), 0.27);
+test("attaches DevOps labels to their sticks at every viewport width", () => {
+  assert.equal(shouldUseStackBridgeAttachment("bridge", 390), true);
+  assert.equal(shouldUseStackBridgeAttachment("bridge", 900), true);
+  assert.equal(shouldUseStackBridgeAttachment("bridge", 1440), true);
+  assert.equal(shouldUseStackBridgeAttachment("surface", 390), false);
 });
 
 test("gates backend label appearance by same-lane edge clearance", () => {
