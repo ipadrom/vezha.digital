@@ -12,6 +12,8 @@ import {
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopStackLabelRouteState,
+  getMobileDevOpsBridgeRoute,
+  getMobileDevOpsLabelClearanceFactor,
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
@@ -171,6 +173,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         HTMLElement,
         BackendStackLabelClockState
       >();
+      const mobileBridgeRevealStates = new Map<HTMLElement, boolean>();
 
       disposePartial = () => {
         if (frameId) cancelAnimationFrame(frameId);
@@ -381,7 +384,8 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         { color: "#7C3AED", slug: "githubactions", label: "CI/CD", angle: -0.2 },
         { color: "#F5B800", slug: "linux", label: "Linux", angle: -1.7 },
       ] as const;
-      const bridgeStickPositions: number[] = [];
+      const desktopBridgeStickPositions: number[] = [];
+      const mobileBridgeStickPositions: number[] = [];
       const bridgeLabelPoints = bridgeLabelSpecs.flatMap((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
@@ -399,6 +403,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         labelLayer.appendChild(element);
 
         const route = getDesktopDevOpsBridgeRoute(spec.label, spec.angle);
+        const mobileRoute = getMobileDevOpsBridgeRoute(spec.label, spec.angle);
         const point = new THREE.Vector3(
           route.outerPoint.x,
           route.outerPoint.y,
@@ -416,14 +421,65 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           mirroredAnchor,
           mirroredPoint,
         );
-        bridgeStickPositions.push(anchor.x, anchor.y, anchor.z, point.x, point.y, point.z);
-        bridgeStickPositions.push(
+        const mobilePoint = new THREE.Vector3(
+          mobileRoute.outerPoint.x,
+          mobileRoute.outerPoint.y,
+          mobileRoute.outerPoint.z,
+        );
+        const mobileAnchor = new THREE.Vector3(
+          mobileRoute.anchor.x,
+          mobileRoute.anchor.y,
+          mobileRoute.anchor.z,
+        );
+        const mirroredMobilePoint = new THREE.Vector3(
+          -mobilePoint.x,
+          mobilePoint.y,
+          -mobilePoint.z,
+        );
+        const mirroredMobileAnchor = new THREE.Vector3(
+          -mobileAnchor.x,
+          mobileAnchor.y,
+          -mobileAnchor.z,
+        );
+        const mobileAttachedPoint = getStackBridgeAttachmentPoint(
+          mobileAnchor,
+          mobilePoint,
+        );
+        const mirroredMobileAttachedPoint = getStackBridgeAttachmentPoint(
+          mirroredMobileAnchor,
+          mirroredMobilePoint,
+        );
+        desktopBridgeStickPositions.push(
+          anchor.x,
+          anchor.y,
+          anchor.z,
+          point.x,
+          point.y,
+          point.z,
+        );
+        desktopBridgeStickPositions.push(
           mirroredAnchor.x,
           mirroredAnchor.y,
           mirroredAnchor.z,
           mirroredPoint.x,
           mirroredPoint.y,
           mirroredPoint.z,
+        );
+        mobileBridgeStickPositions.push(
+          mobileAnchor.x,
+          mobileAnchor.y,
+          mobileAnchor.z,
+          mobilePoint.x,
+          mobilePoint.y,
+          mobilePoint.z,
+        );
+        mobileBridgeStickPositions.push(
+          mirroredMobileAnchor.x,
+          mirroredMobileAnchor.y,
+          mirroredMobileAnchor.z,
+          mirroredMobilePoint.x,
+          mirroredMobilePoint.y,
+          mirroredMobilePoint.z,
         );
 
         const loopElement = element.cloneNode(true) as HTMLSpanElement;
@@ -438,6 +494,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             attachedPoint.z,
           ),
           element,
+          mobileAttachedPoint: new THREE.Vector3(
+            mobileAttachedPoint.x,
+            mobileAttachedPoint.y,
+            mobileAttachedPoint.z,
+          ),
+          mobileBridgeLaneIndex: mobileRoute.laneIndex,
           point,
           layer: "bridge" as const,
           projectionGroup: bridgeGroup,
@@ -451,13 +513,27 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             mirroredAttachedPoint.z,
           ),
           element: loopElement,
+          mobileAttachedPoint: new THREE.Vector3(
+            mirroredMobileAttachedPoint.x,
+            mirroredMobileAttachedPoint.y,
+            mirroredMobileAttachedPoint.z,
+          ),
+          mobileBridgeLaneIndex: mobileRoute.laneIndex,
           point: mirroredPoint,
           layer: "bridge" as const,
           projectionGroup: bridgeGroup,
         }];
       });
-      const bridgeStickGeometry = new THREE.BufferGeometry();
-      bridgeStickGeometry.setAttribute("position", new THREE.Float32BufferAttribute(bridgeStickPositions, 3));
+      const desktopBridgeStickGeometry = new THREE.BufferGeometry();
+      desktopBridgeStickGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(desktopBridgeStickPositions, 3),
+      );
+      const mobileBridgeStickGeometry = new THREE.BufferGeometry();
+      mobileBridgeStickGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(mobileBridgeStickPositions, 3),
+      );
       const mobileLabelPoints = MOBILE_ORBIT_TECH.map((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
@@ -561,7 +637,8 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         bridgeGeometry,
         coreShellGeometry,
         coreInnerGeometry,
-        bridgeStickGeometry,
+        desktopBridgeStickGeometry,
+        mobileBridgeStickGeometry,
         desktopOrbitGeometry,
         desktopOrbitPulseGeometry,
         ...compactOrbitGeometries,
@@ -612,25 +689,39 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         ),
       );
 
+      const bridgeNetworkLines = new THREE.LineSegments(
+        bridgeGeometry,
+        trackMaterial(
+          new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+          "bridge",
+          0.34,
+          "bridge-network",
+        ),
+      );
+      const desktopBridgeStickLines = new THREE.LineSegments(
+        desktopBridgeStickGeometry,
+        trackMaterial(
+          new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+          "bridge",
+          0.34,
+          "bridge-stick",
+        ),
+      );
+      const mobileBridgeStickLines = new THREE.LineSegments(
+        mobileBridgeStickGeometry,
+        trackMaterial(
+          new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+          "bridge",
+          0.34,
+          "bridge-stick",
+        ),
+      );
+      desktopBridgeStickLines.visible = window.innerWidth > 900;
+      mobileBridgeStickLines.visible = window.innerWidth <= 900;
       bridgeGroup.add(
-        new THREE.LineSegments(
-          bridgeGeometry,
-          trackMaterial(
-            new THREE.LineBasicMaterial({ color: 0x5d6470 }),
-            "bridge",
-            0.34,
-            "bridge-network",
-          ),
-        ),
-        new THREE.LineSegments(
-          bridgeStickGeometry,
-          trackMaterial(
-            new THREE.LineBasicMaterial({ color: 0x5d6470 }),
-            "bridge",
-            0.34,
-            "bridge-stick",
-          ),
-        ),
+        bridgeNetworkLines,
+        desktopBridgeStickLines,
+        mobileBridgeStickLines,
       );
 
       motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -642,6 +733,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
       const resize = () => {
         updateStackSpherePosition();
+        desktopBridgeStickLines.visible = window.innerWidth > 900;
+        mobileBridgeStickLines.visible = window.innerWidth <= 900;
+        if (window.innerWidth > 900) mobileBridgeRevealStates.clear();
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
         renderer.setSize(width, height, false);
@@ -806,6 +900,8 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           activeStackLayer.value,
           window.innerWidth,
         );
+        const mobileStickAttachedBridge = stickAttachedBridge
+          && window.innerWidth <= 900;
 
         if (window.innerWidth > 900 && !stickAttachedBridge) {
           renderLatitudeLabels(
@@ -840,23 +936,36 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           return;
         }
 
-        const projectedLabels = stackLabelPoints.map((item, index) => {
-          const point = stickAttachedBridge
+        const resolveAttachedPoint = (
+          item: (typeof stackLabelPoints)[number],
+        ) => {
+          if (
+            mobileStickAttachedBridge
+            && "mobileAttachedPoint" in item
+            && item.mobileAttachedPoint
+          ) {
+            return item.mobileAttachedPoint;
+          }
+          if (
+            stickAttachedBridge
             && "desktopAttachedPoint" in item
             && item.desktopAttachedPoint
-            ? item.desktopAttachedPoint
-            : item.point;
+          ) {
+            return item.desktopAttachedPoint;
+          }
+          return item.point;
+        };
+
+        const projectedLabels = stackLabelPoints.map((item, index) => {
+          const point = resolveAttachedPoint(item);
           const world = point.clone();
           item.projectionGroup.localToWorld(world);
           const counterpart = item.layer === "mobile"
             ? null
             : stackLabelPoints[index % 2 === 0 ? index + 1 : index - 1];
           const counterpartPoint = counterpart
-            && stickAttachedBridge
-            && "desktopAttachedPoint" in counterpart
-            && counterpart.desktopAttachedPoint
-            ? counterpart.desktopAttachedPoint
-            : counterpart?.point;
+            ? resolveAttachedPoint(counterpart)
+            : null;
           const counterpartWorld = counterpartPoint?.clone() || null;
           if (counterpart && counterpartWorld) {
             counterpart.projectionGroup.localToWorld(counterpartWorld);
@@ -894,6 +1003,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
           return {
             item,
+            mobileBridgeLaneIndex: "mobileBridgeLaneIndex" in item
+              ? item.mobileBridgeLaneIndex
+              : null,
             opacity,
             scale,
             worldZ: world.z,
@@ -902,6 +1014,58 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             layoutY: y,
           };
         });
+
+        if (!mobileStickAttachedBridge) {
+          mobileBridgeRevealStates.clear();
+        } else {
+          projectedLabels.forEach(({ item, opacity }) => {
+            if (item.layer === "bridge" && opacity <= 0.02) {
+              mobileBridgeRevealStates.delete(item.element);
+            }
+          });
+
+          const acceptedBoxes: Array<{
+            centerX: number;
+            laneIndex: number;
+            width: number;
+          }> = [];
+          const mobileBridgeCandidates = projectedLabels
+            .filter((layout) => (
+              layout.item.layer === "bridge"
+              && layout.mobileBridgeLaneIndex !== null
+              && layout.opacity > 0.02
+            ))
+            .sort((a, b) => {
+              const revealedDifference = Number(
+                mobileBridgeRevealStates.get(b.item.element) === true,
+              ) - Number(
+                mobileBridgeRevealStates.get(a.item.element) === true,
+              );
+              return revealedDifference || b.opacity - a.opacity || a.x - b.x;
+            });
+
+          mobileBridgeCandidates.forEach((layout) => {
+            const candidate = {
+              centerX: layout.x,
+              laneIndex: layout.mobileBridgeLaneIndex as number,
+              width: (layout.item.element.offsetWidth || 84) * layout.scale,
+            };
+            if (mobileBridgeRevealStates.get(layout.item.element) === true) {
+              acceptedBoxes.push(candidate);
+              return;
+            }
+
+            const clearanceFactor = getMobileDevOpsLabelClearanceFactor(
+              candidate,
+              acceptedBoxes,
+            );
+            layout.opacity *= clearanceFactor;
+            if (clearanceFactor >= 1) {
+              mobileBridgeRevealStates.set(layout.item.element, true);
+            }
+            if (clearanceFactor > 0) acceptedBoxes.push(candidate);
+          });
+        }
 
         const labelGap = 8;
         const labelEdge = 24;

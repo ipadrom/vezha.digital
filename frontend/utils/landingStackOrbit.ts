@@ -53,11 +53,17 @@ const DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS = {
   Linux: -0.68,
 } as const satisfies Record<DesktopDevOpsBridgeLabel, number>;
 
-export function getDesktopDevOpsBridgeRoute(
-  label: DesktopDevOpsBridgeLabel,
-  angle: number,
-) {
-  const y = DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS[label];
+const MOBILE_DEVOPS_BRIDGE_ROUTES = {
+  Docker: { laneIndex: 0, y: 0.72 },
+  Nginx: { laneIndex: 0, y: 0.72 },
+  "CI/CD": { laneIndex: 1, y: 0.16 },
+  Linux: { laneIndex: 1, y: 0.16 },
+} as const satisfies Record<
+  DesktopDevOpsBridgeLabel,
+  { laneIndex: 0 | 1; y: number }
+>;
+
+function getDevOpsBridgeRouteAtLevel(y: number, angle: number) {
   const directionX = Math.cos(angle);
   const directionZ = Math.sin(angle);
   const outerPoint = {
@@ -75,6 +81,27 @@ export function getDesktopDevOpsBridgeRoute(
       z: outerPoint.z * anchorScale,
     },
     outerPoint,
+  };
+}
+
+export function getDesktopDevOpsBridgeRoute(
+  label: DesktopDevOpsBridgeLabel,
+  angle: number,
+) {
+  return getDevOpsBridgeRouteAtLevel(
+    DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS[label],
+    angle,
+  );
+}
+
+export function getMobileDevOpsBridgeRoute(
+  label: DesktopDevOpsBridgeLabel,
+  angle: number,
+) {
+  const mobileRoute = MOBILE_DEVOPS_BRIDGE_ROUTES[label];
+  return {
+    ...getDevOpsBridgeRouteAtLevel(mobileRoute.y, angle),
+    laneIndex: mobileRoute.laneIndex,
   };
 }
 
@@ -213,6 +240,37 @@ export function getBackendStackLabelClearanceFactor(
 
     const clearance = peer.centerX - peer.width / 2
       - (candidate.centerX + candidate.width / 2);
+    minimumClearance = Math.min(minimumClearance, clearance);
+  });
+
+  if (!Number.isFinite(minimumClearance)) return 1;
+
+  const normalized = Math.min(
+    1,
+    Math.max(
+      0,
+      (minimumClearance - BACKEND_STACK_LABEL_MIN_CLEARANCE_PX)
+        / BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
+    ),
+  );
+
+  return Number((
+    normalized * normalized * (3 - 2 * normalized)
+  ).toFixed(6));
+}
+
+export function getMobileDevOpsLabelClearanceFactor(
+  candidate: BackendStackLabelCollisionBox,
+  peers: readonly BackendStackLabelCollisionBox[],
+) {
+  let minimumClearance = Number.POSITIVE_INFINITY;
+
+  peers.forEach((peer) => {
+    if (peer.laneIndex !== candidate.laneIndex) return;
+
+    const clearance = Math.abs(peer.centerX - candidate.centerX)
+      - peer.width / 2
+      - candidate.width / 2;
     minimumClearance = Math.min(minimumClearance, clearance);
   });
 

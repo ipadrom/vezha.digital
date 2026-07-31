@@ -12,6 +12,8 @@ import {
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopStackLabelRouteState,
+  getMobileDevOpsBridgeRoute,
+  getMobileDevOpsLabelClearanceFactor,
   getMobileLabelDepthStyle,
   getMobileOrbitAngle,
   getMobileOrbitPoint,
@@ -63,6 +65,31 @@ test("separates desktop DevOps labels into four ordered bridge routes", () => {
   assert.deepEqual(routes.map(({ anchor, outerPoint }) => (
     getStackBridgeAttachmentPoint(anchor, outerPoint).y
   )), [0.62465, 0.21182, -0.194248, -0.591006]);
+});
+
+test("groups mobile DevOps sticks onto two upper-hemisphere routes", () => {
+  const routes = [
+    getMobileDevOpsBridgeRoute("Docker", 2.8),
+    getMobileDevOpsBridgeRoute("Nginx", 1.25),
+    getMobileDevOpsBridgeRoute("CI/CD", -0.2),
+    getMobileDevOpsBridgeRoute("Linux", -1.7),
+  ];
+
+  assert.deepEqual(routes.map(({ outerPoint }) => outerPoint.y), [
+    0.72,
+    0.72,
+    0.16,
+    0.16,
+  ]);
+  assert.deepEqual(routes.map(({ laneIndex }) => laneIndex), [0, 0, 1, 1]);
+  assert.deepEqual(routes.map(({ anchor }) => Number(Math.hypot(
+    anchor.x,
+    anchor.y,
+    anchor.z,
+  ).toFixed(6))), [0.690654, 0.690654, 0.690654, 0.690654]);
+  assert.ok(routes.every(({ anchor, outerPoint }) => (
+    getStackBridgeAttachmentPoint(anchor, outerPoint).y > 0
+  )));
 });
 
 test("balances only DevOps core framing and label sticks", () => {
@@ -333,6 +360,23 @@ test("gates backend label appearance by same-lane edge clearance", () => {
   ]), 1);
   assert.equal(getBackendStackLabelClearanceFactor(candidate, [
     { centerX: 198, laneIndex: 1, width: 84 },
+  ]), 1);
+});
+
+test("delays mobile DevOps appearance only for close labels on the same route", () => {
+  const candidate = { centerX: 100, laneIndex: 0, width: 84 };
+
+  assert.equal(getMobileDevOpsLabelClearanceFactor(candidate, [
+    { centerX: 198, laneIndex: 0, width: 84 },
+  ]), 0);
+  assert.equal(getMobileDevOpsLabelClearanceFactor(candidate, [
+    { centerX: 2, laneIndex: 0, width: 84 },
+  ]), 0);
+  assert.equal(getMobileDevOpsLabelClearanceFactor(candidate, [
+    { centerX: 222, laneIndex: 0, width: 84 },
+  ]), 1);
+  assert.equal(getMobileDevOpsLabelClearanceFactor(candidate, [
+    { centerX: 100, laneIndex: 1, width: 84 },
   ]), 1);
 });
 
