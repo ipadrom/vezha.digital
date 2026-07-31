@@ -18,10 +18,12 @@ import {
   getStackBridgeAttachmentPoint,
   getStackGroupScale,
   getStackLayerTargets,
+  getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
   type BackendStackLabelClockState,
   type DesktopStackLabelRouteProfile,
   type MobileOrbitId,
+  type StackMaterialRole,
   type StackVisualLayer,
 } from "~/utils/landingStackOrbit";
 
@@ -153,6 +155,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         baseOpacity: number;
         layer: "surface" | "core" | "bridge";
         material: import("three").Material & { opacity: number };
+        role: StackMaterialRole;
       }> = [];
       const orbitMaterials: Array<import("three").Material> = [];
       let frameId = 0;
@@ -238,11 +241,16 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         material: T,
         layer: "surface" | "core" | "bridge",
         baseOpacity: number,
+        role: StackMaterialRole = "default",
       ) => {
         material.transparent = true;
         material.depthWrite = false;
-        material.opacity = baseOpacity * 0.16;
-        trackedMaterials.push({ baseOpacity, layer, material });
+        material.opacity = getStackMaterialBaseOpacity(
+          baseOpacity,
+          role,
+          activeStackLayer.value,
+        ) * 0.16;
+        trackedMaterials.push({ baseOpacity, layer, material, role });
         return material;
       };
 
@@ -576,15 +584,30 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         ),
         new THREE.Mesh(
           coreShellGeometry,
-          trackMaterial(new THREE.MeshBasicMaterial({ color: 0x111318, wireframe: true }), "core", 0.28),
+          trackMaterial(
+            new THREE.MeshBasicMaterial({ color: 0x111318, wireframe: true }),
+            "core",
+            0.28,
+            "core-shell",
+          ),
         ),
         new THREE.LineSegments(
           coreLineGeometry,
-          trackMaterial(new THREE.LineBasicMaterial({ color: 0x111318 }), "core", 0.46),
+          trackMaterial(
+            new THREE.LineBasicMaterial({ color: 0x111318 }),
+            "core",
+            0.46,
+            "core-lines",
+          ),
         ),
         new THREE.Points(
           corePointGeometry,
-          trackMaterial(new THREE.PointsMaterial({ color: 0x111318, size: 0.058, sizeAttenuation: true }), "core", 0.96),
+          trackMaterial(
+            new THREE.PointsMaterial({ color: 0x111318, size: 0.058, sizeAttenuation: true }),
+            "core",
+            0.96,
+            "core-points",
+          ),
         ),
       );
 
@@ -595,7 +618,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         ),
         new THREE.LineSegments(
           bridgeStickGeometry,
-          trackMaterial(new THREE.LineBasicMaterial({ color: 0x5d6470 }), "bridge", 0.34),
+          trackMaterial(
+            new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+            "bridge",
+            0.34,
+            "bridge-stick",
+          ),
         ),
       );
 
@@ -919,8 +947,13 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         const orbitMode = getMobileOrbitMode();
         const desktopOrbitVisibility = Number(orbitMode === "desktop");
         const compactOrbitVisibility = Number(orbitMode === "compact");
-        trackedMaterials.forEach(({ baseOpacity, layer, material }) => {
-          material.opacity = baseOpacity * targets[layer];
+        trackedMaterials.forEach(({ baseOpacity, layer, material, role }) => {
+          const resolvedBaseOpacity = getStackMaterialBaseOpacity(
+            baseOpacity,
+            role,
+            activeStackLayer.value,
+          );
+          material.opacity = resolvedBaseOpacity * targets[layer];
         });
         trackedGroups.forEach((item) => {
           item.scale = getGroupScale(item.layer);
@@ -955,8 +988,13 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           const orbitMode = getMobileOrbitMode();
           const desktopOrbitVisibility = Number(orbitMode === "desktop");
           const compactOrbitVisibility = Number(orbitMode === "compact");
-          trackedMaterials.forEach(({ baseOpacity, layer, material }) => {
-            const targetOpacity = baseOpacity * targets[layer];
+          trackedMaterials.forEach(({ baseOpacity, layer, material, role }) => {
+            const resolvedBaseOpacity = getStackMaterialBaseOpacity(
+              baseOpacity,
+              role,
+              activeStackLayer.value,
+            );
+            const targetOpacity = resolvedBaseOpacity * targets[layer];
             material.opacity += (targetOpacity - material.opacity) * 0.08 * frame;
           });
 

@@ -3,11 +3,29 @@ export type StackVisualLayer = StackBaseLayer | "mobile";
 export type StackLayerTargets = Record<StackBaseLayer, number>;
 export type MobileOrbitId = "outer" | "inner";
 export type MobileOrbitMode = "hidden" | "desktop" | "compact";
+export type StackMaterialRole =
+  | "default"
+  | "core-shell"
+  | "core-lines"
+  | "core-points"
+  | "bridge-stick";
 export type StackPoint3 = {
   x: number;
   y: number;
   z: number;
 };
+
+export function getStackMaterialBaseOpacity(
+  defaultOpacity: number,
+  role: StackMaterialRole,
+  visualLayer: StackVisualLayer,
+) {
+  if (visualLayer !== "bridge") return defaultOpacity;
+  if (role === "core-shell" || role === "core-lines") return 0.22;
+  if (role === "core-points") return 0.8;
+  if (role === "bridge-stick") return 0.7;
+  return defaultOpacity;
+}
 
 export function getStackBridgeAttachmentPoint(
   anchor: StackPoint3,

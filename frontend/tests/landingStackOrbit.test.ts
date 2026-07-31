@@ -19,6 +19,7 @@ import {
   getStackBridgeAttachmentPoint,
   getStackGroupScale,
   getStackLayerTargets,
+  getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
   resolveStackVisualLayer,
 } from "../utils/landingStackOrbit";
@@ -61,6 +62,18 @@ test("separates desktop DevOps labels into four ordered bridge routes", () => {
   assert.deepEqual(routes.map(({ anchor, outerPoint }) => (
     getStackBridgeAttachmentPoint(anchor, outerPoint).y
   )), [0.62465, 0.21182, -0.194248, -0.591006]);
+});
+
+test("balances only DevOps core framing and label sticks", () => {
+  assert.equal(getStackMaterialBaseOpacity(0.18, "default", "bridge"), 0.18);
+  assert.equal(getStackMaterialBaseOpacity(0.28, "core-shell", "bridge"), 0.22);
+  assert.equal(getStackMaterialBaseOpacity(0.46, "core-lines", "bridge"), 0.22);
+  assert.equal(getStackMaterialBaseOpacity(0.96, "core-points", "bridge"), 0.8);
+  assert.equal(getStackMaterialBaseOpacity(0.34, "bridge-stick", "bridge"), 0.7);
+  assert.equal(getStackMaterialBaseOpacity(0.34, "default", "bridge"), 0.34);
+
+  assert.equal(getStackMaterialBaseOpacity(0.28, "core-shell", "core"), 0.28);
+  assert.equal(getStackMaterialBaseOpacity(0.34, "bridge-stick", "surface"), 0.34);
 });
 
 test("maps stack titles to visual states", () => {
