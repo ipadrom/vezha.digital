@@ -339,7 +339,7 @@ export function getStackLayerTargets(
   compactMobile = false,
 ): StackLayerTargets {
   if (layer === "core") return { bridge: 0.16, core: 1, surface: 0.12 };
-  if (layer === "bridge") return { bridge: 1, core: 0.26, surface: 0.26 };
+  if (layer === "bridge") return { bridge: 1, core: 0.1, surface: 0.26 };
   if (layer === "mobile") {
     return {
       bridge: 0.52,

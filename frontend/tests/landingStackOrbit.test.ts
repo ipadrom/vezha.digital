@@ -83,6 +83,14 @@ test("maps stack titles to visual states", () => {
   assert.equal(resolveStackVisualLayer("Mobile"), "mobile");
 });
 
+test("dims the DevOps core to the same layer target used by Frontend", () => {
+  assert.deepEqual(getStackLayerTargets("bridge"), {
+    bridge: 1,
+    core: 0.1,
+    surface: 0.26,
+  });
+});
+
 test("keeps the desktop Mobile layers at their existing emphasis", () => {
   assert.deepEqual(getStackLayerTargets("mobile"), {
     bridge: 0.52,
