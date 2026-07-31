@@ -53,9 +53,14 @@ test("separates desktop DevOps labels into four ordered bridge routes", () => {
     -0.22,
     -0.68,
   ]);
+  assert.deepEqual(routes.map(({ anchor }) => Number(Math.hypot(
+    anchor.x,
+    anchor.y,
+    anchor.z,
+  ).toFixed(6))), [0.690654, 0.690654, 0.690654, 0.690654]);
   assert.deepEqual(routes.map(({ anchor, outerPoint }) => (
     getStackBridgeAttachmentPoint(anchor, outerPoint).y
-  )), [0.6696, 0.2232, -0.2046, -0.6324]);
+  )), [0.62465, 0.21182, -0.194248, -0.591006]);
 });
 
 test("maps stack titles to visual states", () => {

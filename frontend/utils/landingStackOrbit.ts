@@ -41,18 +41,21 @@ export function getDesktopDevOpsBridgeRoute(
   const y = DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS[label];
   const directionX = Math.cos(angle);
   const directionZ = Math.sin(angle);
+  const outerPoint = {
+    x: directionX * 1.28,
+    y,
+    z: directionZ * 1.2,
+  };
+  const outerRadius = Math.hypot(outerPoint.x, outerPoint.y, outerPoint.z);
+  const anchorScale = 0.690654 / outerRadius;
 
   return {
     anchor: {
-      x: directionX * 0.82,
-      y: y * 0.72,
-      z: directionZ * 0.78,
+      x: outerPoint.x * anchorScale,
+      y: outerPoint.y * anchorScale,
+      z: outerPoint.z * anchorScale,
     },
-    outerPoint: {
-      x: directionX * 1.28,
-      y,
-      z: directionZ * 1.2,
-    },
+    outerPoint,
   };
 }
 
