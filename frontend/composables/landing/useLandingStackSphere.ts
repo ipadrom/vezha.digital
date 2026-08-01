@@ -13,7 +13,6 @@ import {
   MOBILE_ORBIT_TRACKS,
   advanceBackendStackLabelClock,
   getContinuousOrbitElapsed,
-  getCompactMobileCoreRotation,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
@@ -229,8 +228,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       rootGroup.rotation.set(-0.16, -0.4, 0.08);
       const desktopOrbitRoot = new THREE.Group();
       desktopOrbitRoot.rotation.copy(rootGroup.rotation);
+      const compactOrbitRoot = new THREE.Group();
+      compactOrbitRoot.rotation.copy(rootGroup.rotation);
       const desktopLabelRoutesGroup = new THREE.Group();
-      scene.add(rootGroup, desktopOrbitRoot, desktopLabelRoutesGroup);
+      scene.add(rootGroup, desktopOrbitRoot, compactOrbitRoot, desktopLabelRoutesGroup);
 
       const surfaceGroup = new THREE.Group();
       const bridgeGroup = new THREE.Group();
@@ -255,12 +256,14 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         bridgeGroup,
         surfaceGroup,
         coreGroup,
-        compactOrbitGroups.outer,
-        compactOrbitGroups.inner,
       );
       desktopOrbitRoot.add(
         desktopOrbitGroups.outer,
         desktopOrbitGroups.inner,
+      );
+      compactOrbitRoot.add(
+        compactOrbitGroups.outer,
+        compactOrbitGroups.inner,
       );
 
       const trackedGroups = [
@@ -852,7 +855,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       };
 
       const updateMobileCoreBelt = (elapsedMs: number) => {
-        const visible = getMobileOrbitMode() !== "hidden";
+        const mode = getMobileOrbitMode();
+        const visible = mode !== "hidden";
+        const beltElapsedMs = mode === "compact" ? 0 : elapsedMs;
         rootGroup.updateMatrixWorld(true);
         const coreScale = coreGroup.scale.x;
         const coreCenter = new THREE.Vector3();
@@ -867,12 +872,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           const point = getDesktopMobileCoreBeltPoint(
             index,
             mobileCoreBeltGlyphs.length,
-            elapsedMs,
+            beltElapsedMs,
           );
           const tangentPoint = getDesktopMobileCoreBeltPoint(
             index + 0.08,
             mobileCoreBeltGlyphs.length,
-            elapsedMs,
+            beltElapsedMs,
           );
           const world = new THREE.Vector3(point.x, point.y, point.z)
             .multiplyScalar(coreScale);
@@ -1371,11 +1376,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
           if (orbitMode === "compact") {
             const targetRotation = getCompactMobileRootRotation(now);
-            const driftEase = 0.035 * frame;
-            rootGroup.rotation.x += (targetRotation.x - rootGroup.rotation.x) * driftEase;
-            rootGroup.rotation.y += (targetRotation.y - rootGroup.rotation.y) * driftEase;
-            rootGroup.rotation.z += (targetRotation.z - rootGroup.rotation.z) * driftEase;
-            coreGroup.rotation.y = getCompactMobileCoreRotation(now);
+            rootGroup.rotation.set(
+              targetRotation.x,
+              targetRotation.y,
+              targetRotation.z,
+            );
+            coreGroup.rotation.y = 0;
           } else {
             rootGroup.rotation.y += 0.0022 * frame;
             rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;

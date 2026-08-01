@@ -648,9 +648,9 @@ export function getStackLabelHorizontalOpacity(
 
 export function getCompactMobileRootRotation(elapsedMs: number) {
   return {
-    x: -0.16 + Math.sin(elapsedMs * 0.00005) * 0.012,
-    y: -0.4 + Math.sin(elapsedMs * 0.00004) * 0.01,
-    z: 0.08 + Math.sin(elapsedMs * 0.000035) * 0.008,
+    x: -0.16 + Math.sin(elapsedMs * 0.00022) * 0.08,
+    y: -0.4 + getCompactMobileCoreRotation(elapsedMs),
+    z: 0.08 + Math.sin(elapsedMs * 0.00018 + 1.2) * 0.045,
   };
 }
 

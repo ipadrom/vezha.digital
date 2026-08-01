@@ -353,19 +353,36 @@ test("slightly enlarges only the mobile viewport Backend core", () => {
   assert.equal(getStackGroupScale("core", "core", false, false), 1.4);
 });
 
-test("keeps compact Mobile root drift slow and tightly bounded", () => {
-  assert.deepEqual(getCompactMobileRootRotation(0), {
-    x: -0.16,
-    y: -0.4,
-    z: 0.08,
-  });
+test("rotates compact Mobile sticks through a desktop-style full turn", () => {
+  const start = getCompactMobileRootRotation(0);
+  const quarterTurn = getCompactMobileRootRotation(11_000);
+  const fullTurn = getCompactMobileRootRotation(44_000);
 
-  for (let elapsedMs = 0; elapsedMs <= 360_000; elapsedMs += 10_000) {
+  assert.equal(start.y, -0.4);
+  assert.equal(quarterTurn.y, -0.4 + Math.PI / 2);
+  assert.equal(fullTurn.y, -0.4 + Math.PI * 2);
+
+  for (let elapsedMs = 0; elapsedMs <= 44_000; elapsedMs += 2_000) {
     const rotation = getCompactMobileRootRotation(elapsedMs);
-    assert.ok(rotation.x >= -0.172 && rotation.x <= -0.148);
-    assert.ok(rotation.y >= -0.41 && rotation.y <= -0.39);
-    assert.ok(rotation.z >= 0.072 && rotation.z <= 0.088);
+    assert.ok(rotation.x >= -0.24 && rotation.x <= -0.08);
+    assert.ok(rotation.z >= 0.035 && rotation.z <= 0.125);
   }
+});
+
+test("keeps compact Mobile orbit tracks outside the rotating stick group", () => {
+  const sphereSource = readFileSync(
+    "composables/landing/useLandingStackSphere.ts",
+    "utf8",
+  );
+
+  assert.match(
+    sphereSource,
+    /scene\.add\(rootGroup,\s*desktopOrbitRoot,\s*compactOrbitRoot,\s*desktopLabelRoutesGroup\);/s,
+  );
+  assert.match(
+    sphereSource,
+    /compactOrbitRoot\.add\(\s*compactOrbitGroups\.outer,\s*compactOrbitGroups\.inner,\s*\);/s,
+  );
 });
 
 test("resolves compact orbit mode only for Mobile at the 900px boundary", () => {
