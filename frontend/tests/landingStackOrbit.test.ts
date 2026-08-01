@@ -10,7 +10,7 @@ import {
   MOBILE_ORBIT_TECH,
   advanceBackendStackLabelClock,
   doMobileLabelBoundsOverlap,
-  getCollisionSafeOrbitElapsed,
+  getContinuousOrbitElapsed,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
@@ -28,6 +28,7 @@ import {
   getStackBridgeAttachmentPoint,
   getStackGroupScale,
   getStackLayerTargets,
+  getStackLabelHorizontalOpacity,
   getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
   resolveStackVisualLayer,
@@ -261,9 +262,16 @@ test("detects projected Mobile label conflicts symmetrically", () => {
   assert.equal(doMobileLabelBoundsOverlap(first, separated, 8), false);
 });
 
-test("retains the inner orbit phase while a projected conflict is blocked", () => {
-  assert.equal(getCollisionSafeOrbitElapsed(10_000, 16.67, true), 10_000);
-  assert.equal(getCollisionSafeOrbitElapsed(10_000, 16.67, false), 10_016.67);
+test("keeps both desktop Mobile orbit clocks moving continuously", () => {
+  assert.equal(getContinuousOrbitElapsed(10_000, 16.67), 10_016.67);
+  assert.equal(getContinuousOrbitElapsed(10_000, -16.67), 10_000);
+});
+
+test("keeps Mobile labels visible at both viewport boundaries", () => {
+  assert.equal(getStackLabelHorizontalOpacity("mobile", -1.2), 1);
+  assert.equal(getStackLabelHorizontalOpacity("mobile", 0), 1);
+  assert.equal(getStackLabelHorizontalOpacity("mobile", 1.2), 1);
+  assert.equal(getStackLabelHorizontalOpacity("surface", 0.9), 0);
 });
 
 test("slightly enlarges only the mobile viewport Backend core", () => {

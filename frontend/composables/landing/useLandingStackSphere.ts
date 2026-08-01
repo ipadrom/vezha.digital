@@ -9,8 +9,7 @@ import {
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
   advanceBackendStackLabelClock,
-  doMobileLabelBoundsOverlap,
-  getCollisionSafeOrbitElapsed,
+  getContinuousOrbitElapsed,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
@@ -26,6 +25,7 @@ import {
   getStackBridgeAttachmentPoint,
   getStackGroupScale,
   getStackLayerTargets,
+  getStackLabelHorizontalOpacity,
   getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
   shouldUseStackBridgeAttachment,
@@ -783,7 +783,6 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         outer: 0,
         inner: 0,
       };
-      let desktopInnerOrbitSpeed = 1;
       const updateMobileLabelPoints = (elapsedMs: number) => {
         const mode = getMobileOrbitMode();
         mobileLabelPoints.forEach((item) => {
@@ -800,78 +799,15 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         });
       };
 
-      const hasDesktopMobileLabelConflict = (
-        outerElapsedMs: number,
-        innerElapsedMs: number,
-      ) => {
-        rootGroup.updateMatrixWorld(true);
-        desktopOrbitRoot.updateMatrixWorld(true);
-        camera.updateMatrixWorld(true);
-        const width = Math.max(1, host.clientWidth);
-        const height = Math.max(1, host.clientHeight);
-        const projected = mobileLabelPoints.map((item) => {
-          const orbitElapsedMs = item.orbit === "outer"
-            ? outerElapsedMs
-            : innerElapsedMs;
-          const point = getDesktopMobileTechnologyPoint(item, orbitElapsedMs);
-          const world = new THREE.Vector3(point.x, point.y, point.z);
-          desktopOrbitGroups[item.orbit].localToWorld(world);
-          const screen = world.clone().project(camera);
-          const depthStyle = getDesktopMobileLabelDepthStyle(world.z);
-
-          return {
-            bounds: {
-              centerX: (screen.x * 0.5 + 0.5) * width,
-              centerY: (-screen.y * 0.5 + 0.5) * height,
-              height: (item.element.offsetHeight || 30) * depthStyle.scale,
-              width: (item.element.offsetWidth || 96) * depthStyle.scale,
-            },
-            orbit: item.orbit,
-          };
-        });
-        const outerLabels = projected.filter(({ orbit }) => orbit === "outer");
-        const innerLabels = projected.filter(({ orbit }) => orbit === "inner");
-
-        return outerLabels.some((outer) => innerLabels.some((inner) => (
-          doMobileLabelBoundsOverlap(outer.bounds, inner.bounds, 8)
-        )));
-      };
-
-      const advanceDesktopMobileOrbits = (deltaMs: number, frame: number) => {
-        const nextOuterElapsedMs = getCollisionSafeOrbitElapsed(
+      const advanceDesktopMobileOrbits = (deltaMs: number) => {
+        desktopOrbitElapsedMs.outer = getContinuousOrbitElapsed(
           desktopOrbitElapsedMs.outer,
           deltaMs,
-          false,
         );
-        const lookAheadMs = 500;
-        const imminentConflict = hasDesktopMobileLabelConflict(
-          nextOuterElapsedMs + lookAheadMs,
-          desktopOrbitElapsedMs.inner + deltaMs + lookAheadMs,
-        );
-        const targetSpeed = imminentConflict ? 0 : 1;
-        const speedEase = (imminentConflict ? 0.14 : 0.055) * frame;
-        desktopInnerOrbitSpeed += (
-          targetSpeed - desktopInnerOrbitSpeed
-        ) * Math.min(1, speedEase);
-
-        const requestedInnerDeltaMs = deltaMs * desktopInnerOrbitSpeed;
-        const nextInnerElapsedMs = getCollisionSafeOrbitElapsed(
+        desktopOrbitElapsedMs.inner = getContinuousOrbitElapsed(
           desktopOrbitElapsedMs.inner,
-          requestedInnerDeltaMs,
-          false,
+          deltaMs,
         );
-        const blocked = hasDesktopMobileLabelConflict(
-          nextOuterElapsedMs,
-          nextInnerElapsedMs,
-        );
-
-        desktopOrbitElapsedMs.outer = nextOuterElapsedMs;
-        desktopOrbitElapsedMs.inner = getCollisionSafeOrbitElapsed(
-          desktopOrbitElapsedMs.inner,
-          requestedInnerDeltaMs,
-          blocked,
-        );
-        if (blocked) desktopInnerOrbitSpeed = 0;
       };
 
       const fadeRange = (value: number, from: number, to: number) => clampValue((value - from) / (to - from), 0, 1);
@@ -1080,12 +1016,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           const x = (projected.x * 0.5 + 0.5) * width;
           const y = (-projected.y * 0.5 + 0.5) * height;
           const isSurfaceLabel = item.layer === "surface";
-          const leftFade = isSurfaceLabel
-            ? fadeRange(projected.x, -0.96, -0.89)
-            : fadeRange(projected.x, -0.96, -0.84);
-          const rightFade = isSurfaceLabel
-            ? 1 - fadeRange(projected.x, 0.79, 0.86)
-            : 1 - fadeRange(projected.x, 0.72, 0.86);
+          const horizontalOpacity = getStackLabelHorizontalOpacity(
+            item.layer,
+            projected.x,
+          );
           const mobileDepthStyle = item.layer === "mobile"
             ? compactMobile
               ? getMobileLabelDepthStyle(world.z)
@@ -1106,7 +1040,11 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             ))
             ? 1
             : 0;
-          const opacity = clampValue(layerVisibility * pairVisibility * leftFade * rightFade * frontFade, 0, 1);
+          const opacity = clampValue(
+            layerVisibility * pairVisibility * horizontalOpacity * frontFade,
+            0,
+            1,
+          );
           const scale = mobileDepthStyle?.scale ?? 0.78 + frontFade * 0.18;
 
           return {
@@ -1293,7 +1231,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             material.opacity += (targetOpacity - material.opacity) * 0.1 * frame;
           });
           if (orbitMode === "desktop") {
-            advanceDesktopMobileOrbits(frame * 16.67, frame);
+            advanceDesktopMobileOrbits(frame * 16.67);
             updateMobileLabelPoints(now);
           } else if (orbitMode === "compact") {
             updateMobileLabelPoints(now);

@@ -524,12 +524,11 @@ export function getDesktopMobileOrbitPoint(
   };
 }
 
-export function getCollisionSafeOrbitElapsed(
+export function getContinuousOrbitElapsed(
   currentMs: number,
   deltaMs: number,
-  blocked: boolean,
 ) {
-  return blocked ? currentMs : currentMs + Math.max(0, deltaMs);
+  return currentMs + Math.max(0, deltaMs);
 }
 
 export function doMobileLabelBoundsOverlap(
@@ -585,6 +584,26 @@ export function getDesktopMobileLabelDepthStyle(worldZ: number) {
     opacity: Number((0.42 + depth * 0.58).toFixed(3)),
     scale: Number((0.84 + depth * 0.16).toFixed(3)),
   };
+}
+
+export function getStackLabelHorizontalOpacity(
+  layer: StackVisualLayer,
+  projectedX: number,
+) {
+  if (layer === "mobile") return 1;
+
+  const fadeRange = (value: number, start: number, end: number) => (
+    Math.max(0, Math.min(1, (value - start) / (end - start)))
+  );
+  const isSurfaceLabel = layer === "surface";
+  const leftFade = isSurfaceLabel
+    ? fadeRange(projectedX, -0.96, -0.89)
+    : fadeRange(projectedX, -0.96, -0.84);
+  const rightFade = isSurfaceLabel
+    ? 1 - fadeRange(projectedX, 0.79, 0.86)
+    : 1 - fadeRange(projectedX, 0.72, 0.86);
+
+  return leftFade * rightFade;
 }
 
 export function getCompactMobileRootRotation(elapsedMs: number) {
