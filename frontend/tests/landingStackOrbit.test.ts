@@ -283,7 +283,7 @@ test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () =>
   );
   assert.deepEqual(
     getDesktopMobileCoreBeltPoint(0, glyphCount, 5_500),
-    { x: 0, y: 0, z: 0.84 },
+    { x: 0, y: 0, z: -0.84 },
   );
 });
 
