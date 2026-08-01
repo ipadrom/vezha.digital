@@ -539,7 +539,7 @@ export function getDesktopMobileCoreBeltPoint(
 ) {
   const safeGlyphCount = Math.max(1, glyphCount);
   const angle = -(glyphIndex / safeGlyphCount) * Math.PI * 2
-    - (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+    + (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
   const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
   const normalizedZ = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);
 
@@ -649,13 +649,23 @@ export function getStackLabelHorizontalOpacity(
 export function getCompactMobileRootRotation(elapsedMs: number) {
   return {
     x: -0.16 + Math.sin(elapsedMs * 0.00022) * 0.08,
-    y: -0.4 + getCompactMobileCoreRotation(elapsedMs),
+    y: -0.4 - getCompactMobileCoreRotation(elapsedMs),
     z: 0.08 + Math.sin(elapsedMs * 0.00018 + 1.2) * 0.045,
   };
 }
 
 export function getCompactMobileCoreRotation(elapsedMs: number) {
   return (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+}
+
+export function getStackRootRotationDelta(
+  orbitMode: MobileOrbitMode,
+  frame: number,
+) {
+  const safeFrame = Math.max(0, frame);
+  if (safeFrame === 0) return 0;
+  const direction = orbitMode === "desktop" ? -1 : 1;
+  return direction * 0.0022 * safeFrame;
 }
 
 export function getSmoothedMobileLabelCollisionOffset(

@@ -34,6 +34,7 @@ import {
   getStackLayerTargets,
   getStackLabelHorizontalOpacity,
   getStackMaterialBaseOpacity,
+  getStackRootRotationDelta,
   resolveMobileOrbitMode,
   shouldUseStackBridgeAttachment,
   shouldUseDesktopStackLatitudeRoutes,
@@ -1383,7 +1384,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             );
             coreGroup.rotation.y = 0;
           } else {
-            rootGroup.rotation.y += 0.0022 * frame;
+            rootGroup.rotation.y += getStackRootRotationDelta(orbitMode, frame);
             rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
             rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
             coreGroup.rotation.y += (0 - coreGroup.rotation.y) * 0.08 * frame;

@@ -41,6 +41,7 @@ import {
   getStackLayerTargets,
   getStackLabelHorizontalOpacity,
   getStackMaterialBaseOpacity,
+  getStackRootRotationDelta,
   resolveMobileOrbitMode,
   resolveStackVisualLayer,
   shouldUseStackBridgeAttachment,
@@ -320,7 +321,7 @@ test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () =>
   );
   assert.deepEqual(
     getDesktopMobileCoreBeltPoint(0, glyphCount, 11_000),
-    { x: 0, y: -0.07, z: -0.84 },
+    { x: 0, y: -0.07, z: 0.84 },
   );
   assert.equal(DESKTOP_MOBILE_CORE_BELT_DURATION_MS, 44_000);
   assert.equal(DESKTOP_MOBILE_CORE_BELT_Z_INDEX, 40);
@@ -359,14 +360,20 @@ test("rotates compact Mobile sticks through a desktop-style full turn", () => {
   const fullTurn = getCompactMobileRootRotation(44_000);
 
   assert.equal(start.y, -0.4);
-  assert.equal(quarterTurn.y, -0.4 + Math.PI / 2);
-  assert.equal(fullTurn.y, -0.4 + Math.PI * 2);
+  assert.equal(quarterTurn.y, -0.4 - Math.PI / 2);
+  assert.equal(fullTurn.y, -0.4 - Math.PI * 2);
 
   for (let elapsedMs = 0; elapsedMs <= 44_000; elapsedMs += 2_000) {
     const rotation = getCompactMobileRootRotation(elapsedMs);
     assert.ok(rotation.x >= -0.24 && rotation.x <= -0.08);
     assert.ok(rotation.z >= 0.035 && rotation.z <= 0.125);
   }
+});
+
+test("reverses only the desktop Mobile planet rotation", () => {
+  assert.equal(getStackRootRotationDelta("desktop", 1), -0.0022);
+  assert.equal(getStackRootRotationDelta("hidden", 1), 0.0022);
+  assert.equal(getStackRootRotationDelta("desktop", -1), 0);
 });
 
 test("keeps compact Mobile orbit tracks outside the rotating stick group", () => {
