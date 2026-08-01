@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_MOBILE_CORE_BELT_TEXT,
+  DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
   DESKTOP_MOBILE_ORBIT_TRACKS,
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
@@ -16,6 +17,7 @@ import {
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
+  getDesktopMobileLabelLiftPx,
   getDesktopMobileCoreBeltPoint,
   getDesktopMobileOrbitAngle,
   getDesktopMobileOrbitPoint,
@@ -258,6 +260,13 @@ test("keeps desktop Mobile labels fully visible at every depth", () => {
     opacity: 1,
     scale: 1,
   });
+});
+
+test("lifts desktop Mobile labels above a small monochrome orbit anchor", () => {
+  assert.equal(getDesktopMobileLabelLiftPx("mobile", false), 14);
+  assert.equal(getDesktopMobileLabelLiftPx("mobile", true), 0);
+  assert.equal(getDesktopMobileLabelLiftPx("surface", false), 0);
+  assert.equal(DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS, 0.055);
 });
 
 test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () => {

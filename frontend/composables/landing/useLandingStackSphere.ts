@@ -2,6 +2,7 @@ import { watch, type ComputedRef, type Ref } from "vue";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_MOBILE_CORE_BELT_TEXT,
+  DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
   DESKTOP_MOBILE_ORBIT_TRACKS,
   DESKTOP_STACK_LABEL_FADE_IN_PORTION,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
@@ -15,6 +16,7 @@ import {
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
+  getDesktopMobileLabelLiftPx,
   getDesktopMobileCoreBeltPoint,
   getDesktopMobileOrbitPoint,
   getDesktopMobileTechnologyPoint,
@@ -555,12 +557,30 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         "position",
         new THREE.Float32BufferAttribute(mobileBridgeStickPositions, 3),
       );
+      const desktopMobileAnchorGeometry = new THREE.IcosahedronGeometry(
+        DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
+        1,
+      );
+      const desktopMobileAnchorMaterial = new THREE.MeshBasicMaterial({
+        color: 0x303741,
+        depthTest: false,
+        depthWrite: false,
+        opacity: 0.68,
+        transparent: true,
+        wireframe: true,
+      });
+      geometries.push(desktopMobileAnchorGeometry);
+      orbitMaterials.push(desktopMobileAnchorMaterial);
       const mobileLabelPoints = MOBILE_ORBIT_TECH.map((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
         const image = document.createElement("img");
         const text = document.createElement("span");
         const orbitPoint = getDesktopMobileTechnologyPoint(spec, 0);
+        const desktopAnchorMesh = new THREE.Mesh(
+          desktopMobileAnchorGeometry,
+          desktopMobileAnchorMaterial,
+        );
 
         element.className = "vz-stack__sphere-label vz-stack__sphere-label--mobile";
         element.dataset.orbit = spec.orbit;
@@ -573,6 +593,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         text.textContent = spec.label;
         element.append(icon, text);
         labelLayer.appendChild(element);
+        desktopAnchorMesh.position.set(orbitPoint.x, orbitPoint.y, orbitPoint.z);
+        desktopAnchorMesh.renderOrder = 14;
+        desktopAnchorMesh.visible = false;
+        desktopOrbitGroups[spec.orbit].add(desktopAnchorMesh);
 
         return {
           desktopRouteCount: MOBILE_ORBIT_TECH.length,
@@ -584,6 +608,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           orbit: spec.orbit,
           phase: spec.phase,
           desktopPhase: spec.desktopPhase,
+          desktopAnchorMesh,
           radiusScale: spec.radiusScale,
           projectionGroup: desktopOrbitGroups[spec.orbit],
         };
@@ -799,6 +824,8 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
                 desktopOrbitElapsedMs,
               );
           item.point.set(point.x, point.y, point.z);
+          item.desktopAnchorMesh.position.copy(item.point);
+          item.desktopAnchorMesh.visible = mode === "desktop";
           item.projectionGroup = mode === "compact"
             ? compactOrbitGroups[item.orbit]
             : desktopOrbitGroups[item.orbit];
@@ -865,6 +892,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         rootGroup.updateMatrixWorld(true);
         desktopOrbitRoot.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
+        mobileLabelPoints.forEach((item) => {
+          item.desktopAnchorMesh.visible = getMobileOrbitMode() === "desktop";
+        });
         updateMobileCoreBelt(elapsedMs);
 
         const projectLatitudeLabel = (
@@ -1062,7 +1092,8 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           }
           const projected = world.clone().project(camera);
           const x = (projected.x * 0.5 + 0.5) * width;
-          const y = (-projected.y * 0.5 + 0.5) * height;
+          const y = (-projected.y * 0.5 + 0.5) * height
+            - getDesktopMobileLabelLiftPx(item.layer, compactMobile);
           const isSurfaceLabel = item.layer === "surface";
           const horizontalOpacity = getStackLabelHorizontalOpacity(
             item.layer,

@@ -196,6 +196,8 @@ export const DESKTOP_MOBILE_ORBIT_TRACKS = {
 export const DESKTOP_MOBILE_CORE_BELT_TEXT = "VEZHA DIGITAL • VEZHA DIGITAL • ";
 export const DESKTOP_MOBILE_CORE_BELT_DURATION_MS = 22_000;
 const DESKTOP_MOBILE_CORE_BELT_RADIUS = 0.84;
+export const DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS = 0.055;
+const DESKTOP_MOBILE_LABEL_LIFT_PX = 14;
 
 export const MOBILE_ORBIT_TECH = [
   {
@@ -606,6 +608,15 @@ export function getDesktopMobileLabelDepthStyle(_worldZ: number) {
     opacity: 1,
     scale: 1,
   };
+}
+
+export function getDesktopMobileLabelLiftPx(
+  layer: StackVisualLayer,
+  compactMobile: boolean,
+) {
+  return layer === "mobile" && !compactMobile
+    ? DESKTOP_MOBILE_LABEL_LIFT_PX
+    : 0;
 }
 
 export function getStackLabelHorizontalOpacity(
