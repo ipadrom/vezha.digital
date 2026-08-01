@@ -544,7 +544,7 @@ export function getDesktopMobileCoreBeltPoint(
 
   return {
     x: Number((normalizedX * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
-    y: 0,
+    y: -0.14,
     z: Number((normalizedZ * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
   };
 }
