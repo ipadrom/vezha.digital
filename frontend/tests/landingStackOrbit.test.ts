@@ -128,11 +128,11 @@ test("dims the DevOps core to the same layer target used by Frontend", () => {
   });
 });
 
-test("keeps the desktop Mobile layers at their existing emphasis", () => {
+test("hides the Frontend shell in desktop Mobile", () => {
   assert.deepEqual(getStackLayerTargets("mobile"), {
     bridge: 0.52,
     core: 0.48,
-    surface: 0.58,
+    surface: 0,
   });
 });
 
@@ -161,7 +161,7 @@ test("advances the slower tracks in opposite directions", () => {
   assert.equal(getMobileOrbitAngle(0, "outer", Math.PI), Math.PI);
 });
 
-test("uses compact-only Mobile shell opacity and core scale", () => {
+test("uses the hidden shell at both Mobile viewport sizes", () => {
   assert.deepEqual(getStackLayerTargets("mobile", true), {
     bridge: 0.52,
     core: 0.48,
@@ -170,10 +170,10 @@ test("uses compact-only Mobile shell opacity and core scale", () => {
   assert.deepEqual(getStackLayerTargets("mobile", false), {
     bridge: 0.52,
     core: 0.48,
-    surface: 0.58,
+    surface: 0,
   });
   assert.equal(getStackGroupScale("core", "mobile", true), 0.5);
-  assert.equal(getStackGroupScale("core", "mobile", false), 1.192);
+  assert.equal(getStackGroupScale("core", "mobile", false), 0.596);
 });
 
 test("moves desktop Mobile pairs on two slow counter-rotating orbits", () => {
@@ -206,7 +206,7 @@ test("moves desktop Mobile pairs on two slow counter-rotating orbits", () => {
 
 test("keeps desktop Mobile labels on orbit paths that fit the sphere viewport", () => {
   assert.deepEqual(getDesktopMobileOrbitPoint(0, "outer"), {
-    x: 1.48,
+    x: 1.7,
     y: 0,
     z: 0,
   });
@@ -216,7 +216,7 @@ test("keeps desktop Mobile labels on orbit paths that fit the sphere viewport", 
     z: 0,
   });
   assert.deepEqual(getDesktopMobileOrbitPoint(0, "inner"), {
-    x: 1.14,
+    x: 1.38,
     y: 0,
     z: 0,
   });

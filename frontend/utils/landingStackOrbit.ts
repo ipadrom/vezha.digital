@@ -180,14 +180,14 @@ export const DESKTOP_MOBILE_ORBIT_TRACKS = {
   outer: {
     direction: 1,
     durationMs: 36_000,
-    radiusX: 1.48,
+    radiusX: 1.7,
     radiusY: 0.92,
     rotation: [1.02, 0.28, -0.22],
   },
   inner: {
     direction: -1,
     durationMs: 28_000,
-    radiusX: 1.14,
+    radiusX: 1.38,
     radiusY: 0.72,
     rotation: [0.82, -0.38, 0.62],
   },
@@ -440,7 +440,7 @@ export function getStackLayerTargets(
     return {
       bridge: 0.52,
       core: 0.48,
-      surface: compactMobile ? 0 : 0.58,
+      surface: 0,
     };
   }
   return { bridge: 0.16, core: 0.1, surface: 1 };
@@ -453,6 +453,7 @@ export function getStackGroupScale(
   mobileViewport = false,
 ) {
   if (compactMobile && visualLayer === "mobile" && layer === "core") return 0.5;
+  if (!compactMobile && visualLayer === "mobile" && layer === "core") return 0.596;
   if (mobileViewport && visualLayer === "core" && layer === "core") return 1.52;
   const target = getStackLayerTargets(visualLayer, compactMobile)[layer];
   return layer === "core" ? 1 + target * 0.4 : 1 + target * 0.055;
