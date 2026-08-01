@@ -218,8 +218,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
       const rootGroup = new THREE.Group();
       rootGroup.rotation.set(-0.16, -0.4, 0.08);
+      const desktopOrbitRoot = new THREE.Group();
+      desktopOrbitRoot.rotation.copy(rootGroup.rotation);
       const desktopLabelRoutesGroup = new THREE.Group();
-      scene.add(rootGroup, desktopLabelRoutesGroup);
+      scene.add(rootGroup, desktopOrbitRoot, desktopLabelRoutesGroup);
 
       const surfaceGroup = new THREE.Group();
       const bridgeGroup = new THREE.Group();
@@ -244,10 +246,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         bridgeGroup,
         surfaceGroup,
         coreGroup,
-        desktopOrbitGroups.outer,
-        desktopOrbitGroups.inner,
         compactOrbitGroups.outer,
         compactOrbitGroups.inner,
+      );
+      desktopOrbitRoot.add(
+        desktopOrbitGroups.outer,
+        desktopOrbitGroups.inner,
       );
 
       const trackedGroups = [
@@ -801,6 +805,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         innerElapsedMs: number,
       ) => {
         rootGroup.updateMatrixWorld(true);
+        desktopOrbitRoot.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
@@ -875,6 +880,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         const height = Math.max(1, host.clientHeight);
         const compactMobile = isCompactMobile();
         rootGroup.updateMatrixWorld(true);
+        desktopOrbitRoot.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
 
         const projectLatitudeLabel = (
