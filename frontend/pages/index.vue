@@ -5240,7 +5240,10 @@ useHead(() => ({
   }
 
   .vz-stack__sphere-label--mobile {
-    font-size: 0.92em;
+    min-width: 82px;
+    height: 32px;
+    padding-inline: 9px 11px;
+    font-size: 12px;
   }
 
   .vz-stack__timeline {
