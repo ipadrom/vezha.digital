@@ -5230,9 +5230,9 @@ useHead(() => ({
   }
 
   .vz-stack__sphere {
-    --stack-sphere-size: min(108vw, 430px);
+    --stack-sphere-size: min(78vw, 330px);
     position: absolute;
-    top: 0;
+    top: clamp(-30px, -7vw, -20px);
     left: 50%;
     display: block;
     width: var(--stack-sphere-size);
