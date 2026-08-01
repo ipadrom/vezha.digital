@@ -4356,7 +4356,7 @@ useHead(() => ({
   left: 0;
   color: var(--ink);
   font-family: var(--font-mono, monospace);
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.04em;

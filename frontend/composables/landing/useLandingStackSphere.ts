@@ -559,13 +559,13 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       );
       const desktopMobileAnchorGeometry = new THREE.IcosahedronGeometry(
         DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
-        1,
+        0,
       );
       const desktopMobileAnchorMaterial = new THREE.MeshBasicMaterial({
         color: 0x303741,
         depthTest: false,
         depthWrite: false,
-        opacity: 0.68,
+        opacity: 0.3,
         transparent: true,
         wireframe: true,
       });

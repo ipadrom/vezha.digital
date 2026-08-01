@@ -197,7 +197,7 @@ export const DESKTOP_MOBILE_CORE_BELT_TEXT = "VEZHA DIGITAL â€¢ VEZHA DIGITAL â€
 export const DESKTOP_MOBILE_CORE_BELT_DURATION_MS = 22_000;
 const DESKTOP_MOBILE_CORE_BELT_RADIUS = 0.84;
 export const DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS = 0.055;
-const DESKTOP_MOBILE_LABEL_LIFT_PX = 14;
+const DESKTOP_MOBILE_LABEL_LIFT_PX = 28;
 
 export const MOBILE_ORBIT_TECH = [
   {
@@ -537,7 +537,7 @@ export function getDesktopMobileCoreBeltPoint(
   elapsedMs: number,
 ) {
   const safeGlyphCount = Math.max(1, glyphCount);
-  const angle = (glyphIndex / safeGlyphCount) * Math.PI * 2
+  const angle = -(glyphIndex / safeGlyphCount) * Math.PI * 2
     + (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
   const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
   const normalizedZ = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);

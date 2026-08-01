@@ -263,7 +263,7 @@ test("keeps desktop Mobile labels fully visible at every depth", () => {
 });
 
 test("lifts desktop Mobile labels above a small monochrome orbit anchor", () => {
-  assert.equal(getDesktopMobileLabelLiftPx("mobile", false), 14);
+  assert.equal(getDesktopMobileLabelLiftPx("mobile", false), 28);
   assert.equal(getDesktopMobileLabelLiftPx("mobile", true), 0);
   assert.equal(getDesktopMobileLabelLiftPx("surface", false), 0);
   assert.equal(DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS, 0.055);
@@ -279,7 +279,7 @@ test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () =>
   });
   assert.deepEqual(
     getDesktopMobileCoreBeltPoint(glyphCount / 4, glyphCount, 0),
-    { x: 0, y: 0, z: 0.84 },
+    { x: 0, y: 0, z: -0.84 },
   );
   assert.deepEqual(
     getDesktopMobileCoreBeltPoint(0, glyphCount, 5_500),
