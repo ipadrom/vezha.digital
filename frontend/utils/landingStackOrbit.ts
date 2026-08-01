@@ -200,50 +200,65 @@ const DESKTOP_MOBILE_CORE_BELT_RADIUS = 0.84;
 export const DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS = 0.055;
 const DESKTOP_MOBILE_LABEL_LIFT_PX = 28;
 
+const outerBasePhase = 2.5;
+const outerPhaseStep = Math.PI * 2 / 3;
+const innerBasePhase = 2.5 + Math.PI / 4;
+
 export const MOBILE_ORBIT_TECH = [
   {
-    angle: 2.5,
-    color: "#61DAFB",
-    desktopPhase: 2.5,
-    label: "React Native",
+    angle: outerBasePhase,
+    color: "#7F52FF",
+    desktopPhase: outerBasePhase,
+    label: "Kotlin",
     orbit: "outer",
-    phase: 2.5,
+    phase: outerBasePhase,
     placement: "orbit",
     radiusScale: 1,
-    slug: "react",
+    slug: "kotlin",
   },
   {
-    angle: 0.9,
+    angle: outerBasePhase + outerPhaseStep,
+    color: "#F05138",
+    desktopPhase: outerBasePhase + outerPhaseStep,
+    label: "Swift",
+    orbit: "outer",
+    phase: outerBasePhase + outerPhaseStep,
+    placement: "orbit",
+    radiusScale: 1,
+    slug: "swift",
+  },
+  {
+    angle: outerBasePhase + outerPhaseStep * 2,
+    color: "#54C5F8",
+    desktopPhase: outerBasePhase + outerPhaseStep * 2,
+    label: "Flutter",
+    orbit: "outer",
+    phase: outerBasePhase + outerPhaseStep * 2,
+    placement: "orbit",
+    radiusScale: 1,
+    slug: "flutter",
+  },
+  {
+    angle: innerBasePhase,
     color: "#111318",
-    desktopPhase: 2.5 + Math.PI / 4,
+    desktopPhase: innerBasePhase,
     label: "Expo",
     orbit: "inner",
-    phase: 2.5 + Math.PI / 4,
+    phase: innerBasePhase,
     placement: "orbit",
     radiusScale: 1,
     slug: "expo",
   },
   {
-    angle: -0.2,
+    angle: innerBasePhase + Math.PI,
     color: "#5A0FC8",
-    desktopPhase: 2.5 + Math.PI / 4 + Math.PI,
+    desktopPhase: innerBasePhase + Math.PI,
     label: "PWA",
     orbit: "inner",
-    phase: 2.5 + Math.PI / 4 + Math.PI,
+    phase: innerBasePhase + Math.PI,
     placement: "intersection",
     radiusScale: 0.82,
     slug: "pwa",
-  },
-  {
-    angle: -1.72,
-    color: "#54C5F8",
-    desktopPhase: 2.5 + Math.PI,
-    label: "Flutter",
-    orbit: "outer",
-    phase: 2.5 + Math.PI,
-    placement: "orbit",
-    radiusScale: 1,
-    slug: "flutter",
   },
 ] as const;
 
@@ -539,7 +554,7 @@ export function getDesktopMobileCoreBeltPoint(
 ) {
   const safeGlyphCount = Math.max(1, glyphCount);
   const angle = -(glyphIndex / safeGlyphCount) * Math.PI * 2
-    - (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+    + (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
   const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
   const normalizedZ = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);
 
@@ -649,13 +664,23 @@ export function getStackLabelHorizontalOpacity(
 export function getCompactMobileRootRotation(elapsedMs: number) {
   return {
     x: -0.16 + Math.sin(elapsedMs * 0.00022) * 0.08,
-    y: -0.4 + getCompactMobileCoreRotation(elapsedMs),
+    y: -0.4 - getCompactMobileCoreRotation(elapsedMs),
     z: 0.08 + Math.sin(elapsedMs * 0.00018 + 1.2) * 0.045,
   };
 }
 
 export function getCompactMobileCoreRotation(elapsedMs: number) {
   return (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+}
+
+export function getStackRootRotationDelta(
+  orbitMode: MobileOrbitMode,
+  frame: number,
+) {
+  const safeFrame = Math.max(0, frame);
+  if (safeFrame === 0) return 0;
+  const direction = orbitMode === "desktop" ? -1 : 1;
+  return direction * 0.0022 * safeFrame;
 }
 
 export function getSmoothedMobileLabelCollisionOffset(

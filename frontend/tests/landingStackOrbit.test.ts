@@ -41,6 +41,7 @@ import {
   getStackLayerTargets,
   getStackLabelHorizontalOpacity,
   getStackMaterialBaseOpacity,
+  getStackRootRotationDelta,
   resolveMobileOrbitMode,
   resolveStackVisualLayer,
   shouldUseStackBridgeAttachment,
@@ -148,16 +149,38 @@ test("hides the Frontend shell in desktop Mobile", () => {
   });
 });
 
-test("assigns technologies to two compact Mobile tracks", () => {
+test("assigns five native Mobile technologies to balanced tracks", () => {
   assert.deepEqual(
-    MOBILE_ORBIT_TECH.map(({ label, orbit }) => [label, orbit]),
+    MOBILE_ORBIT_TECH.map(({ label, orbit, slug }) => [label, orbit, slug]),
     [
-      ["React Native", "outer"],
-      ["Expo", "inner"],
-      ["PWA", "inner"],
-      ["Flutter", "outer"],
+      ["Kotlin", "outer", "kotlin"],
+      ["Swift", "outer", "swift"],
+      ["Flutter", "outer", "flutter"],
+      ["Expo", "inner", "expo"],
+      ["PWA", "inner", "pwa"],
     ],
   );
+});
+
+test("spaces three outer Mobile labels evenly and keeps inner labels opposite", () => {
+  const phases = Object.fromEntries(
+    MOBILE_ORBIT_TECH.map(({ label, phase }) => [label, phase]),
+  );
+
+  assert.ok(Math.abs(phases.Swift - phases.Kotlin - Math.PI * 2 / 3) < 1e-12);
+  assert.ok(Math.abs(phases.Flutter - phases.Swift - Math.PI * 2 / 3) < 1e-12);
+  assert.ok(Math.abs(phases.PWA - phases.Expo - Math.PI) < 1e-12);
+});
+
+test("lists the same five native Mobile technologies in both locales", () => {
+  const expected = ["Kotlin", "Swift", "Flutter", "Expo", "PWA"];
+
+  for (const locale of ["ru", "en"]) {
+    const messages = JSON.parse(
+      readFileSync(`locales/${locale}.json`, "utf8"),
+    );
+    assert.deepEqual(messages.landing.stack.groups[3].items, expected);
+  }
 });
 
 test("returns deterministic points for both orbit ellipses", () => {
@@ -217,17 +240,13 @@ test("gives compact Mobile a wider canvas without enlarging its scene", () => {
   assert.equal(getStackCameraFov("surface", 390), 35);
 });
 
-test("phase-locks desktop Mobile pairs so their spacing cannot drift", () => {
+test("phase-locks desktop Mobile tracks so their spacing cannot drift", () => {
   assert.equal(getDesktopMobileOrbitAngle(9_000, "outer", 0), Math.PI / 2);
   assert.equal(getDesktopMobileOrbitAngle(9_000, "inner", 0), Math.PI / 2);
 
-  const reactNative = MOBILE_ORBIT_TECH.find(({ label }) => label === "React Native")!;
-  const flutter = MOBILE_ORBIT_TECH.find(({ label }) => label === "Flutter")!;
   const expo = MOBILE_ORBIT_TECH.find(({ label }) => label === "Expo")!;
   const pwa = MOBILE_ORBIT_TECH.find(({ label }) => label === "PWA")!;
 
-  const reactPoint = getDesktopMobileTechnologyPoint(reactNative, 0);
-  const flutterPoint = getDesktopMobileTechnologyPoint(flutter, 0);
   const expoPoint = getDesktopMobileTechnologyPoint(expo, 0);
   const pwaPoint = getDesktopMobileTechnologyPoint(pwa, 0);
 
@@ -235,16 +254,6 @@ test("phase-locks desktop Mobile pairs so their spacing cannot drift", () => {
   assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.inner.durationMs, 36_000);
   assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.outer.direction, 1);
   assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.inner.direction, 1);
-  assert.equal(
-    expo.desktopPhase - reactNative.desktopPhase,
-    Math.PI / 4,
-  );
-  assert.equal(expo.phase - reactNative.phase, Math.PI / 4);
-  assert.deepEqual(flutterPoint, {
-    x: -reactPoint.x,
-    y: -reactPoint.y,
-    z: 0,
-  });
   assert.deepEqual(pwaPoint, {
     x: -expoPoint.x,
     y: -expoPoint.y,
@@ -320,7 +329,7 @@ test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () =>
   );
   assert.deepEqual(
     getDesktopMobileCoreBeltPoint(0, glyphCount, 11_000),
-    { x: 0, y: -0.07, z: -0.84 },
+    { x: 0, y: -0.07, z: 0.84 },
   );
   assert.equal(DESKTOP_MOBILE_CORE_BELT_DURATION_MS, 44_000);
   assert.equal(DESKTOP_MOBILE_CORE_BELT_Z_INDEX, 40);
@@ -359,14 +368,20 @@ test("rotates compact Mobile sticks through a desktop-style full turn", () => {
   const fullTurn = getCompactMobileRootRotation(44_000);
 
   assert.equal(start.y, -0.4);
-  assert.equal(quarterTurn.y, -0.4 + Math.PI / 2);
-  assert.equal(fullTurn.y, -0.4 + Math.PI * 2);
+  assert.equal(quarterTurn.y, -0.4 - Math.PI / 2);
+  assert.equal(fullTurn.y, -0.4 - Math.PI * 2);
 
   for (let elapsedMs = 0; elapsedMs <= 44_000; elapsedMs += 2_000) {
     const rotation = getCompactMobileRootRotation(elapsedMs);
     assert.ok(rotation.x >= -0.24 && rotation.x <= -0.08);
     assert.ok(rotation.z >= 0.035 && rotation.z <= 0.125);
   }
+});
+
+test("reverses only the desktop Mobile planet rotation", () => {
+  assert.equal(getStackRootRotationDelta("desktop", 1), -0.0022);
+  assert.equal(getStackRootRotationDelta("hidden", 1), 0.0022);
+  assert.equal(getStackRootRotationDelta("desktop", -1), 0);
 });
 
 test("keeps compact Mobile orbit tracks outside the rotating stick group", () => {
