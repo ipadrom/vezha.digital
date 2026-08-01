@@ -423,6 +423,13 @@ export function shouldUseStackBridgeAttachment(
   return layer === "bridge";
 }
 
+export function shouldUseDesktopStackLatitudeRoutes(
+  layer: StackVisualLayer,
+  viewportWidth: number,
+) {
+  return viewportWidth > 900 && (layer === "surface" || layer === "core");
+}
+
 export function getStackLayerTargets(
   layer: StackVisualLayer,
   compactMobile = false,

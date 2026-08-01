@@ -32,6 +32,7 @@ import {
   resolveMobileOrbitMode,
   resolveStackVisualLayer,
   shouldUseStackBridgeAttachment,
+  shouldUseDesktopStackLatitudeRoutes,
 } from "../utils/landingStackOrbit";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
@@ -312,6 +313,14 @@ test("dims and shrinks labels behind the core without hiding them", () => {
     opacity: 1,
     scale: 0.96,
   });
+});
+
+test("keeps desktop Mobile labels out of Frontend latitude rendering", () => {
+  assert.equal(shouldUseDesktopStackLatitudeRoutes("surface", 1440), true);
+  assert.equal(shouldUseDesktopStackLatitudeRoutes("core", 1440), true);
+  assert.equal(shouldUseDesktopStackLatitudeRoutes("bridge", 1440), false);
+  assert.equal(shouldUseDesktopStackLatitudeRoutes("mobile", 1440), false);
+  assert.equal(shouldUseDesktopStackLatitudeRoutes("surface", 900), false);
 });
 
 test("moves desktop labels left to right on four latitude routes", () => {

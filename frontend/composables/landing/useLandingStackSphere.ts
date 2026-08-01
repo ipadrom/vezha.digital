@@ -29,6 +29,7 @@ import {
   getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
   shouldUseStackBridgeAttachment,
+  shouldUseDesktopStackLatitudeRoutes,
   type BackendStackLabelClockState,
   type DesktopStackLabelRouteProfile,
   type MobileOrbitId,
@@ -999,7 +1000,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         const mobileStickAttachedBridge = stickAttachedBridge
           && window.innerWidth <= 900;
 
-        if (window.innerWidth > 900 && !stickAttachedBridge) {
+        if (shouldUseDesktopStackLatitudeRoutes(
+          activeStackLayer.value,
+          window.innerWidth,
+        )) {
           renderLatitudeLabels(
             activeStackLayer.value === "core"
               ? BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE
