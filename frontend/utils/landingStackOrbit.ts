@@ -15,6 +15,12 @@ export type StackPoint3 = {
   y: number;
   z: number;
 };
+export type MobileLabelBounds = {
+  centerX: number;
+  centerY: number;
+  height: number;
+  width: number;
+};
 
 export function getStackMaterialBaseOpacity(
   defaultOpacity: number,
@@ -164,6 +170,23 @@ export const MOBILE_ORBIT_TRACKS = {
   inner: {
     direction: -1,
     durationMs: 24_000,
+    radiusX: 1.72,
+    radiusY: 0.92,
+    rotation: [0.82, -0.38, 0.62],
+  },
+} as const;
+
+export const DESKTOP_MOBILE_ORBIT_TRACKS = {
+  outer: {
+    direction: 1,
+    durationMs: 36_000,
+    radiusX: 2.02,
+    radiusY: 1.08,
+    rotation: [1.02, 0.28, -0.22],
+  },
+  inner: {
+    direction: -1,
+    durationMs: 28_000,
     radiusX: 1.72,
     radiusY: 0.92,
     rotation: [0.82, -0.38, 0.62],
@@ -454,6 +477,57 @@ export function getMobileOrbitAngle(
   return phase + (elapsedMs / track.durationMs) * Math.PI * 2 * track.direction;
 }
 
+export function getDesktopMobileOrbitAngle(
+  elapsedMs: number,
+  orbit: MobileOrbitId,
+  phase = 0,
+) {
+  const track = DESKTOP_MOBILE_ORBIT_TRACKS[orbit];
+  return phase + (elapsedMs / track.durationMs) * Math.PI * 2 * track.direction;
+}
+
+export function getDesktopMobileTechnologyPoint(
+  spec: {
+    orbit: MobileOrbitId;
+    phase: number;
+  },
+  orbitElapsedMs: number,
+) {
+  const track = DESKTOP_MOBILE_ORBIT_TRACKS[spec.orbit];
+  const angle = getDesktopMobileOrbitAngle(
+    orbitElapsedMs,
+    spec.orbit,
+    spec.phase,
+  );
+  const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
+  const normalizedY = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);
+
+  return {
+    x: Number((normalizedX * track.radiusX).toFixed(6)),
+    y: Number((normalizedY * track.radiusY).toFixed(6)),
+    z: 0,
+  };
+}
+
+export function getCollisionSafeOrbitElapsed(
+  currentMs: number,
+  deltaMs: number,
+  blocked: boolean,
+) {
+  return blocked ? currentMs : currentMs + Math.max(0, deltaMs);
+}
+
+export function doMobileLabelBoundsOverlap(
+  first: MobileLabelBounds,
+  second: MobileLabelBounds,
+  gapPx = 8,
+) {
+  const horizontalLimit = (first.width + second.width) / 2 + gapPx;
+  const verticalLimit = (first.height + second.height) / 2 + gapPx;
+  return Math.abs(first.centerX - second.centerX) < horizontalLimit
+    && Math.abs(first.centerY - second.centerY) < verticalLimit;
+}
+
 export function resolveMobileOrbitMode(
   layer: StackVisualLayer,
   viewportWidth: number,
@@ -487,6 +561,14 @@ export function getMobileLabelDepthStyle(worldZ: number) {
   return {
     opacity: Number((0.58 + depth * 0.42).toFixed(3)),
     scale: Number((0.78 + depth * 0.18).toFixed(3)),
+  };
+}
+
+export function getDesktopMobileLabelDepthStyle(worldZ: number) {
+  const depth = Math.max(0, Math.min(1, (worldZ + 1.6) / 3.2));
+  return {
+    opacity: Number((0.42 + depth * 0.58).toFixed(3)),
+    scale: Number((0.84 + depth * 0.16).toFixed(3)),
   };
 }
 

@@ -2,15 +2,21 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
+  DESKTOP_MOBILE_ORBIT_TRACKS,
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
   MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   advanceBackendStackLabelClock,
+  doMobileLabelBoundsOverlap,
+  getCollisionSafeOrbitElapsed,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
+  getDesktopMobileLabelDepthStyle,
+  getDesktopMobileOrbitAngle,
+  getDesktopMobileTechnologyPoint,
   getDesktopStackLabelRouteState,
   getMobileDevOpsBridgeRoute,
   getMobileDevOpsLabelClearanceFactor,
@@ -166,6 +172,60 @@ test("uses compact-only Mobile shell opacity and core scale", () => {
   });
   assert.equal(getStackGroupScale("core", "mobile", true), 0.5);
   assert.equal(getStackGroupScale("core", "mobile", false), 1.192);
+});
+
+test("moves desktop Mobile pairs on two slow counter-rotating orbits", () => {
+  assert.equal(getDesktopMobileOrbitAngle(9_000, "outer", 0), Math.PI / 2);
+  assert.equal(getDesktopMobileOrbitAngle(7_000, "inner", 0), -Math.PI / 2);
+
+  const reactNative = MOBILE_ORBIT_TECH.find(({ label }) => label === "React Native")!;
+  const flutter = MOBILE_ORBIT_TECH.find(({ label }) => label === "Flutter")!;
+  const expo = MOBILE_ORBIT_TECH.find(({ label }) => label === "Expo")!;
+  const pwa = MOBILE_ORBIT_TECH.find(({ label }) => label === "PWA")!;
+
+  const reactPoint = getDesktopMobileTechnologyPoint(reactNative, 0);
+  const flutterPoint = getDesktopMobileTechnologyPoint(flutter, 0);
+  const expoPoint = getDesktopMobileTechnologyPoint(expo, 0);
+  const pwaPoint = getDesktopMobileTechnologyPoint(pwa, 0);
+
+  assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.outer.durationMs, 36_000);
+  assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.inner.durationMs, 28_000);
+  assert.deepEqual(flutterPoint, {
+    x: -reactPoint.x,
+    y: -reactPoint.y,
+    z: 0,
+  });
+  assert.deepEqual(pwaPoint, {
+    x: -expoPoint.x,
+    y: -expoPoint.y,
+    z: 0,
+  });
+});
+
+test("shrinks desktop Mobile labels only while they move behind the core", () => {
+  assert.deepEqual(getDesktopMobileLabelDepthStyle(-1.6), {
+    opacity: 0.42,
+    scale: 0.84,
+  });
+  assert.deepEqual(getDesktopMobileLabelDepthStyle(1.6), {
+    opacity: 1,
+    scale: 1,
+  });
+});
+
+test("detects projected Mobile label conflicts symmetrically", () => {
+  const first = { centerX: 100, centerY: 100, height: 30, width: 90 };
+  const overlapping = { centerX: 150, centerY: 105, height: 30, width: 90 };
+  const separated = { centerX: 210, centerY: 105, height: 30, width: 90 };
+
+  assert.equal(doMobileLabelBoundsOverlap(first, overlapping, 8), true);
+  assert.equal(doMobileLabelBoundsOverlap(overlapping, first, 8), true);
+  assert.equal(doMobileLabelBoundsOverlap(first, separated, 8), false);
+});
+
+test("retains the inner orbit phase while a projected conflict is blocked", () => {
+  assert.equal(getCollisionSafeOrbitElapsed(10_000, 16.67, true), 10_000);
+  assert.equal(getCollisionSafeOrbitElapsed(10_000, 16.67, false), 10_016.67);
 });
 
 test("slightly enlarges only the mobile viewport Backend core", () => {
