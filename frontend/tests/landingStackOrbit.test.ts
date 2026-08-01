@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_MOBILE_CORE_BELT_TEXT,
+  DESKTOP_MOBILE_CORE_BELT_DURATION_MS,
   DESKTOP_MOBILE_CORE_BELT_Z_INDEX,
   DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
   DESKTOP_MOBILE_ORBIT_TRACKS,
@@ -275,17 +276,18 @@ test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () =>
 
   assert.deepEqual(getDesktopMobileCoreBeltPoint(0, glyphCount, 0), {
     x: 0.84,
-    y: -0.14,
+    y: -0.07,
     z: 0,
   });
   assert.deepEqual(
     getDesktopMobileCoreBeltPoint(glyphCount / 4, glyphCount, 0),
-    { x: 0, y: -0.14, z: -0.84 },
+    { x: 0, y: -0.07, z: -0.84 },
   );
   assert.deepEqual(
-    getDesktopMobileCoreBeltPoint(0, glyphCount, 5_500),
-    { x: 0, y: -0.14, z: -0.84 },
+    getDesktopMobileCoreBeltPoint(0, glyphCount, 11_000),
+    { x: 0, y: -0.07, z: -0.84 },
   );
+  assert.equal(DESKTOP_MOBILE_CORE_BELT_DURATION_MS, 44_000);
   assert.equal(DESKTOP_MOBILE_CORE_BELT_Z_INDEX, 40);
 });
 

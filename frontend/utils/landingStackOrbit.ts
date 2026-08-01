@@ -194,7 +194,7 @@ export const DESKTOP_MOBILE_ORBIT_TRACKS = {
 } as const;
 
 export const DESKTOP_MOBILE_CORE_BELT_TEXT = "VEZHA DIGITAL • VEZHA DIGITAL • ";
-export const DESKTOP_MOBILE_CORE_BELT_DURATION_MS = 22_000;
+export const DESKTOP_MOBILE_CORE_BELT_DURATION_MS = 44_000;
 export const DESKTOP_MOBILE_CORE_BELT_Z_INDEX = 40;
 const DESKTOP_MOBILE_CORE_BELT_RADIUS = 0.84;
 export const DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS = 0.055;
@@ -545,7 +545,7 @@ export function getDesktopMobileCoreBeltPoint(
 
   return {
     x: Number((normalizedX * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
-    y: -0.14,
+    y: -0.07,
     z: Number((normalizedZ * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
   };
 }
