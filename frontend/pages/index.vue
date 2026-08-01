@@ -4345,6 +4345,25 @@ useHead(() => ({
   transform: translateY(0.5px);
 }
 
+.vz-stack__mobile-core-belt-glyph {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--ink);
+  font-family: var(--font-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-shadow:
+    -1px -1px 2px var(--bg),
+    1px -1px 2px var(--bg),
+    -1px 1px 2px var(--bg),
+    1px 1px 2px var(--bg);
+  white-space: pre;
+  will-change: opacity, transform;
+}
+
 .vz-stack__line {
   position: absolute;
   top: 8px;
@@ -5214,8 +5233,28 @@ useHead(() => ({
     transform: translateX(-50%);
   }
 
+  .vz-stack__sphere[data-layer="mobile"] {
+    --stack-sphere-size: min(92vw, 390px);
+    top: calc(clamp(-30px, -7vw, -20px) - min(7vw, 30px));
+  }
+
+  .vz-stack__sphere[data-layer="mobile"] canvas {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
   .vz-stack__sphere-label--mobile {
-    font-size: 0.92em;
+    gap: 6px;
+    min-width: 76px;
+    height: 29px;
+    padding-inline: 7px 9px;
+    font-size: 11px;
+  }
+
+  .vz-stack__sphere-label--mobile .vz-stack__sphere-label-icon {
+    flex-basis: 15px;
+    width: 15px;
+    height: 15px;
   }
 
   .vz-stack__timeline {

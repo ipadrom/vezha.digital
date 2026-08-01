@@ -1,15 +1,46 @@
 import { watch, type ComputedRef, type Ref } from "vue";
 import {
+  BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
+  DESKTOP_MOBILE_CORE_BELT_TEXT,
+  DESKTOP_MOBILE_CORE_BELT_Z_INDEX,
+  DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
+  DESKTOP_MOBILE_ORBIT_TRACKS,
+  DESKTOP_STACK_LABEL_FADE_IN_PORTION,
+  DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
+  MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+  MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
   MOBILE_ORBIT_TRACKS,
+  advanceBackendStackLabelClock,
+  getContinuousOrbitElapsed,
   getCompactMobileRootRotation,
+  getBackendStackLabelClearanceFactor,
+  getDesktopDevOpsBridgeRoute,
+  getDesktopMobileLabelDepthStyle,
+  getDesktopMobileLabelLiftPx,
+  getDesktopMobileCoreBeltPoint,
+  getDesktopMobileOrbitPoint,
+  getDesktopMobileTechnologyPoint,
+  getDesktopStackLabelRouteState,
+  getMobileDevOpsBridgeRoute,
+  getMobileDevOpsLabelClearanceFactor,
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
+  getSmoothedMobileLabelCollisionOffset,
+  getStackBridgeAttachmentPoint,
+  getStackCameraFov,
   getStackGroupScale,
   getStackLayerTargets,
+  getStackLabelHorizontalOpacity,
+  getStackMaterialBaseOpacity,
   resolveMobileOrbitMode,
+  shouldUseStackBridgeAttachment,
+  shouldUseDesktopStackLatitudeRoutes,
+  type BackendStackLabelClockState,
+  type DesktopStackLabelRouteProfile,
   type MobileOrbitId,
+  type StackMaterialRole,
   type StackVisualLayer,
 } from "~/utils/landingStackOrbit";
 
@@ -141,6 +172,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         baseOpacity: number;
         layer: "surface" | "core" | "bridge";
         material: import("three").Material & { opacity: number };
+        role: StackMaterialRole;
       }> = [];
       const orbitMaterials: Array<import("three").Material> = [];
       let frameId = 0;
@@ -151,6 +183,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       let intersectionObserver: IntersectionObserver | null = null;
       let motionPreference: MediaQueryList | null = null;
       let motionPreferenceListener: ((event: MediaQueryListEvent) => void) | null = null;
+      const stackLabelClockStates = new Map<
+        HTMLElement,
+        BackendStackLabelClockState
+      >();
+      const mobileBridgeRevealStates = new Map<HTMLElement, boolean>();
+      const mobileLabelCollisionOffsets = new Map<HTMLElement, number>();
 
       disposePartial = () => {
         if (frameId) cancelAnimationFrame(frameId);
@@ -188,13 +226,25 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
       const rootGroup = new THREE.Group();
       rootGroup.rotation.set(-0.16, -0.4, 0.08);
-      scene.add(rootGroup);
+      const desktopOrbitRoot = new THREE.Group();
+      desktopOrbitRoot.rotation.copy(rootGroup.rotation);
+      const compactOrbitRoot = new THREE.Group();
+      compactOrbitRoot.rotation.copy(rootGroup.rotation);
+      const desktopLabelRoutesGroup = new THREE.Group();
+      scene.add(rootGroup, desktopOrbitRoot, compactOrbitRoot, desktopLabelRoutesGroup);
 
       const surfaceGroup = new THREE.Group();
       const bridgeGroup = new THREE.Group();
       const coreGroup = new THREE.Group();
-      const desktopOrbitGroup = new THREE.Group();
-      desktopOrbitGroup.rotation.set(1.02, 0.28, -0.22);
+      const desktopOrbitGroups: Record<MobileOrbitId, import("three").Group> = {
+        outer: new THREE.Group(),
+        inner: new THREE.Group(),
+      };
+      (Object.keys(desktopOrbitGroups) as MobileOrbitId[]).forEach((orbit) => {
+        desktopOrbitGroups[orbit].rotation.set(
+          ...DESKTOP_MOBILE_ORBIT_TRACKS[orbit].rotation,
+        );
+      });
       const compactOrbitGroups: Record<MobileOrbitId, import("three").Group> = {
         outer: new THREE.Group(),
         inner: new THREE.Group(),
@@ -206,7 +256,12 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         bridgeGroup,
         surfaceGroup,
         coreGroup,
-        desktopOrbitGroup,
+      );
+      desktopOrbitRoot.add(
+        desktopOrbitGroups.outer,
+        desktopOrbitGroups.inner,
+      );
+      compactOrbitRoot.add(
         compactOrbitGroups.outer,
         compactOrbitGroups.inner,
       );
@@ -221,11 +276,16 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         material: T,
         layer: "surface" | "core" | "bridge",
         baseOpacity: number,
+        role: StackMaterialRole = "default",
       ) => {
         material.transparent = true;
         material.depthWrite = false;
-        material.opacity = baseOpacity * 0.16;
-        trackedMaterials.push({ baseOpacity, layer, material });
+        material.opacity = getStackMaterialBaseOpacity(
+          baseOpacity,
+          role,
+          activeStackLayer.value,
+        ) * 0.16;
+        trackedMaterials.push({ baseOpacity, layer, material, role });
         return material;
       };
 
@@ -264,7 +324,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         element: document.createElement("span"),
         y: [0.66, 0.28, -0.08, 0.46, -0.48][index] || 0,
       }));
-      const frontendLabelPoints = frontendLabelSpecs.flatMap((spec) => {
+      const frontendLabelPoints = frontendLabelSpecs.flatMap((spec, index) => {
         const icon = document.createElement("span");
         const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
         const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -289,11 +349,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
         return [{
           ...spec,
+          desktopRouteCount: frontendLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
           point,
           layer: "surface" as const,
           projectionGroup: rootGroup,
         }, {
           ...spec,
+          desktopRouteCount: frontendLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: false,
           element: loopElement,
           point: new THREE.Vector3(-point.x, point.y, -point.z),
           layer: "surface" as const,
@@ -306,7 +372,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         { color: "#4169E1", slug: "postgresql", label: "PostgreSQL", angle: -0.15, y: 0.16 },
         { color: "#DC382D", slug: "redis", label: "Redis", angle: -1.55, y: -0.3 },
       ];
-      const coreLabelPoints = coreLabelSpecs.flatMap((spec) => {
+      const coreLabelPoints = coreLabelSpecs.flatMap((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
         const image = document.createElement("img");
@@ -326,11 +392,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         labelLayer.appendChild(loopElement);
 
         return [{
+          desktopRouteCount: coreLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
           element,
           point,
           layer: "core" as const,
           projectionGroup: coreGroup,
         }, {
+          desktopRouteCount: coreLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: false,
           element: loopElement,
           point: new THREE.Vector3(-point.x, point.y, -point.z),
           layer: "core" as const,
@@ -338,13 +410,14 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         }];
       });
       const bridgeLabelSpecs = [
-        { color: "#2496ED", slug: "docker", label: "Docker", angle: 2.8, y: 0.48 },
-        { color: "#009639", slug: "nginx", label: "Nginx", angle: 1.25, y: -0.34 },
-        { color: "#7C3AED", slug: "githubactions", label: "CI/CD", angle: -0.2, y: 0.32 },
-        { color: "#F5B800", slug: "linux", label: "Linux", angle: -1.7, y: -0.46 },
-      ];
-      const bridgeStickPositions: number[] = [];
-      const bridgeLabelPoints = bridgeLabelSpecs.flatMap((spec) => {
+        { color: "#2496ED", slug: "docker", label: "Docker", angle: 2.8 },
+        { color: "#009639", slug: "nginx", label: "Nginx", angle: 1.25 },
+        { color: "#7C3AED", slug: "githubactions", label: "CI/CD", angle: -0.2 },
+        { color: "#F5B800", slug: "linux", label: "Linux", angle: -1.7 },
+      ] as const;
+      const desktopBridgeStickPositions: number[] = [];
+      const mobileBridgeStickPositions: number[] = [];
+      const bridgeLabelPoints = bridgeLabelSpecs.flatMap((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
         const image = document.createElement("img");
@@ -360,35 +433,166 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         element.append(icon, text);
         labelLayer.appendChild(element);
 
-        const directionX = Math.cos(spec.angle);
-        const directionZ = Math.sin(spec.angle);
-        const point = new THREE.Vector3(directionX * 1.28, spec.y, directionZ * 1.2);
-        const anchor = new THREE.Vector3(directionX * 0.82, spec.y * 0.72, directionZ * 0.78);
-        bridgeStickPositions.push(anchor.x, anchor.y, anchor.z, point.x, point.y, point.z);
-        bridgeStickPositions.push(-anchor.x, anchor.y, -anchor.z, -point.x, point.y, -point.z);
+        const route = getDesktopDevOpsBridgeRoute(spec.label, spec.angle);
+        const mobileRoute = getMobileDevOpsBridgeRoute(spec.label, spec.angle);
+        const point = new THREE.Vector3(
+          route.outerPoint.x,
+          route.outerPoint.y,
+          route.outerPoint.z,
+        );
+        const anchor = new THREE.Vector3(
+          route.anchor.x,
+          route.anchor.y,
+          route.anchor.z,
+        );
+        const mirroredPoint = new THREE.Vector3(-point.x, point.y, -point.z);
+        const mirroredAnchor = new THREE.Vector3(-anchor.x, anchor.y, -anchor.z);
+        const attachedPoint = getStackBridgeAttachmentPoint(anchor, point);
+        const mirroredAttachedPoint = getStackBridgeAttachmentPoint(
+          mirroredAnchor,
+          mirroredPoint,
+        );
+        const mobilePoint = new THREE.Vector3(
+          mobileRoute.outerPoint.x,
+          mobileRoute.outerPoint.y,
+          mobileRoute.outerPoint.z,
+        );
+        const mobileAnchor = new THREE.Vector3(
+          mobileRoute.anchor.x,
+          mobileRoute.anchor.y,
+          mobileRoute.anchor.z,
+        );
+        const mirroredMobilePoint = new THREE.Vector3(
+          -mobilePoint.x,
+          mobilePoint.y,
+          -mobilePoint.z,
+        );
+        const mirroredMobileAnchor = new THREE.Vector3(
+          -mobileAnchor.x,
+          mobileAnchor.y,
+          -mobileAnchor.z,
+        );
+        const mobileAttachedPoint = getStackBridgeAttachmentPoint(
+          mobileAnchor,
+          mobilePoint,
+        );
+        const mirroredMobileAttachedPoint = getStackBridgeAttachmentPoint(
+          mirroredMobileAnchor,
+          mirroredMobilePoint,
+        );
+        desktopBridgeStickPositions.push(
+          anchor.x,
+          anchor.y,
+          anchor.z,
+          point.x,
+          point.y,
+          point.z,
+        );
+        desktopBridgeStickPositions.push(
+          mirroredAnchor.x,
+          mirroredAnchor.y,
+          mirroredAnchor.z,
+          mirroredPoint.x,
+          mirroredPoint.y,
+          mirroredPoint.z,
+        );
+        mobileBridgeStickPositions.push(
+          mobileAnchor.x,
+          mobileAnchor.y,
+          mobileAnchor.z,
+          mobilePoint.x,
+          mobilePoint.y,
+          mobilePoint.z,
+        );
+        mobileBridgeStickPositions.push(
+          mirroredMobileAnchor.x,
+          mirroredMobileAnchor.y,
+          mirroredMobileAnchor.z,
+          mirroredMobilePoint.x,
+          mirroredMobilePoint.y,
+          mirroredMobilePoint.z,
+        );
 
         const loopElement = element.cloneNode(true) as HTMLSpanElement;
         labelLayer.appendChild(loopElement);
         return [{
+          desktopRouteCount: bridgeLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
+          desktopAttachedPoint: new THREE.Vector3(
+            attachedPoint.x,
+            attachedPoint.y,
+            attachedPoint.z,
+          ),
           element,
+          mobileAttachedPoint: new THREE.Vector3(
+            mobileAttachedPoint.x,
+            mobileAttachedPoint.y,
+            mobileAttachedPoint.z,
+          ),
+          mobileBridgeLaneIndex: mobileRoute.laneIndex,
           point,
           layer: "bridge" as const,
           projectionGroup: bridgeGroup,
         }, {
+          desktopRouteCount: bridgeLabelSpecs.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: false,
+          desktopAttachedPoint: new THREE.Vector3(
+            mirroredAttachedPoint.x,
+            mirroredAttachedPoint.y,
+            mirroredAttachedPoint.z,
+          ),
           element: loopElement,
-          point: new THREE.Vector3(-point.x, point.y, -point.z),
+          mobileAttachedPoint: new THREE.Vector3(
+            mirroredMobileAttachedPoint.x,
+            mirroredMobileAttachedPoint.y,
+            mirroredMobileAttachedPoint.z,
+          ),
+          mobileBridgeLaneIndex: mobileRoute.laneIndex,
+          point: mirroredPoint,
           layer: "bridge" as const,
           projectionGroup: bridgeGroup,
         }];
       });
-      const bridgeStickGeometry = new THREE.BufferGeometry();
-      bridgeStickGeometry.setAttribute("position", new THREE.Float32BufferAttribute(bridgeStickPositions, 3));
-      const mobileLabelPoints = MOBILE_ORBIT_TECH.map((spec) => {
+      const desktopBridgeStickGeometry = new THREE.BufferGeometry();
+      desktopBridgeStickGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(desktopBridgeStickPositions, 3),
+      );
+      const mobileBridgeStickGeometry = new THREE.BufferGeometry();
+      mobileBridgeStickGeometry.setAttribute(
+        "position",
+        new THREE.Float32BufferAttribute(mobileBridgeStickPositions, 3),
+      );
+      const desktopMobileAnchorGeometry = new THREE.IcosahedronGeometry(
+        DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
+        0,
+      );
+      const desktopMobileAnchorMaterial = new THREE.MeshBasicMaterial({
+        color: 0x303741,
+        depthTest: false,
+        depthWrite: false,
+        opacity: 0.3,
+        transparent: true,
+        wireframe: true,
+      });
+      geometries.push(desktopMobileAnchorGeometry);
+      orbitMaterials.push(desktopMobileAnchorMaterial);
+      const mobileLabelPoints = MOBILE_ORBIT_TECH.map((spec, index) => {
         const element = document.createElement("span");
         const icon = document.createElement("span");
         const image = document.createElement("img");
         const text = document.createElement("span");
-        const orbitPoint = getMobileTechnologyPoint(spec, 0, "desktop");
+        const orbitPoint = getDesktopMobileTechnologyPoint(spec, 0);
+        const desktopAnchorMesh = new THREE.Mesh(
+          desktopMobileAnchorGeometry,
+          desktopMobileAnchorMaterial,
+        );
+        const compactAnchorMesh = new THREE.Mesh(
+          desktopMobileAnchorGeometry,
+          desktopMobileAnchorMaterial,
+        );
 
         element.className = "vz-stack__sphere-label vz-stack__sphere-label--mobile";
         element.dataset.orbit = spec.orbit;
@@ -401,17 +605,36 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         text.textContent = spec.label;
         element.append(icon, text);
         labelLayer.appendChild(element);
+        desktopAnchorMesh.position.set(orbitPoint.x, orbitPoint.y, orbitPoint.z);
+        desktopAnchorMesh.renderOrder = 14;
+        desktopAnchorMesh.visible = false;
+        desktopOrbitGroups[spec.orbit].add(desktopAnchorMesh);
+        compactAnchorMesh.renderOrder = 14;
+        compactAnchorMesh.visible = false;
+        compactOrbitGroups[spec.orbit].add(compactAnchorMesh);
 
         return {
+          desktopRouteCount: MOBILE_ORBIT_TECH.length,
+          desktopRouteIndex: index,
+          desktopRoutePrimary: true,
           element,
           point: new THREE.Vector3(orbitPoint.x, orbitPoint.y, orbitPoint.z),
           layer: "mobile" as const,
           orbit: spec.orbit,
           phase: spec.phase,
           desktopPhase: spec.desktopPhase,
+          desktopAnchorMesh,
+          compactAnchorMesh,
           radiusScale: spec.radiusScale,
-          projectionGroup: desktopOrbitGroup,
+          projectionGroup: desktopOrbitGroups[spec.orbit],
         };
+      });
+      const mobileCoreBeltGlyphs = Array.from(DESKTOP_MOBILE_CORE_BELT_TEXT).map((glyph) => {
+        const element = document.createElement("span");
+        element.className = "vz-stack__mobile-core-belt-glyph";
+        element.textContent = glyph === " " ? "\u00a0" : glyph;
+        labelLayer.appendChild(element);
+        return element;
       });
       const stackLabelPoints = [
         ...frontendLabelPoints,
@@ -426,32 +649,33 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       const bridgeGeometry = createStackBridgeGeometry(THREE, corePoints, surfacePoints);
       const coreShellGeometry = new THREE.IcosahedronGeometry(0.68, 3);
       const coreInnerGeometry = new THREE.IcosahedronGeometry(0.34, 2);
-      const desktopOrbitPoints = Array.from({ length: 97 }, (_, index) => {
-        const point = getMobileOrbitPoint((index / 96) * Math.PI * 2);
-        return new THREE.Vector3(point.x, point.y, point.z);
+      const desktopOrbitOpacity: Record<MobileOrbitId, number> = {
+        outer: 0.72,
+        inner: 0.58,
+      };
+      const desktopOrbitMaterials = {} as Record<MobileOrbitId, import("three").LineBasicMaterial>;
+      const desktopOrbitGeometries: import("three").BufferGeometry[] = [];
+      (Object.keys(desktopOrbitGroups) as MobileOrbitId[]).forEach((orbit) => {
+        const points = Array.from({ length: 97 }, (_, index) => {
+          const angle = (index / 96) * Math.PI * 2;
+          const point = getDesktopMobileOrbitPoint(angle, orbit);
+          return new THREE.Vector3(point.x, point.y, point.z);
+        });
+        const geometry = new THREE.BufferGeometry().setFromPoints(points);
+        const material = new THREE.LineBasicMaterial({
+          color: orbit === "outer" ? 0x4d5968 : 0x4f7482,
+          depthTest: false,
+          depthWrite: false,
+          opacity: 0,
+          transparent: true,
+        });
+        const line = new THREE.Line(geometry, material);
+        line.renderOrder = 12;
+        desktopOrbitGroups[orbit].add(line);
+        desktopOrbitGeometries.push(geometry);
+        desktopOrbitMaterials[orbit] = material;
+        orbitMaterials.push(material);
       });
-      const desktopOrbitGeometry = new THREE.BufferGeometry().setFromPoints(desktopOrbitPoints);
-      const desktopOrbitPulseGeometry = new THREE.BufferGeometry().setFromPoints([
-        new THREE.Vector3(),
-      ]);
-      const desktopOrbitMaterial = new THREE.LineBasicMaterial({
-        color: 0x6f7683,
-        depthWrite: false,
-        opacity: 0,
-        transparent: true,
-      });
-      const desktopOrbitPulseMaterial = new THREE.PointsMaterial({
-        color: 0x6fe7ff,
-        depthWrite: false,
-        opacity: 0,
-        size: 0.078,
-        sizeAttenuation: true,
-        transparent: true,
-      });
-      const desktopOrbitLine = new THREE.Line(desktopOrbitGeometry, desktopOrbitMaterial);
-      const desktopOrbitPulse = new THREE.Points(desktopOrbitPulseGeometry, desktopOrbitPulseMaterial);
-      desktopOrbitGroup.add(desktopOrbitLine, desktopOrbitPulse);
-      orbitMaterials.push(desktopOrbitMaterial, desktopOrbitPulseMaterial);
       const compactOrbitOpacity: Record<MobileOrbitId, number> = {
         outer: 0.74,
         inner: 0.62,
@@ -483,9 +707,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         bridgeGeometry,
         coreShellGeometry,
         coreInnerGeometry,
-        bridgeStickGeometry,
-        desktopOrbitGeometry,
-        desktopOrbitPulseGeometry,
+        desktopBridgeStickGeometry,
+        mobileBridgeStickGeometry,
+        ...desktopOrbitGeometries,
         ...compactOrbitGeometries,
       );
 
@@ -507,27 +731,66 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         ),
         new THREE.Mesh(
           coreShellGeometry,
-          trackMaterial(new THREE.MeshBasicMaterial({ color: 0x111318, wireframe: true }), "core", 0.28),
+          trackMaterial(
+            new THREE.MeshBasicMaterial({ color: 0x111318, wireframe: true }),
+            "core",
+            0.28,
+            "core-shell",
+          ),
         ),
         new THREE.LineSegments(
           coreLineGeometry,
-          trackMaterial(new THREE.LineBasicMaterial({ color: 0x111318 }), "core", 0.46),
+          trackMaterial(
+            new THREE.LineBasicMaterial({ color: 0x111318 }),
+            "core",
+            0.46,
+            "core-lines",
+          ),
         ),
         new THREE.Points(
           corePointGeometry,
-          trackMaterial(new THREE.PointsMaterial({ color: 0x111318, size: 0.058, sizeAttenuation: true }), "core", 0.96),
+          trackMaterial(
+            new THREE.PointsMaterial({ color: 0x111318, size: 0.058, sizeAttenuation: true }),
+            "core",
+            0.96,
+            "core-points",
+          ),
         ),
       );
 
+      const bridgeNetworkLines = new THREE.LineSegments(
+        bridgeGeometry,
+        trackMaterial(
+          new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+          "bridge",
+          0.34,
+          "bridge-network",
+        ),
+      );
+      const desktopBridgeStickLines = new THREE.LineSegments(
+        desktopBridgeStickGeometry,
+        trackMaterial(
+          new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+          "bridge",
+          0.34,
+          "bridge-stick",
+        ),
+      );
+      const mobileBridgeStickLines = new THREE.LineSegments(
+        mobileBridgeStickGeometry,
+        trackMaterial(
+          new THREE.LineBasicMaterial({ color: 0x5d6470 }),
+          "bridge",
+          0.34,
+          "bridge-stick",
+        ),
+      );
+      desktopBridgeStickLines.visible = window.innerWidth > 900;
+      mobileBridgeStickLines.visible = window.innerWidth <= 900;
       bridgeGroup.add(
-        new THREE.LineSegments(
-          bridgeGeometry,
-          trackMaterial(new THREE.LineBasicMaterial({ color: 0x5d6470 }), "bridge", 0.34),
-        ),
-        new THREE.LineSegments(
-          bridgeStickGeometry,
-          trackMaterial(new THREE.LineBasicMaterial({ color: 0x5d6470 }), "bridge", 0.34),
-        ),
+        bridgeNetworkLines,
+        desktopBridgeStickLines,
+        mobileBridgeStickLines,
       );
 
       motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -539,10 +802,17 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
       const resize = () => {
         updateStackSpherePosition();
+        desktopBridgeStickLines.visible = window.innerWidth > 900;
+        mobileBridgeStickLines.visible = window.innerWidth <= 900;
+        if (window.innerWidth > 900) mobileBridgeRevealStates.clear();
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
+        camera.fov = getStackCameraFov(
+          activeStackLayer.value,
+          window.innerWidth,
+        );
         camera.updateProjectionMatrix();
         if (reduceMotion) renderStaticLayer?.();
         else renderer.render(scene, camera);
@@ -556,50 +826,311 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         getStackLayerTargets(activeStackLayer.value, isCompactMobile())
       );
       const getGroupScale = (layer: "surface" | "core" | "bridge") => (
-        getStackGroupScale(layer, activeStackLayer.value, isCompactMobile())
+        getStackGroupScale(
+          layer,
+          activeStackLayer.value,
+          isCompactMobile(),
+          window.innerWidth <= 900,
+        )
       );
+      let desktopOrbitElapsedMs = 0;
       const updateMobileLabelPoints = (elapsedMs: number) => {
         const mode = getMobileOrbitMode();
-        const visibleMode = mode === "compact" ? "compact" : "desktop";
         mobileLabelPoints.forEach((item) => {
-          const point = getMobileTechnologyPoint(item, elapsedMs, visibleMode);
+          const point = mode === "compact"
+            ? getMobileTechnologyPoint(item, elapsedMs, "compact")
+            : getDesktopMobileTechnologyPoint(
+                item,
+                desktopOrbitElapsedMs,
+              );
           item.point.set(point.x, point.y, point.z);
+          item.desktopAnchorMesh.position.copy(item.point);
+          item.compactAnchorMesh.position.copy(item.point);
+          item.desktopAnchorMesh.visible = mode === "desktop";
+          item.compactAnchorMesh.visible = mode === "compact";
           item.projectionGroup = mode === "compact"
             ? compactOrbitGroups[item.orbit]
-            : desktopOrbitGroup;
+            : desktopOrbitGroups[item.orbit];
         });
       };
 
+      const updateMobileCoreBelt = (elapsedMs: number) => {
+        const mode = getMobileOrbitMode();
+        const visible = mode !== "hidden";
+        const beltElapsedMs = mode === "compact" ? 0 : elapsedMs;
+        rootGroup.updateMatrixWorld(true);
+        const coreScale = coreGroup.scale.x;
+        const coreCenter = new THREE.Vector3();
+        rootGroup.localToWorld(coreCenter);
+
+        mobileCoreBeltGlyphs.forEach((element, index) => {
+          if (!visible) {
+            element.style.opacity = "0";
+            return;
+          }
+
+          const point = getDesktopMobileCoreBeltPoint(
+            index,
+            mobileCoreBeltGlyphs.length,
+            beltElapsedMs,
+          );
+          const tangentPoint = getDesktopMobileCoreBeltPoint(
+            index + 0.08,
+            mobileCoreBeltGlyphs.length,
+            beltElapsedMs,
+          );
+          const world = new THREE.Vector3(point.x, point.y, point.z)
+            .multiplyScalar(coreScale);
+          const tangentWorld = new THREE.Vector3(
+            tangentPoint.x,
+            tangentPoint.y,
+            tangentPoint.z,
+          ).multiplyScalar(coreScale);
+          rootGroup.localToWorld(world);
+          rootGroup.localToWorld(tangentWorld);
+          const projected = world.clone().project(camera);
+          const tangentProjected = tangentWorld.clone().project(camera);
+          const x = (projected.x * 0.5 + 0.5) * Math.max(1, host.clientWidth);
+          const y = (-projected.y * 0.5 + 0.5) * Math.max(1, host.clientHeight);
+          const tangentX = (tangentProjected.x * 0.5 + 0.5) * Math.max(1, host.clientWidth);
+          const tangentY = (-tangentProjected.y * 0.5 + 0.5) * Math.max(1, host.clientHeight);
+          const rotation = Math.atan2(tangentY - y, tangentX - x) * 180 / Math.PI;
+          const depthOpacity = clampValue((world.z - coreCenter.z + 0.03) / 0.1, 0, 1);
+
+          element.style.opacity = depthOpacity.toFixed(3);
+          element.style.zIndex = String(DESKTOP_MOBILE_CORE_BELT_Z_INDEX);
+          element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${rotation.toFixed(2)}deg)`;
+        });
+      };
+
+      const advanceDesktopMobileOrbits = (deltaMs: number) => {
+        desktopOrbitElapsedMs = getContinuousOrbitElapsed(
+          desktopOrbitElapsedMs,
+          deltaMs,
+        );
+      };
+
       const fadeRange = (value: number, from: number, to: number) => clampValue((value - from) / (to - from), 0, 1);
-      const updateStackLabels = () => {
+      const updateStackLabels = (elapsedMs = 0, animationFrame = 1) => {
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
         const compactMobile = isCompactMobile();
         rootGroup.updateMatrixWorld(true);
+        desktopOrbitRoot.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
+        mobileLabelPoints.forEach((item) => {
+          const mode = getMobileOrbitMode();
+          item.desktopAnchorMesh.visible = mode === "desktop";
+          item.compactAnchorMesh.visible = mode === "compact";
+        });
+        updateMobileCoreBelt(elapsedMs);
+
+        const projectLatitudeLabel = (
+          item: (typeof stackLabelPoints)[number],
+          routeElapsedMs: number,
+          routeProfile: DesktopStackLabelRouteProfile | number,
+          flattenRouteY: boolean,
+          jitterScale: number,
+        ) => {
+          const route = getDesktopStackLabelRouteState(
+            routeElapsedMs,
+            item.desktopRouteIndex,
+            item.desktopRouteCount,
+            routeProfile,
+          );
+          const world = new THREE.Vector3(
+            route.point.x,
+            route.point.y,
+            route.point.z,
+          );
+          desktopLabelRoutesGroup.localToWorld(world);
+          const projected = world.clone().project(camera);
+          const yProjected = flattenRouteY
+            ? new THREE.Vector3(0, route.point.y, 0).project(camera)
+            : projected;
+          const x = (projected.x * 0.5 + 0.5) * width;
+          const y = (-yProjected.y * 0.5 + 0.5) * height
+            + route.jitterPx * jitterScale;
+
+          return {
+            centerX: x,
+            item,
+            laneIndex: route.laneIndex,
+            route,
+            routeElapsedMs,
+            width: item.element.offsetWidth || 84,
+            world,
+            x,
+            y,
+          };
+        };
+
+        const renderLatitudeLabels = (
+          routeProfile: DesktopStackLabelRouteProfile | number,
+          labelScale: number,
+          delayConflicts: boolean,
+          flattenRouteY = false,
+          jitterScale = 1,
+        ) => {
+          desktopLabelRoutesGroup.updateMatrixWorld(true);
+          const tentativeLayouts = stackLabelPoints.flatMap((item) => {
+            const isActive = activeStackLayer.value === item.layer;
+            if (!isActive || !item.desktopRoutePrimary) {
+              item.element.style.opacity = "0";
+              stackLabelClockStates.delete(item.element);
+              return [];
+            }
+
+            const clockState = delayConflicts
+              ? stackLabelClockStates.get(item.element)
+              : null;
+            const routeElapsedMs = clockState
+              ? Math.max(
+                  0,
+                  elapsedMs
+                    - clockState.originElapsedMs
+                    - clockState.delayMs,
+                )
+              : delayConflicts
+                ? 0
+                : elapsedMs;
+
+            return [projectLatitudeLabel(
+              item,
+              routeElapsedMs,
+              routeProfile,
+              flattenRouteY,
+              jitterScale,
+            )];
+          });
+          const conflictLayouts = delayConflicts ? tentativeLayouts : [];
+
+          const desktopLayouts = tentativeLayouts.map((layout) => {
+            const { item, route } = layout;
+            if (!delayConflicts) return layout;
+
+            const waiting = (
+              route.progress <= DESKTOP_STACK_LABEL_FADE_IN_PORTION
+              && getBackendStackLabelClearanceFactor(
+                layout,
+                conflictLayouts,
+              ) === 0
+            );
+            const clock = advanceBackendStackLabelClock(
+              elapsedMs,
+              stackLabelClockStates.get(item.element) || null,
+              waiting,
+            );
+            stackLabelClockStates.set(item.element, clock.state);
+
+            return clock.effectiveElapsedMs === layout.routeElapsedMs
+              ? layout
+              : projectLatitudeLabel(
+                  item,
+                  clock.effectiveElapsedMs,
+                  routeProfile,
+                  flattenRouteY,
+                  jitterScale,
+                );
+          });
+
+          desktopLayouts.forEach(({ item, route, world, x, y }) => {
+            item.element.style.opacity = route.opacity.toFixed(3);
+            item.element.style.zIndex = String(Math.round(100 + world.z * 20));
+            item.element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${labelScale})`;
+          });
+        };
+
+        const stickAttachedBridge = shouldUseStackBridgeAttachment(
+          activeStackLayer.value,
+          window.innerWidth,
+        );
+        const mobileStickAttachedBridge = stickAttachedBridge
+          && window.innerWidth <= 900;
+
+        if (shouldUseDesktopStackLatitudeRoutes(
+          activeStackLayer.value,
+          window.innerWidth,
+        )) {
+          renderLatitudeLabels(
+            activeStackLayer.value === "core"
+              ? BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE
+              : 1,
+            0.96,
+            activeStackLayer.value === "core",
+          );
+          return;
+        }
+
+        if (activeStackLayer.value === "surface") {
+          renderLatitudeLabels(
+            MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
+            0.92,
+            true,
+            true,
+            0.6,
+          );
+          return;
+        }
+
+        if (activeStackLayer.value === "core") {
+          renderLatitudeLabels(
+            MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
+            0.82,
+            true,
+            true,
+            0.6,
+          );
+          return;
+        }
+
+        const resolveAttachedPoint = (
+          item: (typeof stackLabelPoints)[number],
+        ) => {
+          if (
+            mobileStickAttachedBridge
+            && "mobileAttachedPoint" in item
+            && item.mobileAttachedPoint
+          ) {
+            return item.mobileAttachedPoint;
+          }
+          if (
+            stickAttachedBridge
+            && "desktopAttachedPoint" in item
+            && item.desktopAttachedPoint
+          ) {
+            return item.desktopAttachedPoint;
+          }
+          return item.point;
+        };
 
         const projectedLabels = stackLabelPoints.map((item, index) => {
-          const world = item.point.clone();
+          const point = resolveAttachedPoint(item);
+          const world = point.clone();
           item.projectionGroup.localToWorld(world);
           const counterpart = item.layer === "mobile"
             ? null
             : stackLabelPoints[index % 2 === 0 ? index + 1 : index - 1];
-          const counterpartWorld = counterpart?.point.clone() || null;
+          const counterpartPoint = counterpart
+            ? resolveAttachedPoint(counterpart)
+            : null;
+          const counterpartWorld = counterpartPoint?.clone() || null;
           if (counterpart && counterpartWorld) {
             counterpart.projectionGroup.localToWorld(counterpartWorld);
           }
           const projected = world.clone().project(camera);
           const x = (projected.x * 0.5 + 0.5) * width;
-          const y = (-projected.y * 0.5 + 0.5) * height;
+          const y = (-projected.y * 0.5 + 0.5) * height
+            - getDesktopMobileLabelLiftPx(item.layer, compactMobile);
           const isSurfaceLabel = item.layer === "surface";
-          const leftFade = isSurfaceLabel
-            ? fadeRange(projected.x, -0.96, -0.89)
-            : fadeRange(projected.x, -0.96, -0.84);
-          const rightFade = isSurfaceLabel
-            ? 1 - fadeRange(projected.x, 0.79, 0.86)
-            : 1 - fadeRange(projected.x, 0.72, 0.86);
-          const mobileDepthStyle = item.layer === "mobile" && compactMobile
-            ? getMobileLabelDepthStyle(world.z)
+          const horizontalOpacity = getStackLabelHorizontalOpacity(
+            item.layer,
+            projected.x,
+          );
+          const mobileDepthStyle = item.layer === "mobile"
+            ? compactMobile
+              ? getMobileLabelDepthStyle(world.z)
+              : getDesktopMobileLabelDepthStyle(world.z)
             : null;
           const frontFade = item.layer === "mobile"
             ? mobileDepthStyle?.opacity ?? 1
@@ -616,11 +1147,18 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             ))
             ? 1
             : 0;
-          const opacity = clampValue(layerVisibility * pairVisibility * leftFade * rightFade * frontFade, 0, 1);
+          const opacity = clampValue(
+            layerVisibility * pairVisibility * horizontalOpacity * frontFade,
+            0,
+            1,
+          );
           const scale = mobileDepthStyle?.scale ?? 0.78 + frontFade * 0.18;
 
           return {
             item,
+            mobileBridgeLaneIndex: "mobileBridgeLaneIndex" in item
+              ? item.mobileBridgeLaneIndex
+              : null,
             opacity,
             scale,
             worldZ: world.z,
@@ -630,38 +1168,111 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           };
         });
 
+        if (!mobileStickAttachedBridge) {
+          mobileBridgeRevealStates.clear();
+        } else {
+          projectedLabels.forEach(({ item, opacity }) => {
+            if (item.layer === "bridge" && opacity <= 0.02) {
+              mobileBridgeRevealStates.delete(item.element);
+            }
+          });
+
+          const acceptedBoxes: Array<{
+            centerX: number;
+            laneIndex: number;
+            width: number;
+          }> = [];
+          const mobileBridgeCandidates = projectedLabels
+            .filter((layout) => (
+              layout.item.layer === "bridge"
+              && layout.mobileBridgeLaneIndex !== null
+              && layout.opacity > 0.02
+            ))
+            .sort((a, b) => {
+              const revealedDifference = Number(
+                mobileBridgeRevealStates.get(b.item.element) === true,
+              ) - Number(
+                mobileBridgeRevealStates.get(a.item.element) === true,
+              );
+              return revealedDifference || b.opacity - a.opacity || a.x - b.x;
+            });
+
+          mobileBridgeCandidates.forEach((layout) => {
+            const candidate = {
+              centerX: layout.x,
+              laneIndex: layout.mobileBridgeLaneIndex as number,
+              width: (layout.item.element.offsetWidth || 84) * layout.scale,
+            };
+            if (mobileBridgeRevealStates.get(layout.item.element) === true) {
+              acceptedBoxes.push(candidate);
+              return;
+            }
+
+            const clearanceFactor = getMobileDevOpsLabelClearanceFactor(
+              candidate,
+              acceptedBoxes,
+            );
+            layout.opacity *= clearanceFactor;
+            if (clearanceFactor >= 1) {
+              mobileBridgeRevealStates.set(layout.item.element, true);
+            }
+            if (clearanceFactor > 0) acceptedBoxes.push(candidate);
+          });
+        }
+
         const labelGap = 8;
         const labelEdge = 24;
         const visible = projectedLabels
           .filter((label) => label.opacity > 0.02)
           .sort((a, b) => a.y - b.y);
 
-        for (let index = 1; index < visible.length; index += 1) {
-          const current = visible[index];
-          for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {
-            const previous = visible[previousIndex];
-            const currentWidth = current.item.element.offsetWidth * current.scale;
-            const previousWidth = previous.item.element.offsetWidth * previous.scale;
-            const horizontalGap = Math.abs(current.x - previous.x);
-            const canOverlapHorizontally = horizontalGap < (currentWidth + previousWidth) / 2 + labelGap;
-            if (!canOverlapHorizontally) continue;
+        const preserveDesktopMobileOrbitPosition = (
+          activeStackLayer.value === "mobile" && !compactMobile
+        );
+        if (!stickAttachedBridge && !preserveDesktopMobileOrbitPosition) {
+          for (let index = 1; index < visible.length; index += 1) {
+            const current = visible[index];
+            for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {
+              const previous = visible[previousIndex];
+              const currentWidth = current.item.element.offsetWidth * current.scale;
+              const previousWidth = previous.item.element.offsetWidth * previous.scale;
+              const horizontalGap = Math.abs(current.x - previous.x);
+              const canOverlapHorizontally = horizontalGap < (currentWidth + previousWidth) / 2 + labelGap;
+              if (!canOverlapHorizontally) continue;
 
-            const currentHeight = current.item.element.offsetHeight * current.scale;
-            const previousHeight = previous.item.element.offsetHeight * previous.scale;
-            current.layoutY = Math.max(
-              current.layoutY,
-              previous.layoutY + (currentHeight + previousHeight) / 2 + labelGap,
-            );
+              const currentHeight = current.item.element.offsetHeight * current.scale;
+              const previousHeight = previous.item.element.offsetHeight * previous.scale;
+              current.layoutY = Math.max(
+                current.layoutY,
+                previous.layoutY + (currentHeight + previousHeight) / 2 + labelGap,
+              );
+            }
           }
+
+          const overflow = visible.length
+            ? Math.max(0, visible[visible.length - 1].layoutY - (height - labelEdge))
+            : 0;
+          if (overflow) visible.forEach((label) => { label.layoutY -= overflow; });
+
+          const underflow = visible.length ? Math.max(0, labelEdge - visible[0].layoutY) : 0;
+          if (underflow) visible.forEach((label) => { label.layoutY += underflow; });
         }
 
-        const overflow = visible.length
-          ? Math.max(0, visible[visible.length - 1].layoutY - (height - labelEdge))
-          : 0;
-        if (overflow) visible.forEach((label) => { label.layoutY -= overflow; });
-
-        const underflow = visible.length ? Math.max(0, labelEdge - visible[0].layoutY) : 0;
-        if (underflow) visible.forEach((label) => { label.layoutY += underflow; });
+        if (activeStackLayer.value !== "mobile" || !compactMobile) {
+          mobileLabelCollisionOffsets.clear();
+        } else {
+          projectedLabels.forEach((layout) => {
+            if (layout.item.layer !== "mobile") return;
+            const targetOffset = layout.layoutY - layout.y;
+            const offset = getSmoothedMobileLabelCollisionOffset(
+              mobileLabelCollisionOffsets.get(layout.item.element) || 0,
+              targetOffset,
+              animationFrame,
+            );
+            mobileLabelCollisionOffsets.set(layout.item.element, offset);
+            layout.layoutY = layout.y + offset;
+          });
+        }
 
         projectedLabels.forEach(({ item, opacity, scale, worldZ, x, layoutY }) => {
           item.element.style.opacity = opacity.toFixed(3);
@@ -670,33 +1281,40 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         });
       };
 
-      const setDesktopOrbitPulsePoint = (angle: number) => {
-        const pulsePoint = getMobileOrbitPoint(angle);
-        desktopOrbitPulse.position.set(pulsePoint.x, pulsePoint.y, pulsePoint.z);
-      };
-
       const renderStaticState = () => {
         const targets = getLayerTargets();
         const orbitMode = getMobileOrbitMode();
+        camera.fov = getStackCameraFov(
+          activeStackLayer.value,
+          window.innerWidth,
+        );
+        camera.updateProjectionMatrix();
         const desktopOrbitVisibility = Number(orbitMode === "desktop");
         const compactOrbitVisibility = Number(orbitMode === "compact");
-        trackedMaterials.forEach(({ baseOpacity, layer, material }) => {
-          material.opacity = baseOpacity * targets[layer];
+        trackedMaterials.forEach(({ baseOpacity, layer, material, role }) => {
+          const resolvedBaseOpacity = getStackMaterialBaseOpacity(
+            baseOpacity,
+            role,
+            activeStackLayer.value,
+          );
+          material.opacity = resolvedBaseOpacity * targets[layer];
         });
         trackedGroups.forEach((item) => {
           item.scale = getGroupScale(item.layer);
           item.group.scale.setScalar(item.scale);
         });
-        desktopOrbitGroup.rotation.set(1.02, 0.28, -0.22);
-        desktopOrbitMaterial.opacity = 0.42 * desktopOrbitVisibility;
-        desktopOrbitPulseMaterial.opacity = 0.96 * desktopOrbitVisibility;
+        (Object.keys(desktopOrbitMaterials) as MobileOrbitId[]).forEach((orbit) => {
+          desktopOrbitMaterials[orbit].opacity = (
+            desktopOrbitOpacity[orbit] * desktopOrbitVisibility
+          );
+        });
         (Object.keys(compactOrbitMaterials) as MobileOrbitId[]).forEach((orbit) => {
           compactOrbitMaterials[orbit].opacity = compactOrbitOpacity[orbit] * compactOrbitVisibility;
         });
         updateMobileLabelPoints(0);
-        setDesktopOrbitPulsePoint(-0.2);
+        coreGroup.rotation.y = 0;
         renderer.render(scene, camera);
-        updateStackLabels();
+        updateStackLabels(DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * 0.18);
       };
       renderStaticLayer = () => {
         if (reduceMotion) renderStaticState();
@@ -714,10 +1332,23 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
           const targets = getLayerTargets();
           const orbitMode = getMobileOrbitMode();
+          const targetCameraFov = getStackCameraFov(
+            activeStackLayer.value,
+            window.innerWidth,
+          );
+          if (camera.fov !== targetCameraFov) {
+            camera.fov = targetCameraFov;
+            camera.updateProjectionMatrix();
+          }
           const desktopOrbitVisibility = Number(orbitMode === "desktop");
           const compactOrbitVisibility = Number(orbitMode === "compact");
-          trackedMaterials.forEach(({ baseOpacity, layer, material }) => {
-            const targetOpacity = baseOpacity * targets[layer];
+          trackedMaterials.forEach(({ baseOpacity, layer, material, role }) => {
+            const resolvedBaseOpacity = getStackMaterialBaseOpacity(
+              baseOpacity,
+              role,
+              activeStackLayer.value,
+            );
+            const targetOpacity = resolvedBaseOpacity * targets[layer];
             material.opacity += (targetOpacity - material.opacity) * 0.08 * frame;
           });
 
@@ -726,39 +1357,39 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             item.scale += (targetScale - item.scale) * 0.06 * frame;
             item.group.scale.setScalar(item.scale);
           });
-          desktopOrbitMaterial.opacity += (
-            0.42 * desktopOrbitVisibility - desktopOrbitMaterial.opacity
-          ) * 0.08 * frame;
-          desktopOrbitPulseMaterial.opacity += (
-            0.96 * desktopOrbitVisibility - desktopOrbitPulseMaterial.opacity
-          ) * 0.1 * frame;
+          (Object.keys(desktopOrbitMaterials) as MobileOrbitId[]).forEach((orbit) => {
+            const material = desktopOrbitMaterials[orbit];
+            const targetOpacity = desktopOrbitOpacity[orbit] * desktopOrbitVisibility;
+            material.opacity += (targetOpacity - material.opacity) * 0.08 * frame;
+          });
           (Object.keys(compactOrbitMaterials) as MobileOrbitId[]).forEach((orbit) => {
             const material = compactOrbitMaterials[orbit];
             const targetOpacity = compactOrbitOpacity[orbit] * compactOrbitVisibility;
             material.opacity += (targetOpacity - material.opacity) * 0.1 * frame;
           });
           if (orbitMode === "desktop") {
-            updateMobileLabelPoints(0);
-            desktopOrbitGroup.rotation.z += 0.0012 * frame;
-            const pulseAngle = (now * 0.00034) % (Math.PI * 2);
-            setDesktopOrbitPulsePoint(pulseAngle);
+            advanceDesktopMobileOrbits(frame * 16.67);
+            updateMobileLabelPoints(now);
           } else if (orbitMode === "compact") {
             updateMobileLabelPoints(now);
           }
 
           if (orbitMode === "compact") {
             const targetRotation = getCompactMobileRootRotation(now);
-            const driftEase = 0.035 * frame;
-            rootGroup.rotation.x += (targetRotation.x - rootGroup.rotation.x) * driftEase;
-            rootGroup.rotation.y += (targetRotation.y - rootGroup.rotation.y) * driftEase;
-            rootGroup.rotation.z += (targetRotation.z - rootGroup.rotation.z) * driftEase;
+            rootGroup.rotation.set(
+              targetRotation.x,
+              targetRotation.y,
+              targetRotation.z,
+            );
+            coreGroup.rotation.y = 0;
           } else {
             rootGroup.rotation.y += 0.0022 * frame;
             rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
             rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
+            coreGroup.rotation.y += (0 - coreGroup.rotation.y) * 0.08 * frame;
           }
           renderer.render(scene, camera);
-          updateStackLabels();
+          updateStackLabels(now, frame);
         }
 
         frameId = requestAnimationFrame(tick);

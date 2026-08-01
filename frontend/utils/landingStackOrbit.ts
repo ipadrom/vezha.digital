@@ -3,23 +3,202 @@ export type StackVisualLayer = StackBaseLayer | "mobile";
 export type StackLayerTargets = Record<StackBaseLayer, number>;
 export type MobileOrbitId = "outer" | "inner";
 export type MobileOrbitMode = "hidden" | "desktop" | "compact";
+export type StackMaterialRole =
+  | "default"
+  | "core-shell"
+  | "core-lines"
+  | "core-points"
+  | "bridge-network"
+  | "bridge-stick";
+export type StackPoint3 = {
+  x: number;
+  y: number;
+  z: number;
+};
+export type MobileLabelBounds = {
+  centerX: number;
+  centerY: number;
+  height: number;
+  width: number;
+};
+
+export function getStackMaterialBaseOpacity(
+  defaultOpacity: number,
+  role: StackMaterialRole,
+  visualLayer: StackVisualLayer,
+) {
+  if (visualLayer !== "bridge") return defaultOpacity;
+  if (role === "core-shell" || role === "core-lines") return 0.22;
+  if (role === "core-points") return 0.8;
+  if (role === "bridge-network" || role === "bridge-stick") return 0.65;
+  return defaultOpacity;
+}
+
+export function getStackBridgeAttachmentPoint(
+  anchor: StackPoint3,
+  outerPoint: StackPoint3,
+  ratio = 0.75,
+): StackPoint3 {
+  const safeRatio = Math.max(0, Math.min(1, ratio));
+  const interpolate = (start: number, end: number) =>
+    Number((start + (end - start) * safeRatio).toFixed(6));
+
+  return {
+    x: interpolate(anchor.x, outerPoint.x),
+    y: interpolate(anchor.y, outerPoint.y),
+    z: interpolate(anchor.z, outerPoint.z),
+  };
+}
+
+export type DesktopDevOpsBridgeLabel = "Docker" | "CI/CD" | "Nginx" | "Linux";
+
+const DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS = {
+  Docker: 0.72,
+  "CI/CD": 0.24,
+  Nginx: -0.22,
+  Linux: -0.68,
+} as const satisfies Record<DesktopDevOpsBridgeLabel, number>;
+
+const MOBILE_DEVOPS_BRIDGE_ROUTES = {
+  Docker: { laneIndex: 0, y: 0.72 },
+  Nginx: { laneIndex: 0, y: 0.72 },
+  "CI/CD": { laneIndex: 1, y: 0.16 },
+  Linux: { laneIndex: 1, y: 0.16 },
+} as const satisfies Record<
+  DesktopDevOpsBridgeLabel,
+  { laneIndex: 0 | 1; y: number }
+>;
+
+function getDevOpsBridgeRouteAtLevel(y: number, angle: number) {
+  const directionX = Math.cos(angle);
+  const directionZ = Math.sin(angle);
+  const outerPoint = {
+    x: directionX * 1.28,
+    y,
+    z: directionZ * 1.2,
+  };
+  const outerRadius = Math.hypot(outerPoint.x, outerPoint.y, outerPoint.z);
+  const anchorScale = 0.690654 / outerRadius;
+
+  return {
+    anchor: {
+      x: outerPoint.x * anchorScale,
+      y: outerPoint.y * anchorScale,
+      z: outerPoint.z * anchorScale,
+    },
+    outerPoint,
+  };
+}
+
+export function getDesktopDevOpsBridgeRoute(
+  label: DesktopDevOpsBridgeLabel,
+  angle: number,
+) {
+  return getDevOpsBridgeRouteAtLevel(
+    DESKTOP_DEVOPS_BRIDGE_ROUTE_LEVELS[label],
+    angle,
+  );
+}
+
+export function getMobileDevOpsBridgeRoute(
+  label: DesktopDevOpsBridgeLabel,
+  angle: number,
+) {
+  const mobileRoute = MOBILE_DEVOPS_BRIDGE_ROUTES[label];
+  return {
+    ...getDevOpsBridgeRouteAtLevel(mobileRoute.y, angle),
+    laneIndex: mobileRoute.laneIndex,
+  };
+}
+
+export const DESKTOP_STACK_LABEL_ROUTE_DURATION_MS = 18_000;
+export const DESKTOP_STACK_LABEL_LANES = [
+  { y: 0.72 },
+  { y: 0.26 },
+  { y: -0.22 },
+  { y: -0.7 },
+] as const;
+
+export type DesktopStackLabelRouteProfile = {
+  geometryScale: number;
+  laneYs: readonly number[];
+};
+
+export const BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE = {
+  geometryScale: 0.5,
+  laneYs: [0.58, 0.16, -0.16, -0.58],
+} as const satisfies DesktopStackLabelRouteProfile;
+
+export const MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE = {
+  geometryScale: 1,
+  laneYs: [1.35, 0.99, 0.63, 0.27],
+} as const satisfies DesktopStackLabelRouteProfile;
+
+export const MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE = {
+  geometryScale: 0.62,
+  laneYs: [0.98, 0.72, 0.46, 0.2],
+} as const satisfies DesktopStackLabelRouteProfile;
+
+export type BackendStackLabelCollisionBox = {
+  centerX: number;
+  laneIndex: number;
+  width: number;
+};
+
+export type BackendStackLabelClockState = {
+  delayMs: number;
+  lastElapsedMs: number;
+  originElapsedMs: number;
+};
+
+const BACKEND_STACK_LABEL_MIN_CLEARANCE_PX = 14;
+export const BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX = 24;
+
+const DESKTOP_STACK_LABEL_RADIUS = 1.62;
+const DESKTOP_STACK_LABEL_MAX_ANGLE = 1.32;
+export const DESKTOP_STACK_LABEL_FADE_IN_PORTION = 0.12;
+const DESKTOP_STACK_LABEL_FADE_OUT_PORTION = 0.28;
 
 export const MOBILE_ORBIT_TRACKS = {
   outer: {
     direction: 1,
     durationMs: 32_000,
-    radiusX: 2.02,
+    radiusX: 1.88,
     radiusY: 1.08,
     rotation: [1.02, 0.28, -0.22],
   },
   inner: {
-    direction: -1,
-    durationMs: 24_000,
-    radiusX: 1.72,
+    direction: 1,
+    durationMs: 32_000,
+    radiusX: 1.6,
     radiusY: 0.92,
     rotation: [0.82, -0.38, 0.62],
   },
 } as const;
+
+export const DESKTOP_MOBILE_ORBIT_TRACKS = {
+  outer: {
+    direction: 1,
+    durationMs: 36_000,
+    radiusX: 1.7,
+    radiusY: 0.92,
+    rotation: [1.02, 0.28, -0.22],
+  },
+  inner: {
+    direction: 1,
+    durationMs: 36_000,
+    radiusX: 1.38,
+    radiusY: 0.72,
+    rotation: [0.82, -0.38, 0.62],
+  },
+} as const;
+
+export const DESKTOP_MOBILE_CORE_BELT_TEXT = "VEZHA DIGITAL • VEZHA DIGITAL • ";
+export const DESKTOP_MOBILE_CORE_BELT_DURATION_MS = 44_000;
+export const DESKTOP_MOBILE_CORE_BELT_Z_INDEX = 40;
+const DESKTOP_MOBILE_CORE_BELT_RADIUS = 0.84;
+export const DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS = 0.055;
+const DESKTOP_MOBILE_LABEL_LIFT_PX = 28;
 
 export const MOBILE_ORBIT_TECH = [
   {
@@ -36,10 +215,10 @@ export const MOBILE_ORBIT_TECH = [
   {
     angle: 0.9,
     color: "#111318",
-    desktopPhase: 0.9,
+    desktopPhase: 2.5 + Math.PI / 4,
     label: "Expo",
     orbit: "inner",
-    phase: 0.9,
+    phase: 2.5 + Math.PI / 4,
     placement: "orbit",
     radiusScale: 1,
     slug: "expo",
@@ -47,10 +226,10 @@ export const MOBILE_ORBIT_TECH = [
   {
     angle: -0.2,
     color: "#5A0FC8",
-    desktopPhase: -0.2,
+    desktopPhase: 2.5 + Math.PI / 4 + Math.PI,
     label: "PWA",
     orbit: "inner",
-    phase: 0.9 + Math.PI,
+    phase: 2.5 + Math.PI / 4 + Math.PI,
     placement: "intersection",
     radiusScale: 0.82,
     slug: "pwa",
@@ -58,7 +237,7 @@ export const MOBILE_ORBIT_TECH = [
   {
     angle: -1.72,
     color: "#54C5F8",
-    desktopPhase: -1.72,
+    desktopPhase: 2.5 + Math.PI,
     label: "Flutter",
     orbit: "outer",
     phase: 2.5 + Math.PI,
@@ -68,6 +247,174 @@ export const MOBILE_ORBIT_TECH = [
   },
 ] as const;
 
+function getDesktopStackLabelJitter(labelIndex: number, traversal: number) {
+  let seed = Math.imul(labelIndex + 1, 0x45d9f3b)
+    ^ Math.imul(traversal + 1, 0x27d4eb2d);
+  seed ^= seed >>> 16;
+  return Math.abs(seed) % 7 - 3;
+}
+
+export function getBackendStackLabelClearanceFactor(
+  candidate: BackendStackLabelCollisionBox,
+  peers: readonly BackendStackLabelCollisionBox[],
+) {
+  let minimumClearance = Number.POSITIVE_INFINITY;
+
+  peers.forEach((peer) => {
+    if (
+      peer.laneIndex !== candidate.laneIndex
+      || peer.centerX <= candidate.centerX
+    ) {
+      return;
+    }
+
+    const clearance = peer.centerX - peer.width / 2
+      - (candidate.centerX + candidate.width / 2);
+    minimumClearance = Math.min(minimumClearance, clearance);
+  });
+
+  if (!Number.isFinite(minimumClearance)) return 1;
+
+  const normalized = Math.min(
+    1,
+    Math.max(
+      0,
+      (minimumClearance - BACKEND_STACK_LABEL_MIN_CLEARANCE_PX)
+        / BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
+    ),
+  );
+
+  return Number((
+    normalized * normalized * (3 - 2 * normalized)
+  ).toFixed(6));
+}
+
+export function getMobileDevOpsLabelClearanceFactor(
+  candidate: BackendStackLabelCollisionBox,
+  peers: readonly BackendStackLabelCollisionBox[],
+) {
+  let minimumClearance = Number.POSITIVE_INFINITY;
+
+  peers.forEach((peer) => {
+    if (peer.laneIndex !== candidate.laneIndex) return;
+
+    const clearance = Math.abs(peer.centerX - candidate.centerX)
+      - peer.width / 2
+      - candidate.width / 2;
+    minimumClearance = Math.min(minimumClearance, clearance);
+  });
+
+  if (!Number.isFinite(minimumClearance)) return 1;
+
+  const normalized = Math.min(
+    1,
+    Math.max(
+      0,
+      (minimumClearance - BACKEND_STACK_LABEL_MIN_CLEARANCE_PX)
+        / BACKEND_STACK_LABEL_REVEAL_DISTANCE_PX,
+    ),
+  );
+
+  return Number((
+    normalized * normalized * (3 - 2 * normalized)
+  ).toFixed(6));
+}
+
+export function advanceBackendStackLabelClock(
+  elapsedMs: number,
+  state: BackendStackLabelClockState | null,
+  waiting: boolean,
+) {
+  const safeElapsedMs = Math.max(0, elapsedMs);
+  if (!state) {
+    const initialState = {
+      delayMs: 0,
+      lastElapsedMs: safeElapsedMs,
+      originElapsedMs: safeElapsedMs,
+    };
+
+    return {
+      effectiveElapsedMs: 0,
+      state: initialState,
+    };
+  }
+
+  const frameMs = Math.max(0, safeElapsedMs - state.lastElapsedMs);
+  const delayMs = state.delayMs + (waiting ? frameMs : 0);
+  const nextState = {
+    delayMs,
+    lastElapsedMs: safeElapsedMs,
+    originElapsedMs: state.originElapsedMs,
+  };
+
+  return {
+    effectiveElapsedMs: Math.max(
+      0,
+      safeElapsedMs - nextState.originElapsedMs - delayMs,
+    ),
+    state: nextState,
+  };
+}
+
+export function getDesktopStackLabelRouteState(
+  elapsedMs: number,
+  labelIndex: number,
+  labelCount: number,
+  routeProfileOrScale: DesktopStackLabelRouteProfile | number = 1,
+) {
+  const safeIndex = Math.max(0, Math.floor(labelIndex));
+  const safeCount = Math.max(1, Math.floor(labelCount));
+  const routeProfile = typeof routeProfileOrScale === "number"
+    ? null
+    : routeProfileOrScale;
+  const requestedScale = routeProfile
+    ? routeProfile.geometryScale
+    : routeProfileOrScale;
+  const safeScale = Math.max(0, requestedScale);
+  const laneYs = routeProfile?.laneYs.length
+    ? routeProfile.laneYs
+    : DESKTOP_STACK_LABEL_LANES.map((lane) => lane.y);
+  const phase = (safeIndex % safeCount) / safeCount;
+  const routePosition = Math.max(0, elapsedMs) / DESKTOP_STACK_LABEL_ROUTE_DURATION_MS
+    + phase;
+  const traversal = Math.floor(routePosition);
+  const progress = Number((routePosition - traversal).toFixed(6));
+  const laneIndex = (safeIndex + traversal) % laneYs.length;
+  const laneY = laneYs[laneIndex];
+  const routeRadius = routeProfile
+    ? DESKTOP_STACK_LABEL_RADIUS * safeScale
+    : DESKTOP_STACK_LABEL_RADIUS;
+  const coordinateScale = routeProfile ? 1 : safeScale;
+  const latitudeRadius = Math.sqrt(
+    Math.max(0, routeRadius ** 2 - laneY ** 2),
+  );
+  const horizontalLimit = Math.sin(DESKTOP_STACK_LABEL_MAX_ANGLE)
+    * latitudeRadius;
+  const x = -horizontalLimit + progress * horizontalLimit * 2;
+  const edgeVisibility = Math.min(
+    1,
+    progress / DESKTOP_STACK_LABEL_FADE_IN_PORTION,
+    (1 - progress) / DESKTOP_STACK_LABEL_FADE_OUT_PORTION,
+  );
+  const opacity = edgeVisibility * edgeVisibility * (3 - 2 * edgeVisibility);
+  const baseX = Number(x.toFixed(6));
+  const baseZ = Number((
+    Math.sqrt(Math.max(0, latitudeRadius ** 2 - x ** 2)) * 0.98
+  ).toFixed(6));
+
+  return {
+    jitterPx: getDesktopStackLabelJitter(safeIndex, traversal),
+    laneIndex,
+    opacity: Number(opacity.toFixed(6)),
+    point: {
+      x: Number((baseX * coordinateScale).toFixed(6)),
+      y: Number((laneY * coordinateScale).toFixed(6)),
+      z: Number((baseZ * coordinateScale).toFixed(6)),
+    },
+    progress,
+  };
+}
+
 export function resolveStackVisualLayer(title = ""): StackVisualLayer {
   const normalized = title.toLowerCase();
   if (normalized.includes("backend")) return "core";
@@ -76,17 +423,31 @@ export function resolveStackVisualLayer(title = ""): StackVisualLayer {
   return "surface";
 }
 
+export function shouldUseStackBridgeAttachment(
+  layer: StackVisualLayer,
+  _viewportWidth: number,
+) {
+  return layer === "bridge";
+}
+
+export function shouldUseDesktopStackLatitudeRoutes(
+  layer: StackVisualLayer,
+  viewportWidth: number,
+) {
+  return viewportWidth > 900 && (layer === "surface" || layer === "core");
+}
+
 export function getStackLayerTargets(
   layer: StackVisualLayer,
   compactMobile = false,
 ): StackLayerTargets {
   if (layer === "core") return { bridge: 0.16, core: 1, surface: 0.12 };
-  if (layer === "bridge") return { bridge: 1, core: 0.26, surface: 0.26 };
+  if (layer === "bridge") return { bridge: 1, core: 0.1, surface: 0.26 };
   if (layer === "mobile") {
     return {
       bridge: 0.52,
       core: 0.48,
-      surface: compactMobile ? 0 : 0.58,
+      surface: 0,
     };
   }
   return { bridge: 0.16, core: 0.1, surface: 1 };
@@ -96,8 +457,11 @@ export function getStackGroupScale(
   layer: StackBaseLayer,
   visualLayer: StackVisualLayer,
   compactMobile = false,
+  mobileViewport = false,
 ) {
   if (compactMobile && visualLayer === "mobile" && layer === "core") return 0.5;
+  if (!compactMobile && visualLayer === "mobile" && layer === "core") return 0.596;
+  if (mobileViewport && visualLayer === "core" && layer === "core") return 1.52;
   const target = getStackLayerTargets(visualLayer, compactMobile)[layer];
   return layer === "core" ? 1 + target * 0.4 : 1 + target * 0.055;
 }
@@ -128,12 +492,95 @@ export function getMobileOrbitAngle(
   return phase + (elapsedMs / track.durationMs) * Math.PI * 2 * track.direction;
 }
 
+export function getDesktopMobileOrbitAngle(
+  elapsedMs: number,
+  orbit: MobileOrbitId,
+  phase = 0,
+) {
+  const track = DESKTOP_MOBILE_ORBIT_TRACKS[orbit];
+  return phase + (elapsedMs / track.durationMs) * Math.PI * 2 * track.direction;
+}
+
+export function getDesktopMobileTechnologyPoint(
+  spec: {
+    desktopPhase?: number;
+    orbit: MobileOrbitId;
+    phase: number;
+  },
+  orbitElapsedMs: number,
+) {
+  const angle = getDesktopMobileOrbitAngle(
+    orbitElapsedMs,
+    spec.orbit,
+    spec.desktopPhase ?? spec.phase,
+  );
+  return getDesktopMobileOrbitPoint(angle, spec.orbit);
+}
+
+export function getDesktopMobileOrbitPoint(
+  angle: number,
+  orbit: MobileOrbitId,
+) {
+  const track = DESKTOP_MOBILE_ORBIT_TRACKS[orbit];
+  const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
+  const normalizedY = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);
+
+  return {
+    x: Number((normalizedX * track.radiusX).toFixed(6)),
+    y: Number((normalizedY * track.radiusY).toFixed(6)),
+    z: 0,
+  };
+}
+
+export function getDesktopMobileCoreBeltPoint(
+  glyphIndex: number,
+  glyphCount: number,
+  elapsedMs: number,
+) {
+  const safeGlyphCount = Math.max(1, glyphCount);
+  const angle = -(glyphIndex / safeGlyphCount) * Math.PI * 2
+    - (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+  const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
+  const normalizedZ = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);
+
+  return {
+    x: Number((normalizedX * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
+    y: -0.07,
+    z: Number((normalizedZ * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
+  };
+}
+
+export function getContinuousOrbitElapsed(
+  currentMs: number,
+  deltaMs: number,
+) {
+  return currentMs + Math.max(0, deltaMs);
+}
+
+export function doMobileLabelBoundsOverlap(
+  first: MobileLabelBounds,
+  second: MobileLabelBounds,
+  gapPx = 8,
+) {
+  const horizontalLimit = (first.width + second.width) / 2 + gapPx;
+  const verticalLimit = (first.height + second.height) / 2 + gapPx;
+  return Math.abs(first.centerX - second.centerX) < horizontalLimit
+    && Math.abs(first.centerY - second.centerY) < verticalLimit;
+}
+
 export function resolveMobileOrbitMode(
   layer: StackVisualLayer,
   viewportWidth: number,
 ): MobileOrbitMode {
   if (layer !== "mobile") return "hidden";
   return viewportWidth <= 900 ? "compact" : "desktop";
+}
+
+export function getStackCameraFov(
+  layer: StackVisualLayer,
+  viewportWidth: number,
+) {
+  return layer === "mobile" && viewportWidth <= 900 ? 41 : 35;
 }
 
 export function getMobileTechnologyPoint(
@@ -156,18 +603,67 @@ export function getMobileTechnologyPoint(
   );
 }
 
-export function getMobileLabelDepthStyle(worldZ: number) {
-  const depth = Math.max(0, Math.min(1, (worldZ + 1.2) / 2.4));
+export function getMobileLabelDepthStyle(_worldZ: number) {
   return {
-    opacity: Number((0.58 + depth * 0.42).toFixed(3)),
-    scale: Number((0.78 + depth * 0.18).toFixed(3)),
+    opacity: 1,
+    scale: 1,
   };
+}
+
+export function getDesktopMobileLabelDepthStyle(_worldZ: number) {
+  return {
+    opacity: 1,
+    scale: 1,
+  };
+}
+
+export function getDesktopMobileLabelLiftPx(
+  layer: StackVisualLayer,
+  _compactMobile: boolean,
+) {
+  return layer === "mobile"
+    ? DESKTOP_MOBILE_LABEL_LIFT_PX
+    : 0;
+}
+
+export function getStackLabelHorizontalOpacity(
+  layer: StackVisualLayer,
+  projectedX: number,
+) {
+  if (layer === "mobile") return 1;
+
+  const fadeRange = (value: number, start: number, end: number) => (
+    Math.max(0, Math.min(1, (value - start) / (end - start)))
+  );
+  const isSurfaceLabel = layer === "surface";
+  const leftFade = isSurfaceLabel
+    ? fadeRange(projectedX, -0.96, -0.89)
+    : fadeRange(projectedX, -0.96, -0.84);
+  const rightFade = isSurfaceLabel
+    ? 1 - fadeRange(projectedX, 0.79, 0.86)
+    : 1 - fadeRange(projectedX, 0.72, 0.86);
+
+  return leftFade * rightFade;
 }
 
 export function getCompactMobileRootRotation(elapsedMs: number) {
   return {
-    x: -0.16 + Math.sin(elapsedMs * 0.00005) * 0.012,
-    y: -0.4 + Math.sin(elapsedMs * 0.00004) * 0.01,
-    z: 0.08 + Math.sin(elapsedMs * 0.000035) * 0.008,
+    x: -0.16 + Math.sin(elapsedMs * 0.00022) * 0.08,
+    y: -0.4 + getCompactMobileCoreRotation(elapsedMs),
+    z: 0.08 + Math.sin(elapsedMs * 0.00018 + 1.2) * 0.045,
   };
+}
+
+export function getCompactMobileCoreRotation(elapsedMs: number) {
+  return (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+}
+
+export function getSmoothedMobileLabelCollisionOffset(
+  currentOffset: number,
+  targetOffset: number,
+  frame: number,
+) {
+  const safeFrame = Math.max(0, Math.min(frame, 2.2));
+  const easing = 1 - Math.pow(0.82, safeFrame);
+  return currentOffset + (targetOffset - currentOffset) * easing;
 }
