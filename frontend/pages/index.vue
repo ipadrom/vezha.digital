@@ -3828,6 +3828,7 @@ useHead(() => ({
   display: grid;
   grid-template-columns: repeat(4, minmax(0, max-content));
   align-items: center;
+  justify-items: start;
   gap: 12px;
   margin-top: 48px;
   padding-top: 0;
@@ -3840,14 +3841,8 @@ useHead(() => ({
 
 .vz-hero__stats span {
   display: inline-flex;
-  min-height: 42px;
   align-items: center;
   justify-content: center;
-  padding: 0 18px;
-  border: 1px solid var(--chipbd);
-  border-radius: 999px;
-  background: var(--bg);
-  color: var(--muted);
 }
 
 .vz-marquee {
@@ -4474,7 +4469,8 @@ useHead(() => ({
   gap: 8px;
 }
 
-.vz-stack-item span:not([data-dot], [data-halo]) {
+.vz-stack-item span:not([data-dot], [data-halo]),
+.vz-hero__stats span {
   padding: 7px 13px;
   border: 1px solid var(--chipbd);
   border-radius: 999px;
@@ -4482,6 +4478,8 @@ useHead(() => ({
   font-family: "JetBrains Mono", monospace;
   font-size: 12px;
   letter-spacing: 0.03em;
+  text-transform: none;
+  white-space: nowrap;
 }
 
 .vz-about,
@@ -5082,13 +5080,9 @@ useHead(() => ({
   }
 
   .vz-hero__stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px 14px;
+    grid-template-columns: repeat(2, max-content);
+    gap: 10px 12px;
     margin-top: 44px;
-  }
-
-  .vz-hero__stats span {
-    padding: 0 12px;
   }
 
   .vz-about {
