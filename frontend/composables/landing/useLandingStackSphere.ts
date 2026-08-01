@@ -15,6 +15,7 @@ import {
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
+  getDesktopMobileOrbitPoint,
   getDesktopMobileTechnologyPoint,
   getDesktopStackLabelRouteState,
   getMobileDevOpsBridgeRoute,
@@ -594,29 +595,28 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       const coreShellGeometry = new THREE.IcosahedronGeometry(0.68, 3);
       const coreInnerGeometry = new THREE.IcosahedronGeometry(0.34, 2);
       const desktopOrbitOpacity: Record<MobileOrbitId, number> = {
-        outer: 0.34,
-        inner: 0.26,
+        outer: 0.72,
+        inner: 0.58,
       };
       const desktopOrbitMaterials = {} as Record<MobileOrbitId, import("three").LineBasicMaterial>;
       const desktopOrbitGeometries: import("three").BufferGeometry[] = [];
       (Object.keys(desktopOrbitGroups) as MobileOrbitId[]).forEach((orbit) => {
-        const track = DESKTOP_MOBILE_ORBIT_TRACKS[orbit];
         const points = Array.from({ length: 97 }, (_, index) => {
           const angle = (index / 96) * Math.PI * 2;
-          return new THREE.Vector3(
-            Math.cos(angle) * track.radiusX,
-            Math.sin(angle) * track.radiusY,
-            0,
-          );
+          const point = getDesktopMobileOrbitPoint(angle, orbit);
+          return new THREE.Vector3(point.x, point.y, point.z);
         });
         const geometry = new THREE.BufferGeometry().setFromPoints(points);
         const material = new THREE.LineBasicMaterial({
-          color: orbit === "outer" ? 0x6f7683 : 0x63818c,
+          color: orbit === "outer" ? 0x4d5968 : 0x4f7482,
+          depthTest: false,
           depthWrite: false,
           opacity: 0,
           transparent: true,
         });
-        desktopOrbitGroups[orbit].add(new THREE.Line(geometry, material));
+        const line = new THREE.Line(geometry, material);
+        line.renderOrder = 12;
+        desktopOrbitGroups[orbit].add(line);
         desktopOrbitGeometries.push(geometry);
         desktopOrbitMaterials[orbit] = material;
         orbitMaterials.push(material);

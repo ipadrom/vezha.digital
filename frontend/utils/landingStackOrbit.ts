@@ -180,15 +180,15 @@ export const DESKTOP_MOBILE_ORBIT_TRACKS = {
   outer: {
     direction: 1,
     durationMs: 36_000,
-    radiusX: 2.02,
-    radiusY: 1.08,
+    radiusX: 1.48,
+    radiusY: 0.92,
     rotation: [1.02, 0.28, -0.22],
   },
   inner: {
     direction: -1,
     durationMs: 28_000,
-    radiusX: 1.72,
-    radiusY: 0.92,
+    radiusX: 1.14,
+    radiusY: 0.72,
     rotation: [0.82, -0.38, 0.62],
   },
 } as const;
@@ -493,12 +493,19 @@ export function getDesktopMobileTechnologyPoint(
   },
   orbitElapsedMs: number,
 ) {
-  const track = DESKTOP_MOBILE_ORBIT_TRACKS[spec.orbit];
   const angle = getDesktopMobileOrbitAngle(
     orbitElapsedMs,
     spec.orbit,
     spec.phase,
   );
+  return getDesktopMobileOrbitPoint(angle, spec.orbit);
+}
+
+export function getDesktopMobileOrbitPoint(
+  angle: number,
+  orbit: MobileOrbitId,
+) {
+  const track = DESKTOP_MOBILE_ORBIT_TRACKS[orbit];
   const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
   const normalizedY = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);
 

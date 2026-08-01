@@ -16,6 +16,7 @@ import {
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
   getDesktopMobileOrbitAngle,
+  getDesktopMobileOrbitPoint,
   getDesktopMobileTechnologyPoint,
   getDesktopStackLabelRouteState,
   getMobileDevOpsBridgeRoute,
@@ -200,6 +201,42 @@ test("moves desktop Mobile pairs on two slow counter-rotating orbits", () => {
     y: -expoPoint.y,
     z: 0,
   });
+});
+
+test("keeps desktop Mobile labels on orbit paths that fit the sphere viewport", () => {
+  assert.deepEqual(getDesktopMobileOrbitPoint(0, "outer"), {
+    x: 1.48,
+    y: 0,
+    z: 0,
+  });
+  assert.deepEqual(getDesktopMobileOrbitPoint(Math.PI / 2, "outer"), {
+    x: 0,
+    y: 0.92,
+    z: 0,
+  });
+  assert.deepEqual(getDesktopMobileOrbitPoint(0, "inner"), {
+    x: 1.14,
+    y: 0,
+    z: 0,
+  });
+  assert.deepEqual(getDesktopMobileOrbitPoint(Math.PI / 2, "inner"), {
+    x: 0,
+    y: 0.72,
+    z: 0,
+  });
+
+  for (const spec of MOBILE_ORBIT_TECH) {
+    const elapsedMs = 7_500;
+    const angle = getDesktopMobileOrbitAngle(
+      elapsedMs,
+      spec.orbit,
+      spec.phase,
+    );
+    assert.deepEqual(
+      getDesktopMobileTechnologyPoint(spec, elapsedMs),
+      getDesktopMobileOrbitPoint(angle, spec.orbit),
+    );
+  }
 });
 
 test("shrinks desktop Mobile labels only while they move behind the core", () => {
