@@ -163,14 +163,14 @@ export const MOBILE_ORBIT_TRACKS = {
   outer: {
     direction: 1,
     durationMs: 32_000,
-    radiusX: 2.02,
+    radiusX: 1.88,
     radiusY: 1.08,
     rotation: [1.02, 0.28, -0.22],
   },
   inner: {
     direction: 1,
     durationMs: 32_000,
-    radiusX: 1.72,
+    radiusX: 1.6,
     radiusY: 0.92,
     rotation: [0.82, -0.38, 0.62],
   },
@@ -645,4 +645,18 @@ export function getCompactMobileRootRotation(elapsedMs: number) {
     y: -0.4 + Math.sin(elapsedMs * 0.00004) * 0.01,
     z: 0.08 + Math.sin(elapsedMs * 0.000035) * 0.008,
   };
+}
+
+export function getCompactMobileCoreRotation(elapsedMs: number) {
+  return (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+}
+
+export function getSmoothedMobileLabelCollisionOffset(
+  currentOffset: number,
+  targetOffset: number,
+  frame: number,
+) {
+  const safeFrame = Math.max(0, Math.min(frame, 2.2));
+  const easing = 1 - Math.pow(0.82, safeFrame);
+  return currentOffset + (targetOffset - currentOffset) * easing;
 }

@@ -13,6 +13,7 @@ import {
   MOBILE_ORBIT_TRACKS,
   advanceBackendStackLabelClock,
   getContinuousOrbitElapsed,
+  getCompactMobileCoreRotation,
   getCompactMobileRootRotation,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
@@ -27,6 +28,7 @@ import {
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
+  getSmoothedMobileLabelCollisionOffset,
   getStackBridgeAttachmentPoint,
   getStackGroupScale,
   getStackLayerTargets,
@@ -186,6 +188,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         BackendStackLabelClockState
       >();
       const mobileBridgeRevealStates = new Map<HTMLElement, boolean>();
+      const mobileLabelCollisionOffsets = new Map<HTMLElement, number>();
 
       disposePartial = () => {
         if (frameId) cancelAnimationFrame(frameId);
@@ -845,9 +848,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
       const updateMobileCoreBelt = (elapsedMs: number) => {
         const visible = getMobileOrbitMode() !== "hidden";
-        coreGroup.updateMatrixWorld(true);
+        rootGroup.updateMatrixWorld(true);
+        const coreScale = coreGroup.scale.x;
         const coreCenter = new THREE.Vector3();
-        coreGroup.localToWorld(coreCenter);
+        rootGroup.localToWorld(coreCenter);
 
         mobileCoreBeltGlyphs.forEach((element, index) => {
           if (!visible) {
@@ -865,14 +869,15 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             mobileCoreBeltGlyphs.length,
             elapsedMs,
           );
-          const world = new THREE.Vector3(point.x, point.y, point.z);
+          const world = new THREE.Vector3(point.x, point.y, point.z)
+            .multiplyScalar(coreScale);
           const tangentWorld = new THREE.Vector3(
             tangentPoint.x,
             tangentPoint.y,
             tangentPoint.z,
-          );
-          coreGroup.localToWorld(world);
-          coreGroup.localToWorld(tangentWorld);
+          ).multiplyScalar(coreScale);
+          rootGroup.localToWorld(world);
+          rootGroup.localToWorld(tangentWorld);
           const projected = world.clone().project(camera);
           const tangentProjected = tangentWorld.clone().project(camera);
           const x = (projected.x * 0.5 + 0.5) * Math.max(1, host.clientWidth);
@@ -896,7 +901,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       };
 
       const fadeRange = (value: number, from: number, to: number) => clampValue((value - from) / (to - from), 0, 1);
-      const updateStackLabels = (elapsedMs = 0) => {
+      const updateStackLabels = (elapsedMs = 0, animationFrame = 1) => {
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
         const compactMobile = isCompactMobile();
@@ -1243,6 +1248,22 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           if (underflow) visible.forEach((label) => { label.layoutY += underflow; });
         }
 
+        if (activeStackLayer.value !== "mobile" || !compactMobile) {
+          mobileLabelCollisionOffsets.clear();
+        } else {
+          projectedLabels.forEach((layout) => {
+            if (layout.item.layer !== "mobile") return;
+            const targetOffset = layout.layoutY - layout.y;
+            const offset = getSmoothedMobileLabelCollisionOffset(
+              mobileLabelCollisionOffsets.get(layout.item.element) || 0,
+              targetOffset,
+              animationFrame,
+            );
+            mobileLabelCollisionOffsets.set(layout.item.element, offset);
+            layout.layoutY = layout.y + offset;
+          });
+        }
+
         projectedLabels.forEach(({ item, opacity, scale, worldZ, x, layoutY }) => {
           item.element.style.opacity = opacity.toFixed(3);
           item.element.style.zIndex = String(Math.round(100 + worldZ * 20));
@@ -1276,6 +1297,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           compactOrbitMaterials[orbit].opacity = compactOrbitOpacity[orbit] * compactOrbitVisibility;
         });
         updateMobileLabelPoints(0);
+        coreGroup.rotation.y = 0;
         renderer.render(scene, camera);
         updateStackLabels(DESKTOP_STACK_LABEL_ROUTE_DURATION_MS * 0.18);
       };
@@ -1335,13 +1357,15 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             rootGroup.rotation.x += (targetRotation.x - rootGroup.rotation.x) * driftEase;
             rootGroup.rotation.y += (targetRotation.y - rootGroup.rotation.y) * driftEase;
             rootGroup.rotation.z += (targetRotation.z - rootGroup.rotation.z) * driftEase;
+            coreGroup.rotation.y = getCompactMobileCoreRotation(now);
           } else {
             rootGroup.rotation.y += 0.0022 * frame;
             rootGroup.rotation.x = -0.16 + Math.sin(now * 0.00022) * 0.08;
             rootGroup.rotation.z = 0.08 + Math.sin(now * 0.00018 + 1.2) * 0.045;
+            coreGroup.rotation.y += (0 - coreGroup.rotation.y) * 0.08 * frame;
           }
           renderer.render(scene, camera);
-          updateStackLabels(now);
+          updateStackLabels(now, frame);
         }
 
         frameId = requestAnimationFrame(tick);

@@ -5230,20 +5230,32 @@ useHead(() => ({
   }
 
   .vz-stack__sphere {
-    --stack-sphere-size: min(78vw, 330px);
+    --stack-sphere-size: min(108vw, 430px);
     position: absolute;
-    top: clamp(-30px, -7vw, -20px);
+    top: 0;
     left: 50%;
     display: block;
     width: var(--stack-sphere-size);
     transform: translateX(-50%);
   }
 
+  .vz-stack__sphere[data-layer="mobile"] {
+    --stack-sphere-size: min(78vw, 330px);
+    top: clamp(-30px, -7vw, -20px);
+  }
+
   .vz-stack__sphere-label--mobile {
-    min-width: 82px;
-    height: 32px;
-    padding-inline: 9px 11px;
-    font-size: 12px;
+    gap: 6px;
+    min-width: 76px;
+    height: 29px;
+    padding-inline: 7px 9px;
+    font-size: 11px;
+  }
+
+  .vz-stack__sphere-label--mobile .vz-stack__sphere-label-icon {
+    flex-basis: 15px;
+    width: 15px;
+    height: 15px;
   }
 
   .vz-stack__timeline {

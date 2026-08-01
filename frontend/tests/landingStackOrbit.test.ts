@@ -17,6 +17,8 @@ import {
   doMobileLabelBoundsOverlap,
   getContinuousOrbitElapsed,
   getCompactMobileRootRotation,
+  getCompactMobileCoreRotation,
+  getSmoothedMobileLabelCollisionOffset,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
@@ -157,9 +159,9 @@ test("assigns technologies to two compact Mobile tracks", () => {
 });
 
 test("returns deterministic points for both orbit ellipses", () => {
-  assert.deepEqual(getMobileOrbitPoint(0, "outer"), { x: 2.02, y: 0, z: 0 });
+  assert.deepEqual(getMobileOrbitPoint(0, "outer"), { x: 1.88, y: 0, z: 0 });
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "outer"), { x: 0, y: 1.08, z: 0 });
-  assert.deepEqual(getMobileOrbitPoint(0, "inner"), { x: 1.72, y: 0, z: 0 });
+  assert.deepEqual(getMobileOrbitPoint(0, "inner"), { x: 1.6, y: 0, z: 0 });
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "inner"), { x: 0, y: 0.92, z: 0 });
 });
 
@@ -353,7 +355,7 @@ test("moves only compact Mobile technologies along their assigned tracks", () =>
   );
   assert.deepEqual(
     getMobileTechnologyPoint(outerAtZero, 8_000, "desktop"),
-    { x: 2.02, y: 0, z: 0 },
+    { x: 1.88, y: 0, z: 0 },
   );
 });
 
@@ -366,6 +368,21 @@ test("keeps compact Mobile labels fully visible at every depth", () => {
     opacity: 1,
     scale: 1,
   });
+});
+
+test("rotates the compact Mobile core continuously", () => {
+  assert.equal(getCompactMobileCoreRotation(0), 0);
+  assert.equal(getCompactMobileCoreRotation(11_000), Math.PI / 2);
+  assert.equal(getCompactMobileCoreRotation(44_000), Math.PI * 2);
+});
+
+test("eases compact Mobile collision corrections instead of snapping labels", () => {
+  const movingApart = getSmoothedMobileLabelCollisionOffset(0, 40, 1);
+  const returningToOrbit = getSmoothedMobileLabelCollisionOffset(movingApart, 0, 1);
+
+  assert.ok(movingApart > 0 && movingApart < 40);
+  assert.ok(returningToOrbit > 0 && returningToOrbit < movingApart);
+  assert.equal(getSmoothedMobileLabelCollisionOffset(12, 40, 0), 12);
 });
 
 test("keeps desktop Mobile labels out of Frontend latitude rendering", () => {
