@@ -5244,6 +5244,11 @@ useHead(() => ({
     top: clamp(-30px, -7vw, -20px);
   }
 
+  .vz-stack__sphere[data-layer="mobile"] canvas {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
   .vz-stack__sphere-label--mobile {
     gap: 6px;
     min-width: 76px;

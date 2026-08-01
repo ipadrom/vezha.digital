@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
@@ -188,6 +189,15 @@ test("uses the hidden shell at both Mobile viewport sizes", () => {
   });
   assert.equal(getStackGroupScale("core", "mobile", true), 0.5);
   assert.equal(getStackGroupScale("core", "mobile", false), 0.596);
+});
+
+test("keeps compact Mobile orbit lines outside the shared sphere fade mask", () => {
+  const pageSource = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(
+    pageSource,
+    /\.vz-stack__sphere\[data-layer="mobile"\] canvas\s*\{[^}]*mask-image:\s*none;/s,
+  );
 });
 
 test("phase-locks desktop Mobile pairs so their spacing cannot drift", () => {
