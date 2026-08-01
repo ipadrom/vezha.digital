@@ -576,6 +576,13 @@ export function resolveMobileOrbitMode(
   return viewportWidth <= 900 ? "compact" : "desktop";
 }
 
+export function getStackCameraFov(
+  layer: StackVisualLayer,
+  viewportWidth: number,
+) {
+  return layer === "mobile" && viewportWidth <= 900 ? 41 : 35;
+}
+
 export function getMobileTechnologyPoint(
   spec: {
     desktopPhase?: number;

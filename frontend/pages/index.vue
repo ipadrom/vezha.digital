@@ -5240,8 +5240,8 @@ useHead(() => ({
   }
 
   .vz-stack__sphere[data-layer="mobile"] {
-    --stack-sphere-size: min(78vw, 330px);
-    top: clamp(-30px, -7vw, -20px);
+    --stack-sphere-size: min(92vw, 390px);
+    top: calc(clamp(-30px, -7vw, -20px) - min(7vw, 30px));
   }
 
   .vz-stack__sphere[data-layer="mobile"] canvas {

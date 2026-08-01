@@ -30,6 +30,7 @@ import {
   getMobileTechnologyPoint,
   getSmoothedMobileLabelCollisionOffset,
   getStackBridgeAttachmentPoint,
+  getStackCameraFov,
   getStackGroupScale,
   getStackLayerTargets,
   getStackLabelHorizontalOpacity,
@@ -805,6 +806,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         const height = Math.max(1, host.clientHeight);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
+        camera.fov = getStackCameraFov(
+          activeStackLayer.value,
+          window.innerWidth,
+        );
         camera.updateProjectionMatrix();
         if (reduceMotion) renderStaticLayer?.();
         else renderer.render(scene, camera);
@@ -1274,6 +1279,11 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       const renderStaticState = () => {
         const targets = getLayerTargets();
         const orbitMode = getMobileOrbitMode();
+        camera.fov = getStackCameraFov(
+          activeStackLayer.value,
+          window.innerWidth,
+        );
+        camera.updateProjectionMatrix();
         const desktopOrbitVisibility = Number(orbitMode === "desktop");
         const compactOrbitVisibility = Number(orbitMode === "compact");
         trackedMaterials.forEach(({ baseOpacity, layer, material, role }) => {
@@ -1317,6 +1327,14 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
           const targets = getLayerTargets();
           const orbitMode = getMobileOrbitMode();
+          const targetCameraFov = getStackCameraFov(
+            activeStackLayer.value,
+            window.innerWidth,
+          );
+          if (camera.fov !== targetCameraFov) {
+            camera.fov = targetCameraFov;
+            camera.updateProjectionMatrix();
+          }
           const desktopOrbitVisibility = Number(orbitMode === "desktop");
           const compactOrbitVisibility = Number(orbitMode === "compact");
           trackedMaterials.forEach(({ baseOpacity, layer, material, role }) => {

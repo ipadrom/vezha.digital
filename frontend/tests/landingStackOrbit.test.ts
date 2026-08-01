@@ -36,6 +36,7 @@ import {
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
   getStackBridgeAttachmentPoint,
+  getStackCameraFov,
   getStackGroupScale,
   getStackLayerTargets,
   getStackLabelHorizontalOpacity,
@@ -198,6 +199,22 @@ test("keeps compact Mobile orbit lines outside the shared sphere fade mask", () 
     pageSource,
     /\.vz-stack__sphere\[data-layer="mobile"\] canvas\s*\{[^}]*mask-image:\s*none;/s,
   );
+});
+
+test("gives compact Mobile a wider canvas without enlarging its scene", () => {
+  const pageSource = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(
+    pageSource,
+    /\.vz-stack__sphere\[data-layer="mobile"\]\s*\{[^}]*--stack-sphere-size:\s*min\(92vw,\s*390px\);/s,
+  );
+  assert.match(
+    pageSource,
+    /\.vz-stack__sphere\[data-layer="mobile"\]\s*\{[^}]*top:\s*calc\(clamp\(-30px,\s*-7vw,\s*-20px\)\s*-\s*min\(7vw,\s*30px\)\);/s,
+  );
+  assert.equal(getStackCameraFov("mobile", 900), 41);
+  assert.equal(getStackCameraFov("mobile", 901), 35);
+  assert.equal(getStackCameraFov("surface", 390), 35);
 });
 
 test("phase-locks desktop Mobile pairs so their spacing cannot drift", () => {
