@@ -172,6 +172,17 @@ test("spaces three outer Mobile labels evenly and keeps inner labels opposite", 
   assert.ok(Math.abs(phases.PWA - phases.Expo - Math.PI) < 1e-12);
 });
 
+test("lists the same five native Mobile technologies in both locales", () => {
+  const expected = ["Kotlin", "Swift", "Flutter", "Expo", "PWA"];
+
+  for (const locale of ["ru", "en"]) {
+    const messages = JSON.parse(
+      readFileSync(`locales/${locale}.json`, "utf8"),
+    );
+    assert.deepEqual(messages.landing.stack.groups[3].items, expected);
+  }
+});
+
 test("returns deterministic points for both orbit ellipses", () => {
   assert.deepEqual(getMobileOrbitPoint(0, "outer"), { x: 1.88, y: 0, z: 0 });
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "outer"), { x: 0, y: 1.08, z: 0 });

@@ -223,10 +223,11 @@
           "title": "Mobile",
           "description": "Мобильные приложения и PWA с нативным ощущением на iOS и Android.",
           "items": [
-            "React Native",
+            "Kotlin",
+            "Swift",
+            "Flutter",
             "Expo",
-            "PWA",
-            "Flutter"
+            "PWA"
           ]
         }
       ]
