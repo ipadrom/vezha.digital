@@ -12,6 +12,7 @@ import {
   MOBILE_BACKEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_FRONTEND_STACK_LABEL_ROUTE_PROFILE,
   MOBILE_ORBIT_TECH,
+  MOBILE_ORBIT_TRACKS,
   advanceBackendStackLabelClock,
   doMobileLabelBoundsOverlap,
   getContinuousOrbitElapsed,
@@ -162,10 +163,14 @@ test("returns deterministic points for both orbit ellipses", () => {
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "inner"), { x: 0, y: 0.92, z: 0 });
 });
 
-test("advances the slower tracks in opposite directions", () => {
+test("phase-locks compact Mobile tracks so their spacing cannot drift", () => {
   assert.equal(getMobileOrbitAngle(8_000, "outer", 0), Math.PI / 2);
-  assert.equal(getMobileOrbitAngle(6_000, "inner", 0), -Math.PI / 2);
+  assert.equal(getMobileOrbitAngle(8_000, "inner", 0), Math.PI / 2);
   assert.equal(getMobileOrbitAngle(0, "outer", Math.PI), Math.PI);
+  assert.equal(MOBILE_ORBIT_TRACKS.outer.durationMs, 32_000);
+  assert.equal(MOBILE_ORBIT_TRACKS.inner.durationMs, 32_000);
+  assert.equal(MOBILE_ORBIT_TRACKS.outer.direction, 1);
+  assert.equal(MOBILE_ORBIT_TRACKS.inner.direction, 1);
 });
 
 test("uses the hidden shell at both Mobile viewport sizes", () => {
@@ -205,6 +210,7 @@ test("phase-locks desktop Mobile pairs so their spacing cannot drift", () => {
     expo.desktopPhase - reactNative.desktopPhase,
     Math.PI / 4,
   );
+  assert.equal(expo.phase - reactNative.phase, Math.PI / 4);
   assert.deepEqual(flutterPoint, {
     x: -reactPoint.x,
     y: -reactPoint.y,
@@ -266,7 +272,7 @@ test("keeps desktop Mobile labels fully visible at every depth", () => {
 
 test("lifts desktop Mobile labels above a small monochrome orbit anchor", () => {
   assert.equal(getDesktopMobileLabelLiftPx("mobile", false), 28);
-  assert.equal(getDesktopMobileLabelLiftPx("mobile", true), 0);
+  assert.equal(getDesktopMobileLabelLiftPx("mobile", true), 28);
   assert.equal(getDesktopMobileLabelLiftPx("surface", false), 0);
   assert.equal(DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS, 0.055);
 });
@@ -351,14 +357,14 @@ test("moves only compact Mobile technologies along their assigned tracks", () =>
   );
 });
 
-test("dims and shrinks labels behind the core without hiding them", () => {
+test("keeps compact Mobile labels fully visible at every depth", () => {
   assert.deepEqual(getMobileLabelDepthStyle(-1.2), {
-    opacity: 0.58,
-    scale: 0.78,
+    opacity: 1,
+    scale: 1,
   });
   assert.deepEqual(getMobileLabelDepthStyle(1.2), {
     opacity: 1,
-    scale: 0.96,
+    scale: 1,
   });
 });
 

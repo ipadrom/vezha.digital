@@ -168,8 +168,8 @@ export const MOBILE_ORBIT_TRACKS = {
     rotation: [1.02, 0.28, -0.22],
   },
   inner: {
-    direction: -1,
-    durationMs: 24_000,
+    direction: 1,
+    durationMs: 32_000,
     radiusX: 1.72,
     radiusY: 0.92,
     rotation: [0.82, -0.38, 0.62],
@@ -218,7 +218,7 @@ export const MOBILE_ORBIT_TECH = [
     desktopPhase: 2.5 + Math.PI / 4,
     label: "Expo",
     orbit: "inner",
-    phase: 0.9,
+    phase: 2.5 + Math.PI / 4,
     placement: "orbit",
     radiusScale: 1,
     slug: "expo",
@@ -229,7 +229,7 @@ export const MOBILE_ORBIT_TECH = [
     desktopPhase: 2.5 + Math.PI / 4 + Math.PI,
     label: "PWA",
     orbit: "inner",
-    phase: 0.9 + Math.PI,
+    phase: 2.5 + Math.PI / 4 + Math.PI,
     placement: "intersection",
     radiusScale: 0.82,
     slug: "pwa",
@@ -596,11 +596,10 @@ export function getMobileTechnologyPoint(
   );
 }
 
-export function getMobileLabelDepthStyle(worldZ: number) {
-  const depth = Math.max(0, Math.min(1, (worldZ + 1.2) / 2.4));
+export function getMobileLabelDepthStyle(_worldZ: number) {
   return {
-    opacity: Number((0.58 + depth * 0.42).toFixed(3)),
-    scale: Number((0.78 + depth * 0.18).toFixed(3)),
+    opacity: 1,
+    scale: 1,
   };
 }
 
@@ -613,9 +612,9 @@ export function getDesktopMobileLabelDepthStyle(_worldZ: number) {
 
 export function getDesktopMobileLabelLiftPx(
   layer: StackVisualLayer,
-  compactMobile: boolean,
+  _compactMobile: boolean,
 ) {
-  return layer === "mobile" && !compactMobile
+  return layer === "mobile"
     ? DESKTOP_MOBILE_LABEL_LIFT_PX
     : 0;
 }

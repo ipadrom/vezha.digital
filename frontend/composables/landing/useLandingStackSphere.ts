@@ -582,6 +582,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           desktopMobileAnchorGeometry,
           desktopMobileAnchorMaterial,
         );
+        const compactAnchorMesh = new THREE.Mesh(
+          desktopMobileAnchorGeometry,
+          desktopMobileAnchorMaterial,
+        );
 
         element.className = "vz-stack__sphere-label vz-stack__sphere-label--mobile";
         element.dataset.orbit = spec.orbit;
@@ -598,6 +602,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         desktopAnchorMesh.renderOrder = 14;
         desktopAnchorMesh.visible = false;
         desktopOrbitGroups[spec.orbit].add(desktopAnchorMesh);
+        compactAnchorMesh.renderOrder = 14;
+        compactAnchorMesh.visible = false;
+        compactOrbitGroups[spec.orbit].add(compactAnchorMesh);
 
         return {
           desktopRouteCount: MOBILE_ORBIT_TECH.length,
@@ -610,6 +617,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           phase: spec.phase,
           desktopPhase: spec.desktopPhase,
           desktopAnchorMesh,
+          compactAnchorMesh,
           radiusScale: spec.radiusScale,
           projectionGroup: desktopOrbitGroups[spec.orbit],
         };
@@ -826,7 +834,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
               );
           item.point.set(point.x, point.y, point.z);
           item.desktopAnchorMesh.position.copy(item.point);
+          item.compactAnchorMesh.position.copy(item.point);
           item.desktopAnchorMesh.visible = mode === "desktop";
+          item.compactAnchorMesh.visible = mode === "compact";
           item.projectionGroup = mode === "compact"
             ? compactOrbitGroups[item.orbit]
             : desktopOrbitGroups[item.orbit];
@@ -834,7 +844,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       };
 
       const updateMobileCoreBelt = (elapsedMs: number) => {
-        const visible = getMobileOrbitMode() === "desktop";
+        const visible = getMobileOrbitMode() !== "hidden";
         coreGroup.updateMatrixWorld(true);
         const coreCenter = new THREE.Vector3();
         coreGroup.localToWorld(coreCenter);
@@ -894,7 +904,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         desktopOrbitRoot.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
         mobileLabelPoints.forEach((item) => {
-          item.desktopAnchorMesh.visible = getMobileOrbitMode() === "desktop";
+          const mode = getMobileOrbitMode();
+          item.desktopAnchorMesh.visible = mode === "desktop";
+          item.compactAnchorMesh.visible = mode === "compact";
         });
         updateMobileCoreBelt(elapsedMs);
 
