@@ -185,13 +185,17 @@ export const DESKTOP_MOBILE_ORBIT_TRACKS = {
     rotation: [1.02, 0.28, -0.22],
   },
   inner: {
-    direction: -1,
-    durationMs: 28_000,
+    direction: 1,
+    durationMs: 36_000,
     radiusX: 1.38,
     radiusY: 0.72,
     rotation: [0.82, -0.38, 0.62],
   },
 } as const;
+
+export const DESKTOP_MOBILE_CORE_BELT_TEXT = "VEZHA DIGITAL • VEZHA DIGITAL • ";
+export const DESKTOP_MOBILE_CORE_BELT_DURATION_MS = 22_000;
+const DESKTOP_MOBILE_CORE_BELT_RADIUS = 0.84;
 
 export const MOBILE_ORBIT_TECH = [
   {
@@ -208,7 +212,7 @@ export const MOBILE_ORBIT_TECH = [
   {
     angle: 0.9,
     color: "#111318",
-    desktopPhase: 0.9,
+    desktopPhase: 2.5 + Math.PI / 4,
     label: "Expo",
     orbit: "inner",
     phase: 0.9,
@@ -219,7 +223,7 @@ export const MOBILE_ORBIT_TECH = [
   {
     angle: -0.2,
     color: "#5A0FC8",
-    desktopPhase: -0.2,
+    desktopPhase: 2.5 + Math.PI / 4 + Math.PI,
     label: "PWA",
     orbit: "inner",
     phase: 0.9 + Math.PI,
@@ -230,7 +234,7 @@ export const MOBILE_ORBIT_TECH = [
   {
     angle: -1.72,
     color: "#54C5F8",
-    desktopPhase: -1.72,
+    desktopPhase: 2.5 + Math.PI,
     label: "Flutter",
     orbit: "outer",
     phase: 2.5 + Math.PI,
@@ -496,6 +500,7 @@ export function getDesktopMobileOrbitAngle(
 
 export function getDesktopMobileTechnologyPoint(
   spec: {
+    desktopPhase?: number;
     orbit: MobileOrbitId;
     phase: number;
   },
@@ -504,7 +509,7 @@ export function getDesktopMobileTechnologyPoint(
   const angle = getDesktopMobileOrbitAngle(
     orbitElapsedMs,
     spec.orbit,
-    spec.phase,
+    spec.desktopPhase ?? spec.phase,
   );
   return getDesktopMobileOrbitPoint(angle, spec.orbit);
 }
@@ -521,6 +526,24 @@ export function getDesktopMobileOrbitPoint(
     x: Number((normalizedX * track.radiusX).toFixed(6)),
     y: Number((normalizedY * track.radiusY).toFixed(6)),
     z: 0,
+  };
+}
+
+export function getDesktopMobileCoreBeltPoint(
+  glyphIndex: number,
+  glyphCount: number,
+  elapsedMs: number,
+) {
+  const safeGlyphCount = Math.max(1, glyphCount);
+  const angle = (glyphIndex / safeGlyphCount) * Math.PI * 2
+    + (elapsedMs / DESKTOP_MOBILE_CORE_BELT_DURATION_MS) * Math.PI * 2;
+  const normalizedX = Math.abs(Math.cos(angle)) < 1e-12 ? 0 : Math.cos(angle);
+  const normalizedZ = Math.abs(Math.sin(angle)) < 1e-12 ? 0 : Math.sin(angle);
+
+  return {
+    x: Number((normalizedX * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
+    y: 0,
+    z: Number((normalizedZ * DESKTOP_MOBILE_CORE_BELT_RADIUS).toFixed(6)),
   };
 }
 
@@ -578,11 +601,10 @@ export function getMobileLabelDepthStyle(worldZ: number) {
   };
 }
 
-export function getDesktopMobileLabelDepthStyle(worldZ: number) {
-  const depth = Math.max(0, Math.min(1, (worldZ + 1.6) / 3.2));
+export function getDesktopMobileLabelDepthStyle(_worldZ: number) {
   return {
-    opacity: Number((0.42 + depth * 0.58).toFixed(3)),
-    scale: Number((0.84 + depth * 0.16).toFixed(3)),
+    opacity: 1,
+    scale: 1,
   };
 }
 

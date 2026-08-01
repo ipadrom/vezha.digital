@@ -4350,6 +4350,25 @@ useHead(() => ({
   transform: translateY(0.5px);
 }
 
+.vz-stack__mobile-core-belt-glyph {
+  position: absolute;
+  top: 0;
+  left: 0;
+  color: var(--ink);
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  text-shadow:
+    -1px -1px 2px var(--bg),
+    1px -1px 2px var(--bg),
+    -1px 1px 2px var(--bg),
+    1px 1px 2px var(--bg);
+  white-space: pre;
+  will-change: opacity, transform;
+}
+
 .vz-stack__line {
   position: absolute;
   top: 8px;

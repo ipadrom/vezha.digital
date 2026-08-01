@@ -1,6 +1,7 @@
 import { watch, type ComputedRef, type Ref } from "vue";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
+  DESKTOP_MOBILE_CORE_BELT_TEXT,
   DESKTOP_MOBILE_ORBIT_TRACKS,
   DESKTOP_STACK_LABEL_FADE_IN_PORTION,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
@@ -14,6 +15,7 @@ import {
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
+  getDesktopMobileCoreBeltPoint,
   getDesktopMobileOrbitPoint,
   getDesktopMobileTechnologyPoint,
   getDesktopStackLabelRouteState,
@@ -586,6 +588,13 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           projectionGroup: desktopOrbitGroups[spec.orbit],
         };
       });
+      const mobileCoreBeltGlyphs = Array.from(DESKTOP_MOBILE_CORE_BELT_TEXT).map((glyph) => {
+        const element = document.createElement("span");
+        element.className = "vz-stack__mobile-core-belt-glyph";
+        element.textContent = glyph === " " ? "\u00a0" : glyph;
+        labelLayer.appendChild(element);
+        return element;
+      });
       const stackLabelPoints = [
         ...frontendLabelPoints,
         ...coreLabelPoints,
@@ -779,10 +788,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           window.innerWidth <= 900,
         )
       );
-      const desktopOrbitElapsedMs: Record<MobileOrbitId, number> = {
-        outer: 0,
-        inner: 0,
-      };
+      let desktopOrbitElapsedMs = 0;
       const updateMobileLabelPoints = (elapsedMs: number) => {
         const mode = getMobileOrbitMode();
         mobileLabelPoints.forEach((item) => {
@@ -790,7 +796,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
             ? getMobileTechnologyPoint(item, elapsedMs, "compact")
             : getDesktopMobileTechnologyPoint(
                 item,
-                desktopOrbitElapsedMs[item.orbit],
+                desktopOrbitElapsedMs,
               );
           item.point.set(point.x, point.y, point.z);
           item.projectionGroup = mode === "compact"
@@ -799,13 +805,54 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         });
       };
 
+      const updateMobileCoreBelt = (elapsedMs: number) => {
+        const visible = getMobileOrbitMode() === "desktop";
+        coreGroup.updateMatrixWorld(true);
+        const coreCenter = new THREE.Vector3();
+        coreGroup.localToWorld(coreCenter);
+
+        mobileCoreBeltGlyphs.forEach((element, index) => {
+          if (!visible) {
+            element.style.opacity = "0";
+            return;
+          }
+
+          const point = getDesktopMobileCoreBeltPoint(
+            index,
+            mobileCoreBeltGlyphs.length,
+            elapsedMs,
+          );
+          const tangentPoint = getDesktopMobileCoreBeltPoint(
+            index + 0.08,
+            mobileCoreBeltGlyphs.length,
+            elapsedMs,
+          );
+          const world = new THREE.Vector3(point.x, point.y, point.z);
+          const tangentWorld = new THREE.Vector3(
+            tangentPoint.x,
+            tangentPoint.y,
+            tangentPoint.z,
+          );
+          coreGroup.localToWorld(world);
+          coreGroup.localToWorld(tangentWorld);
+          const projected = world.clone().project(camera);
+          const tangentProjected = tangentWorld.clone().project(camera);
+          const x = (projected.x * 0.5 + 0.5) * Math.max(1, host.clientWidth);
+          const y = (-projected.y * 0.5 + 0.5) * Math.max(1, host.clientHeight);
+          const tangentX = (tangentProjected.x * 0.5 + 0.5) * Math.max(1, host.clientWidth);
+          const tangentY = (-tangentProjected.y * 0.5 + 0.5) * Math.max(1, host.clientHeight);
+          const rotation = Math.atan2(tangentY - y, tangentX - x) * 180 / Math.PI;
+          const depthOpacity = clampValue((world.z - coreCenter.z + 0.03) / 0.1, 0, 1);
+
+          element.style.opacity = depthOpacity.toFixed(3);
+          element.style.zIndex = String(Math.round(115 + (world.z - coreCenter.z) * 40));
+          element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${rotation.toFixed(2)}deg)`;
+        });
+      };
+
       const advanceDesktopMobileOrbits = (deltaMs: number) => {
-        desktopOrbitElapsedMs.outer = getContinuousOrbitElapsed(
-          desktopOrbitElapsedMs.outer,
-          deltaMs,
-        );
-        desktopOrbitElapsedMs.inner = getContinuousOrbitElapsed(
-          desktopOrbitElapsedMs.inner,
+        desktopOrbitElapsedMs = getContinuousOrbitElapsed(
+          desktopOrbitElapsedMs,
           deltaMs,
         );
       };
@@ -818,6 +865,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         rootGroup.updateMatrixWorld(true);
         desktopOrbitRoot.updateMatrixWorld(true);
         camera.updateMatrixWorld(true);
+        updateMobileCoreBelt(elapsedMs);
 
         const projectLatitudeLabel = (
           item: (typeof stackLabelPoints)[number],

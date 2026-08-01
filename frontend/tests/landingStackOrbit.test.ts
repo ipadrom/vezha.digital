@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
+  DESKTOP_MOBILE_CORE_BELT_TEXT,
   DESKTOP_MOBILE_ORBIT_TRACKS,
   DESKTOP_STACK_LABEL_LANES,
   DESKTOP_STACK_LABEL_ROUTE_DURATION_MS,
@@ -15,6 +16,7 @@ import {
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
+  getDesktopMobileCoreBeltPoint,
   getDesktopMobileOrbitAngle,
   getDesktopMobileOrbitPoint,
   getDesktopMobileTechnologyPoint,
@@ -177,9 +179,9 @@ test("uses the hidden shell at both Mobile viewport sizes", () => {
   assert.equal(getStackGroupScale("core", "mobile", false), 0.596);
 });
 
-test("moves desktop Mobile pairs on two slow counter-rotating orbits", () => {
+test("phase-locks desktop Mobile pairs so their spacing cannot drift", () => {
   assert.equal(getDesktopMobileOrbitAngle(9_000, "outer", 0), Math.PI / 2);
-  assert.equal(getDesktopMobileOrbitAngle(7_000, "inner", 0), -Math.PI / 2);
+  assert.equal(getDesktopMobileOrbitAngle(9_000, "inner", 0), Math.PI / 2);
 
   const reactNative = MOBILE_ORBIT_TECH.find(({ label }) => label === "React Native")!;
   const flutter = MOBILE_ORBIT_TECH.find(({ label }) => label === "Flutter")!;
@@ -192,7 +194,13 @@ test("moves desktop Mobile pairs on two slow counter-rotating orbits", () => {
   const pwaPoint = getDesktopMobileTechnologyPoint(pwa, 0);
 
   assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.outer.durationMs, 36_000);
-  assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.inner.durationMs, 28_000);
+  assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.inner.durationMs, 36_000);
+  assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.outer.direction, 1);
+  assert.equal(DESKTOP_MOBILE_ORBIT_TRACKS.inner.direction, 1);
+  assert.equal(
+    expo.desktopPhase - reactNative.desktopPhase,
+    Math.PI / 4,
+  );
   assert.deepEqual(flutterPoint, {
     x: -reactPoint.x,
     y: -reactPoint.y,
@@ -232,7 +240,7 @@ test("keeps desktop Mobile labels on orbit paths that fit the sphere viewport", 
     const angle = getDesktopMobileOrbitAngle(
       elapsedMs,
       spec.orbit,
-      spec.phase,
+      spec.desktopPhase ?? spec.phase,
     );
     assert.deepEqual(
       getDesktopMobileTechnologyPoint(spec, elapsedMs),
@@ -241,15 +249,33 @@ test("keeps desktop Mobile labels on orbit paths that fit the sphere viewport", 
   }
 });
 
-test("shrinks desktop Mobile labels only while they move behind the core", () => {
+test("keeps desktop Mobile labels fully visible at every depth", () => {
   assert.deepEqual(getDesktopMobileLabelDepthStyle(-1.6), {
-    opacity: 0.42,
-    scale: 0.84,
+    opacity: 1,
+    scale: 1,
   });
   assert.deepEqual(getDesktopMobileLabelDepthStyle(1.6), {
     opacity: 1,
     scale: 1,
   });
+});
+
+test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () => {
+  const glyphCount = Array.from(DESKTOP_MOBILE_CORE_BELT_TEXT).length;
+
+  assert.deepEqual(getDesktopMobileCoreBeltPoint(0, glyphCount, 0), {
+    x: 0.84,
+    y: 0,
+    z: 0,
+  });
+  assert.deepEqual(
+    getDesktopMobileCoreBeltPoint(glyphCount / 4, glyphCount, 0),
+    { x: 0, y: 0, z: 0.84 },
+  );
+  assert.deepEqual(
+    getDesktopMobileCoreBeltPoint(0, glyphCount, 5_500),
+    { x: 0, y: 0, z: 0.84 },
+  );
 });
 
 test("detects projected Mobile label conflicts symmetrically", () => {
