@@ -2,6 +2,7 @@ import { watch, type ComputedRef, type Ref } from "vue";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_MOBILE_CORE_BELT_TEXT,
+  DESKTOP_MOBILE_CORE_BELT_Z_INDEX,
   DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
   DESKTOP_MOBILE_ORBIT_TRACKS,
   DESKTOP_STACK_LABEL_FADE_IN_PORTION,
@@ -872,7 +873,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           const depthOpacity = clampValue((world.z - coreCenter.z + 0.03) / 0.1, 0, 1);
 
           element.style.opacity = depthOpacity.toFixed(3);
-          element.style.zIndex = String(Math.round(115 + (world.z - coreCenter.z) * 40));
+          element.style.zIndex = String(DESKTOP_MOBILE_CORE_BELT_Z_INDEX);
           element.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) rotate(${rotation.toFixed(2)}deg)`;
         });
       };

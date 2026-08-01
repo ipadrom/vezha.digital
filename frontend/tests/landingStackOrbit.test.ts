@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_MOBILE_CORE_BELT_TEXT,
+  DESKTOP_MOBILE_CORE_BELT_Z_INDEX,
   DESKTOP_MOBILE_LABEL_ANCHOR_RADIUS,
   DESKTOP_MOBILE_ORBIT_TRACKS,
   DESKTOP_STACK_LABEL_LANES,
@@ -285,6 +286,7 @@ test("wraps the Vezha Digital belt evenly around the desktop Mobile core", () =>
     getDesktopMobileCoreBeltPoint(0, glyphCount, 5_500),
     { x: 0, y: -0.14, z: -0.84 },
   );
+  assert.equal(DESKTOP_MOBILE_CORE_BELT_Z_INDEX, 40);
 });
 
 test("detects projected Mobile label conflicts symmetrically", () => {
