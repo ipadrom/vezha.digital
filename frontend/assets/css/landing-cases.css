@@ -13,7 +13,7 @@
 .vz-cases__heading { display: grid; grid-template-columns: 360px minmax(260px, 1fr); gap: 80px; align-items: end; margin-bottom: 52px; }
 .vz-cases__title-block { min-width: 0; }
 .vz-cases__heading .vz-section-label { font-family: var(--font-mono); font-size: 12px; }
-.vz-cases__heading h2 { max-width: 430px; margin: 22px 0 0; font-size: clamp(30px, 3.6vw, 46px); font-weight: 600; line-height: 1.05; letter-spacing: -.025em; text-transform: uppercase; }
+.vz-cases__heading h2 { max-width: 430px; margin: 0; font-size: clamp(30px, 3.6vw, 46px); font-weight: 600; line-height: 1.05; letter-spacing: -.025em; text-transform: uppercase; }
 .vz-cases__heading > p { justify-self: end; max-width: 360px; margin: 0 0 4px; color: var(--text-2); font-size: 15px; line-height: 1.55; }
 .vz-cases__meta, .vz-cases__tabs small { font: 500 10px/1.4 var(--font-mono); text-transform: uppercase; letter-spacing: .13em; }
 
