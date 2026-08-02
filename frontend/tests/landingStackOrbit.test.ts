@@ -19,7 +19,6 @@ import {
   getContinuousOrbitElapsed,
   getCompactMobileRootRotation,
   getCompactMobileCoreRotation,
-  getSmoothedMobileLabelCollisionOffset,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
@@ -46,6 +45,7 @@ import {
   resolveStackVisualLayer,
   shouldUseStackBridgeAttachment,
   shouldUseDesktopStackLatitudeRoutes,
+  shouldPreserveStackLabelVerticalPosition,
 } from "../utils/landingStackOrbit";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
@@ -435,13 +435,11 @@ test("rotates the compact Mobile core continuously", () => {
   assert.equal(getCompactMobileCoreRotation(44_000), Math.PI * 2);
 });
 
-test("eases compact Mobile collision corrections instead of snapping labels", () => {
-  const movingApart = getSmoothedMobileLabelCollisionOffset(0, 40, 1);
-  const returningToOrbit = getSmoothedMobileLabelCollisionOffset(movingApart, 0, 1);
-
-  assert.ok(movingApart > 0 && movingApart < 40);
-  assert.ok(returningToOrbit > 0 && returningToOrbit < movingApart);
-  assert.equal(getSmoothedMobileLabelCollisionOffset(12, 40, 0), 12);
+test("preserves projected label height only for the Mobile visual layer", () => {
+  assert.equal(shouldPreserveStackLabelVerticalPosition("mobile"), true);
+  assert.equal(shouldPreserveStackLabelVerticalPosition("surface"), false);
+  assert.equal(shouldPreserveStackLabelVerticalPosition("core"), false);
+  assert.equal(shouldPreserveStackLabelVerticalPosition("bridge"), false);
 });
 
 test("keeps desktop Mobile labels out of Frontend latitude rendering", () => {

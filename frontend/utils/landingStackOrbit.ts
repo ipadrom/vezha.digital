@@ -683,12 +683,8 @@ export function getStackRootRotationDelta(
   return direction * 0.0022 * safeFrame;
 }
 
-export function getSmoothedMobileLabelCollisionOffset(
-  currentOffset: number,
-  targetOffset: number,
-  frame: number,
+export function shouldPreserveStackLabelVerticalPosition(
+  visualLayer: StackVisualLayer,
 ) {
-  const safeFrame = Math.max(0, Math.min(frame, 2.2));
-  const easing = 1 - Math.pow(0.82, safeFrame);
-  return currentOffset + (targetOffset - currentOffset) * easing;
+  return visualLayer === "mobile";
 }
