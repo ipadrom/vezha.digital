@@ -1,5 +1,9 @@
 import type { Ref } from "vue";
-import { getServiceHighlightFrames, type ServiceHighlightBounds } from "~/utils/landingServicesHighlight";
+import {
+  getServiceHighlightFrames,
+  getServiceHighlightTargetBounds,
+  type ServiceHighlightBounds,
+} from "~/utils/landingServicesHighlight";
 
 export function useLandingServices(
   rootRef: Ref<HTMLElement | null>,
@@ -51,7 +55,7 @@ export function useLandingServices(
       return;
     }
 
-    const targetBounds = getRelativeHighlightBounds(target, navList);
+    const targetBounds = getServiceHighlightTargetBounds(getRelativeHighlightBounds(target, navList));
     const targetTop = target.offsetTop;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isReady = highlight.dataset.ready === "true";
@@ -78,7 +82,7 @@ export function useLandingServices(
         width: `${frame.width}px`,
       })),
       {
-        duration: 620,
+        duration: 380,
         easing: "cubic-bezier(0.22, 1, 0.36, 1)",
       },
     );

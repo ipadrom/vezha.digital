@@ -917,7 +917,7 @@
   }
 
   .vz-services__nav button[data-active="true"] {
-    padding: 4px 7px;
+    padding: 4px 0;
     border-color: transparent;
     background: transparent;
   }
@@ -960,6 +960,7 @@
     background: linear-gradient(104deg, #ad9cff 0%, #51d8ff 100%);
     background-clip: text;
     color: transparent;
+    font-weight: 400;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
