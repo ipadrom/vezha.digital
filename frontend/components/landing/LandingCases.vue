@@ -36,14 +36,11 @@
 import CaseMetricGrid from "~/components/cases/CaseMetricGrid.vue";
 import CaseVisual from "~/components/cases/CaseVisual.vue";
 import type { IProjects } from "~/utils/interfaces/IProjects";
-import { moveCaseIndex, selectFeaturedProjects } from "~/utils/landingCases";
+import { mergeFeaturedProjects, moveCaseIndex } from "~/utils/landingCases";
 
 const props = defineProps<{ projects: IProjects[]; fallback: IProjects[]; copy: { label: string; title: string; intro: string; tabAria: string; open: string } }>();
 const activeIndex = ref(0);
-const cases = computed(() => {
-  const apiCases = selectFeaturedProjects(props.projects);
-  return apiCases.length ? apiCases : selectFeaturedProjects(props.fallback);
-});
+const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback, ["wellness-app"]));
 const activeCase = computed(() => cases.value[activeIndex.value]);
 const two = (value: number) => value.toString().padStart(2, "0");
 function move(direction: 1 | -1) {

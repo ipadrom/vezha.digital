@@ -3,6 +3,7 @@ export interface IProjectMetric {
   label: string
   context?: string | null
   sort_order: number
+  is_demo?: boolean
 }
 
 export interface IProjectGalleryItem {

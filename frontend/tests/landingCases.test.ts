@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { getMetricGridClass, getNextProject, moveCaseIndex, selectFeaturedProjects } from "../utils/landingCases.ts";
+import { getMetricGridClass, getNextProject, mergeFeaturedProjects, moveCaseIndex, selectFeaturedProjects } from "../utils/landingCases.ts";
 import type { IProjects } from "../utils/interfaces/IProjects.ts";
 
 const project = (slug: string | null, sort_order: number, is_featured = true): IProjects => ({
@@ -27,4 +27,14 @@ test("next project wraps and metric layouts stay explicit", () => {
   assert.equal(getMetricGridClass(1), "is-single");
   assert.equal(getMetricGridClass(2), "is-pair");
   assert.equal(getMetricGridClass(4), "is-grid");
+});
+
+test("required fallback case is merged beside API cases without duplicates", () => {
+  const api = [project("api-case", 1), project("wellness-app", 5)];
+  const fallback = [project("wellness-app", 0), project("fallback-only", 2)];
+  assert.deepEqual(
+    mergeFeaturedProjects(api, fallback, ["wellness-app"]).map((item) => item.slug),
+    ["api-case", "wellness-app"],
+  );
+  assert.equal(mergeFeaturedProjects([], fallback, ["wellness-app"]).length, 2);
 });

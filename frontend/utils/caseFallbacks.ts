@@ -8,7 +8,33 @@ export function getCaseFallbacks(locale: LocaleCode): IProjectDetail[] {
   const ru = locale === "ru";
   return [
     {
-      id: "concept-menu", slug: "restaurant-menu", sort_order: 0, is_featured: true,
+      id: "wellness-app", slug: "wellness-app", sort_order: 0, is_featured: true,
+      type: "PRODUCT / PWA / VUE", name: "WELLNESS APP",
+      subtitle: ru ? "От персонального трекера к единой системе тренировок и питания." : "From a personal tracker to one training and nutrition system.",
+      industry: "Wellness", description: ru ? "Мобильный продукт объединяет тренировки, прогрессию нагрузки, питание, рецепты и КБЖУ." : "A mobile product combining workouts, load progression, nutrition, recipes and macros.",
+      image_url: null, cover_image_url: null, project_url: null, hero_metric_value: "3,2×", hero_metric_label: ru ? "демо: регулярность" : "demo: consistency",
+      year: "2026", timeline: ru ? "PWA → Vue-продукт" : "PWA → Vue product",
+      challenge: ru ? "Объединить тренировки, прогресс и питание в одном простом мобильном ритме." : "Unite workouts, progress and nutrition in one simple mobile rhythm.",
+      solution: ru ? "Компактная PWA выросла в Vue-приложение с двумя связанными зонами: тренировками и питанием." : "The compact PWA grew into a Vue application with connected workout and food areas.",
+      result_summary: ru ? "Набор персональных инструментов стал цельным ежедневным wellness-продуктом." : "A set of personal tools became one coherent daily wellness product.",
+      testimonial: null, testimonial_author: null,
+      metrics: [
+        { value: "78%", label: ru ? "завершённых тренировок" : "workouts completed", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 0, is_demo: true },
+        { value: "3,2×", label: ru ? "регулярность занятий" : "training consistency", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 1, is_demo: true },
+        { value: "−42%", label: ru ? "времени на планирование" : "planning time", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 2, is_demo: true },
+        { value: ru ? "18 дней" : "18 days", label: ru ? "активность в месяц" : "monthly activity", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 3, is_demo: true },
+      ],
+      gallery: [], technologies: [
+        { label: "Vue 3 + Vite", category: "CLIENT", sort_order: 0 },
+        { label: "PWA / Local-first", category: "CLIENT", sort_order: 1 },
+        { label: "Wake Lock", category: "DEVICE", sort_order: 2 },
+        { label: "Sound + Vibration", category: "DEVICE", sort_order: 3 },
+        { label: "Open Food Facts", category: "DATA", sort_order: 4 },
+        { label: "Docker", category: "DELIVERY", sort_order: 5 },
+      ],
+    },
+    {
+      id: "concept-menu", slug: "restaurant-menu", sort_order: 1, is_featured: true,
       type: "TELEGRAM MINI APP", name: ru ? "Меню, которое ведёт к заказу" : "A menu that leads to checkout",
       subtitle: ru ? "Цифровой сценарий ресторана внутри привычного мессенджера." : "A restaurant journey inside a familiar messenger.",
       industry: ru ? "HoReCa" : "Hospitality", description: ru ? "Каталог, корзина и заказ собраны в один короткий путь без установки отдельного приложения." : "Catalog, cart and checkout form one short journey with no extra app to install.",
@@ -29,7 +55,7 @@ export function getCaseFallbacks(locale: LocaleCode): IProjectDetail[] {
       ],
     },
     {
-      id: "concept-ai", slug: "ai-support", sort_order: 1, is_featured: true,
+      id: "concept-ai", slug: "ai-support", sort_order: 2, is_featured: true,
       type: "AI / AUTOMATION", name: ru ? "Поддержка, которая помнит контекст" : "Support that remembers context",
       subtitle: ru ? "AI-помощник для первой линии и внутренней базы знаний." : "An AI copilot for frontline support and internal knowledge.",
       industry: ru ? "Сервисы" : "Services", description: ru ? "Единое окно для вопросов клиентов, поиска по базе и передачи сложных диалогов оператору." : "One workspace for customer questions, knowledge retrieval and human handoff.",
@@ -49,7 +75,7 @@ export function getCaseFallbacks(locale: LocaleCode): IProjectDetail[] {
       ],
     },
     {
-      id: "concept-crm", slug: "crm-workspace", sort_order: 2, is_featured: true,
+      id: "concept-crm", slug: "crm-workspace", sort_order: 3, is_featured: true,
       type: "CORPORATE SYSTEM", name: ru ? "CRM без информационного шума" : "A CRM without the noise",
       subtitle: ru ? "Операционный экран для команды, которой важны действия, а не таблицы." : "An operations workspace built around actions, not tables.",
       industry: ru ? "B2B" : "B2B", description: ru ? "Сделки, задачи и история коммуникации собраны вокруг следующего шага менеджера." : "Deals, tasks and communication history organized around the manager’s next action.",
