@@ -239,23 +239,21 @@ test("keeps service text fixed while expanding only the highlight background", (
   assert.match(highlightSource, /width:\s*bounds\.width \+ horizontalPadding \* 2/);
 });
 
-test("narrows the mobile service fill while moving forward", () => {
+test("moves the mobile service fill forward without a midpoint reversal", () => {
   assert.deepEqual(
     getServiceHighlightFrames({ x: 10, width: 30 }, { x: 100, width: 50 }),
     [
       { x: 10, width: 30 },
-      { x: 64.2, width: 21.6 },
       { x: 100, width: 50 },
     ],
   );
 });
 
-test("narrows the mobile service fill while moving backward", () => {
+test("moves the mobile service fill backward without a midpoint reversal", () => {
   assert.deepEqual(
     getServiceHighlightFrames({ x: 100, width: 50 }, { x: 10, width: 30 }),
     [
       { x: 100, width: 50 },
-      { x: 64.2, width: 21.6 },
       { x: 10, width: 30 },
     ],
   );
