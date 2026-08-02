@@ -2,12 +2,12 @@
   <figure class="wellness-phone" :class="`wellness-phone--${variant}`">
     <img
       class="wellness-phone__scene"
-      src="/cases/wellness-app/hero-hand-device.png"
+      src="/cases/wellness-app/hero-hand-device-v2.png"
       alt=""
       aria-hidden="true"
     />
     <div class="wellness-phone__screen" aria-hidden="true">
-      <img src="/cases/wellness-app/screen-workout-home.png" alt="" />
+      <img src="/cases/wellness-app/screen-timer.png" alt="" />
       <span></span>
     </div>
     <figcaption class="sr-only">
@@ -53,19 +53,19 @@ withDefaults(defineProps<{
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 53.4% 50%;
+  object-position: 51.7% 50%;
 }
 
 .wellness-phone__screen {
   position: absolute;
   top: 9.7%;
-  left: calc(50% + clamp(7px, 3.1vh, 32px));
+  left: calc(50% + clamp(7px, 2.1vh, 22px));
   width: auto;
-  height: 75.1%;
-  aspect-ratio: .542;
+  height: 75.7%;
+  aspect-ratio: .477;
   overflow: hidden;
-  border-radius: 7.5% / 4.2%;
-  transform: translateX(-50%) perspective(1200px) rotateZ(-1deg) rotateY(-1deg);
+  border-radius: 4.6% / 2.4%;
+  transform: translateX(-50%);
   transform-origin: center;
   background: #000;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.04);
@@ -76,7 +76,7 @@ withDefaults(defineProps<{
   width: 100%;
   height: 100%;
   object-fit: fill;
-  filter: saturate(.9) contrast(1.03);
+  filter: contrast(1.08);
 }
 
 .wellness-phone__screen span {
@@ -91,11 +91,11 @@ withDefaults(defineProps<{
 }
 
 @media (max-width: 900px) {
-  .wellness-phone__scene { object-position: 53% 50%; }
-  .wellness-phone__screen { left: calc(50% + 12px); height: 75%; }
+  .wellness-phone__scene { object-position: 51.7% 50%; }
+  .wellness-phone__screen { left: calc(50% + 10px); height: 75.7%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wellness-phone__screen { transform: translateX(-50%) rotateZ(-1deg); }
+  .wellness-phone__screen { transform: translateX(-50%); }
 }
 </style>

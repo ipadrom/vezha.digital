@@ -14,7 +14,7 @@
         <div class="case-visual__signal"><span></span><span></span><span></span></div>
       </div>
     </div>
-    <div v-if="project.hero_metric_value" class="case-visual__metric">
+    <div v-if="project.hero_metric_value && project.slug !== 'wellness-app'" class="case-visual__metric">
       <strong>{{ project.hero_metric_value }}</strong><span>{{ project.hero_metric_label }}</span>
     </div>
   </div>
