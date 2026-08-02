@@ -875,9 +875,9 @@
 
   .vz-services__nav {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     overflow-x: visible;
-    gap: 6px;
+    gap: 5px;
     padding: 2px 0 10px;
     border-top: 0;
     scrollbar-width: none;
@@ -889,29 +889,34 @@
 
   .vz-services__nav button {
     width: auto;
-    min-width: max-content;
-    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 0;
+    flex: 0 1 auto;
     align-items: center;
-    gap: 6px;
-    padding: 7px 9px;
-    border: 1px solid var(--chipbd);
+    justify-content: center;
+    gap: 0;
+    padding: 4px 0;
+    border: 1px solid transparent;
     border-radius: 999px;
-    background: var(--bg);
-    box-shadow: 0 1px 0 rgb(0 0 0 / 4%);
+    background: transparent;
+    box-shadow: none;
+    white-space: nowrap;
   }
 
   .vz-services__nav button[data-active="true"] {
-    padding-left: 12px;
-    border-color: var(--ink);
-    background: var(--ink);
+    padding: 4px 7px;
+    border-color: transparent;
+    background: #33434b;
   }
 
   .vz-services__nav button span:first-child {
-    font-size: 8px;
+    display: none;
   }
 
   .vz-services__nav button [data-serv-nav-label] {
-    font-size: 11px;
+    color: var(--text3);
+    font-size: 9px;
+    line-height: 1;
   }
 
   .vz-services__nav-label-full {
@@ -922,9 +927,12 @@
     display: inline;
   }
 
-  .vz-services__nav button[data-active="true"] span:first-child,
   .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
-    color: var(--bg);
+    background: linear-gradient(104deg, #ad9cff 0%, #51d8ff 100%);
+    background-clip: text;
+    color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .vz-services__stage {
@@ -1855,7 +1863,7 @@
   }
 
   .vz-services__nav button[data-active="true"] {
-    background: var(--ink);
+    background: #33434b;
   }
 
   .vz-services__stage {

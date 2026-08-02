@@ -197,6 +197,28 @@ test("provides seven compact service navigation labels in both locales", () => {
   }
 });
 
+test("keeps mobile service navigation on one line with only the active item filled", () => {
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+  const mobileStart = css.indexOf("@media (max-width: 900px)");
+  const compactHeightStart = css.indexOf(
+    "@media (max-width: 900px) and (max-height: 700px)",
+    mobileStart,
+  );
+  const mobileCss = css.slice(mobileStart, compactHeightStart);
+
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*flex-wrap:\s*nowrap;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*5px;/);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
+  assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*#33434b;/);
+  assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
+  assert.doesNotMatch(
+    css,
+    /\.vz-services__nav button\[data-active="true"\]\s*\{\s*background:\s*var\(--ink\);/,
+  );
+});
+
 test("returns deterministic points for both orbit ellipses", () => {
   assert.deepEqual(getMobileOrbitPoint(0, "outer"), { x: 1.88, y: 0, z: 0 });
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "outer"), { x: 0, y: 1.08, z: 0 });
