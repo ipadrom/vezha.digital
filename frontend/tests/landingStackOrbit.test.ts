@@ -47,7 +47,10 @@ import {
   shouldUseDesktopStackLatitudeRoutes,
   shouldPreserveStackLabelVerticalPosition,
 } from "../utils/landingStackOrbit";
-import { getServiceHighlightFrames } from "../utils/landingServicesHighlight";
+import {
+  getServiceHighlightFrames,
+  getServiceHighlightTargetBounds,
+} from "../utils/landingServicesHighlight";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
   assert.deepEqual(
@@ -237,6 +240,24 @@ test("keeps service text fixed while expanding only the highlight background", (
   assert.match(highlightSource, /export function getServiceHighlightTargetBounds/);
   assert.match(highlightSource, /x:\s*bounds\.x - horizontalPadding/);
   assert.match(highlightSource, /width:\s*bounds\.width \+ horizontalPadding \* 2/);
+});
+
+test("expands a service highlight rectangle on both axes without a midpoint", () => {
+  assert.deepEqual(
+    getServiceHighlightTargetBounds({ x: 20, y: 30, width: 80, height: 18 }, 16, 7),
+    { x: 4, y: 23, width: 112, height: 32 },
+  );
+
+  assert.deepEqual(
+    getServiceHighlightFrames(
+      { x: 4, y: 23, width: 112, height: 32 },
+      { x: 4, y: 71, width: 96, height: 32 },
+    ),
+    [
+      { x: 4, y: 23, width: 112, height: 32 },
+      { x: 4, y: 71, width: 96, height: 32 },
+    ],
+  );
 });
 
 test("moves the mobile service fill forward without a midpoint reversal", () => {
