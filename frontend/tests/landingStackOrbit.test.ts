@@ -19,7 +19,6 @@ import {
   getContinuousOrbitElapsed,
   getCompactMobileRootRotation,
   getCompactMobileCoreRotation,
-  getSmoothedMobileLabelCollisionOffset,
   getBackendStackLabelClearanceFactor,
   getDesktopDevOpsBridgeRoute,
   getDesktopMobileLabelDepthStyle,
@@ -46,6 +45,7 @@ import {
   resolveStackVisualLayer,
   shouldUseStackBridgeAttachment,
   shouldUseDesktopStackLatitudeRoutes,
+  shouldPreserveStackLabelVerticalPosition,
 } from "../utils/landingStackOrbit";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
@@ -181,6 +181,45 @@ test("lists the same five native Mobile technologies in both locales", () => {
     );
     assert.deepEqual(messages.landing.stack.groups[3].items, expected);
   }
+});
+
+test("provides seven compact service navigation labels in both locales", () => {
+  const expectedByLocale = {
+    ru: ["Mini Apps", "Боты", "Веб-сайты", "Магазины", "AI", "Системы", "Mobile"],
+    en: ["Mini Apps", "Bots", "Websites", "Stores", "AI", "Systems", "Mobile"],
+  };
+
+  for (const locale of ["ru", "en"] as const) {
+    const messages = JSON.parse(
+      readFileSync(`locales/${locale}.json`, "utf8"),
+    );
+    assert.deepEqual(messages.landing.services.navLabels, expectedByLocale[locale]);
+  }
+});
+
+test("keeps mobile service navigation on one line with only the active item filled", () => {
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+  const mobileStart = css.indexOf("@media (max-width: 900px)");
+  const compactHeightStart = css.indexOf(
+    "@media (max-width: 900px) and (max-height: 700px)",
+    mobileStart,
+  );
+  const mobileCss = css.slice(mobileStart, compactHeightStart);
+
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*flex-wrap:\s*nowrap;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*justify-content:\s*space-between;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*5px;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*padding:\s*2px 0 24px;/);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
+  assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
+  assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*11px;/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*#33434b;/);
+  assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
+  assert.doesNotMatch(
+    css,
+    /\.vz-services__nav button\[data-active="true"\]\s*\{\s*background:\s*var\(--ink\);/,
+  );
 });
 
 test("returns deterministic points for both orbit ellipses", () => {
@@ -421,11 +460,11 @@ test("moves only compact Mobile technologies along their assigned tracks", () =>
 test("keeps compact Mobile labels fully visible at every depth", () => {
   assert.deepEqual(getMobileLabelDepthStyle(-1.2), {
     opacity: 1,
-    scale: 1,
+    scale: 0.86,
   });
   assert.deepEqual(getMobileLabelDepthStyle(1.2), {
     opacity: 1,
-    scale: 1,
+    scale: 0.86,
   });
 });
 
@@ -435,13 +474,11 @@ test("rotates the compact Mobile core continuously", () => {
   assert.equal(getCompactMobileCoreRotation(44_000), Math.PI * 2);
 });
 
-test("eases compact Mobile collision corrections instead of snapping labels", () => {
-  const movingApart = getSmoothedMobileLabelCollisionOffset(0, 40, 1);
-  const returningToOrbit = getSmoothedMobileLabelCollisionOffset(movingApart, 0, 1);
-
-  assert.ok(movingApart > 0 && movingApart < 40);
-  assert.ok(returningToOrbit > 0 && returningToOrbit < movingApart);
-  assert.equal(getSmoothedMobileLabelCollisionOffset(12, 40, 0), 12);
+test("preserves projected label height only for the Mobile visual layer", () => {
+  assert.equal(shouldPreserveStackLabelVerticalPosition("mobile"), true);
+  assert.equal(shouldPreserveStackLabelVerticalPosition("surface"), false);
+  assert.equal(shouldPreserveStackLabelVerticalPosition("core"), false);
+  assert.equal(shouldPreserveStackLabelVerticalPosition("bridge"), false);
 });
 
 test("keeps desktop Mobile labels out of Frontend latitude rendering", () => {

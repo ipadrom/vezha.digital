@@ -265,6 +265,7 @@ type LandingCopy = {
     label: string;
     title: string;
     hint: [string, string];
+    navLabels: [string, string, string, string, string, string, string];
     screens: Record<string, Record<string, string>>;
     commercialLabels: {
       price: string;

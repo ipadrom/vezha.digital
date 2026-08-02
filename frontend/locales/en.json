@@ -239,6 +239,15 @@
         "Auto",
         "services rotate on their own"
       ],
+      "navLabels": [
+        "Mini Apps",
+        "Bots",
+        "Websites",
+        "Stores",
+        "AI",
+        "Systems",
+        "Mobile"
+      ],
       "screens": {
         "miniapp": {
           "app": "Mini app",

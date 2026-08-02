@@ -27,7 +27,6 @@ import {
   getMobileLabelDepthStyle,
   getMobileOrbitPoint,
   getMobileTechnologyPoint,
-  getSmoothedMobileLabelCollisionOffset,
   getStackBridgeAttachmentPoint,
   getStackCameraFov,
   getStackGroupScale,
@@ -38,6 +37,7 @@ import {
   resolveMobileOrbitMode,
   shouldUseStackBridgeAttachment,
   shouldUseDesktopStackLatitudeRoutes,
+  shouldPreserveStackLabelVerticalPosition,
   type BackendStackLabelClockState,
   type DesktopStackLabelRouteProfile,
   type MobileOrbitId,
@@ -189,7 +189,6 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         BackendStackLabelClockState
       >();
       const mobileBridgeRevealStates = new Map<HTMLElement, boolean>();
-      const mobileLabelCollisionOffsets = new Map<HTMLElement, number>();
 
       disposePartial = () => {
         if (frameId) cancelAnimationFrame(frameId);
@@ -1227,10 +1226,9 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
           .filter((label) => label.opacity > 0.02)
           .sort((a, b) => a.y - b.y);
 
-        const preserveDesktopMobileOrbitPosition = (
-          activeStackLayer.value === "mobile" && !compactMobile
-        );
-        if (!stickAttachedBridge && !preserveDesktopMobileOrbitPosition) {
+        const preserveStackLabelVerticalPosition =
+          shouldPreserveStackLabelVerticalPosition(activeStackLayer.value);
+        if (!stickAttachedBridge && !preserveStackLabelVerticalPosition) {
           for (let index = 1; index < visible.length; index += 1) {
             const current = visible[index];
             for (let previousIndex = 0; previousIndex < index; previousIndex += 1) {
@@ -1257,22 +1255,6 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
           const underflow = visible.length ? Math.max(0, labelEdge - visible[0].layoutY) : 0;
           if (underflow) visible.forEach((label) => { label.layoutY += underflow; });
-        }
-
-        if (activeStackLayer.value !== "mobile" || !compactMobile) {
-          mobileLabelCollisionOffsets.clear();
-        } else {
-          projectedLabels.forEach((layout) => {
-            if (layout.item.layer !== "mobile") return;
-            const targetOffset = layout.layoutY - layout.y;
-            const offset = getSmoothedMobileLabelCollisionOffset(
-              mobileLabelCollisionOffsets.get(layout.item.element) || 0,
-              targetOffset,
-              animationFrame,
-            );
-            mobileLabelCollisionOffsets.set(layout.item.element, offset);
-            layout.layoutY = layout.y + offset;
-          });
         }
 
         projectedLabels.forEach(({ item, opacity, scale, worldZ, x, layoutY }) => {

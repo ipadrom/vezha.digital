@@ -22,7 +22,8 @@
               @click="select(index)"
             >
               <span data-serv-nav-num>{{ service.n }}</span>
-              <span data-serv-nav-label>{{ service.title }}</span>
+              <span data-serv-nav-label class="vz-services__nav-label-full">{{ service.title }}</span>
+              <span data-serv-nav-label class="vz-services__nav-label-compact">{{ copy.navLabels[index] ?? service.title }}</span>
             </button>
           </div>
 
@@ -195,6 +196,7 @@ type LandingServicesCopy = {
   label: string;
   title: string;
   hint: [string, string];
+  navLabels: [string, string, string, string, string, string, string];
   screens: Record<string, Record<string, string>>;
   commercialLabels: {
     price: string;

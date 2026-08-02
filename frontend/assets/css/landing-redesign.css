@@ -1,12 +1,5 @@
 /* Prod Services adapted to the redesign theme and grid. */
 
-@media (max-width: 900px) {
-  .vz-services [data-serv-list] {
-    display: none;
-  }
-}
-
-
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-sec-head,
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__nav button,
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__stage,
@@ -242,11 +235,15 @@
   letter-spacing: 0.04em;
 }
 
-.vz-services__nav button span:last-child {
+.vz-services__nav button [data-serv-nav-label] {
   transition: color 0.24s ease;
   color: var(--muted2);
   font-size: 17px;
   letter-spacing: -0.01em;
+}
+
+.vz-services__nav-label-compact {
+  display: none;
 }
 
 .vz-services__nav button[data-active="true"] {
@@ -255,11 +252,11 @@
 }
 
 .vz-services__nav button[data-active="true"] span:first-child,
-.vz-services__nav button[data-active="true"] span:last-child {
+.vz-services__nav button[data-active="true"] [data-serv-nav-label] {
   color: var(--ink);
 }
 
-.vz-services__nav button[data-active="true"] span:last-child {
+.vz-services__nav button[data-active="true"] [data-serv-nav-label] {
   font-weight: 600;
 }
 
@@ -878,9 +875,11 @@
 
   .vz-services__nav {
     display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 2px 0 8px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    overflow-x: visible;
+    gap: 5px;
+    padding: 2px 0 24px;
     border-top: 0;
     scrollbar-width: none;
   }
@@ -891,38 +890,50 @@
 
   .vz-services__nav button {
     width: auto;
-    min-width: max-content;
-    flex: 0 0 auto;
+    min-width: 0;
+    min-height: 0;
+    flex: 0 1 auto;
     align-items: center;
-    gap: 8px;
-    padding: 9px 12px;
-    border: 1px solid var(--chipbd);
+    justify-content: center;
+    gap: 0;
+    padding: 4px 0;
+    border: 1px solid transparent;
     border-radius: 999px;
-    background: var(--bg);
-    box-shadow: 0 1px 0 rgb(0 0 0 / 4%);
-  }
-
-  .vz-services__nav button[data-active="true"] {
-    padding-left: 12px;
-    border-color: var(--ink);
-    background: var(--ink);
-  }
-
-  .vz-services__nav button span:first-child {
-    font-size: 10px;
-  }
-
-  .vz-services__nav button span:last-child {
-    max-width: 150px;
-    overflow: hidden;
-    font-size: 13px;
-    text-overflow: ellipsis;
+    background: transparent;
+    box-shadow: none;
     white-space: nowrap;
   }
 
-  .vz-services__nav button[data-active="true"] span:first-child,
-.vz-services__nav button[data-active="true"] span:last-child {
-    color: var(--bg);
+  .vz-services__nav button[data-active="true"] {
+    padding: 4px 7px;
+    border-color: transparent;
+    background: #33434b;
+  }
+
+  .vz-services__nav button span:first-child {
+    display: none;
+  }
+
+  .vz-services__nav button [data-serv-nav-label] {
+    color: var(--text3);
+    font-size: 11px;
+    line-height: 1;
+  }
+
+  .vz-services__nav-label-full {
+    display: none;
+  }
+
+  .vz-services__nav-label-compact {
+    display: inline;
+  }
+
+  .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
+    background: linear-gradient(104deg, #ad9cff 0%, #51d8ff 100%);
+    background-clip: text;
+    color: transparent;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .vz-services__stage {
@@ -1853,7 +1864,7 @@
   }
 
   .vz-services__nav button[data-active="true"] {
-    background: var(--ink);
+    background: #33434b;
   }
 
   .vz-services__stage {
