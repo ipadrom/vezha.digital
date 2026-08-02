@@ -14,6 +14,7 @@
 
         <div class="vz-services__grid" data-serv-grid>
           <div class="vz-services__nav" data-serv-list>
+            <span class="vz-services__nav-highlight" data-serv-nav-highlight aria-hidden="true"></span>
             <button
               v-for="(service, index) in services"
               :key="`${service.n}-${service.title}`"

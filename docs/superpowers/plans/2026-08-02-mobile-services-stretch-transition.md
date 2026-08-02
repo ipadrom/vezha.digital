@@ -30,7 +30,7 @@
 - Produces: `ServiceHighlightBounds = { x: number; width: number }`.
 - Produces: `getServiceHighlightFrames(from: ServiceHighlightBounds, to: ServiceHighlightBounds): [ServiceHighlightBounds, ServiceHighlightBounds, ServiceHighlightBounds]`.
 
-- [ ] **Step 1: Add failing geometry tests**
+- [x] **Step 1: Add failing geometry tests**
 
 Import `getServiceHighlightFrames` and assert both directions:
 
@@ -54,7 +54,7 @@ assert.deepEqual(
 );
 ```
 
-- [ ] **Step 2: Run the landing test and verify RED**
+- [x] **Step 2: Run the landing test and verify RED**
 
 Run:
 
@@ -65,7 +65,7 @@ node --test .codex-logs\landingStackOrbit.services-stretch-red.mjs
 
 Expected: FAIL because `frontend/utils/landingServicesHighlight.ts` does not exist.
 
-- [ ] **Step 3: Implement the minimal pure helper**
+- [x] **Step 3: Implement the minimal pure helper**
 
 Create:
 
@@ -86,7 +86,7 @@ export function getServiceHighlightFrames(
 }
 ```
 
-- [ ] **Step 4: Run the landing test and verify GREEN**
+- [x] **Step 4: Run the landing test and verify GREEN**
 
 Run the commands from Step 2. Expected: all tests pass.
 
@@ -103,7 +103,7 @@ Run the commands from Step 2. Expected: all tests pass.
 - Produces: one decorative `<span data-serv-nav-highlight aria-hidden="true"></span>` inside `[data-serv-list]`.
 - Consumes: existing `[data-serv-nav]`, `[data-serv-counter]`, and mobile breakpoint.
 
-- [ ] **Step 1: Add failing markup and CSS assertions**
+- [x] **Step 1: Add failing markup and CSS assertions**
 
 Extend the mobile navigation regression test to require:
 
@@ -116,11 +116,11 @@ assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*#33
 assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*transparent;/);
 ```
 
-- [ ] **Step 2: Run the landing test and verify RED**
+- [x] **Step 2: Run the landing test and verify RED**
 
 Run the Task 1 test commands. Expected: FAIL because the shared highlight and spacing rules are absent.
 
-- [ ] **Step 3: Add the highlight markup and mobile styles**
+- [x] **Step 3: Add the highlight markup and mobile styles**
 
 Inside `[data-serv-list]`, place the highlight before the buttons:
 
@@ -138,7 +138,7 @@ Keep it hidden by default. In the mobile media query, make the nav positioned, p
 
 The composable will provide the highlight's `top`, `width`, `height`, and `transform` inline.
 
-- [ ] **Step 4: Run the landing test and verify GREEN**
+- [x] **Step 4: Run the landing test and verify GREEN**
 
 Run the Task 1 test commands. Expected: all tests pass.
 
@@ -155,7 +155,7 @@ Run the Task 1 test commands. Expected: all tests pass.
 - Consumes: `[data-serv-list]`, `[data-serv-nav-highlight]`, and `[data-serv-nav]` from Task 2.
 - Produces: a `620ms` three-frame Web Animations transition that can restart from current visible bounds.
 
-- [ ] **Step 1: Add failing runtime-source assertions**
+- [x] **Step 1: Add failing runtime-source assertions**
 
 Add:
 
@@ -170,11 +170,11 @@ assert.match(servicesComposable, /prefers-reduced-motion:\s*reduce/);
 assert.match(servicesComposable, /function handleResize\(\)/);
 ```
 
-- [ ] **Step 2: Run the landing test and verify RED**
+- [x] **Step 2: Run the landing test and verify RED**
 
 Run the Task 1 test commands. Expected: FAIL because runtime highlight synchronization is absent.
 
-- [ ] **Step 3: Implement highlight synchronization**
+- [x] **Step 3: Implement highlight synchronization**
 
 Add module state for the current highlight animation and target index. During `render()`:
 
@@ -187,7 +187,7 @@ Add module state for the current highlight animation and target index. During `r
 
 Use a named resize handler that marks the highlight uninitialized and schedules the existing render. Notify `onActiveChange` only after the selected state and final highlight geometry have been written so the negative-world clone captures the target fill.
 
-- [ ] **Step 4: Run the landing test and verify GREEN**
+- [x] **Step 4: Run the landing test and verify GREEN**
 
 Run the Task 1 test commands. Expected: all landing tests pass.
 
@@ -202,7 +202,7 @@ Run the Task 1 test commands. Expected: all landing tests pass.
 - Consumes: completed Tasks 1–3.
 - Produces: a tested production build and refreshed port `3001` preview for user visual QA.
 
-- [ ] **Step 1: Run every frontend test**
+- [x] **Step 1: Run every frontend test**
 
 Run:
 
@@ -217,15 +217,15 @@ Get-ChildItem tests -Filter *.test.mjs | ForEach-Object {
 
 Expected: zero failures from the bundled landing test and every existing `.mjs` test.
 
-- [ ] **Step 2: Run the production build**
+- [x] **Step 2: Run the production build**
 
 Run `npm run build`. Expected: exit code `0` and `Build complete!`.
 
-- [ ] **Step 3: Restart the verified preview**
+- [x] **Step 3: Restart the verified preview**
 
 Verify the current port `3001` listener command, stop only that exact Node preview process, start `.output/server/index.mjs` with `NITRO_PORT=3001`, and confirm HTTP `200`.
 
-- [ ] **Step 4: Preserve user-owned files and commit only target files**
+- [x] **Step 4: Preserve user-owned files and commit only target files**
 
 Do not stage `.superpowers/` or `frontend/.codex-logs/`. Commit the helper, tests, component, composable, CSS, spec, and completed plan with:
 

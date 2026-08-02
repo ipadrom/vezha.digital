@@ -1,4 +1,5 @@
 import type { Ref } from "vue";
+import { getServiceHighlightFrames, type ServiceHighlightBounds } from "~/utils/landingServicesHighlight";
 
 export function useLandingServices(
   rootRef: Ref<HTMLElement | null>,
@@ -9,6 +10,86 @@ export function useLandingServices(
   let raf = 0;
   let autoplayTimer: ReturnType<typeof window.setInterval> | null = null;
   let manualPauseUntil = 0;
+  let highlightAnimation: Animation | null = null;
+  let highlightTargetIndex = -1;
+  let pendingActiveNotification = false;
+
+  function getRelativeHighlightBounds(element: HTMLElement, navList: HTMLElement): ServiceHighlightBounds {
+    const elementRect = element.getBoundingClientRect();
+    const navRect = navList.getBoundingClientRect();
+
+    return {
+      x: elementRect.left - navRect.left,
+      width: elementRect.width,
+    };
+  }
+
+  function placeHighlight(
+    highlight: HTMLElement,
+    bounds: ServiceHighlightBounds,
+    top: number,
+    height: number,
+  ) {
+    highlight.style.top = `${top}px`;
+    highlight.style.width = `${bounds.width}px`;
+    highlight.style.height = `${height}px`;
+    highlight.style.transform = `translate3d(${bounds.x}px, 0, 0)`;
+    highlight.dataset.ready = "true";
+  }
+
+  function syncServiceHighlight(root: HTMLElement, navs: NodeListOf<HTMLElement>, active: number) {
+    const navList = root.querySelector<HTMLElement>("[data-serv-list]");
+    const highlight = root.querySelector<HTMLElement>("[data-serv-nav-highlight]");
+    const target = navs[active];
+    if (!navList || !highlight || !target) return;
+
+    if (window.innerWidth > 900) {
+      highlightAnimation?.cancel();
+      highlightAnimation = null;
+      highlightTargetIndex = -1;
+      delete highlight.dataset.ready;
+      return;
+    }
+
+    const navRect = navList.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const targetBounds = getRelativeHighlightBounds(target, navList);
+    const targetTop = targetRect.top - navRect.top;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isReady = highlight.dataset.ready === "true";
+    const activeChanged = highlightTargetIndex !== active;
+
+    if (isReady && !activeChanged) return;
+
+    if (!isReady || reducedMotion) {
+      highlightAnimation?.cancel();
+      highlightAnimation = null;
+      placeHighlight(highlight, targetBounds, targetTop, targetRect.height);
+      highlightTargetIndex = active;
+      return;
+    }
+
+    const currentBounds = getRelativeHighlightBounds(highlight, navList);
+    const frames = getServiceHighlightFrames(currentBounds, targetBounds);
+
+    highlightAnimation?.cancel();
+    placeHighlight(highlight, targetBounds, targetTop, targetRect.height);
+    const animation = highlight.animate(
+      frames.map((frame) => ({
+        transform: `translate3d(${frame.x}px, 0, 0)`,
+        width: `${frame.width}px`,
+      })),
+      {
+        duration: 620,
+        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      },
+    );
+    highlightAnimation = animation;
+    highlightTargetIndex = active;
+    animation.addEventListener("finish", () => {
+      if (highlightAnimation === animation) highlightAnimation = null;
+    }, { once: true });
+  }
 
   function render() {
     const root = rootRef.value;
@@ -61,9 +142,14 @@ export function useLandingServices(
       nav.dataset.active = index === active ? "true" : "false";
       nav.setAttribute("aria-pressed", index === active ? "true" : "false");
     });
+    syncServiceHighlight(root, navs, active);
 
     if (bar) bar.style.width = `${(progress * 100).toFixed(2)}%`;
     if (counter) counter.textContent = `${String(active + 1).padStart(2, "0")} / ${String(panels.length).padStart(2, "0")}`;
+    if (pendingActiveNotification) {
+      pendingActiveNotification = false;
+      onActiveChange(active);
+    }
   }
 
   function scheduleRender() {
@@ -78,7 +164,16 @@ export function useLandingServices(
     const count = Math.max(1, serviceCount.value);
     activeIndex.value = ((index % count) + count) % count;
     if (manual) manualPauseUntil = performance.now() + 6500;
-    onActiveChange(activeIndex.value);
+    pendingActiveNotification = true;
+    scheduleRender();
+  }
+
+  function handleResize() {
+    const highlight = rootRef.value?.querySelector<HTMLElement>("[data-serv-nav-highlight]");
+    highlightAnimation?.cancel();
+    highlightAnimation = null;
+    highlightTargetIndex = -1;
+    if (highlight) delete highlight.dataset.ready;
     scheduleRender();
   }
 
@@ -96,15 +191,16 @@ export function useLandingServices(
 
   onMounted(() => {
     window.addEventListener("scroll", scheduleRender, { passive: true });
-    window.addEventListener("resize", scheduleRender, { passive: true });
+    window.addEventListener("resize", handleResize, { passive: true });
     startAutoplay();
     nextTick(scheduleRender);
   });
 
   onBeforeUnmount(() => {
     window.removeEventListener("scroll", scheduleRender);
-    window.removeEventListener("resize", scheduleRender);
+    window.removeEventListener("resize", handleResize);
     if (raf) cancelAnimationFrame(raf);
+    highlightAnimation?.cancel();
     if (autoplayTimer) window.clearInterval(autoplayTimer);
   });
 

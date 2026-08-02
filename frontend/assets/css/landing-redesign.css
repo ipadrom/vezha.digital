@@ -213,6 +213,10 @@
   border-top: 1px solid var(--border);
 }
 
+.vz-services__nav-highlight {
+  display: none;
+}
+
 .vz-services__nav button {
   min-height: 54px;
   display: flex;
@@ -864,6 +868,10 @@
     font-size: 26px;
   }
 
+  .vz-services [data-sec-head] {
+    margin-bottom: 8px;
+  }
+
   .vz-services {
     min-height: 0;
   }
@@ -874,6 +882,7 @@
   }
 
   .vz-services__nav {
+    position: relative;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
@@ -889,6 +898,8 @@
   }
 
   .vz-services__nav button {
+    position: relative;
+    z-index: 1;
     width: auto;
     min-width: 0;
     min-height: 0;
@@ -907,7 +918,23 @@
   .vz-services__nav button[data-active="true"] {
     padding: 4px 7px;
     border-color: transparent;
+    background: transparent;
+  }
+
+  .vz-services__nav-highlight {
+    position: absolute;
+    z-index: 0;
+    display: block;
+    border-radius: 999px;
+    opacity: 0;
     background: #33434b;
+    pointer-events: none;
+    transform: translate3d(0, 0, 0);
+    will-change: transform, width;
+  }
+
+  .vz-services__nav-highlight[data-ready="true"] {
+    opacity: 1;
   }
 
   .vz-services__nav button span:first-child {
@@ -1864,7 +1891,7 @@
   }
 
   .vz-services__nav button[data-active="true"] {
-    background: #33434b;
+    background: transparent;
   }
 
   .vz-services__stage {

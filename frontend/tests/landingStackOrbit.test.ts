@@ -47,6 +47,7 @@ import {
   shouldUseDesktopStackLatitudeRoutes,
   shouldPreserveStackLabelVerticalPosition,
 } from "../utils/landingStackOrbit";
+import { getServiceHighlightFrames } from "../utils/landingServicesHighlight";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
   assert.deepEqual(
@@ -199,6 +200,7 @@ test("provides seven compact service navigation labels in both locales", () => {
 
 test("keeps mobile service navigation on one line with only the active item filled", () => {
   const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+  const servicesComponent = readFileSync("components/landing/LandingServices.vue", "utf8");
   const mobileStart = css.indexOf("@media (max-width: 900px)");
   const compactHeightStart = css.indexOf(
     "@media (max-width: 900px) and (max-height: 700px)",
@@ -210,16 +212,53 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*justify-content:\s*space-between;/);
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*5px;/);
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*padding:\s*2px 0 24px;/);
+  assert.match(servicesComponent, /data-serv-nav-highlight/);
+  assert.match(mobileCss, /\.vz-services \[data-sec-head\]\s*\{[^}]*margin-bottom:\s*8px;/);
+  assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*#33434b;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
   assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*11px;/);
-  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*#33434b;/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*transparent;/);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
   assert.doesNotMatch(
     css,
     /\.vz-services__nav button\[data-active="true"\]\s*\{\s*background:\s*var\(--ink\);/,
   );
+});
+
+test("stretches the mobile service fill across the full forward distance", () => {
+  assert.deepEqual(
+    getServiceHighlightFrames({ x: 10, width: 30 }, { x: 100, width: 50 }),
+    [
+      { x: 10, width: 30 },
+      { x: 10, width: 140 },
+      { x: 100, width: 50 },
+    ],
+  );
+});
+
+test("stretches the mobile service fill across the full reverse distance", () => {
+  assert.deepEqual(
+    getServiceHighlightFrames({ x: 100, width: 50 }, { x: 10, width: 30 }),
+    [
+      { x: 100, width: 50 },
+      { x: 10, width: 140 },
+      { x: 10, width: 30 },
+    ],
+  );
+});
+
+test("drives the shared mobile service fill from live navigation geometry", () => {
+  const servicesComposable = readFileSync("composables/landing/useLandingServices.ts", "utf8");
+
+  assert.match(servicesComposable, /getServiceHighlightFrames/);
+  assert.match(servicesComposable, /querySelector<HTMLElement>\("\[data-serv-nav-highlight\]"\)/);
+  assert.match(servicesComposable, /highlight\.animate\(/);
+  assert.match(servicesComposable, /duration:\s*620/);
+  assert.match(servicesComposable, /prefers-reduced-motion:\s*reduce/);
+  assert.match(servicesComposable, /function handleResize\(\)/);
+  assert.match(servicesComposable, /if \(isReady && !activeChanged\) return;/);
 });
 
 test("returns deterministic points for both orbit ellipses", () => {
