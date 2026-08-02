@@ -221,32 +221,41 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
   assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*11px;/);
   assert.doesNotMatch(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*top:/);
-  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px 7px;/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px 0;/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*transparent;/);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
+  assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*font-weight:\s*400;/);
   assert.doesNotMatch(
     css,
     /\.vz-services__nav button\[data-active="true"\]\s*\{\s*background:\s*var\(--ink\);/,
   );
 });
 
-test("stretches the mobile service fill across the full forward distance", () => {
+test("keeps service text fixed while expanding only the highlight background", () => {
+  const highlightSource = readFileSync("utils/landingServicesHighlight.ts", "utf8");
+
+  assert.match(highlightSource, /export function getServiceHighlightTargetBounds/);
+  assert.match(highlightSource, /x:\s*bounds\.x - horizontalPadding/);
+  assert.match(highlightSource, /width:\s*bounds\.width \+ horizontalPadding \* 2/);
+});
+
+test("narrows the mobile service fill while moving forward", () => {
   assert.deepEqual(
     getServiceHighlightFrames({ x: 10, width: 30 }, { x: 100, width: 50 }),
     [
       { x: 10, width: 30 },
-      { x: 10, width: 140 },
+      { x: 64.2, width: 21.6 },
       { x: 100, width: 50 },
     ],
   );
 });
 
-test("stretches the mobile service fill across the full reverse distance", () => {
+test("narrows the mobile service fill while moving backward", () => {
   assert.deepEqual(
     getServiceHighlightFrames({ x: 100, width: 50 }, { x: 10, width: 30 }),
     [
       { x: 100, width: 50 },
-      { x: 10, width: 140 },
+      { x: 64.2, width: 21.6 },
       { x: 10, width: 30 },
     ],
   );
@@ -256,9 +265,10 @@ test("drives the shared mobile service fill from live navigation geometry", () =
   const servicesComposable = readFileSync("composables/landing/useLandingServices.ts", "utf8");
 
   assert.match(servicesComposable, /getServiceHighlightFrames/);
+  assert.match(servicesComposable, /getServiceHighlightTargetBounds/);
   assert.match(servicesComposable, /querySelector<HTMLElement>\("\[data-serv-nav-highlight\]"\)/);
   assert.match(servicesComposable, /highlight\.animate\(/);
-  assert.match(servicesComposable, /duration:\s*620/);
+  assert.match(servicesComposable, /duration:\s*380/);
   assert.match(servicesComposable, /prefers-reduced-motion:\s*reduce/);
   assert.match(servicesComposable, /function handleResize\(\)/);
   assert.match(servicesComposable, /if \(isReady && !activeChanged\) return;/);
