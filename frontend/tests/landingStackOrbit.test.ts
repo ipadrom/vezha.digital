@@ -183,6 +183,20 @@ test("lists the same five native Mobile technologies in both locales", () => {
   }
 });
 
+test("provides seven compact service navigation labels in both locales", () => {
+  const expectedByLocale = {
+    ru: ["Mini Apps", "Боты", "Веб-сайты", "Магазины", "AI", "Системы", "Mobile"],
+    en: ["Mini Apps", "Bots", "Websites", "Stores", "AI", "Systems", "Mobile"],
+  };
+
+  for (const locale of ["ru", "en"] as const) {
+    const messages = JSON.parse(
+      readFileSync(`locales/${locale}.json`, "utf8"),
+    );
+    assert.deepEqual(messages.landing.services.navLabels, expectedByLocale[locale]);
+  }
+});
+
 test("returns deterministic points for both orbit ellipses", () => {
   assert.deepEqual(getMobileOrbitPoint(0, "outer"), { x: 1.88, y: 0, z: 0 });
   assert.deepEqual(getMobileOrbitPoint(Math.PI / 2, "outer"), { x: 0, y: 1.08, z: 0 });
@@ -421,11 +435,11 @@ test("moves only compact Mobile technologies along their assigned tracks", () =>
 test("keeps compact Mobile labels fully visible at every depth", () => {
   assert.deepEqual(getMobileLabelDepthStyle(-1.2), {
     opacity: 1,
-    scale: 1,
+    scale: 0.86,
   });
   assert.deepEqual(getMobileLabelDepthStyle(1.2), {
     opacity: 1,
-    scale: 1,
+    scale: 0.86,
   });
 });
 

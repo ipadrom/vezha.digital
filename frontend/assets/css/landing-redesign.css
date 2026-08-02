@@ -1,12 +1,5 @@
 /* Prod Services adapted to the redesign theme and grid. */
 
-@media (max-width: 900px) {
-  .vz-services [data-serv-list] {
-    display: none;
-  }
-}
-
-
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-sec-head,
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__nav button,
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__stage,
@@ -242,11 +235,15 @@
   letter-spacing: 0.04em;
 }
 
-.vz-services__nav button span:last-child {
+.vz-services__nav button [data-serv-nav-label] {
   transition: color 0.24s ease;
   color: var(--muted2);
   font-size: 17px;
   letter-spacing: -0.01em;
+}
+
+.vz-services__nav-label-compact {
+  display: none;
 }
 
 .vz-services__nav button[data-active="true"] {
@@ -255,11 +252,11 @@
 }
 
 .vz-services__nav button[data-active="true"] span:first-child,
-.vz-services__nav button[data-active="true"] span:last-child {
+.vz-services__nav button[data-active="true"] [data-serv-nav-label] {
   color: var(--ink);
 }
 
-.vz-services__nav button[data-active="true"] span:last-child {
+.vz-services__nav button[data-active="true"] [data-serv-nav-label] {
   font-weight: 600;
 }
 
@@ -878,9 +875,10 @@
 
   .vz-services__nav {
     display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding: 2px 0 8px;
+    flex-wrap: wrap;
+    overflow-x: visible;
+    gap: 6px;
+    padding: 2px 0 10px;
     border-top: 0;
     scrollbar-width: none;
   }
@@ -894,8 +892,8 @@
     min-width: max-content;
     flex: 0 0 auto;
     align-items: center;
-    gap: 8px;
-    padding: 9px 12px;
+    gap: 6px;
+    padding: 7px 9px;
     border: 1px solid var(--chipbd);
     border-radius: 999px;
     background: var(--bg);
@@ -909,19 +907,23 @@
   }
 
   .vz-services__nav button span:first-child {
-    font-size: 10px;
+    font-size: 8px;
   }
 
-  .vz-services__nav button span:last-child {
-    max-width: 150px;
-    overflow: hidden;
-    font-size: 13px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .vz-services__nav button [data-serv-nav-label] {
+    font-size: 11px;
+  }
+
+  .vz-services__nav-label-full {
+    display: none;
+  }
+
+  .vz-services__nav-label-compact {
+    display: inline;
   }
 
   .vz-services__nav button[data-active="true"] span:first-child,
-.vz-services__nav button[data-active="true"] span:last-child {
+  .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
     color: var(--bg);
   }
 

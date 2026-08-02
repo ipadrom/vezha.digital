@@ -621,7 +621,7 @@ export function getMobileTechnologyPoint(
 export function getMobileLabelDepthStyle(_worldZ: number) {
   return {
     opacity: 1,
-    scale: 1,
+    scale: 0.86,
   };
 }
 
