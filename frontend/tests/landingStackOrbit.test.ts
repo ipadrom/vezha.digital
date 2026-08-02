@@ -46,8 +46,8 @@ import {
   shouldUseStackBridgeAttachment,
   shouldUseDesktopStackLatitudeRoutes,
   shouldPreserveStackLabelVerticalPosition,
-} from "../utils/landingStackOrbit";
-import { getServiceHighlightFrames } from "../utils/landingServicesHighlight";
+} from "../utils/landingStackOrbit.ts";
+import { getServiceHighlightFrames } from "../utils/landingServicesHighlight.ts";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
   assert.deepEqual(
