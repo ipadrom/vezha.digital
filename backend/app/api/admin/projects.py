@@ -17,6 +17,7 @@ from app.schemas import (
     ReorderRequest,
     UploadResponse,
 )
+from app.services.projects import replace_project_children
 
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
 CONTENT_TYPE_MAP = {
@@ -46,7 +47,14 @@ async def create_project(
     admin: CurrentAdmin,
     db: DbSession,
 ):
-    project = Project(**data.model_dump())
+    payload = data.model_dump(exclude={"metrics", "gallery", "technologies"})
+    project = Project(**payload)
+    replace_project_children(
+        project,
+        metrics=data.metrics,
+        gallery=data.gallery,
+        technologies=data.technologies,
+    )
     db.add(project)
     await db.commit()
     await db.refresh(project)
@@ -84,9 +92,19 @@ async def update_project(
             detail="Project not found",
         )
 
-    update_data = data.model_dump(exclude_unset=True)
+    update_data = data.model_dump(
+        exclude_unset=True,
+        exclude={"metrics", "gallery", "technologies"},
+    )
     for key, value in update_data.items():
         setattr(project, key, value)
+
+    replace_project_children(
+        project,
+        metrics=data.metrics if "metrics" in data.model_fields_set else None,
+        gallery=data.gallery if "gallery" in data.model_fields_set else None,
+        technologies=data.technologies if "technologies" in data.model_fields_set else None,
+    )
 
     await db.commit()
     await db.refresh(project)

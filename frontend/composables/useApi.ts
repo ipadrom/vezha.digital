@@ -1,5 +1,5 @@
 import type {IServices} from "~/utils/interfaces/IServices";
-import type {IProjects} from "~/utils/interfaces/IProjects";
+import type {IProjectDetail, IProjects} from "~/utils/interfaces/IProjects";
 import type {IAdvantages} from "~/utils/interfaces/IAdvantages";
 import type {ITechStack} from "~/utils/interfaces/ITechStack";
 import type {IWorkStages} from "~/utils/interfaces/IWorkStages";
@@ -50,6 +50,7 @@ export const useApi = () => {
   const getServiceId = (service_id: string, lang?: string) => fetchApi<IServices>(`/services/${service_id}`, {}, lang)
   const getServices = (lang?: string) => fetchApi<IServices[]>('/services', {}, lang)
   const getProjects = (lang?: string) => fetchApi<IProjects[]>('/projects', {}, lang)
+  const getProjectBySlug = (slug: string, lang?: string) => fetchApi<IProjectDetail>(`/projects/${slug}`, {}, lang)
   const getAdvantages = (lang?: string) => fetchApi<IAdvantages[]>('/advantages', {}, lang)
   const getTechStack = (lang?: string) => fetchApi<ITechStack[]>('/tech-stack', {}, lang)
   const getWorkStages = (lang?: string) => fetchApi<IWorkStages[]>('/work-stages', {}, lang)
@@ -76,6 +77,7 @@ export const useApi = () => {
     getServiceId,
     getServices,
     getProjects,
+    getProjectBySlug,
     getAdvantages,
     getTechStack,
     getWorkStages,

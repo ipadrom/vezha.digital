@@ -1,9 +1,11 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query, status
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from app.core.deps import DbSession
 from app.models import Project
-from app.schemas import ProjectPublic
+from app.schemas import ProjectDetailPublic, ProjectPublic
+from app.services.projects import serialize_project_detail, serialize_project_summary
 
 router = APIRouter()
 
@@ -13,17 +15,32 @@ async def get_projects(
     db: DbSession,
     lang: str = Query("ru", regex="^(ru|en)$"),
 ):
-    result = await db.execute(select(Project).where(Project.is_active).order_by(Project.sort_order))
+    result = await db.execute(
+        select(Project)
+        .options(selectinload(Project.metrics))
+        .where(Project.is_active)
+        .order_by(Project.sort_order)
+    )
     projects = result.scalars().all()
+    return [serialize_project_summary(project, lang) for project in projects]
 
-    return [
-        ProjectPublic(
-            id=p.id,
-            type=p.type_ru if lang == "ru" else p.type_en,
-            name=p.name_ru if lang == "ru" else p.name_en,
-            description=p.description_ru if lang == "ru" else p.description_en,
-            image_url=p.image_url,
-            project_url=p.project_url,
+
+@router.get("/{slug}", response_model=ProjectDetailPublic)
+async def get_project_by_slug(
+    slug: str,
+    db: DbSession,
+    lang: str = Query("ru", pattern="^(ru|en)$"),
+):
+    result = await db.execute(
+        select(Project)
+        .options(
+            selectinload(Project.metrics),
+            selectinload(Project.gallery),
+            selectinload(Project.technologies),
         )
-        for p in projects
-    ]
+        .where(Project.slug == slug, Project.is_active)
+    )
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+    return serialize_project_detail(project, lang)

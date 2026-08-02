@@ -26,6 +26,7 @@ from app.schemas.common import (
 from app.schemas.contact import ContactCreate, ContactRequestResponse, ContactResponse
 from app.schemas.project import (
     ProjectCreate,
+    ProjectDetailPublic,
     ProjectPublic,
     ProjectResponse,
     ProjectUpdate,
@@ -107,6 +108,7 @@ __all__ = [
     "ProjectUpdate",
     "ProjectResponse",
     "ProjectPublic",
+    "ProjectDetailPublic",
     "AdvantageCreate",
     "AdvantageUpdate",
     "AdvantageResponse",
