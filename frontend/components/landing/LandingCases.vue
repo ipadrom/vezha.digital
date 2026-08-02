@@ -25,7 +25,7 @@
             <CaseMetricGrid :metrics="activeCase.metrics.slice(0, 3)" />
             <NuxtLink class="vz-cases__link" :to="`/cases/${activeCase.slug}`">{{ copy.open }} <span>↗</span></NuxtLink>
           </div>
-          <CaseVisual :project="activeCase" :index-label="two(activeIndex + 1)" />
+          <CaseVisual :project="activeCase" :index-label="two(activeIndex + 1)" :locale="currentLocale" />
         </article>
       </Transition>
     </div>
@@ -39,6 +39,8 @@ import type { IProjects } from "~/utils/interfaces/IProjects";
 import { mergeFeaturedProjects, moveCaseIndex } from "~/utils/landingCases";
 
 const props = defineProps<{ projects: IProjects[]; fallback: IProjects[]; copy: { label: string; title: string; intro: string; tabAria: string; open: string } }>();
+const { locale } = useI18n();
+const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const activeIndex = ref(0);
 const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback, ["wellness-app"]));
 const activeCase = computed(() => cases.value[activeIndex.value]);

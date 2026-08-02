@@ -1,6 +1,7 @@
 <template>
   <div class="case-visual" :class="`case-visual--${variant}`">
-    <img v-if="project.cover_image_url || project.image_url" :src="project.cover_image_url || project.image_url || ''" :alt="project.name" />
+    <WellnessPhoneVisual v-if="project.slug === 'wellness-app'" :title="project.name" :locale="locale" :variant="variant" />
+    <img v-else-if="project.cover_image_url || project.image_url" :src="project.cover_image_url || project.image_url || ''" :alt="project.name" />
     <div v-else class="case-visual__product" aria-hidden="true">
       <div class="case-visual__top"><span></span><span></span><span></span><b>VEZHA / {{ indexLabel }}</b></div>
       <div class="case-visual__body">
@@ -20,9 +21,10 @@
 </template>
 
 <script setup lang="ts">
+import WellnessPhoneVisual from "~/components/cases/WellnessPhoneVisual.vue";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 
-withDefaults(defineProps<{ project: IProjects; indexLabel?: string; variant?: "default" | "wide" }>(), {
-  indexLabel: "01", variant: "default",
+withDefaults(defineProps<{ project: IProjects; indexLabel?: string; variant?: "default" | "wide"; locale?: "ru" | "en" }>(), {
+  indexLabel: "01", variant: "default", locale: "ru",
 });
 </script>
