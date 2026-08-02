@@ -51,10 +51,8 @@ export function useLandingServices(
       return;
     }
 
-    const navRect = navList.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
     const targetBounds = getRelativeHighlightBounds(target, navList);
-    const targetTop = targetRect.top - navRect.top;
+    const targetTop = target.offsetTop;
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isReady = highlight.dataset.ready === "true";
     const activeChanged = highlightTargetIndex !== active;
@@ -64,7 +62,7 @@ export function useLandingServices(
     if (!isReady || reducedMotion) {
       highlightAnimation?.cancel();
       highlightAnimation = null;
-      placeHighlight(highlight, targetBounds, targetTop, targetRect.height);
+      placeHighlight(highlight, targetBounds, targetTop, target.offsetHeight);
       highlightTargetIndex = active;
       return;
     }
@@ -73,7 +71,7 @@ export function useLandingServices(
     const frames = getServiceHighlightFrames(currentBounds, targetBounds);
 
     highlightAnimation?.cancel();
-    placeHighlight(highlight, targetBounds, targetTop, targetRect.height);
+    placeHighlight(highlight, targetBounds, targetTop, target.offsetHeight);
     const animation = highlight.animate(
       frames.map((frame) => ({
         transform: `translate3d(${frame.x}px, 0, 0)`,

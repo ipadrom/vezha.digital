@@ -912,6 +912,7 @@
     border-radius: 999px;
     background: transparent;
     box-shadow: none;
+    transition: none;
     white-space: nowrap;
   }
 

@@ -217,8 +217,11 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*#33434b;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*transition:\s*none;/);
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
   assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*11px;/);
+  assert.doesNotMatch(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*top:/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px 7px;/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*transparent;/);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
   assert.doesNotMatch(
@@ -259,6 +262,9 @@ test("drives the shared mobile service fill from live navigation geometry", () =
   assert.match(servicesComposable, /prefers-reduced-motion:\s*reduce/);
   assert.match(servicesComposable, /function handleResize\(\)/);
   assert.match(servicesComposable, /if \(isReady && !activeChanged\) return;/);
+  assert.match(servicesComposable, /const targetTop = target\.offsetTop;/);
+  assert.match(servicesComposable, /placeHighlight\(highlight, targetBounds, targetTop, target\.offsetHeight\)/);
+  assert.doesNotMatch(servicesComposable, /targetRect\.top - navRect\.top/);
 });
 
 test("returns deterministic points for both orbit ellipses", () => {
