@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { getCaseFallbacks } from "../utils/caseFallbacks.ts";
@@ -16,6 +17,16 @@ for (const locale of ["ru", "en"] as const) {
     assert.doesNotMatch(JSON.stringify(wellness), /artas|recipes-tab/i);
   });
 }
+
+test("landing wellness visual uses a branded splash while the case hero keeps the product screen", () => {
+  const visual = readFileSync("components/cases/WellnessPhoneVisual.vue", "utf8");
+
+  assert.match(visual, /wellness-phone__brand/);
+  assert.match(visual, /variant === ['"]default['"]/);
+  assert.match(visual, /screen-timer\.png/);
+  assert.match(visual, /wellness-phone--default \.wellness-phone__screen/);
+  assert.match(visual, /wellness-phone--wide \.wellness-phone__screen/);
+});
 
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP chapters are complete for ${locale}`, () => {
