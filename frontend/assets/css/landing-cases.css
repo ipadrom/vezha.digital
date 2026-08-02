@@ -1,7 +1,7 @@
 .vz-cases {
   position: relative;
   z-index: 2;
-  padding: clamp(88px, 10vw, 156px) 40px;
+  padding: var(--section-space) 40px clamp(88px, 10vw, 156px);
   border-top: 1px solid var(--border);
   background: var(--bg);
   color: var(--text);
