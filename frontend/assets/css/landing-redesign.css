@@ -876,9 +876,10 @@
   .vz-services__nav {
     display: flex;
     flex-wrap: nowrap;
+    justify-content: space-between;
     overflow-x: visible;
     gap: 5px;
-    padding: 2px 0 10px;
+    padding: 2px 0 24px;
     border-top: 0;
     scrollbar-width: none;
   }
@@ -915,7 +916,7 @@
 
   .vz-services__nav button [data-serv-nav-label] {
     color: var(--text3);
-    font-size: 9px;
+    font-size: 11px;
     line-height: 1;
   }
 

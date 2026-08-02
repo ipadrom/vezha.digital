@@ -207,10 +207,13 @@ test("keeps mobile service navigation on one line with only the active item fill
   const mobileCss = css.slice(mobileStart, compactHeightStart);
 
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*flex-wrap:\s*nowrap;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*justify-content:\s*space-between;/);
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*5px;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*padding:\s*2px 0 24px;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
+  assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*11px;/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*#33434b;/);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
   assert.doesNotMatch(

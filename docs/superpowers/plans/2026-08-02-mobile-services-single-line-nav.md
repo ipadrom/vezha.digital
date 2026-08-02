@@ -29,3 +29,18 @@
 - [x] Run the full landing stack suite and production build.
 - [x] Restart port 3001 and verify the one-line layout at 390px, including a service selection.
 - [x] Commit the verified implementation and documentation.
+
+---
+
+### Task 2: Improve mobile navigation readability and spacing
+
+**Files:**
+- Modify: `frontend/tests/landingStackOrbit.test.ts`
+- Modify: `frontend/assets/css/landing-redesign.css`
+
+- [x] Add failing assertions for `justify-content: space-between`, `11px` labels, and `24px` bottom padding.
+- [x] Run the landing stack suite and confirm it fails against the current compact row.
+- [x] Apply the three mobile-only CSS declarations.
+- [x] Run the landing stack suite and production build.
+- [x] Restart the production preview on port 3001 for user visual QA.
+- [x] Commit the verified refinement without staging tool logs.
