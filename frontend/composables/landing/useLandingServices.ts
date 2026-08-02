@@ -24,20 +24,21 @@ export function useLandingServices(
 
     return {
       x: elementRect.left - navRect.left,
+      y: elementRect.top - navRect.top,
       width: elementRect.width,
+      height: elementRect.height,
     };
   }
 
   function placeHighlight(
     highlight: HTMLElement,
     bounds: ServiceHighlightBounds,
-    top: number,
-    height: number,
   ) {
-    highlight.style.top = `${top}px`;
+    highlight.style.top = "0px";
+    highlight.style.left = "0px";
     highlight.style.width = `${bounds.width}px`;
-    highlight.style.height = `${height}px`;
-    highlight.style.transform = `translate3d(${bounds.x}px, 0, 0)`;
+    highlight.style.height = `${bounds.height}px`;
+    highlight.style.transform = `translate3d(${bounds.x}px, ${bounds.y}px, 0)`;
     highlight.dataset.ready = "true";
   }
 
@@ -47,16 +48,16 @@ export function useLandingServices(
     const target = navs[active];
     if (!navList || !highlight || !target) return;
 
-    if (window.innerWidth > 900) {
-      highlightAnimation?.cancel();
-      highlightAnimation = null;
-      highlightTargetIndex = -1;
-      delete highlight.dataset.ready;
-      return;
-    }
-
-    const targetBounds = getServiceHighlightTargetBounds(getRelativeHighlightBounds(target, navList));
-    const targetTop = target.offsetTop;
+    const isDesktop = window.innerWidth > 900;
+    const desktopLabel = target.querySelector<HTMLElement>(".vz-services__nav-label-full");
+    const targetElement = isDesktop && desktopLabel ? desktopLabel : target;
+    const horizontalPadding = isDesktop ? 16 : 7;
+    const verticalPadding = isDesktop ? 7 : 0;
+    const targetBounds = getServiceHighlightTargetBounds(
+      getRelativeHighlightBounds(targetElement, navList),
+      horizontalPadding,
+      verticalPadding,
+    );
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isReady = highlight.dataset.ready === "true";
     const activeChanged = highlightTargetIndex !== active;
@@ -66,7 +67,7 @@ export function useLandingServices(
     if (!isReady || reducedMotion) {
       highlightAnimation?.cancel();
       highlightAnimation = null;
-      placeHighlight(highlight, targetBounds, targetTop, target.offsetHeight);
+      placeHighlight(highlight, targetBounds);
       highlightTargetIndex = active;
       return;
     }
@@ -75,11 +76,12 @@ export function useLandingServices(
     const frames = getServiceHighlightFrames(currentBounds, targetBounds);
 
     highlightAnimation?.cancel();
-    placeHighlight(highlight, targetBounds, targetTop, target.offsetHeight);
+    placeHighlight(highlight, targetBounds);
     const animation = highlight.animate(
       frames.map((frame) => ({
-        transform: `translate3d(${frame.x}px, 0, 0)`,
+        transform: `translate3d(${frame.x}px, ${frame.y}px, 0)`,
         width: `${frame.width}px`,
+        height: `${frame.height}px`,
       })),
       {
         duration: 380,
