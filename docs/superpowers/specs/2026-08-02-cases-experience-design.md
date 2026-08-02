@@ -180,7 +180,6 @@ The technical module may initially derive from technology and integration items.
 - `CaseGallery.vue` — screenshots and captions.
 - `CaseTechnicalModule.vue` — optional architecture/integrations/stack chapter.
 - `CaseResults.vue` — verified outcomes and context.
-- Admin project editor extensions — fixed fields and repeatable metrics/gallery/technology inputs.
 
 Each presentation component receives normalized case data and does not fetch independently.
 
@@ -248,5 +247,5 @@ Visually verify at 360, 390, 768, 1024, and 1440 px. Confirm:
 - scroll hijacking or a pinned horizontal case gallery;
 - client-authored public reviews;
 - case filtering on the initial landing implementation;
+- a case editor or other admin UI;
 - invented performance metrics. Only client-approved or otherwise verifiable results may be published.
-
