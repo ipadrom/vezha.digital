@@ -111,6 +111,12 @@
       @cube-ready="setClientCubeHost"
     />
 
+    <LandingCases
+      :projects="projects"
+      :fallback="caseFallbacks"
+      :copy="casesCopy"
+    />
+
     <LandingDevelopmentAnatomy
       :stages="displayStages"
       :copy="copy.stages"
@@ -135,6 +141,7 @@
 
 <script setup lang="ts">
 import LandingAbout from "~/components/landing/LandingAbout.vue";
+import LandingCases from "~/components/landing/LandingCases.vue";
 import type { IAdvantages } from "~/utils/interfaces/IAdvantages";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 import type { IServices } from "~/utils/interfaces/IServices";
@@ -143,6 +150,7 @@ import type { ITechStack } from "~/utils/interfaces/ITechStack";
 import type { IWorkStages } from "~/utils/interfaces/IWorkStages";
 import enMessagesRaw from "~/locales/en.json?raw";
 import ruMessagesRaw from "~/locales/ru.json?raw";
+import { getCaseFallbacks } from "~/utils/caseFallbacks";
 
 definePageMeta({
   layout: false,
@@ -450,6 +458,20 @@ const enMessages = JSON.parse(enMessagesRaw) as { landing: LandingCopy };
 const ruMessages = JSON.parse(ruMessagesRaw) as { landing: LandingCopy };
 const landingMessages = { ru: ruMessages.landing, en: enMessages.landing };
 const copy = computed(() => landingMessages[currentLocale.value] as LandingCopy);
+const caseFallbacks = computed(() => getCaseFallbacks(currentLocale.value));
+const casesCopy = computed(() => currentLocale.value === "ru" ? {
+  label: "Избранные кейсы",
+  title: "Галерея проектов",
+  intro: "Показываем задачу, логику решения и то, как продукт работает в реальном сценарии.",
+  tabAria: "Выберите кейс",
+  open: "Открыть кейс",
+} : {
+  label: "Selected cases",
+  title: "Project gallery",
+  intro: "The task, the reasoning and the way each product works in a real scenario.",
+  tabAria: "Select a case",
+  open: "Open case",
+});
 
 const aboutBusinessIcons = [
   [
@@ -507,7 +529,15 @@ const activeAboutBusiness = computed<AboutFlowItem>(() => (
 ));
 
 const clientSegments = computed(() => copy.value.clients.segments);
-const navItems = computed(() => copy.value.nav.items);
+const navItems = computed(() => {
+  const items = [...copy.value.nav.items];
+  const stagesIndex = items.findIndex((item) => item.href === "#stages");
+  items.splice(stagesIndex < 0 ? items.length : stagesIndex, 0, {
+    href: "#cases",
+    label: currentLocale.value === "ru" ? "Кейсы" : "Cases",
+  });
+  return items;
+});
 const footerNavItems = computed(() => navItems.value.filter((item) => item.href !== "#contacts"));
 const marqueeItems = computed(() => copy.value.marqueeItems);
 const fallbackServices = computed(() => copy.value.services.fallback);
