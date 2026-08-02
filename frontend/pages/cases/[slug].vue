@@ -15,9 +15,11 @@
           <div><dt>{{ currentLocale === "ru" ? "Сфера" : "Industry" }}</dt><dd>{{ project.industry }}</dd></div>
           <div><dt>{{ currentLocale === "ru" ? "Контур" : "Scope" }}</dt><dd>{{ project.timeline }}</dd></div>
         </dl>
-        <CaseVisual :project="project" :index-label="two(caseIndex + 1)" variant="wide" />
+        <CaseVisual :project="project" :index-label="two(caseIndex + 1)" :locale="currentLocale" variant="wide" />
       </section>
 
+      <WellnessCaseStudy v-if="project.slug === 'wellness-app'" :project="project" :locale="currentLocale" />
+      <template v-else>
       <section id="story" class="case-story">
         <header><span>{{ currentLocale === "ru" ? "01 / История" : "01 / Story" }}</span><h2>{{ currentLocale === "ru" ? "Сначала — задача. Потом — интерфейс." : "The task comes first. The interface follows." }}</h2></header>
         <div class="case-story__chapters">
@@ -30,6 +32,7 @@
       <CaseGallery :gallery="project.gallery" :locale="currentLocale" />
       <CaseResults :summary="project.result_summary" :metrics="project.metrics" :testimonial="project.testimonial" :author="project.testimonial_author" :locale="currentLocale" />
       <CaseTechnicalModule :technologies="project.technologies" :project-type="project.type" :locale="currentLocale" />
+      </template>
 
       <section class="case-next">
         <span>{{ currentLocale === "ru" ? "Следующее досье" : "Next dossier" }}</span>
@@ -45,6 +48,7 @@ import CaseGallery from "~/components/cases/CaseGallery.vue";
 import CaseResults from "~/components/cases/CaseResults.vue";
 import CaseTechnicalModule from "~/components/cases/CaseTechnicalModule.vue";
 import CaseVisual from "~/components/cases/CaseVisual.vue";
+import WellnessCaseStudy from "~/components/cases/WellnessCaseStudy.vue";
 import type { IProjectDetail } from "~/utils/interfaces/IProjects";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
 import { getNextProject } from "~/utils/landingCases";
@@ -72,7 +76,11 @@ async function loadProject() {
 }
 function applySeo() {
   if (!project.value) return;
-  useSeoMeta({ title: `${project.value.name} — VEZHA Digital`, description: project.value.description || project.value.subtitle || "" });
+  useSeoMeta({
+    title: `${project.value.name} — VEZHA Digital`,
+    description: project.value.description || project.value.subtitle || "",
+    robots: project.value.metrics.some((metric) => metric.is_demo) ? "noindex, nofollow" : undefined,
+  });
 }
 function toggleLocale() { locale.value = currentLocale.value === "ru" ? "en" : "ru"; }
 function toggleTheme() { theme.value = theme.value === "light" ? "dark" : "light"; }

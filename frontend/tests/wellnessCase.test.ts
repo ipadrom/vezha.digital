@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { getCaseFallbacks } from "../utils/caseFallbacks.ts";
+import { getWellnessCaseContent } from "../utils/wellnessCaseContent.ts";
 
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP is localized and anonymized for ${locale}`, () => {
@@ -13,5 +14,17 @@ for (const locale of ["ru", "en"] as const) {
     assert.ok(wellness.metrics.every((metric) => metric.is_demo));
     assert.notEqual(wellness.name, "Training");
     assert.doesNotMatch(JSON.stringify(wellness), /artas|recipes-tab/i);
+  });
+}
+
+for (const locale of ["ru", "en"] as const) {
+  test(`WELLNESS APP chapters are complete for ${locale}`, () => {
+    const content = getWellnessCaseContent(locale);
+    assert.deepEqual(content.chapters.map((item) => item.id), ["workout", "food"]);
+    assert.deepEqual(content.chapters.map((item) => item.screens.length), [3, 3]);
+    assert.ok(content.evolution.before.points.length >= 3);
+    assert.ok(content.evolution.after.points.length >= 3);
+    assert.match(content.demoLabel, locale === "ru" ? /демонстрационные/i : /demonstration/i);
+    assert.doesNotMatch(JSON.stringify(content), /Training|artas|recipes-tab/i);
   });
 }

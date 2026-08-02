@@ -1,6 +1,11 @@
 <template>
   <div v-if="metrics.length" class="case-metrics" :class="getMetricGridClass(metrics.length)">
-    <article v-for="metric in metrics" :key="`${metric.value}-${metric.label}`" class="case-metric">
+    <article
+      v-for="metric in metrics"
+      :key="`${metric.value}-${metric.label}`"
+      class="case-metric"
+      :data-demo="metric.is_demo ? 'true' : undefined"
+    >
       <strong>{{ metric.value }}</strong>
       <span>{{ metric.label }}</span>
       <small v-if="metric.context">{{ metric.context }}</small>
