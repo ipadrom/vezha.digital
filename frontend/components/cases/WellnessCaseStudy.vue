@@ -2,9 +2,9 @@
   <div class="wellness-case">
     <section id="evidence" class="wellness-evidence">
       <header><span>{{ locale === "ru" ? "01 / Показатели" : "01 / Evidence" }}</span><h2>{{ content.evidenceTitle }}</h2></header>
-      <p class="wellness-evidence__lead">{{ content.evidenceLead }}</p>
+      <p class="wellness-evidence__lead">{{ evidenceLead }}</p>
       <CaseMetricGrid :metrics="project.metrics" />
-      <p class="wellness-evidence__demo"><span>DEMO</span>{{ content.demoLabel }}</p>
+      <p v-if="hasDemoMetrics" class="wellness-evidence__demo"><span>DEMO</span>{{ content.demoLabel }}</p>
     </section>
 
     <section id="story" class="wellness-evolution">
@@ -42,6 +42,8 @@ import { getWellnessCaseContent } from "~/utils/wellnessCaseContent";
 
 const props = defineProps<{ project: IProjectDetail; locale: "ru" | "en" }>();
 const content = computed(() => getWellnessCaseContent(props.locale));
+const hasDemoMetrics = computed(() => props.project.metrics.some((metric) => metric.is_demo));
+const evidenceLead = computed(() => hasDemoMetrics.value ? content.value.evidenceLead : content.value.verifiedEvidenceLead);
 </script>
 
 <style src="~/assets/css/wellness-case.css"></style>

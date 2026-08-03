@@ -132,6 +132,14 @@
 .wellness-chapter__screens figcaption { display: flex; gap: 20px; padding: 15px 18px; color: var(--muted); font: 500 9px var(--font-mono); text-transform: uppercase; letter-spacing: .08em; }
 .wellness-chapter__screens figcaption span { color: var(--text); }
 
+@media (min-width: 901px) {
+  .wellness-chapter--reverse .wellness-chapter__copy { grid-template-columns: 1fr 1.35fr; }
+  .wellness-chapter--reverse .wellness-chapter__copy > p { order: 2; }
+  .wellness-chapter--reverse .wellness-chapter__copy > ul { order: 1; }
+  .wellness-chapter--reverse .wellness-chapter__screens { direction: rtl; }
+  .wellness-chapter--reverse .wellness-chapter__screens figure { direction: ltr; }
+}
+
 .wellness-technical-intro { background: #141519; color: #f3f1ed; --muted: #9498a3; --border: #303238; }
 .wellness-technical-intro p,
 .wellness-conclusion p { max-width: 760px; margin: 34px 0 0; font-size: clamp(18px, 1.65vw, 26px); line-height: 1.5; color: var(--muted); }

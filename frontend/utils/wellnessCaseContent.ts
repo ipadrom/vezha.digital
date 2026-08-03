@@ -26,6 +26,7 @@ export interface WellnessCaseContent {
   demoLabel: string;
   evidenceTitle: string;
   evidenceLead: string;
+  verifiedEvidenceLead: string;
   evolution: {
     eyebrow: string;
     title: string;
@@ -48,6 +49,9 @@ export function getWellnessCaseContent(locale: WellnessLocale): WellnessCaseCont
     evidenceLead: ru
       ? "Пока продукт обезличен, цифры показывают формат будущего доказательного блока, а не подтверждённый результат."
       : "While the product remains anonymous, the figures demonstrate the future evidence block rather than verified results.",
+    verifiedEvidenceLead: ru
+      ? "Показатели основаны на подтверждённых результатах продукта."
+      : "The figures reflect verified product results.",
     evolution: {
       eyebrow: ru ? "01 / Эволюция" : "01 / Evolution",
       title: ru ? "Из личного инструмента — в цельный ежедневный продукт" : "From a personal tool to one coherent daily product",

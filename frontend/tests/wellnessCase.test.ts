@@ -41,6 +41,28 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.doesNotMatch(css, /\.case-header\s*\{[^}]*backdrop-filter:/s);
 });
 
+test("case header hides an open mobile menu outside the mobile breakpoint", () => {
+  const css = readFileSync("assets/css/case-detail.css", "utf8");
+
+  assert.match(css, /\.case-header__mobile-nav\s*\{[^}]*display:\s*none;/s);
+  assert.match(css, /@media\s*\(max-width:\s*900px\)\s*\{[\s\S]*\.case-header__mobile-nav\s*\{[^}]*display:\s*grid;/s);
+});
+
+test("wellness evidence disclosure follows the metric demo state", () => {
+  const study = readFileSync("components/cases/WellnessCaseStudy.vue", "utf8");
+
+  assert.match(study, /v-if="hasDemoMetrics"/);
+  assert.match(study, /props\.project\.metrics\.some\(\(metric\) => metric\.is_demo\)/);
+  assert.match(study, /hasDemoMetrics\.value \? content\.value\.evidenceLead : content\.value\.verifiedEvidenceLead/);
+});
+
+test("reversed wellness chapters change desktop composition only", () => {
+  const css = readFileSync("assets/css/wellness-case.css", "utf8");
+
+  assert.match(css, /@media\s*\(min-width:\s*901px\)\s*\{[\s\S]*\.wellness-chapter--reverse\s+\.wellness-chapter__copy\s*\{/s);
+  assert.match(css, /\.wellness-chapter--reverse\s+\.wellness-chapter__screens\s*\{[^}]*direction:\s*rtl;/s);
+});
+
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP chapters are complete for ${locale}`, () => {
     const content = getWellnessCaseContent(locale);
@@ -49,6 +71,7 @@ for (const locale of ["ru", "en"] as const) {
     assert.ok(content.evolution.before.points.length >= 3);
     assert.ok(content.evolution.after.points.length >= 3);
     assert.match(content.demoLabel, locale === "ru" ? /демонстрационные/i : /demonstration/i);
+    assert.ok(content.verifiedEvidenceLead.length > 0);
     assert.doesNotMatch(JSON.stringify(content), /Training|artas|recipes-tab/i);
   });
 }
