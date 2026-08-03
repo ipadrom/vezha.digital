@@ -1,27 +1,26 @@
 export type ServiceHighlightBounds = {
   x: number;
+  y: number;
   width: number;
+  height: number;
 };
 
 export function getServiceHighlightTargetBounds(
   bounds: ServiceHighlightBounds,
   horizontalPadding = 7,
+  verticalPadding = 0,
 ): ServiceHighlightBounds {
   return {
     x: bounds.x - horizontalPadding,
+    y: bounds.y - verticalPadding,
     width: bounds.width + horizontalPadding * 2,
+    height: bounds.height + verticalPadding * 2,
   };
 }
 
 export function getServiceHighlightFrames(
   from: ServiceHighlightBounds,
   to: ServiceHighlightBounds,
-): [ServiceHighlightBounds, ServiceHighlightBounds, ServiceHighlightBounds] {
-  const fromCenter = from.x + from.width / 2;
-  const toCenter = to.x + to.width / 2;
-  const midpointCenter = (fromCenter + toCenter) / 2;
-  const pinchWidth = Number((Math.min(from.width, to.width) * 0.72).toFixed(3));
-  const pinchX = Number((midpointCenter - pinchWidth / 2).toFixed(3));
-
-  return [from, { x: pinchX, width: pinchWidth }, to];
+): [ServiceHighlightBounds, ServiceHighlightBounds] {
+  return [from, to];
 }

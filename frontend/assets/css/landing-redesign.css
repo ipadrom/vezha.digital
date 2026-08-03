@@ -208,42 +208,68 @@
 }
 
 .vz-services__nav {
-  grid-auto-rows: 54px;
+  position: relative;
   display: grid;
-  border-top: 1px solid var(--border);
+  overflow: visible;
+  border-top: 0;
+  grid-auto-rows: 48px;
 }
 
 .vz-services__nav-highlight {
-  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  display: block;
+  border-radius: 999px;
+  opacity: 0;
+  background: #33434b;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, width, height;
+}
+
+.vz-services__nav-highlight[data-ready="true"] {
+  opacity: 1;
 }
 
 .vz-services__nav button {
-  min-height: 54px;
+  position: relative;
+  z-index: 1;
   display: flex;
   width: 100%;
-  align-items: baseline;
-  gap: 16px;
-  padding: 13px 2px;
+  min-height: 48px;
+  align-items: center;
+  gap: 0;
+  padding: 0 16px;
   border: 0;
-  border-bottom: 1px solid var(--border);
   background: transparent;
   cursor: pointer;
   text-align: left;
-  transition: padding-left 0.3s cubic-bezier(0.76, 0, 0.24, 1), border-color 0.25s ease, background 0.25s ease;
 }
 
-.vz-services__nav button span:first-child {
-  color: var(--hair);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
-  letter-spacing: 0.04em;
+.vz-services__nav button:focus {
+  outline: none;
+}
+
+.vz-services__nav button:focus-visible .vz-services__nav-label-full {
+  border-radius: 999px;
+  outline: 1px solid rgb(51 67 75 / 45%);
+  outline-offset: 4px;
+}
+
+.vz-services__nav [data-serv-nav-num] {
+  display: none;
 }
 
 .vz-services__nav button [data-serv-nav-label] {
-  transition: color 0.24s ease;
+  transition: color 0.24s ease, font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1);
   color: var(--muted2);
-  font-size: 17px;
+  font-size: 16px;
+  font-weight: 400;
   letter-spacing: -0.01em;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .vz-services__nav-label-compact {
@@ -251,17 +277,18 @@
 }
 
 .vz-services__nav button[data-active="true"] {
-  padding-left: 12px;
-  border-bottom-color: var(--ink);
-}
-
-.vz-services__nav button[data-active="true"] span:first-child,
-.vz-services__nav button[data-active="true"] [data-serv-nav-label] {
-  color: var(--ink);
+  padding: 0 16px;
+  background: transparent;
 }
 
 .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
-  font-weight: 600;
+  background: linear-gradient(104deg, #ad9cff 0%, #51d8ff 100%);
+  background-clip: text;
+  color: transparent;
+  font-size: 18px;
+  font-weight: 400;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .vz-services__stage {
@@ -1077,7 +1104,7 @@
 }
 
 .vz-services__nav button[data-active="true"] {
-  background: linear-gradient(90deg, rgb(25 26 31 / 4%), transparent 72%);
+  background: transparent;
 }
 
 .vz-services__stage {
