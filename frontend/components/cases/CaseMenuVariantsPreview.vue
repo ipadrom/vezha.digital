@@ -12,7 +12,10 @@
             v-for="project in projects"
             :key="project.id"
             type="button"
-            :class="{ 'is-active': project.id === '01' }"
+            class="menu-rail__item"
+            :class="{ 'is-active': project.id === activeProjectId }"
+            :aria-pressed="project.id === activeProjectId"
+            @click="activeProjectId = project.id"
           >
             <span>{{ project.id }}</span>
             <b>{{ project.name }}</b>
@@ -59,19 +62,19 @@
           </div>
 
           <div class="demo-case__copy">
-            <span>КЕЙС 01 / 04</span>
-            <h1>WELLNESS<br />APP</h1>
-            <p>От персонального трекера к единой системе тренировок и питания.</p>
+            <span>КЕЙС {{ activeProject.id }} / {{ projects.length.toString().padStart(2, "0") }}</span>
+            <h1>{{ activeProject.name }}</h1>
+            <p>{{ activeProject.description }}</p>
             <dl>
-              <div><dt>ФОРМАТ</dt><dd>PRODUCT / PWA / VUE</dd></div>
-              <div><dt>СФЕРА</dt><dd>WELLNESS</dd></div>
+              <div><dt>ФОРМАТ</dt><dd>{{ activeProject.kind }}</dd></div>
+              <div><dt>СФЕРА</dt><dd>{{ activeProject.sector }}</dd></div>
             </dl>
           </div>
 
-          <div class="demo-case__visual" aria-label="Превью WELLNESS APP">
+          <div class="demo-case__visual" :aria-label="`Превью ${activeProject.name}`">
             <div class="demo-case__phone">
-              <span>W</span>
-              <small>WELLNESS APP</small>
+              <span>{{ activeProject.monogram }}</span>
+              <small>{{ activeProject.name }}</small>
             </div>
           </div>
         </article>
@@ -106,9 +109,12 @@ defineProps<{ variant: CaseMenuVariantId; view: CaseMenuView }>();
 const isSelectorOpen = ref(false);
 
 const projects = [
-  { id: "01", name: "WELLNESS APP", short: "WELLNESS", kind: "PRODUCT / PWA / VUE" },
-  { id: "02", name: "МЕНЮ ДЛЯ ЗАКАЗА", short: "МЕНЮ", kind: "TELEGRAM MINI APP" },
-  { id: "03", name: "AI-ПОДДЕРЖКА", short: "AI", kind: "AI / AUTOMATION" },
-  { id: "04", name: "CRM-СИСТЕМА", short: "CRM", kind: "CORPORATE SYSTEM" },
+  { id: "01", name: "WELLNESS APP", short: "WELLNESS", kind: "PRODUCT / PWA / VUE", sector: "WELLNESS", monogram: "W", description: "От персонального трекера к единой системе тренировок и питания." },
+  { id: "02", name: "МЕНЮ ДЛЯ ЗАКАЗА", short: "МЕНЮ", kind: "TELEGRAM MINI APP", sector: "HOSPITALITY", monogram: "M", description: "Быстрый сценарий заказа, который остаётся удобным прямо в мессенджере." },
+  { id: "03", name: "AI-ПОДДЕРЖКА", short: "AI", kind: "AI / AUTOMATION", sector: "CUSTOMER CARE", monogram: "A", description: "Система поддержки, которая помогает команде отвечать точнее и быстрее." },
+  { id: "04", name: "CRM-СИСТЕМА", short: "CRM", kind: "CORPORATE SYSTEM", sector: "OPERATIONS", monogram: "C", description: "Единая рабочая среда для прозрачных процессов и сильной клиентской команды." },
 ];
+
+const activeProjectId = ref(projects[0].id);
+const activeProject = computed(() => projects.find((project) => project.id === activeProjectId.value) ?? projects[0]);
 </script>
