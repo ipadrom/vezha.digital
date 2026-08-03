@@ -57,3 +57,17 @@ test("landing case metrics stay unframed", () => {
   assert.match(css, /\.vz-cases\s+\.case-metrics\s*\{[^}]*border:\s*0;/s);
   assert.match(css, /\.vz-cases\s+\.case-metric\s*\{[^}]*border:\s*0;/s);
 });
+
+test("landing cases use the accessible capsule tab treatment", () => {
+  const component = readFileSync("components/landing/LandingCases.vue", "utf8");
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(css, /\.vz-cases__tabs\s*\{[^}]*gap:\s*10px;[^}]*padding:/s);
+  assert.match(css, /\.vz-cases__tabs button\s*\{[^}]*border-radius:\s*999px;/s);
+  assert.match(css, /button\[aria-selected="true"\]::after[^}]*border-radius:\s*50%/s);
+  assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.vz-cases__tabs\s*\{[^}]*overflow-x:\s*auto;/s);
+  assert.match(component, /role="tablist"/);
+  assert.match(component, /role="tab"/);
+  assert.match(component, /@keydown\.left\.prevent="move\(-1\)"/);
+  assert.match(component, /@keydown\.right\.prevent="move\(1\)"/);
+});
