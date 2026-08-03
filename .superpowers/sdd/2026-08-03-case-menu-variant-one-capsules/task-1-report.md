@@ -23,3 +23,18 @@
 ## Deferred by controlling task
 
 The production build, server restart, and ten route checks were intentionally not run: the controlling task explicitly requires that port 3004 not be stopped and will perform the rebuild/restart after review.
+
+## Fix round 1/5: isolate selected demo content
+
+`displayedProject` now returns `activeProject` only for variant 1 and the original WELLNESS APP project for variants 2–5. The template derives its shared demo title, description, metadata, monogram, and preview label from `displayedProject`.
+
+Regression test added to `frontend/tests/caseMenuVariantOne.test.mjs`.
+
+Command and output:
+
+```text
+node --test tests/caseMenuVariantOne.test.mjs tests/caseMenuVariantsRoute.test.mjs
+# tests 3
+# pass 3
+# fail 0
+```

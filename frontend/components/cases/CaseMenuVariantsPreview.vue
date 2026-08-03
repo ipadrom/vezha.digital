@@ -62,19 +62,19 @@
           </div>
 
           <div class="demo-case__copy">
-            <span>КЕЙС {{ activeProject.id }} / {{ projects.length.toString().padStart(2, "0") }}</span>
-            <h1>{{ activeProject.name }}</h1>
-            <p>{{ activeProject.description }}</p>
+            <span>КЕЙС {{ displayedProject.id }} / {{ projects.length.toString().padStart(2, "0") }}</span>
+            <h1>{{ displayedProject.name }}</h1>
+            <p>{{ displayedProject.description }}</p>
             <dl>
-              <div><dt>ФОРМАТ</dt><dd>{{ activeProject.kind }}</dd></div>
-              <div><dt>СФЕРА</dt><dd>{{ activeProject.sector }}</dd></div>
+              <div><dt>ФОРМАТ</dt><dd>{{ displayedProject.kind }}</dd></div>
+              <div><dt>СФЕРА</dt><dd>{{ displayedProject.sector }}</dd></div>
             </dl>
           </div>
 
-          <div class="demo-case__visual" :aria-label="`Превью ${activeProject.name}`">
+          <div class="demo-case__visual" :aria-label="`Превью ${displayedProject.name}`">
             <div class="demo-case__phone">
-              <span>{{ activeProject.monogram }}</span>
-              <small>{{ activeProject.name }}</small>
+              <span>{{ displayedProject.monogram }}</span>
+              <small>{{ displayedProject.name }}</small>
             </div>
           </div>
         </article>
@@ -104,7 +104,7 @@
 <script setup lang="ts">
 import type { CaseMenuVariantId, CaseMenuView } from "~/utils/caseMenuVariants";
 
-defineProps<{ variant: CaseMenuVariantId; view: CaseMenuView }>();
+const props = defineProps<{ variant: CaseMenuVariantId; view: CaseMenuView }>();
 
 const isSelectorOpen = ref(false);
 
@@ -117,4 +117,5 @@ const projects = [
 
 const activeProjectId = ref(projects[0].id);
 const activeProject = computed(() => projects.find((project) => project.id === activeProjectId.value) ?? projects[0]);
+const displayedProject = computed(() => props.variant === "1" ? activeProject.value : projects[0]);
 </script>
