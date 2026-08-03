@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import CaseMenuVariantsPreview from "~/components/cases/CaseMenuVariantsPreview.vue";
 import {
   caseMenuVariants,
   getCaseMenuVariant,

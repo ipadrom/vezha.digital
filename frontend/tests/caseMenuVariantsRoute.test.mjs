@@ -10,5 +10,7 @@ test("case menu variants route renders a single selected preview", async () => {
   const html = await response.text();
   assert.match(html, /ВАРИАНТЫ МЕНЮ КЕЙСОВ/);
   assert.match(html, /Один селектор/);
-  assert.match(html, /case-menu-preview--mobile/);
+  assert.match(html, /WELLNESS APP/);
+  assert.match(html, /class="case-menu-preview case-menu-preview--mobile"/);
+  assert.match(html, /class="menu-demo--v3 menu-demo"/);
 });
