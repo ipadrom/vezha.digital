@@ -19,9 +19,11 @@
       <Transition name="case-switch" mode="out-in">
         <article v-if="activeCase" :key="activeCase.id" class="vz-cases__active" role="tabpanel" :aria-labelledby="`case-tab-${activeIndex}`">
           <div class="vz-cases__story">
-            <div class="vz-cases__meta"><span>{{ activeCase.industry }}</span><span>{{ activeCase.type }}</span></div>
-            <h3>{{ activeCase.name }}</h3>
-            <p>{{ activeCase.description }}</p>
+            <div class="vz-cases__story-copy">
+              <div class="vz-cases__meta"><span>{{ activeCase.industry }}</span><span>{{ activeCase.type }}</span></div>
+              <h3>{{ activeCase.name }}</h3>
+              <p>{{ activeCase.description }}</p>
+            </div>
             <CaseMetricGrid :metrics="activeCase.metrics.slice(0, 3)" />
             <NuxtLink class="vz-cases__link" :to="`/cases/${activeCase.slug}`">{{ copy.open }} <span>↗</span></NuxtLink>
           </div>

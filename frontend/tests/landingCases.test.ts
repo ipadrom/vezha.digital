@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { getMetricGridClass, getNextProject, mergeFeaturedProjects, moveCaseIndex, selectFeaturedProjects } from "../utils/landingCases.ts";
@@ -37,4 +38,15 @@ test("required fallback case is merged beside API cases without duplicates", () 
     ["api-case", "wellness-app"],
   );
   assert.equal(mergeFeaturedProjects([], fallback, ["wellness-app"]).length, 2);
+});
+
+test("mobile case flow places the visual before metrics without changing desktop markup order", () => {
+  const component = readFileSync("components/landing/LandingCases.vue", "utf8");
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(component, /class="vz-cases__story-copy"/);
+  assert.match(css, /\.vz-cases__story\s*\{\s*display:\s*contents;/);
+  assert.match(css, /\.vz-cases__story-copy\s*\{[^}]*order:\s*1;/s);
+  assert.match(css, /\.vz-cases__active\s*>\s*\.case-visual\s*\{[^}]*order:\s*2;/s);
+  assert.match(css, /\.vz-cases__story\s*>\s*\.case-metrics\s*\{[^}]*order:\s*3;/s);
 });
