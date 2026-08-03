@@ -213,6 +213,7 @@
   overflow: visible;
   border-top: 0;
   grid-auto-rows: 48px;
+  gap: 8px;
 }
 
 .vz-services__nav-highlight {
@@ -223,7 +224,7 @@
   display: block;
   border-radius: 999px;
   opacity: 0;
-  background: #33434b;
+  background: var(--ink);
   pointer-events: none;
   transform: translate3d(0, 0, 0);
   will-change: transform, width, height;
@@ -242,20 +243,21 @@
   align-items: center;
   gap: 0;
   padding: 0 16px;
-  border: 0;
-  background: transparent;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  background: var(--bg);
   cursor: pointer;
   text-align: left;
+  transition: background 0.26s ease, border-color 0.26s ease, color 0.26s ease;
 }
 
 .vz-services__nav button:focus {
   outline: none;
 }
 
-.vz-services__nav button:focus-visible .vz-services__nav-label-full {
-  border-radius: 999px;
-  outline: 1px solid rgb(51 67 75 / 45%);
-  outline-offset: 4px;
+.vz-services__nav button:hover,
+.vz-services__nav button:focus-visible {
+  border-color: var(--ink);
 }
 
 .vz-services__nav [data-serv-nav-num] {
@@ -264,7 +266,7 @@
 
 .vz-services__nav button [data-serv-nav-label] {
   transition: color 0.24s ease, font-size 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  color: var(--muted2);
+  color: var(--ink);
   font-size: 16px;
   font-weight: 400;
   letter-spacing: -0.01em;
@@ -278,17 +280,14 @@
 
 .vz-services__nav button[data-active="true"] {
   padding: 0 16px;
+  border-color: var(--ink);
   background: transparent;
 }
 
 .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
-  background: linear-gradient(104deg, #ad9cff 0%, #51d8ff 100%);
-  background-clip: text;
-  color: transparent;
-  font-size: 18px;
+  color: var(--bg);
+  font-size: 16px;
   font-weight: 400;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .vz-services__stage {
@@ -935,9 +934,9 @@
     justify-content: center;
     gap: 0;
     padding: 4px 0;
-    border: 1px solid transparent;
+    border: 1px solid var(--chipbd);
     border-radius: 999px;
-    background: transparent;
+    background: var(--bg);
     box-shadow: none;
     transition: none;
     white-space: nowrap;
@@ -945,7 +944,7 @@
 
   .vz-services__nav button[data-active="true"] {
     padding: 4px 0;
-    border-color: transparent;
+    border-color: var(--ink);
     background: transparent;
   }
 
@@ -955,7 +954,7 @@
     display: block;
     border-radius: 999px;
     opacity: 0;
-    background: #33434b;
+    background: var(--ink);
     pointer-events: none;
     transform: translate3d(0, 0, 0);
     will-change: transform, width;
@@ -984,12 +983,8 @@
   }
 
   .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
-    background: linear-gradient(104deg, #ad9cff 0%, #51d8ff 100%);
-    background-clip: text;
-    color: transparent;
+    color: var(--bg);
     font-weight: 400;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
   }
 
   .vz-services__stage {

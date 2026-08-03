@@ -201,7 +201,7 @@ test("provides seven compact service navigation labels in both locales", () => {
   }
 });
 
-test("renders the desktop service chip without moving neighboring rows", () => {
+test("renders desktop service navigation as full-width client-style capsules", () => {
   const css = readFileSync("assets/css/landing-redesign.css", "utf8");
   const servicesComposable = readFileSync("composables/landing/useLandingServices.ts", "utf8");
   const desktopStart = css.indexOf(".vz-services__nav {");
@@ -209,15 +209,18 @@ test("renders the desktop service chip without moving neighboring rows", () => {
   const desktopCss = css.slice(desktopStart, desktopEnd);
 
   assert.match(desktopCss, /\.vz-services__nav\s*\{[^}]*position:\s*relative;/);
-  assert.match(desktopCss, /\.vz-services__nav\s*\{[^}]*grid-auto-rows:\s*48px;/);
+  assert.match(desktopCss, /\.vz-services__nav\s*\{[^}]*grid-auto-rows:\s*48px;[^}]*gap:\s*8px;/s);
   assert.match(desktopCss, /\[data-serv-nav-num\]\s*\{[^}]*display:\s*none;/);
   assert.match(desktopCss, /\.vz-services__nav-highlight\s*\{[^}]*display:\s*block;/);
-  assert.match(desktopCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*#33434b;/);
-  assert.match(desktopCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*18px;/);
-  assert.match(desktopCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
+  assert.match(desktopCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*var\(--ink\);/s);
+  assert.match(desktopCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid var\(--chipbd\);[^}]*border-radius:\s*999px;[^}]*background:\s*var\(--bg\);/s);
+  assert.match(desktopCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*color:\s*var\(--bg\);[^}]*font-size:\s*16px;/s);
+  assert.doesNotMatch(desktopCss, /button\[data-active="true"\] \[data-serv-nav-label\][^}]*linear-gradient/s);
   assert.match(desktopCss, /\.vz-services__nav button:focus\s*\{[^}]*outline:\s*none;/);
-  assert.match(desktopCss, /\.vz-services__nav button:focus-visible \.vz-services__nav-label-full\s*\{[^}]*outline:\s*1px solid/);
-  assert.match(servicesComposable, /querySelector<HTMLElement>\("\.vz-services__nav-label-full"\)/);
+  assert.match(desktopCss, /\.vz-services__nav button:focus-visible\s*\{[^}]*border-color:\s*var\(--ink\);/s);
+  assert.match(servicesComposable, /const targetElement = target;/);
+  assert.match(servicesComposable, /const horizontalPadding = 0;/);
+  assert.match(servicesComposable, /const verticalPadding = 0;/);
   assert.match(servicesComposable, /height:\s*`\$\{frame\.height\}px`/);
   assert.match(servicesComposable, /translate3d\(\$\{frame\.x\}px, \$\{frame\.y\}px, 0\)/);
 });
@@ -238,8 +241,8 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*padding:\s*2px 0 24px;/);
   assert.match(servicesComponent, /data-serv-nav-highlight/);
   assert.match(mobileCss, /\.vz-services \[data-sec-head\]\s*\{[^}]*margin-bottom:\s*8px;/);
-  assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*#33434b;/);
-  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/);
+  assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*var\(--ink\);/s);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid var\(--chipbd\);/s);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*transition:\s*none;/);
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
@@ -247,7 +250,8 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.doesNotMatch(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*top:/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px 0;/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*transparent;/);
-  assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*linear-gradient\(104deg, #ad9cff 0%, #51d8ff 100%\)/);
+  assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*color:\s*var\(--bg\);/s);
+  assert.doesNotMatch(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\][^}]*linear-gradient/s);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*font-weight:\s*400;/);
   assert.doesNotMatch(
     css,

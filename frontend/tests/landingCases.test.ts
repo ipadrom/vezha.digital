@@ -64,10 +64,21 @@ test("landing cases use the accessible capsule tab treatment", () => {
 
   assert.match(css, /\.vz-cases__tabs\s*\{[^}]*gap:\s*10px;[^}]*padding:/s);
   assert.match(css, /\.vz-cases__tabs button\s*\{[^}]*border-radius:\s*999px;/s);
-  assert.match(css, /button\[aria-selected="true"\]::after[^}]*border-radius:\s*50%/s);
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.vz-cases__tabs\s*\{[^}]*overflow-x:\s*auto;/s);
   assert.match(component, /role="tablist"/);
   assert.match(component, /role="tab"/);
   assert.match(component, /@keydown\.left\.prevent="move\(-1\)"/);
   assert.match(component, /@keydown\.right\.prevent="move\(1\)"/);
+});
+
+test("landing case selector follows the client capsule styling and open section layout", () => {
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(css, /\.vz-cases__shell\s*\{[^}]*border:\s*0;/s);
+  assert.match(css, /\.vz-cases__tabs\s*\{[^}]*padding:\s*0;/s);
+  assert.match(css, /\.vz-cases__tabs button\s*\{[^}]*border:\s*1px solid var\(--chipbd\);[^}]*background:\s*var\(--bg\);[^}]*color:\s*var\(--ink\);/s);
+  assert.match(css, /\.vz-cases__tabs button\[aria-selected="true"\]\s*\{[^}]*border-color:\s*var\(--ink\);[^}]*background:\s*var\(--ink\);[^}]*color:\s*var\(--bg\);/s);
+  assert.doesNotMatch(css, /\.vz-cases__tabs button\[aria-selected="true"\]::after/);
+  assert.match(css, /\.vz-cases__tabs button span\s*\{[^}]*grid-row:\s*1 \/ span 2;[^}]*align-self:\s*center;/s);
+  assert.match(css, /\.vz-cases \.case-visual\s*\{[^}]*border-radius:\s*28px;/s);
 });

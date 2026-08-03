@@ -48,11 +48,9 @@ export function useLandingServices(
     const target = navs[active];
     if (!navList || !highlight || !target) return;
 
-    const isDesktop = window.innerWidth > 900;
-    const desktopLabel = target.querySelector<HTMLElement>(".vz-services__nav-label-full");
-    const targetElement = isDesktop && desktopLabel ? desktopLabel : target;
-    const horizontalPadding = isDesktop ? 16 : 7;
-    const verticalPadding = isDesktop ? 7 : 0;
+    const targetElement = target;
+    const horizontalPadding = 0;
+    const verticalPadding = 0;
     const targetBounds = getServiceHighlightTargetBounds(
       getRelativeHighlightBounds(targetElement, navList),
       horizontalPadding,
