@@ -64,6 +64,8 @@
 .case-metrics.is-pair { grid-template-columns: repeat(2, 1fr); }.case-metrics.is-grid { grid-template-columns: repeat(3, 1fr); }
 .case-metric { min-width: 0; padding: 18px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .case-metric strong { display: block; font-size: 26px; line-height: 1; letter-spacing: -.04em; }.case-metric span { display: block; margin-top: 7px; font-size: 11px; line-height: 1.3; }.case-metric small { display: block; margin-top: 8px; color: var(--muted); font: 400 8px/1.35 var(--font-mono); text-transform: uppercase; }
+.vz-cases .case-metrics { gap: clamp(18px, 2.4vw, 34px); border: 0; }
+.vz-cases .case-metric { padding: 18px 0; border: 0; }
 
 .case-switch-enter-active, .case-switch-leave-active { transition: opacity .36s ease, transform .36s ease; }.case-switch-enter-from { opacity: 0; transform: translateY(14px); }.case-switch-leave-to { opacity: 0; transform: translateY(-9px); }
 

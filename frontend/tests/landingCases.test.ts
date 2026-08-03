@@ -50,3 +50,10 @@ test("mobile case flow places the visual before metrics without changing desktop
   assert.match(css, /\.vz-cases__active\s*>\s*\.case-visual\s*\{[^}]*order:\s*2;/s);
   assert.match(css, /\.vz-cases__story\s*>\s*\.case-metrics\s*\{[^}]*order:\s*3;/s);
 });
+
+test("landing case metrics stay unframed", () => {
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(css, /\.vz-cases\s+\.case-metrics\s*\{[^}]*border:\s*0;/s);
+  assert.match(css, /\.vz-cases\s+\.case-metric\s*\{[^}]*border:\s*0;/s);
+});

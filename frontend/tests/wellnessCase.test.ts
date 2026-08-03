@@ -28,6 +28,19 @@ test("landing wellness visual uses a branded splash while the case hero keeps th
   assert.match(visual, /wellness-phone--wide \.wellness-phone__screen/);
 });
 
+test("case header follows the landing header structure on desktop and mobile", () => {
+  const header = readFileSync("components/cases/CaseDetailHeader.vue", "utf8");
+  const css = readFileSync("assets/css/case-detail.css", "utf8");
+
+  assert.match(header, /class="case-header__inner"/);
+  assert.match(header, /class="case-header__menu"/);
+  assert.match(header, /class="case-header__mobile-nav"/);
+  assert.match(css, /\.case-header__inner\s*\{[^}]*max-width:\s*1240px;/s);
+  assert.match(css, /\.case-header__menu\s*\{[^}]*display:\s*none;/s);
+  assert.match(css, /\.case-header\s*\{[^}]*background:\s*var\(--bg\);/s);
+  assert.doesNotMatch(css, /\.case-header\s*\{[^}]*backdrop-filter:/s);
+});
+
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP chapters are complete for ${locale}`, () => {
     const content = getWellnessCaseContent(locale);
