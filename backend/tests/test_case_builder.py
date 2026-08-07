@@ -133,6 +133,27 @@ def test_technology_map_validates_node_positions() -> None:
         )
 
 
+def test_custom_block_preserves_freeform_elements_and_responsive_geometry() -> None:
+    element = {
+        "id": "heading-1",
+        "type": "heading",
+        "text": "Свободный заголовок",
+        "desktop": {"x": 5, "y": 10, "w": 50, "h": 20},
+        "tablet": {"x": 5, "y": 10, "w": 60, "h": 20},
+        "mobile": {"x": 5, "y": 8, "w": 90, "h": 16},
+    }
+    block = CaseBlockInput(
+        type="custom",
+        content_ru={"title": "Свой блок", "elements": [element]},
+        content_en={"title": "Custom block", "elements": [{**element, "text": "Free heading"}]},
+        settings={"layout": "freeform", "freeform_height_mobile": 720},
+    )
+
+    assert block.content_ru["elements"][0]["desktop"]["w"] == 50
+    assert block.content_en["elements"][0]["text"] == "Free heading"
+    assert block.settings.freeform_height_mobile == 720
+
+
 def test_wellness_import_is_a_complete_bilingual_builder_document() -> None:
     migration = load_wellness_migration()
     document = CaseDocumentUpdate(

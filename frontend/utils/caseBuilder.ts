@@ -15,6 +15,7 @@ export type CaseBlockType =
   | 'comparison'
   | 'results'
   | 'next_case'
+  | 'custom'
 
 export interface CaseMeta {
   slug: string
@@ -75,6 +76,32 @@ export interface CaseBlock {
 export interface CaseContentEdit {
   path: Array<string | number>
   value: string | number
+}
+
+export type CaseElementType = 'eyebrow' | 'heading' | 'text' | 'image' | 'video' | 'button' | 'metric'
+export type CaseViewport = 'desktop' | 'tablet' | 'mobile'
+
+export interface CaseElementBox {
+  x: number
+  y: number
+  w: number
+  h: number
+}
+
+export interface CaseFreeformElement {
+  id: string
+  type: CaseElementType
+  text?: string
+  label?: string
+  value?: string
+  url?: string
+  alt?: string
+  href?: string
+  poster?: string
+  desktop: CaseElementBox
+  tablet: CaseElementBox
+  mobile: CaseElementBox
+  [key: string]: unknown
 }
 
 export const technologyMapColorDefaults = {
@@ -175,6 +202,7 @@ export const blockLibrary: Array<{
   { type: 'comparison', label: 'До / после', description: 'Сравнение двух состояний', mark: '↔' },
   { type: 'results', label: 'Итог', description: 'Вывод и ссылка на продукт', mark: '✓' },
   { type: 'next_case', label: 'Следующий кейс', description: 'Переход или заявка', mark: '↗' },
+  { type: 'custom', label: 'Свободный блок', description: 'Композиция из отдельных элементов', mark: '✦' },
 ]
 
 const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<string, any>]> = {
@@ -258,11 +286,132 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
     { eyebrow: 'Дальше', title: 'Следующий кейс', case_slug: '', cta_label: 'Открыть' },
     { eyebrow: 'Next', title: 'Next case', case_slug: '', cta_label: 'Open' },
   ],
+  custom: [
+    { title: 'Свободный блок', elements: [] },
+    { title: 'Freeform block', elements: [] },
+  ],
 }
 
 const newId = () => import.meta.client && 'randomUUID' in crypto
   ? crypto.randomUUID()
   : `block-${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+export const createCaseElementId = () => `element-${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+const elementGeometry = (type: CaseElementType, index = 0): Pick<CaseFreeformElement, CaseViewport> => {
+  const offset = Math.min(index, 4)
+  const desktopByType: Record<CaseElementType, CaseElementBox> = {
+    eyebrow: { x: 5, y: 8 + offset * 8, w: 42, h: 7 },
+    heading: { x: 5, y: 18 + offset * 22, w: 44, h: 24 },
+    text: { x: 5, y: 47 + offset * 17, w: 42, h: 15 },
+    image: { x: 53, y: 8 + offset * 42, w: 42, h: 38 },
+    video: { x: 53, y: 8 + offset * 42, w: 42, h: 38 },
+    button: { x: 5, y: 82 - offset * 12, w: 25, h: 9 },
+    metric: { x: 73 - offset * 25, y: 72, w: 22, h: 19 },
+  }
+  const mobileByType: Record<CaseElementType, CaseElementBox> = {
+    eyebrow: { x: 5, y: 5 + offset * 8, w: 90, h: 6 },
+    heading: { x: 5, y: 14 + offset * 14, w: 90, h: 15 },
+    text: { x: 5, y: 33 + offset * 13, w: 90, h: 11 },
+    image: { x: 5, y: 51 + offset * 29, w: 90, h: 26 },
+    video: { x: 5, y: 51 + offset * 29, w: 90, h: 26 },
+    button: { x: 5, y: 91 - offset * 10, w: 48, h: 7 },
+    metric: { x: 55 - offset * 50, y: 80, w: 40, h: 13 },
+  }
+  const desktop = desktopByType[type]
+  const mobile = mobileByType[type]
+  return {
+    desktop,
+    tablet: { ...desktop, x: desktop.x === 53 ? 52 : desktop.x, w: desktop.w === 42 ? 43 : desktop.w },
+    mobile,
+  }
+}
+
+export const createCaseElement = (type: CaseElementType, index = 0): CaseFreeformElement => ({
+  id: createCaseElementId(),
+  type,
+  ...(type === 'eyebrow' ? { text: 'Метка' } : {}),
+  ...(type === 'heading' ? { text: 'Новый заголовок' } : {}),
+  ...(type === 'text' ? { text: 'Введите текст' } : {}),
+  ...(type === 'image' ? { url: '', alt: '' } : {}),
+  ...(type === 'video' ? { url: '', poster: '' } : {}),
+  ...(type === 'button' ? { text: 'Открыть', href: '' } : {}),
+  ...(type === 'metric' ? { value: '100%', label: 'Результат' } : {}),
+  ...elementGeometry(type, index),
+})
+
+const pairedElement = (
+  type: CaseElementType,
+  index: number,
+  ru: Partial<CaseFreeformElement>,
+  en: Partial<CaseFreeformElement>,
+): [CaseFreeformElement, CaseFreeformElement] => {
+  const base = createCaseElement(type, index)
+  return [{ ...structuredClone(base), ...ru }, { ...structuredClone(base), ...en }]
+}
+
+export const convertBlockToFreeform = (block: CaseBlock): CaseBlock => {
+  if (block.settings.layout === 'freeform') return deepClone(block)
+  const ru = block.content_ru || {}
+  const en = block.content_en || {}
+  const ruElements: CaseFreeformElement[] = []
+  const enElements: CaseFreeformElement[] = []
+  const add = (type: CaseElementType, ruValue: Partial<CaseFreeformElement>, enValue: Partial<CaseFreeformElement>) => {
+    const occurrence = ruElements.filter(item => item.type === type).length
+    const [ruElement, enElement] = pairedElement(type, occurrence, ruValue, enValue)
+    ruElements.push(ruElement)
+    enElements.push(enElement)
+  }
+  const addText = (type: CaseElementType, key: string) => {
+    if (ru[key] || en[key]) add(type, { text: String(ru[key] || '') }, { text: String(en[key] || '') })
+  }
+
+  addText('eyebrow', 'eyebrow')
+  addText('heading', 'title')
+  for (const key of ['subtitle', 'body', 'summary', 'challenge', 'solution', 'quote']) addText('text', key)
+
+  const imagePairs = [
+    ['image_url', 'image_alt'],
+    ['before_url', 'before_alt'],
+    ['after_url', 'after_alt'],
+  ]
+  for (const [urlKey, altKey] of imagePairs) {
+    if (ru[urlKey] || en[urlKey]) add('image', { url: ru[urlKey] || '', alt: ru[altKey] || '' }, { url: en[urlKey] || '', alt: en[altKey] || '' })
+  }
+  if (ru.device_screen_url || en.device_screen_url) {
+    const screenGeometry = {
+      desktop: { x: 71, y: 12, w: 6, h: 29 },
+      tablet: { x: 70, y: 12, w: 7, h: 29 },
+      mobile: { x: 44, y: 54, w: 13, h: 19 },
+    }
+    add('image', { url: ru.device_screen_url || '', alt: '', ...screenGeometry }, { url: en.device_screen_url || '', alt: '', ...screenGeometry })
+  }
+  if (ru.video_url || en.video_url) add('video', { url: ru.video_url || '', poster: ru.poster_url || '' }, { url: en.video_url || '', poster: en.poster_url || '' })
+  const ruItems = Array.isArray(ru.items) ? ru.items : []
+  const enItems = Array.isArray(en.items) ? en.items : []
+  ruItems.forEach((item: Record<string, any>, index: number) => {
+    const translated = enItems[index] || {}
+    if (item.image_url || translated.image_url) add('image', { url: item.image_url || '', alt: item.alt || '' }, { url: translated.image_url || '', alt: translated.alt || '' })
+    else if (item.value || translated.value) add('metric', { value: item.value || '', label: item.label || '' }, { value: translated.value || '', label: translated.label || '' })
+    else if (item.title || item.label || translated.title || translated.label) add('text', { text: item.title || item.label || '' }, { text: translated.title || translated.label || '' })
+  })
+  if (ru.metric_value || en.metric_value) add('metric', { value: ru.metric_value || '', label: ru.metric_label || '' }, { value: en.metric_value || '', label: en.metric_label || '' })
+  if (ru.link_url || en.link_url) add('button', { text: ru.link_label || '', href: ru.link_url || '' }, { text: en.link_label || '', href: en.link_url || '' })
+  if (block.type === 'next_case') add('button', { text: ru.cta_label || 'Открыть', href: ru.case_slug ? `/cases/${ru.case_slug}` : '' }, { text: en.cta_label || 'Open', href: en.case_slug ? `/cases/${en.case_slug}` : '' })
+
+  return {
+    ...deepClone(block),
+    content_ru: { ...ru, elements: ruElements },
+    content_en: { ...en, elements: enElements },
+    settings: {
+      ...block.settings,
+      layout: 'freeform',
+      freeform_height_desktop: 620,
+      freeform_height_tablet: 560,
+      freeform_height_mobile: 720,
+    },
+  }
+}
 
 export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
   const defaults = localizedDefaults[type]
@@ -275,7 +424,7 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
       theme: ['metrics', 'technologies'].includes(type) ? 'ink' : type === 'next_case' ? 'signal' : 'paper',
       width: ['hero', 'gallery', 'metrics', 'technologies', 'next_case'].includes(type) ? 'wide' : 'standard',
       spacing: ['hero', 'next_case'].includes(type) ? 'large' : type === 'technologies' ? 'compact' : 'normal',
-      layout: type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : 'default',
+      layout: type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : 'default',
       alignment: 'left',
       desktop_span: 12,
       desktop_start: 0,
@@ -283,6 +432,11 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
       tablet_start: 0,
       mobile_span: 12,
       mobile_start: 0,
+      ...(type === 'custom' ? {
+        freeform_height_desktop: 620,
+        freeform_height_tablet: 560,
+        freeform_height_mobile: 720,
+      } : {}),
       ...(type === 'technologies' ? {
         map_accent: technologyMapColorDefaults.accent,
         map_background: technologyMapColorDefaults.background,

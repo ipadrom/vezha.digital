@@ -4,6 +4,7 @@
     <header class="canvas-block__header">
       <div><small>{{ blockLabel(block.type) }}</small><b>{{ blockTitle(block, locale) }}</b></div>
       <div class="canvas-block__tools">
+        <button v-if="block.settings.layout !== 'freeform'" type="button" title="Разобрать в свободную композицию" @click.stop="$emit('convert')">✦</button>
         <button type="button" :title="block.is_visible ? 'Скрыть' : 'Показать'" @click.stop="$emit('toggle')">{{ block.is_visible ? '◉' : '○' }}</button>
         <button type="button" title="Дублировать" @click.stop="$emit('duplicate')">⧉</button>
         <button type="button" title="Удалить" @click.stop="$emit('remove')">×</button>
@@ -11,8 +12,18 @@
       </div>
     </header>
 
-    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero' }">
-      <template v-if="block.type === 'hero'">
+    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--hero-text-only': block.type === 'hero' && block.settings.layout !== 'freeform' && !heroHasMedia, 'canvas-block__preview--freeform': block.settings.layout === 'freeform' }">
+      <CaseFreeformCanvas
+        v-if="block.settings.layout === 'freeform'"
+        :elements="content.elements || []"
+        :viewport="viewport"
+        :height="Number(block.settings[`freeform_height_${viewport}`]) || 620"
+        @add="$emit('element-add', $event)"
+        @remove="$emit('element-remove', $event)"
+        @change="$emit('element-change', $event)"
+        @geometry="$emit('element-geometry', $event)"
+      />
+      <template v-else-if="block.type === 'hero'">
         <div class="preview-hero-copy">
           <CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Метка" label="Метка блока" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" />
           <h3><CaseInlineEdit :model-value="content.title" placeholder="Название проекта" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></h3>
@@ -24,7 +35,7 @@
             <div v-if="content.year"><dt>{{ locale === 'ru' ? 'Год' : 'Year' }}</dt><dd><CaseInlineEdit :model-value="content.year" placeholder="Год" label="Год" @focus="$emit('select')" @update:model-value="edit(['year'], $event)" /></dd></div>
           </dl>
         </div>
-        <figure class="preview-media preview-hero-media">
+        <figure v-if="heroHasMedia" class="preview-media preview-hero-media">
           <img v-if="content.image_url" :src="content.image_url" alt="" />
           <span v-else>HERO VISUAL</span>
           <i v-if="content.device_screen_url" class="preview-device-screen"><img :src="content.device_screen_url" alt="" /></i>
@@ -89,12 +100,27 @@
 <script setup lang="ts">
 import CaseInlineEdit from '~/components/admin/cases/CaseInlineEdit.vue'
 import CaseTechnologyMapEditor from '~/components/admin/cases/CaseTechnologyMapEditor.vue'
-import type { CaseBlock, CaseContentEdit, CaseLocale } from '~/utils/caseBuilder'
+import CaseFreeformCanvas from '~/components/admin/cases/CaseFreeformCanvas.vue'
+import type { CaseBlock, CaseContentEdit, CaseElementBox, CaseElementType, CaseLocale, CaseViewport } from '~/utils/caseBuilder'
 import { blockLabel, blockTitle } from '~/utils/caseBuilder'
 const props = defineProps<{ block: CaseBlock; locale: CaseLocale; index: number; selected: boolean; viewport: 'desktop' | 'tablet' | 'mobile' }>()
-const emit = defineEmits<{ select: []; toggle: []; duplicate: []; remove: []; resize: [span: number]; 'content-change': [edit: CaseContentEdit]; 'node-move': [payload: { index: number; x: number; y: number }] }>()
+const emit = defineEmits<{
+  select: []
+  toggle: []
+  duplicate: []
+  remove: []
+  convert: []
+  resize: [span: number]
+  'content-change': [edit: CaseContentEdit]
+  'node-move': [payload: { index: number; x: number; y: number }]
+  'element-add': [type: CaseElementType]
+  'element-remove': [index: number]
+  'element-change': [payload: { index: number; field: string; value: string }]
+  'element-geometry': [payload: { index: number; viewport: CaseViewport; box: CaseElementBox }]
+}>()
 const cardElement = ref<HTMLElement | null>(null)
 const content = computed(() => props.locale === 'ru' ? props.block.content_ru : props.block.content_en)
+const heroHasMedia = computed(() => Boolean(content.value.image_url || content.value.device_screen_url || content.value.metric_value))
 const liveSpan = ref<number | null>(null)
 const currentSpan = computed(() => Math.max(1, Math.min(12, Number(props.block.settings[`${props.viewport}_span`]) || 12)))
 const displaySpan = computed(() => liveSpan.value ?? currentSpan.value)
@@ -174,6 +200,8 @@ function resizeWithKeyboard(direction: number) {
 .canvas-block__tools > span { padding-left: 4px; color: #8b95a5; cursor: grab; }
 .canvas-block__preview { min-height: 128px; padding: clamp(16px, 3vw, 34px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 20px; overflow: hidden; }
 .canvas-block__preview--hero { min-height: 0; padding: clamp(34px, 7cqw, 68px) clamp(18px, 4cqw, 40px); grid-template-columns: minmax(0, .9fr) minmax(300px, 1.1fr); gap: clamp(24px, 5cqw, 54px); }
+.canvas-block__preview--hero-text-only { grid-template-columns:minmax(0,1fr); }.canvas-block__preview--hero-text-only .preview-hero-copy { max-width:680px; }
+.canvas-block__preview--freeform { min-height:0; padding:0; display:block; }
 .theme-soft .canvas-block__preview { background: #eef1f5; }
 .theme-ink .canvas-block__preview { color: white; background: #18202d; }
 .theme-signal .canvas-block__preview { color: white; background: var(--studio-blue); }

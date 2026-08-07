@@ -4,6 +4,17 @@
 
     <details open>
       <summary>Контент {{ locale.toUpperCase() }}</summary>
+      <p v-if="isFreeform" class="inspector-hint">Это свободная композиция. Текст меняется прямо на холсте; здесь удобно загрузить изображения и указать ссылки.</p>
+      <template v-if="isFreeform">
+        <div v-for="(element, index) in freeformElements" :key="element.id" class="repeat-card freeform-element-card">
+          <div class="repeat-card__head"><span>{{ freeformElementLabel(element.type) }} {{ index + 1 }}</span><button type="button" @click="removeFreeformElement(index)">Удалить</button></div>
+          <label v-if="['eyebrow', 'heading', 'text', 'button'].includes(element.type)"><span>Текст</span><textarea v-if="element.type === 'text'" :value="element.text || ''" rows="3" @input="setFreeformElement(index, 'text', valueOf($event))" /><input v-else :value="element.text || ''" @input="setFreeformElement(index, 'text', valueOf($event))" /></label>
+          <template v-if="element.type === 'image'"><label><span>Изображение</span><AdminMediaInput :model-value="element.url || ''" @update:model-value="setFreeformElement(index, 'url', $event)" /></label><label><span>Alt</span><input :value="element.alt || ''" @input="setFreeformElement(index, 'alt', valueOf($event))" /></label></template>
+          <template v-if="element.type === 'video'"><label><span>Видео</span><AdminMediaInput :model-value="element.url || ''" accept="video/mp4,video/webm" @update:model-value="setFreeformElement(index, 'url', $event)" /></label><label><span>Постер</span><AdminMediaInput :model-value="element.poster || ''" @update:model-value="setFreeformElement(index, 'poster', $event)" /></label></template>
+          <label v-if="element.type === 'button'"><span>Ссылка</span><input :value="element.href || ''" @input="setFreeformElement(index, 'href', valueOf($event))" /></label>
+          <template v-if="element.type === 'metric'"><label><span>Значение</span><input :value="element.value || ''" @input="setFreeformElement(index, 'value', valueOf($event))" /></label><label><span>Подпись</span><input :value="element.label || ''" @input="setFreeformElement(index, 'label', valueOf($event))" /></label></template>
+        </div>
+      </template>
       <label v-for="field in fields" :key="field.key">
         <span>{{ field.label }}</span>
         <AdminMediaInput v-if="field.media" :model-value="content[field.key] || ''" :accept="field.accept" @update:model-value="setContent(field.key, $event)" />
@@ -79,6 +90,9 @@
         <label><span>Отступ</span><select :value="block.settings.spacing" @change="setSetting('spacing', valueOf($event))"><option value="compact">Компактный</option><option value="normal">Обычный</option><option value="large">Большой</option></select></label>
       </div>
       <label><span>Композиция</span><select :value="block.settings.layout" @change="setSetting('layout', valueOf($event))"><option v-for="layout in layouts" :key="layout.value" :value="layout.value">{{ layout.label }}</option></select></label>
+      <div v-if="isFreeform" class="freeform-heights">
+        <label v-for="viewport in gridBreakpoints" :key="viewport.key"><span>Высота {{ viewport.label }}</span><input type="number" min="320" max="1400" step="20" :value="Number(block.settings[`freeform_height_${viewport.key}`]) || 620" @input="setSetting(`freeform_height_${viewport.key}`, Number(valueOf($event)))" /></label>
+      </div>
       <label><span>Выравнивание</span><select :value="block.settings.alignment" @change="setSetting('alignment', valueOf($event))"><option value="left">Слева</option><option value="center">По центру</option><option value="right">Справа</option></select></label>
       <label><span>Якорь раздела</span><input :value="String(block.settings.anchor || '')" placeholder="например: story" @input="setSetting('anchor', valueOf($event).trim())" /><small>Используется для ссылок вида #story.</small></label>
     </details>
@@ -87,7 +101,7 @@
 
 <script setup lang="ts">
 import AdminMediaInput from '~/components/admin/cases/AdminMediaInput.vue'
-import type { CaseBlock, CaseLocale } from '~/utils/caseBuilder'
+import type { CaseBlock, CaseElementType, CaseFreeformElement, CaseLocale } from '~/utils/caseBuilder'
 import { blockLabel, deepClone, normalizeHexColor, technologyMapColorDefaults } from '~/utils/caseBuilder'
 
 type Field = { key: string; label: string; kind?: string; rows?: number; media?: boolean; accept?: string }
@@ -98,6 +112,8 @@ const emit = defineEmits<{ change: [block: CaseBlock] }>()
 const key = computed<'content_ru' | 'content_en'>(() => props.locale === 'ru' ? 'content_ru' : 'content_en')
 const content = computed(() => props.block[key.value])
 const items = computed<any[]>(() => content.value.items || [])
+const isFreeform = computed(() => props.block.settings.layout === 'freeform')
+const freeformElements = computed<CaseFreeformElement[]>(() => Array.isArray(content.value.elements) ? content.value.elements : [])
 const valueOf = (event: Event) => (event.target as HTMLInputElement).value
 const gridBreakpoints: Array<{ key: GridViewport; label: string; spans: number[] }> = [
   { key: 'desktop', label: 'Desktop', spans: [12, 8, 6, 4] },
@@ -142,10 +158,10 @@ const itemFieldMap: Record<string, Field[]> = {
 }
 const itemDefaults: Record<string, any> = { gallery: { image_url: '', alt: '', caption: '' }, metrics: { value: '', label: '', context: '' }, process: { title: '', description: '' }, technologies: { label: '', category: 'stack' } }
 const itemNames: Record<string, string> = { gallery: 'Изображение', metrics: 'Метрика', process: 'Этап', technologies: 'Технология' }
-const fields = computed(() => fieldMap[props.block.type] || [])
-const itemFields = computed(() => itemFieldMap[props.block.type] || [])
+const fields = computed(() => isFreeform.value ? [] : fieldMap[props.block.type] || [])
+const itemFields = computed(() => isFreeform.value ? [] : itemFieldMap[props.block.type] || [])
 const itemName = computed(() => itemNames[props.block.type] || 'Элемент')
-const layouts = computed(() => ({
+const layouts = computed(() => isFreeform.value ? [{ value: 'freeform', label: 'Свободная композиция' }] : ({
   gallery: [{ value: 'mosaic', label: 'Мозаика' }, { value: 'grid', label: 'Сетка' }, { value: 'strip', label: 'Лента' }, { value: 'phones', label: 'Экраны устройства' }],
   image_text: [{ value: 'image-right', label: 'Изображение справа' }, { value: 'image-left', label: 'Изображение слева' }],
   metrics: [{ value: 'grid', label: 'Сетка' }, { value: 'strip', label: 'Лента' }],
@@ -155,6 +171,16 @@ const layouts = computed(() => ({
 
 function update(mutator: (copy: CaseBlock) => void) { const copy = deepClone(props.block); mutator(copy); emit('change', copy) }
 function setContent(field: string, value: string) { update(copy => { copy[key.value][field] = value }) }
+const freeformElementLabel = (type: CaseElementType) => ({ eyebrow: 'Метка', heading: 'Заголовок', text: 'Текст', image: 'Изображение', video: 'Видео', button: 'Кнопка', metric: 'Метрика' }[type] || type)
+function setFreeformElement(index: number, field: string, value: string) { update(copy => { if (copy[key.value].elements?.[index]) copy[key.value].elements[index][field] = value }) }
+function removeFreeformElement(index: number) {
+  update(copy => {
+    const id = copy[key.value].elements?.[index]?.id
+    for (const localeKey of ['content_ru', 'content_en'] as const) {
+      if (Array.isArray(copy[localeKey].elements)) copy[localeKey].elements = copy[localeKey].elements.filter((item: { id?: string }, itemIndex: number) => id ? item.id !== id : itemIndex !== index)
+    }
+  })
+}
 function setSetting(field: string, value: unknown) { update(copy => { (copy.settings as any)[field] = value }) }
 function settingColor(field: string, fallback: string) { return normalizeHexColor(props.block.settings[field], fallback) }
 function setMapColor(field: string, value: string, fallback: string) { setSetting(field, normalizeHexColor(value, fallback)) }
@@ -206,3 +232,9 @@ function setItem(index: number, field: string, value: string) { update(copy => {
 </script>
 
 <style scoped src="~/assets/css/admin-case-inspector.css"></style>
+<style scoped>
+.freeform-element-card { border-left:2px solid var(--studio-blue); }
+.freeform-heights { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+.freeform-heights label { min-width:0; }.freeform-heights input { width:100%; }
+@media(max-width:360px){.freeform-heights{grid-template-columns:1fr}}
+</style>

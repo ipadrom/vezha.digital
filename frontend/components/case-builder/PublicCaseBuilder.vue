@@ -10,7 +10,9 @@
       :data-block="block.type"
     >
       <div class="builder-block__inner">
-        <template v-if="block.type === 'hero'">
+        <CaseFreeformBlock v-if="block.settings.layout === 'freeform'" :content="block.content" :settings="block.settings" />
+
+        <template v-else-if="block.type === 'hero'">
           <div class="builder-hero__copy">
             <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
             <h1>{{ block.content.title }}</h1>
@@ -22,7 +24,7 @@
               <div v-if="block.content.year"><dt>{{ locale === 'ru' ? 'Год' : 'Year' }}</dt><dd>{{ block.content.year }}</dd></div>
             </dl>
           </div>
-          <figure class="builder-hero__media">
+          <figure v-if="heroHasMedia(block)" class="builder-hero__media">
             <img v-if="block.content.image_url" :src="block.content.image_url" :alt="block.content.image_alt || ''" />
             <div v-else class="builder-placeholder"><span>VEZHA / CASE</span><i /><i /><i /></div>
             <span v-if="block.content.device_screen_url" class="builder-hero__device-screen" aria-hidden="true"><img :src="block.content.device_screen_url" alt="" /></span>
@@ -103,9 +105,11 @@
 
 <script setup lang="ts">
 import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
+import CaseFreeformBlock from '~/components/case-builder/CaseFreeformBlock.vue'
 import type { CaseLocale, PublicBuilderBlock } from '~/utils/caseBuilder'
 const props = defineProps<{ blocks: PublicBuilderBlock[]; locale: CaseLocale }>()
 const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => a.sort_order - b.sort_order))
+const heroHasMedia = (block: PublicBuilderBlock) => Boolean(block.content.image_url || block.content.device_screen_url || block.content.metric_value)
 const blockClasses = (block: PublicBuilderBlock) => [
   `builder-block--${block.type}`,
   `builder-block--${block.settings.theme || 'paper'}`,
@@ -113,6 +117,7 @@ const blockClasses = (block: PublicBuilderBlock) => [
   `builder-block--space-${block.settings.spacing || 'normal'}`,
   `builder-block--align-${block.settings.alignment || 'left'}`,
   `builder-block--layout-${block.settings.layout || 'default'}`,
+  block.type === 'hero' && block.settings.layout !== 'freeform' && !heroHasMedia(block) ? 'builder-block--hero-text-only' : '',
 ]
 const blockGridStyle = (block: PublicBuilderBlock): Record<string, string> => {
   const style: Record<string, string> = {}

@@ -20,6 +20,7 @@ BlockType = Literal[
     "comparison",
     "results",
     "next_case",
+    "custom",
 ]
 
 
@@ -157,6 +158,11 @@ class NextCaseContent(FlexibleContent):
     cta_label: str = ""
 
 
+class CustomContent(FlexibleContent):
+    title: str = ""
+    elements: list[dict[str, Any]] = Field(default_factory=list)
+
+
 BLOCK_CONTENT_MODELS: dict[str, type[BaseModel]] = {
     "hero": HeroContent,
     "text": TextContent,
@@ -172,6 +178,7 @@ BLOCK_CONTENT_MODELS: dict[str, type[BaseModel]] = {
     "comparison": ComparisonContent,
     "results": ResultsContent,
     "next_case": NextCaseContent,
+    "custom": CustomContent,
 }
 
 

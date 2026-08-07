@@ -48,7 +48,7 @@
             :index="index"
             :selected="selectedId === block.id"
             :viewport="canvasWidth"
-            draggable="true"
+            :draggable="block.settings.layout !== 'freeform'"
             @dragstart="dragIndex = index"
             @dragover.prevent
             @drop="dropAt(index)"
@@ -56,9 +56,14 @@
             @toggle="toggleBlock(index)"
             @duplicate="duplicateBlock(index)"
             @remove="removeBlock(index)"
+            @convert="convertBlock(index)"
             @content-change="updateBlockContent(index, $event)"
             @node-move="moveTechnologyNode(index, $event)"
             @resize="resizeBlock(index, $event)"
+            @element-add="addElement(index, $event)"
+            @element-remove="removeElement(index, $event)"
+            @element-change="changeElement(index, $event)"
+            @element-geometry="changeElementGeometry(index, $event)"
           />
           <button class="canvas-add" type="button" @click="addBlock('text')">+ Добавить текстовый блок</button>
         </div>
@@ -88,8 +93,8 @@
 import CaseBlockCanvasCard from '~/components/admin/cases/CaseBlockCanvasCard.vue'
 import CaseBlockInspector from '~/components/admin/cases/CaseBlockInspector.vue'
 import CaseMetaInspector from '~/components/admin/cases/CaseMetaInspector.vue'
-import type { CaseBlock, CaseBlockType, CaseContentEdit, CaseDocument, CaseLocale, CaseRevision } from '~/utils/caseBuilder'
-import { blockLabel, blockLibrary, blockTitle, createCaseBlock, deepClone } from '~/utils/caseBuilder'
+import type { CaseBlock, CaseBlockType, CaseContentEdit, CaseDocument, CaseElementBox, CaseElementType, CaseLocale, CaseRevision, CaseViewport } from '~/utils/caseBuilder'
+import { blockLabel, blockLibrary, blockTitle, convertBlockToFreeform, createCaseBlock, createCaseElement, deepClone } from '~/utils/caseBuilder'
 
 definePageMeta({ layout: 'admin-layout' })
 const route = useRoute()
@@ -250,6 +255,54 @@ function toggleBlock(index: number) {
     return
   }
   target.is_visible = !target.is_visible
+}
+function convertBlock(index: number) {
+  const block = document.value?.blocks[index]
+  if (!block) return
+  document.value!.blocks[index] = convertBlockToFreeform(block)
+  selectedId.value = block.id
+  showNotice('success', 'Блок разобран: элементы можно двигать и менять по отдельности')
+}
+function addElement(index: number, type: CaseElementType) {
+  const block = document.value?.blocks[index]
+  if (!block) return
+  const ruElements = Array.isArray(block.content_ru.elements) ? block.content_ru.elements : (block.content_ru.elements = [])
+  const enElements = Array.isArray(block.content_en.elements) ? block.content_en.elements : (block.content_en.elements = [])
+  const ruElement = createCaseElement(type, ruElements.filter((item: { type?: string }) => item.type === type).length)
+  const enElement = deepClone(ruElement)
+  const english: Partial<Record<CaseElementType, Partial<typeof enElement>>> = {
+    eyebrow: { text: 'Label' }, heading: { text: 'New heading' }, text: { text: 'Enter text' }, button: { text: 'Open' }, metric: { value: '100%', label: 'Result' },
+  }
+  Object.assign(enElement, english[type] || {})
+  ruElements.push(ruElement)
+  enElements.push(enElement)
+}
+function removeElement(blockIndex: number, elementIndex: number) {
+  const block = document.value?.blocks[blockIndex]
+  if (!block) return
+  const id = block.content_ru.elements?.[elementIndex]?.id || block.content_en.elements?.[elementIndex]?.id
+  for (const key of ['content_ru', 'content_en'] as const) {
+    if (!Array.isArray(block[key].elements)) continue
+    block[key].elements = block[key].elements.filter((item: { id?: string }, index: number) => id ? item.id !== id : index !== elementIndex)
+  }
+}
+function changeElement(blockIndex: number, payload: { index: number; field: string; value: string }) {
+  const block = document.value?.blocks[blockIndex]
+  if (!block) return
+  const key = locale.value === 'ru' ? 'content_ru' : 'content_en'
+  const element = block[key].elements?.[payload.index]
+  if (element) element[payload.field] = payload.value
+}
+function changeElementGeometry(blockIndex: number, payload: { index: number; viewport: CaseViewport; box: CaseElementBox }) {
+  const block = document.value?.blocks[blockIndex]
+  if (!block) return
+  const id = block.content_ru.elements?.[payload.index]?.id || block.content_en.elements?.[payload.index]?.id
+  for (const key of ['content_ru', 'content_en'] as const) {
+    const elements = block[key].elements
+    if (!Array.isArray(elements)) continue
+    const element = (id && elements.find((item: { id?: string }) => item.id === id)) || elements[payload.index]
+    if (element) element[payload.viewport] = deepClone(payload.box)
+  }
 }
 function updateSelectedBlock(value: CaseBlock) { if (!document.value) return; const index = document.value.blocks.findIndex(block => block.id === value.id); if (index >= 0) document.value.blocks[index] = value }
 function updateBlockContent(index: number, edit: CaseContentEdit) {

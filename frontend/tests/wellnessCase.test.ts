@@ -92,6 +92,23 @@ test("publishing always saves the current hero state and protects the last cover
   assert.match(editor, /В кейсе должна остаться хотя бы одна обложка/);
 });
 
+test("freeform case blocks support direct responsive element manipulation", () => {
+  const editor = readFileSync("pages/admin/cases/[id]/index.vue", "utf8");
+  const card = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
+  const canvas = readFileSync("components/admin/cases/CaseFreeformCanvas.vue", "utf8");
+  const renderer = readFileSync("components/case-builder/CaseFreeformBlock.vue", "utf8");
+  const publicBuilder = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
+
+  assert.match(editor, /convertBlockToFreeform/);
+  assert.match(editor, /changeElementGeometry/);
+  assert.match(card, /Разобрать в свободную композицию/);
+  assert.match(canvas, /startPointer\(\$event, index, 'move'\)/);
+  assert.match(canvas, /startPointer\(\$event, index, 'resize'\)/);
+  assert.match(renderer, /--freeform-height-mobile/);
+  assert.match(publicBuilder, /v-if="block\.settings\.layout === 'freeform'"/);
+  assert.match(publicBuilder, /v-if="heroHasMedia\(block\)"/);
+});
+
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP chapters are complete for ${locale}`, () => {
     const content = getWellnessCaseContent(locale);
