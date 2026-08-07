@@ -229,7 +229,7 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 }
 
 .service-item h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   font-size: 1.1rem;
   margin: 0;
   color: var(--text);
@@ -254,7 +254,7 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 
 .service-item .price::after {
   content: " ->";
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   margin-left: 5px;
 }
 
@@ -300,7 +300,7 @@ import type {IServiceExampleList} from "~/utils/interfaces/IServices";
 }
 
 .service-detail h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   font-size: 1.8rem;
   margin-bottom: 15px;
   color: var(--accent);

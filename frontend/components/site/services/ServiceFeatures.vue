@@ -107,14 +107,14 @@ const activeItem = ref(props.items[0]?.title ?? '')
   }
 
   .stage-item__number {
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-ui);
     font-size: 1rem;
     font-weight: 700;
     text-align: left;
   }
 
   .stage-item__title {
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-ui);
     font-size: 0.85rem;
     line-height: 1.3;
     color: #e0e0e0;

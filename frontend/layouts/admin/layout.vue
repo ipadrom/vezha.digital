@@ -111,7 +111,7 @@ body:has(.studio-shell) {
 }
 
 .studio-brand span {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   font-size: 30px;
   line-height: 1;
 }

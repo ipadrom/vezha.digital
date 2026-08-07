@@ -132,7 +132,7 @@ const toggleProject = (project: any) => {
 }
 
 .project__info h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   font-size: 1.3rem;
   margin-bottom: 10px;
 }
@@ -159,7 +159,7 @@ const toggleProject = (project: any) => {
 }
 
 .project__hover h3 {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   font-size: 1.3rem;
   margin-bottom: 10px;
 }

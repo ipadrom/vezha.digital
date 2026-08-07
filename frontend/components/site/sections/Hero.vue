@@ -413,7 +413,7 @@ function init3DScene() {
 
   .hero__logo-script {
     font-size: 2.8rem;
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-ui);
   }
 
   .hero__logo-digital {

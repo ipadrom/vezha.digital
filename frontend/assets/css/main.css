@@ -1,21 +1,6 @@
 /* Import Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700;800&family=Pixelify+Sans:wght@400;500;600;700&display=swap');
 
-/* Epilepsy Sans Font Declaration */
-@font-face {
-  font-family: 'Epilepsy Sans';
-  src: url('/fonts/EpilepsySans.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Epilepsy Sans';
-  src: url('/fonts/EpilepsySansBold.ttf') format('truetype');
-  font-weight: bold;
-  font-style: normal;
-}
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -43,7 +28,6 @@ html[data-vezha-theme="light"] {
   --font-ui: 'Onest', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-pixel: 'Pixelify Sans', monospace;
-  --font-epilepsy: 'Epilepsy Sans', monospace;
   --font-inter: 'Onest', system-ui, sans-serif;
 }
 
@@ -190,7 +174,7 @@ html[data-vezha-theme="dark"] {
   }
 
   .card h3 {
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-ui);
     font-size: 1.8rem;
     margin-bottom: 20px;
     color: var(--accent);

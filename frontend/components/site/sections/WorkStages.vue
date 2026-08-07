@@ -174,7 +174,7 @@ const activeStage = ref(1)
   }
 
   .stage-item__number {
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-ui);
     font-size: 2rem;
     color: var(--accent);
     font-weight: 700;
@@ -182,7 +182,7 @@ const activeStage = ref(1)
   }
 
   .stage-item__title {
-    font-family: var(--font-epilepsy);
+    font-family: var(--font-ui);
     font-size: 0.85rem;
     line-height: 1.3;
     color: #e0e0e0;

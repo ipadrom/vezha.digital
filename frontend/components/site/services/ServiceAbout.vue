@@ -38,7 +38,7 @@ defineProps<{
   font-weight: bold;
   font-size: clamp(2.5rem, 5vw, 3rem);
   margin-bottom: 30px;
-  font-family: var(--font-epilepsy), monospace;
+  font-family: var(--font-ui);
 }
 
 .about-service h1:hover {

@@ -63,13 +63,18 @@ test("reversed wellness chapters change desktop composition only", () => {
   assert.match(css, /\.wellness-chapter--reverse\s+\.wellness-chapter__screens\s*\{[^}]*direction:\s*rtl;/s);
 });
 
-test("builder section headings use the site font while the hero keeps its display face", () => {
+test("builder headings use the same UI typography as the standard case pages", () => {
   const css = readFileSync("assets/css/case-builder-public.css", "utf8");
+  const canvas = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
+  const globalCss = readFileSync("assets/css/main.css", "utf8");
 
-  assert.match(css, /\.builder-heading h2\s*\{[^}]*var\(--font-ui\)/s);
-  assert.match(css, /\.builder-image-text__copy h2\s*\{[^}]*var\(--font-ui\)/s);
-  assert.match(css, /\.builder-block--next_case h2\s*\{[^}]*var\(--font-ui\)/s);
-  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*var\(--font-epilepsy\)/s);
+  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-heading h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-image-text__copy h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-block--next_case h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
+  assert.match(canvas, /\.preview-hero-copy h3\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
+  assert.doesNotMatch(css, /\.builder-(?:hero__copy h1|heading h2|image-text__copy h2|block--next_case h2)\s*\{[^}]*var\(--font-epilepsy\)/s);
+  assert.doesNotMatch(globalCss, /Epilepsy Sans|--font-epilepsy/);
 });
 
 for (const locale of ["ru", "en"] as const) {

@@ -57,7 +57,7 @@ function onMenuLeave() {
 }
 
 .stack-menu-item span {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   font-size: 1rem;
   color: var(--text-dim);
   transition: color 0.3s;

@@ -51,7 +51,7 @@
 }
 
 .stage-info .duration {
-  font-family: var(--font-epilepsy);
+  font-family: var(--font-ui);
   color: var(--accent);
   margin-bottom: 10px;
   font-weight: 600;

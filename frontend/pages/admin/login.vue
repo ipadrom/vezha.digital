@@ -77,7 +77,7 @@ const handleLocalLogin = async () => {
 .studio-login__intro > a { color: white; font: 600 12px var(--font-mono); letter-spacing: .12em; text-decoration: none; }
 .studio-login__intro div { max-width: 760px; }
 .studio-login__intro span, .studio-login__intro small, .login-index { color: #7ba0ff; font: 600 10px var(--font-mono); letter-spacing: .14em; }
-.studio-login__intro h1 { margin: 18px 0; font: 700 clamp(54px, 7vw, 112px)/.88 var(--font-epilepsy); letter-spacing: -.04em; }
+.studio-login__intro h1 { margin: 18px 0; font: 500 clamp(54px, 7vw, 112px)/.88 var(--font-ui); letter-spacing: -.06em; }
 .studio-login__intro p { max-width: 560px; color: #aeb7c6; font-size: 17px; }
 .studio-login__access { display: grid; place-items: center; padding: 30px; }
 .studio-login__access > div { width: min(100%, 390px); }

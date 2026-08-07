@@ -42,7 +42,7 @@
 }
 
 .service-hero h1 {
-  font-family: var(--font-epilepsy), monospace;
+  font-family: var(--font-ui);
   font-size: clamp(2.5rem, 5vw, 4rem);
   font-weight: 700;
   margin-bottom: 20px;

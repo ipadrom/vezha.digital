@@ -145,7 +145,7 @@ onMounted(loadCases)
 .cases-index { min-height: 100vh; padding: 46px clamp(24px, 4vw, 68px) 80px; overflow-y: auto; }
 .cases-index__header { max-width: 1360px; margin: 0 auto 38px; display: flex; align-items: flex-end; justify-content: space-between; gap: 32px; }
 .studio-kicker { color: var(--studio-blue); font: 600 11px/1 var(--font-mono); letter-spacing: .12em; }
-.cases-index h1 { margin: 12px 0 8px; font: 700 clamp(42px, 6vw, 82px)/.92 var(--font-epilepsy); letter-spacing: -.035em; }
+.cases-index h1 { margin: 12px 0 8px; font: 500 clamp(42px, 6vw, 82px)/.92 var(--font-ui); letter-spacing: -.055em; }
 .cases-index__header p { max-width: 620px; margin: 0; color: var(--studio-muted); font-size: 15px; }
 .studio-primary { min-height: 46px; padding: 0 20px; border: 0; border-radius: 8px; color: white; background: var(--studio-blue); font-weight: 700; cursor: pointer; box-shadow: 0 10px 24px rgba(40,100,240,.2); }
 .studio-primary:disabled { opacity: .6; }

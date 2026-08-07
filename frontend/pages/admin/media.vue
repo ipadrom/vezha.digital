@@ -76,7 +76,7 @@ const formatSize = (size: number) => size > 1024 * 1024 ? `${(size / 1024 / 1024
 .media-page { min-height: 100vh; padding: 46px clamp(24px, 4vw, 68px) 80px; overflow-y: auto; }
 .media-page header { max-width: 1360px; margin: 0 auto 32px; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
 .media-page header span { color: var(--studio-blue); font: 600 11px var(--font-mono); letter-spacing: .12em; }
-.media-page h1 { margin: 10px 0 5px; font: 700 clamp(42px, 6vw, 76px)/1 var(--font-epilepsy); }
+.media-page h1 { margin: 10px 0 5px; font: 500 clamp(42px, 6vw, 76px)/1 var(--font-ui); letter-spacing: -.05em; }
 .media-page header p { margin: 0; color: var(--studio-muted); }
 .media-upload { padding: 13px 18px; border-radius: 8px; color: white; background: var(--studio-blue); font-weight: 700; cursor: pointer; }
 .media-upload input { display: none; }
