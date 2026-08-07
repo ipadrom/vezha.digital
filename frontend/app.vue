@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout :name="layout">
-    <NuxtPage />
+    <NuxtPage :page-key="route => route.fullPath" />
   </NuxtLayout>
 </template>
 
@@ -11,10 +11,7 @@ const route = useRoute()
 const { initAuth } = useAuth()
 
 const layout = computed(() => {
-  if(route.meta.layout === false){
-    return false
-  }
-
+  if (route.meta.layout === false) return false
   return route.path.startsWith('/admin') ? 'admin-layout' : 'site-layout'
 })
 

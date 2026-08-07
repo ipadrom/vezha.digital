@@ -19,6 +19,14 @@ export interface IProjectTechnology {
   sort_order: number
 }
 
+export interface IProjectBlock {
+  id: string
+  type: import('~/utils/caseBuilder').CaseBlockType
+  content: Record<string, any>
+  settings: import('~/utils/caseBuilder').CaseBlockSettings
+  sort_order: number
+}
+
 export interface IProjects {
   id: string
   slug: string | null
@@ -47,4 +55,9 @@ export interface IProjectDetail extends IProjects {
   testimonial_author?: string | null
   gallery: IProjectGalleryItem[]
   technologies: IProjectTechnology[]
+  blocks: IProjectBlock[]
+  seo_title?: string | null
+  seo_description?: string | null
+  seo_image_url?: string | null
+  seo_noindex?: boolean
 }

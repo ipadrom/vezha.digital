@@ -3,8 +3,12 @@ services:
     build: ./backend
     container_name: vezha-backend
     restart: unless-stopped
+    command:
+      - /bin/sh
+      - -c
+      - .venv/bin/alembic upgrade head && exec .venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
     env_file:
-      - ./backend/.env.production
+      - ${BACKEND_ENV_FILE:-./backend/.env.production}
     environment:
       - DATABASE_URL=postgresql+asyncpg://vezha:${POSTGRES_PASSWORD}@vezha-db:5432/vezha
       - MINIO_ENDPOINT=vezha-minio:9000

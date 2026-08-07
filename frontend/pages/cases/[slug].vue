@@ -3,6 +3,8 @@
     <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-locale="toggleLocale" @toggle-theme="toggleTheme" />
 
     <main v-if="project">
+      <PublicCaseBuilder v-if="project.blocks?.length" :blocks="project.blocks" :locale="currentLocale" />
+      <template v-else>
       <section class="case-hero">
         <div class="case-hero__index"><span>CASE / {{ two(caseIndex + 1) }}</span><span>{{ project.year || "2026" }}</span></div>
         <div class="case-hero__title">
@@ -38,6 +40,7 @@
         <span>{{ currentLocale === "ru" ? "Следующее досье" : "Next dossier" }}</span>
         <NuxtLink v-if="nextProject" :to="`/cases/${nextProject.slug}`"><small>{{ nextProject.type }}</small>{{ nextProject.name }} <b>↗</b></NuxtLink>
       </section>
+      </template>
     </main>
   </div>
 </template>
@@ -49,6 +52,7 @@ import CaseResults from "~/components/cases/CaseResults.vue";
 import CaseTechnicalModule from "~/components/cases/CaseTechnicalModule.vue";
 import CaseVisual from "~/components/cases/CaseVisual.vue";
 import WellnessCaseStudy from "~/components/cases/WellnessCaseStudy.vue";
+import PublicCaseBuilder from "~/components/case-builder/PublicCaseBuilder.vue";
 import type { IProjectDetail } from "~/utils/interfaces/IProjects";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
 import { getNextProject } from "~/utils/landingCases";
@@ -67,19 +71,19 @@ const nextProject = computed(() => project.value ? getNextProject(fallbacks.valu
 const two = (value: number) => String(value).padStart(2, "0");
 
 async function loadProject() {
-  project.value = fallbacks.value.find((item) => item.slug === slug.value) || null;
-  if (!project.value) throw createError({ statusCode: 404, statusMessage: "Case not found" });
-  applySeo();
+  const fallback = fallbacks.value.find((item) => item.slug === slug.value) || null;
   try { project.value = await getProjectBySlug(slug.value, currentLocale.value); }
-  catch { /* Local preview intentionally keeps the presentation fallback. */ }
+  catch { project.value = fallback; }
+  if (!project.value) throw createError({ statusCode: 404, statusMessage: "Case not found" });
   applySeo();
 }
 function applySeo() {
   if (!project.value) return;
   useSeoMeta({
-    title: `${project.value.name} — VEZHA Digital`,
-    description: project.value.description || project.value.subtitle || "",
-    robots: project.value.metrics.some((metric) => metric.is_demo) ? "noindex, nofollow" : undefined,
+    title: project.value.seo_title || `${project.value.name} — VEZHA Digital`,
+    description: project.value.seo_description || project.value.description || project.value.subtitle || "",
+    ogImage: project.value.seo_image_url || project.value.cover_image_url || project.value.image_url || undefined,
+    robots: project.value.seo_noindex || project.value.metrics.some((metric) => metric.is_demo) ? "noindex, nofollow" : undefined,
   });
 }
 function toggleLocale() { locale.value = currentLocale.value === "ru" ? "en" : "ru"; }

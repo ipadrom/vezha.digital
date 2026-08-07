@@ -89,8 +89,7 @@ class MinIOStorage:
                 content_type=content_type,
             )
 
-            # Return public URL (using /uploads/ path that nginx proxies to MinIO)
-            url = f"{settings.MINIO_PUBLIC_URL}/uploads/{object_name}"
+            url = self._public_object_url(object_name)
             logger.info(f"Uploaded file: {object_name} -> {url}")
             return url
 
@@ -109,15 +108,27 @@ class MinIOStorage:
 
     def get_file_url(self, filename: str) -> str:
         """Get public URL for a file."""
-        return f"{settings.MINIO_PUBLIC_URL}/uploads/{filename}"
+        return self._public_object_url(filename)
+
+    def _public_object_url(self, filename: str) -> str:
+        """Build either a direct MinIO URL or the production nginx proxy URL."""
+        base_url = settings.MINIO_PUBLIC_URL.rstrip("/")
+        if base_url.endswith(f"/{self.bucket_name}"):
+            return f"{base_url}/{filename}"
+        return f"{base_url}/uploads/{filename}"
 
     def extract_filename_from_url(self, url: str) -> str | None:
         """Extract the object name (with prefix) from a full URL."""
         if not url:
             return None
-        prefix = f"{settings.MINIO_PUBLIC_URL}/uploads/"
-        if url.startswith(prefix):
-            return url[len(prefix):]
+        base_url = settings.MINIO_PUBLIC_URL.rstrip("/")
+        prefixes = (
+            f"{base_url}/" if base_url.endswith(f"/{self.bucket_name}") else "",
+            f"{base_url}/uploads/",
+        )
+        for prefix in prefixes:
+            if prefix and url.startswith(prefix):
+                return url[len(prefix):]
         return None
 
     def delete_file_by_url(self, url: str) -> bool:

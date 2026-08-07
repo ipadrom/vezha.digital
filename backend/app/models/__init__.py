@@ -3,9 +3,12 @@ from app.models.admin import Admin
 from app.models.advantage import Advantage
 from app.models.client_type import ClientType
 from app.models.contact_request import ContactRequest
+from app.models.media_asset import MediaAsset
 from app.models.project import Project
+from app.models.project_block import ProjectBlock
 from app.models.project_gallery_item import ProjectGalleryItem
 from app.models.project_metric import ProjectMetric
+from app.models.project_revision import ProjectRevision
 from app.models.project_technology import ProjectTechnology
 from app.models.section_visibility import SectionVisibility
 from app.models.service import Service

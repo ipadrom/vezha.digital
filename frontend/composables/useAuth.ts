@@ -48,6 +48,21 @@ export const useAuth = () => {
     await fetchAdmin()
   }
 
+  const loginAsDeveloper = async () => {
+    const response = await fetch(`${apiUrl}/api/admin/auth/dev-login`, {
+      method: 'POST',
+    })
+
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null)
+      throw new Error(payload?.detail || 'Локальный вход недоступен')
+    }
+
+    const data = await response.json()
+    setToken(data.access_token)
+    await fetchAdmin()
+  }
+
   const fetchAdmin = async () => {
     if (!token.value) return
 
@@ -75,11 +90,15 @@ export const useAuth = () => {
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> => {
+    const savedToken = import.meta.client ? localStorage.getItem('admin_token') : null
+    const accessToken = token.value || savedToken
+    if (!token.value && accessToken) token.value = accessToken
+
     const response = await fetch(`${apiUrl}/api/admin${endpoint}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token.value}`,
+        Authorization: `Bearer ${accessToken}`,
         ...options.headers,
       },
     })
@@ -91,7 +110,8 @@ export const useAuth = () => {
     }
 
     if (!response.ok) {
-      throw new Error(`API Error: ${response.status}`)
+      const payload = await response.json().catch(() => null)
+      throw new Error(payload?.detail || `API Error: ${response.status}`)
     }
 
     return response.json()
@@ -129,7 +149,9 @@ export const useAuth = () => {
     isAuthenticated,
     initAuth,
     loginWithTelegram,
+    loginAsDeveloper,
     logout,
+    clearToken,
     fetchWithAuth,
     uploadFile,
   }
