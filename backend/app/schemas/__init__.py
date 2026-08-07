@@ -11,6 +11,19 @@ from app.schemas.advantage import (
     AdvantageUpdate,
 )
 from app.schemas.auth import AdminInfo, TelegramAuth, Token
+from app.schemas.case_builder import (
+    CaseBlockInput,
+    CaseBlockPublic,
+    CaseBlockResponse,
+    CaseCreate,
+    CaseDocumentResponse,
+    CaseDocumentUpdate,
+    CaseMeta,
+    CaseRevisionResponse,
+    CaseSummaryResponse,
+    MediaAssetResponse,
+    MediaAssetUpdate,
+)
 from app.schemas.client_type import (
     ClientTypeCreate,
     ClientTypePublic,
@@ -109,6 +122,17 @@ __all__ = [
     "ProjectResponse",
     "ProjectPublic",
     "ProjectDetailPublic",
+    "CaseBlockInput",
+    "CaseBlockPublic",
+    "CaseBlockResponse",
+    "CaseCreate",
+    "CaseDocumentResponse",
+    "CaseDocumentUpdate",
+    "CaseMeta",
+    "CaseRevisionResponse",
+    "CaseSummaryResponse",
+    "MediaAssetResponse",
+    "MediaAssetUpdate",
     "AdvantageCreate",
     "AdvantageUpdate",
     "AdvantageResponse",

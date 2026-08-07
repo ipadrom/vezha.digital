@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.case_builder import CaseBlockPublic
+
 
 class ProjectMetricInput(BaseModel):
     value: str
@@ -168,3 +170,8 @@ class ProjectDetailPublic(ProjectPublic):
     testimonial_author: str | None
     gallery: list[ProjectGalleryPublic] = Field(default_factory=list)
     technologies: list[ProjectTechnologyPublic] = Field(default_factory=list)
+    blocks: list[CaseBlockPublic] = Field(default_factory=list)
+    seo_title: str | None = None
+    seo_description: str | None = None
+    seo_image_url: str | None = None
+    seo_noindex: bool = False

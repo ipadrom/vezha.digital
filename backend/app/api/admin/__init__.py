@@ -4,7 +4,9 @@ from app.api.admin import (
     about_sections,
     advantages,
     auth,
+    cases,
     client_types,
+    media,
     projects,
     requests,
     section_visibility,
@@ -27,6 +29,8 @@ router.include_router(service_items.router, prefix="/services", tags=["Admin Ser
 router.include_router(service_examples.router, prefix="/services", tags=["Admin Service Examples"])
 router.include_router(service_features.router, prefix="/services", tags=["Admin Service Features"])
 router.include_router(projects.router, prefix="/projects", tags=["Admin Projects"])
+router.include_router(cases.router, prefix="/cases", tags=["Admin Cases"])
+router.include_router(media.router, prefix="/media", tags=["Admin Media"])
 router.include_router(advantages.router, prefix="/advantages", tags=["Admin Advantages"])
 router.include_router(client_types.router, prefix="/client-types", tags=["Admin Client Types"])
 router.include_router(about_sections.router, prefix="/about-sections", tags=["Admin About Sections"])
