@@ -733,35 +733,27 @@ let publicDataRequestId = 0;
 
 async function loadPublicData(lang: LocaleCode = currentLocale.value) {
   const requestId = ++publicDataRequestId;
-  try {
-    const [
-      servicesData,
-      projectsData,
-      advantagesData,
-      techStackData,
-      workStagesData,
-      settingsData,
-    ] = await Promise.all([
-      getServices(lang),
-      getProjects(lang),
-      getAdvantages(lang),
-      getTechStack(lang),
-      getWorkStages(lang),
-      getSettings(lang),
-    ]);
+  const results = await Promise.allSettled([
+    getServices(lang),
+    getProjects(lang),
+    getAdvantages(lang),
+    getTechStack(lang),
+    getWorkStages(lang),
+    getSettings(lang),
+  ] as const);
 
-    if (requestId !== publicDataRequestId || lang !== currentLocale.value) return;
+  if (requestId !== publicDataRequestId || lang !== currentLocale.value) return;
 
-    services.value = servicesData;
-    projects.value = projectsData;
-    advantages.value = advantagesData;
-    techStack.value = techStackData;
-    workStages.value = workStagesData;
-    settings.value = settingsData.settings;
-  } catch (error) {
-    if (requestId !== publicDataRequestId) return;
-    console.info("VEZHA public data fallback is active:", error);
-  }
+  const [servicesResult, projectsResult, advantagesResult, techStackResult, workStagesResult, settingsResult] = results;
+  if (servicesResult.status === "fulfilled") services.value = servicesResult.value;
+  if (projectsResult.status === "fulfilled") projects.value = projectsResult.value;
+  if (advantagesResult.status === "fulfilled") advantages.value = advantagesResult.value;
+  if (techStackResult.status === "fulfilled") techStack.value = techStackResult.value;
+  if (workStagesResult.status === "fulfilled") workStages.value = workStagesResult.value;
+  if (settingsResult.status === "fulfilled") settings.value = settingsResult.value.settings;
+
+  const failures = results.filter((result) => result.status === "rejected");
+  if (failures.length) console.info(`VEZHA public data fallback is active for ${failures.length} section(s).`);
 }
 
 let localeWatcherReady = false;

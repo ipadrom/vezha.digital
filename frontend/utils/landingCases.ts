@@ -7,28 +7,23 @@ export function selectFeaturedProjects(projects: IProjects[], limit = 6): IProje
     .slice(0, limit);
 }
 
+export function selectPublishedProjects(projects: IProjects[], limit = 6): IProjects[] {
+  return [...projects]
+    .filter((project) => project.slug)
+    .sort((a, b) => {
+      const featuredOrder = Number(b.is_featured) - Number(a.is_featured);
+      return featuredOrder || a.sort_order - b.sort_order;
+    })
+    .slice(0, limit);
+}
+
 export function mergeFeaturedProjects(
   apiProjects: IProjects[],
   fallbackProjects: IProjects[],
-  requiredSlugs: string[] = [],
   limit = 6,
 ): IProjects[] {
-  if (!apiProjects.length) return selectFeaturedProjects(fallbackProjects, limit);
-
-  const merged = new Map(
-    selectFeaturedProjects(apiProjects, Number.POSITIVE_INFINITY)
-      .map((project) => [project.slug, project] as const),
-  );
-
-  for (const slug of requiredSlugs) {
-    if (merged.has(slug)) continue;
-    const fallback = fallbackProjects.find((project) => project.slug === slug && project.is_featured);
-    if (fallback) merged.set(slug, fallback);
-  }
-
-  return [...merged.values()]
-    .sort((a, b) => a.sort_order - b.sort_order)
-    .slice(0, limit);
+  const published = selectPublishedProjects(apiProjects, limit);
+  return published.length ? published : selectFeaturedProjects(fallbackProjects, limit);
 }
 
 export function moveCaseIndex(current: number, direction: 1 | -1, length: number): number {

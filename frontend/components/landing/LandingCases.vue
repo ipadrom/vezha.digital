@@ -44,7 +44,7 @@ const props = defineProps<{ projects: IProjects[]; fallback: IProjects[]; copy: 
 const { locale } = useI18n();
 const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const activeIndex = ref(0);
-const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback, ["wellness-app"]));
+const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback));
 const activeCase = computed(() => cases.value[activeIndex.value]);
 const two = (value: number) => value.toString().padStart(2, "0");
 function move(direction: 1 | -1) {

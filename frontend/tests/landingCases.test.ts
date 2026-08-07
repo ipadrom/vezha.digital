@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-import { getMetricGridClass, getNextProject, mergeFeaturedProjects, moveCaseIndex, selectFeaturedProjects } from "../utils/landingCases.ts";
+import { getMetricGridClass, getNextProject, mergeFeaturedProjects, moveCaseIndex, selectFeaturedProjects, selectPublishedProjects } from "../utils/landingCases.ts";
 import type { IProjects } from "../utils/interfaces/IProjects.ts";
 
 const project = (slug: string | null, sort_order: number, is_featured = true): IProjects => ({
@@ -30,14 +30,15 @@ test("next project wraps and metric layouts stay explicit", () => {
   assert.equal(getMetricGridClass(4), "is-grid");
 });
 
-test("required fallback case is merged beside API cases without duplicates", () => {
-  const api = [project("api-case", 1), project("wellness-app", 5)];
+test("published API cases replace fallbacks and featured cases stay first", () => {
+  const api = [project("api-case", 1, false), project("wellness-app", 5)];
   const fallback = [project("wellness-app", 0), project("fallback-only", 2)];
   assert.deepEqual(
-    mergeFeaturedProjects(api, fallback, ["wellness-app"]).map((item) => item.slug),
-    ["api-case", "wellness-app"],
+    mergeFeaturedProjects(api, fallback).map((item) => item.slug),
+    ["wellness-app", "api-case"],
   );
-  assert.equal(mergeFeaturedProjects([], fallback, ["wellness-app"]).length, 2);
+  assert.equal(mergeFeaturedProjects([], fallback).length, 2);
+  assert.deepEqual(selectPublishedProjects(api).map((item) => item.slug), ["wellness-app", "api-case"]);
 });
 
 test("mobile case flow places the visual before metrics without changing desktop markup order", () => {

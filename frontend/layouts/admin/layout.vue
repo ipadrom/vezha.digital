@@ -167,13 +167,13 @@ body:has(.studio-shell) {
 }
 
 .studio-account button { color: #aeb7c6; border: 0; background: none; cursor: pointer; }
-.studio-main { min-height: 100vh; margin-left: 84px; }
+.studio-main { height: 100vh; min-height: 0; margin-left: 84px; overflow: auto; overscroll-behavior: contain; }
 .studio-mobile-header, .studio-mobile-menu { display: none; }
 
 @media (max-width: 760px) {
   body:has(.studio-shell) { overflow: auto; }
   .studio-rail { display: none; }
-  .studio-main { margin-left: 0; padding-top: 58px; }
+  .studio-main { height: auto; min-height: 100vh; margin-left: 0; padding-top: 58px; overflow: visible; }
   .studio-mobile-header {
     position: fixed;
     inset: 0 0 auto 0;
