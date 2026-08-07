@@ -160,9 +160,9 @@ function restoreHistory(index: number) {
 const undo = () => restoreHistory(historyIndex.value - 1)
 const redo = () => restoreHistory(historyIndex.value + 1)
 
-async function saveNow(): Promise<boolean> {
+async function saveNow(force = false): Promise<boolean> {
   if (!document.value) return false
-  if (!dirty.value) return true
+  if (!dirty.value && !force) return true
   if (saving.value) return false
   saving.value = true
   clearTimeout(saveTimer)
@@ -187,7 +187,14 @@ async function publish() {
   if (!document.value) return
   publishing.value = true
   try {
-    if (!await saveNow()) throw new Error('Сначала нужно сохранить изменения')
+    const heroBlocks = document.value.blocks.filter(block => block.type === 'hero')
+    if (!heroBlocks.length) throw new Error('Добавьте блок «Обложка» перед публикацией')
+    if (!heroBlocks.some(block => block.is_visible)) {
+      heroBlocks[0].is_visible = true
+      selectedId.value = heroBlocks[0].id
+      dirty.value = true
+    }
+    if (!await saveNow(true)) throw new Error('Сначала нужно сохранить изменения')
     applying.value = true
     document.value = await publishCase(document.value.id)
     selectedId.value = document.value.blocks.find(block => block.id === selectedId.value)?.id || document.value.blocks[0]?.id || null
@@ -223,8 +230,27 @@ function duplicateBlock(index: number) {
   normalizeOrder()
   selectedId.value = block.id
 }
-function removeBlock(index: number) { if (!document.value) return; const [removed] = document.value.blocks.splice(index, 1); if (selectedId.value === removed.id) selectedId.value = document.value.blocks[index]?.id || document.value.blocks[index - 1]?.id || null; normalizeOrder() }
-function toggleBlock(index: number) { if (document.value) document.value.blocks[index].is_visible = !document.value.blocks[index].is_visible }
+function removeBlock(index: number) {
+  if (!document.value) return
+  const target = document.value.blocks[index]
+  if (target.type === 'hero' && document.value.blocks.filter(block => block.type === 'hero').length <= 1) {
+    showNotice('error', 'В кейсе должна остаться хотя бы одна обложка')
+    return
+  }
+  const [removed] = document.value.blocks.splice(index, 1)
+  if (selectedId.value === removed.id) selectedId.value = document.value.blocks[index]?.id || document.value.blocks[index - 1]?.id || null
+  normalizeOrder()
+}
+function toggleBlock(index: number) {
+  if (!document.value) return
+  const target = document.value.blocks[index]
+  const visibleHeroes = document.value.blocks.filter(block => block.type === 'hero' && block.is_visible)
+  if (target.type === 'hero' && target.is_visible && visibleHeroes.length <= 1) {
+    showNotice('error', 'Обложку нельзя скрыть: она обязательна для публикации')
+    return
+  }
+  target.is_visible = !target.is_visible
+}
 function updateSelectedBlock(value: CaseBlock) { if (!document.value) return; const index = document.value.blocks.findIndex(block => block.id === value.id); if (index >= 0) document.value.blocks[index] = value }
 function updateBlockContent(index: number, edit: CaseContentEdit) {
   const block = document.value?.blocks[index]

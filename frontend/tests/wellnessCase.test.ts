@@ -81,6 +81,17 @@ test("builder headings use the same UI typography as the standard case pages", (
   assert.doesNotMatch(globalCss, /Epilepsy Sans|--font-epilepsy/);
 });
 
+test("publishing always saves the current hero state and protects the last cover", () => {
+  const editor = readFileSync("pages/admin/cases/[id]/index.vue", "utf8");
+
+  assert.match(editor, /async function saveNow\(force = false\)/);
+  assert.match(editor, /if \(!dirty\.value && !force\) return true/);
+  assert.match(editor, /if \(!await saveNow\(true\)\)/);
+  assert.match(editor, /if \(!heroBlocks\.some\(block => block\.is_visible\)\)/);
+  assert.match(editor, /Обложку нельзя скрыть: она обязательна для публикации/);
+  assert.match(editor, /В кейсе должна остаться хотя бы одна обложка/);
+});
+
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP chapters are complete for ${locale}`, () => {
     const content = getWellnessCaseContent(locale);
