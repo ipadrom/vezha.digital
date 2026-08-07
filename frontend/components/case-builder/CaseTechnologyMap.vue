@@ -24,12 +24,6 @@
       >{{ item.label }}</div>
     </div>
 
-    <div v-if="groups.length" class="case-technology-map__groups">
-      <section v-for="group in groups" :key="group.category">
-        <small>{{ group.category }}</small>
-        <p>{{ group.items.join(' · ') }}</p>
-      </section>
-    </div>
   </section>
 </template>
 
@@ -37,7 +31,7 @@
 import type { CaseBlockSettings } from '~/utils/caseBuilder'
 import { technologyMapStyle } from '~/utils/caseBuilder'
 
-type TechnologyNode = { label?: string; category?: string; x?: number | null; y?: number | null }
+type TechnologyNode = { label?: string; x?: number | null; y?: number | null }
 type NodePosition = { x: number; y: number }
 
 const props = defineProps<{ content: Record<string, any>; settings: CaseBlockSettings }>()
@@ -47,16 +41,6 @@ const fallbackPositions: NodePosition[] = [
   { x: 18, y: 20 }, { x: 82, y: 20 }, { x: 28, y: 78 }, { x: 72, y: 78 },
   { x: 16, y: 49 }, { x: 84, y: 49 }, { x: 38, y: 18 }, { x: 62, y: 82 },
 ]
-const groups = computed(() => {
-  const grouped = nodes.value.reduce<Record<string, string[]>>((result, item) => {
-    const category = item.category?.trim() || 'Stack'
-    const label = item.label?.trim()
-    if (label) (result[category] ||= []).push(label)
-    return result
-  }, {})
-  return Object.entries(grouped).map(([category, items]) => ({ category, items }))
-})
-
 function clamp(value: number, min: number, max: number) { return Math.max(min, Math.min(max, value)) }
 function positionFor(item: TechnologyNode, index: number): NodePosition {
   const fallback = fallbackPositions[index % fallbackPositions.length]
@@ -81,20 +65,11 @@ function nodeStyle(item: TechnologyNode, index: number) {
 .case-technology-map__core { left:50%; top:50%; min-width:230px; padding:27px 30px; border-color:var(--tech-map-accent); box-shadow:0 0 55px rgba(var(--tech-map-accent-rgb),.28); }
 .case-technology-map__core small { display:block; margin-bottom:10px; color:var(--tech-map-accent); font:600 8px var(--font-mono); letter-spacing:.15em; }
 .case-technology-map__core b { font:600 clamp(11px,1.2vw,15px) var(--font-mono); }
-.case-technology-map__groups { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:1px solid rgba(var(--tech-map-text-rgb),.2); border-top:0; }
-.case-technology-map__groups section { min-height:145px; padding:30px 34px; border-right:1px solid rgba(var(--tech-map-text-rgb),.2); border-bottom:1px solid rgba(var(--tech-map-text-rgb),.2); }
-.case-technology-map__groups section:nth-child(3n) { border-right:0; }
-.case-technology-map__groups section:nth-child(4):last-child { grid-column:1 / -1; border-right:0; }
-.case-technology-map__groups small { display:block; margin-bottom:35px; color:rgba(var(--tech-map-text-rgb),.55); font:600 9px var(--font-mono); letter-spacing:.08em; text-transform:uppercase; }
-.case-technology-map__groups p { margin:0; color:var(--tech-map-text); font-size:clamp(15px,1.6vw,21px); line-height:1.45; }
 @container (max-width:760px) {
   .case-technology-map__surface { min-height:auto; padding:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px; background-size:28px 28px; }
   .case-technology-map__glow,.case-technology-map svg { display:none; }
   .case-technology-map__core,.case-technology-map__node { position:relative; left:auto!important; top:auto!important; min-width:0; max-width:none; padding:16px 12px; transform:none; }
   .case-technology-map__core { grid-column:1 / -1; order:-1; }
-  .case-technology-map__groups { grid-template-columns:1fr; }
-  .case-technology-map__groups section,.case-technology-map__groups section:nth-child(3n) { min-height:0; padding:22px 18px; border-right:0; }
-  .case-technology-map__groups small { margin-bottom:12px; }
 }
 @container (max-width:430px) { .case-technology-map__surface { grid-template-columns:1fr; }.case-technology-map__core { grid-column:1; } }
 </style>

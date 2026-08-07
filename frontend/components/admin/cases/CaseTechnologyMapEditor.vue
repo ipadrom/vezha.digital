@@ -57,13 +57,6 @@
       </article>
     </div>
 
-    <div v-if="groups.length" class="technology-map-editor__groups">
-      <section v-for="group in groups" :key="group.category">
-        <small>{{ group.category }}</small>
-        <p>{{ group.items.join(' · ') }}</p>
-      </section>
-    </div>
-    <p v-else class="technology-map-editor__empty">Добавьте узлы в правой панели</p>
   </section>
 </template>
 
@@ -72,7 +65,7 @@ import CaseInlineEdit from '~/components/admin/cases/CaseInlineEdit.vue'
 import type { CaseBlockSettings, CaseContentEdit } from '~/utils/caseBuilder'
 import { technologyMapStyle } from '~/utils/caseBuilder'
 
-type TechnologyNode = { label?: string; category?: string; x?: number | null; y?: number | null }
+type TechnologyNode = { label?: string; x?: number | null; y?: number | null }
 type NodePosition = { x: number; y: number }
 type DragState = { index: number; pointerId: number; target: HTMLElement; bounds: DOMRect; position: NodePosition }
 
@@ -91,16 +84,6 @@ const fallbackPositions: NodePosition[] = [
   { x: 18, y: 20 }, { x: 82, y: 20 }, { x: 28, y: 78 }, { x: 72, y: 78 },
   { x: 16, y: 49 }, { x: 84, y: 49 }, { x: 38, y: 18 }, { x: 62, y: 82 },
 ]
-
-const groups = computed(() => {
-  const grouped = nodes.value.reduce<Record<string, string[]>>((result, item) => {
-    const category = item.category?.trim() || 'Stack'
-    const label = item.label?.trim()
-    if (label) (result[category] ||= []).push(label)
-    return result
-  }, {})
-  return Object.entries(grouped).map(([category, items]) => ({ category, items }))
-})
 
 function clamp(value: number, min: number, max: number) { return Math.max(min, Math.min(max, value)) }
 function storedPosition(item: TechnologyNode, index: number): NodePosition {
@@ -184,20 +167,11 @@ function nudgeNode(index: number, deltaX: number, deltaY: number) {
 .technology-map-editor__node button { position: absolute; right: 3px; top: 3px; width: 20px; height: 16px; padding: 0; display: flex; align-items: center; justify-content: center; gap: 2px; border: 0; color: #7c8595; background: transparent; cursor: grab; }
 .technology-map-editor__node button i { width: 2px; height: 8px; border-radius: 2px; background: currentColor; }
 .technology-map-editor__node button:focus-visible { color: var(--tech-map-text); outline: 1px solid var(--tech-map-accent); }
-.technology-map-editor__groups { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); border: 1px solid rgba(var(--tech-map-text-rgb),.2); border-top: 0; }
-.technology-map-editor__groups section { min-height: 84px; padding: 15px; border-right: 1px solid rgba(var(--tech-map-text-rgb),.2); border-bottom: 1px solid rgba(var(--tech-map-text-rgb),.2); }
-.technology-map-editor__groups section:nth-child(3n) { border-right: 0; }
-.technology-map-editor__groups section:nth-child(4):last-child { grid-column: 1 / -1; border-right: 0; }
-.technology-map-editor__groups small { display: block; margin-bottom: 17px; color: rgba(var(--tech-map-text-rgb),.55); font: 600 7px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
-.technology-map-editor__groups p { margin: 0; color: var(--tech-map-text); font-size: 10px; line-height: 1.4; }
-.technology-map-editor__empty { margin: 0; padding: 20px; color: rgba(var(--tech-map-text-rgb),.58); font: 9px var(--font-mono); text-align: center; }
 .technology-map-editor.moving { user-select: none; }
 @container (max-width: 560px) {
   .technology-map-editor__surface { min-height: auto; padding: 12px; display: grid; grid-template-columns: 1fr; gap: 7px; }
   .technology-map-editor__grid,.technology-map-editor__glow,.technology-map-editor__links { display: none; }
   .technology-map-editor__core,.technology-map-editor__node { position: relative; left: auto!important; top: auto!important; min-width: 0; max-width: none; transform: none; }
   .technology-map-editor__core { order: -1; }
-  .technology-map-editor__groups { grid-template-columns: 1fr; }
-  .technology-map-editor__groups section,.technology-map-editor__groups section:nth-child(3n) { min-height: 0; border-right: 0; }
 }
 </style>
