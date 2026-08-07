@@ -8,10 +8,10 @@ export const useAuth = () => {
   const isAuthenticated = computed(() => !!token.value)
 
   const setToken = (newToken: string) => {
-    token.value = newToken
     if (import.meta.client) {
       localStorage.setItem('admin_token', newToken)
     }
+    token.value = newToken
   }
 
   const clearToken = () => {
@@ -45,7 +45,7 @@ export const useAuth = () => {
 
     const data = await response.json()
     setToken(data.access_token)
-    await fetchAdmin()
+    if (!await fetchAdmin()) throw new Error('Не удалось подтвердить токен администратора')
   }
 
   const loginAsDeveloper = async () => {
@@ -60,11 +60,11 @@ export const useAuth = () => {
 
     const data = await response.json()
     setToken(data.access_token)
-    await fetchAdmin()
+    if (!await fetchAdmin()) throw new Error('Не удалось подтвердить локальный токен')
   }
 
   const fetchAdmin = async () => {
-    if (!token.value) return
+    if (!token.value) return false
 
     try {
       const response = await fetch(`${apiUrl}/api/admin/auth/me`, {
@@ -73,11 +73,14 @@ export const useAuth = () => {
 
       if (response.ok) {
         admin.value = await response.json()
+        return true
       } else {
         clearToken()
+        return false
       }
     } catch {
       clearToken()
+      return false
     }
   }
 

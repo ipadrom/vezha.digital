@@ -29,23 +29,21 @@
 definePageMeta({ layout: false })
 useHead({ title: 'Вход — VEZHA Studio' })
 const config = useRuntimeConfig()
-const { loginWithTelegram, loginAsDeveloper, isAuthenticated } = useAuth()
+const { loginWithTelegram, loginAsDeveloper } = useAuth()
 const telegramContainer = ref<HTMLElement | null>(null)
 const error = ref('')
 const isLoading = ref(false)
 const isLocalhost = ref(false)
 
-watch(isAuthenticated, value => {
-  if (value && import.meta.client && window.location.pathname === '/admin/login') {
-    window.location.replace('/admin/cases')
-  }
-}, { immediate: true })
-
 onMounted(() => {
   isLocalhost.value = ['localhost', '127.0.0.1'].includes(window.location.hostname)
   if (!config.public.telegramBotUsername) return
   ;(window as any).onTelegramAuth = async (user: unknown) => {
-    try { await loginWithTelegram(user) }
+    error.value = ''
+    try {
+      await loginWithTelegram(user)
+      window.location.replace('/admin/cases')
+    }
     catch (cause) { error.value = cause instanceof Error ? cause.message : 'Этот аккаунт не имеет доступа.' }
   }
   const script = document.createElement('script')
@@ -64,6 +62,7 @@ const handleLocalLogin = async () => {
   error.value = ''
   try {
     await loginAsDeveloper()
+    window.location.replace('/admin/cases')
   } catch (cause) {
     error.value = cause instanceof Error ? cause.message : 'Не удалось выполнить локальный вход.'
   } finally {
