@@ -69,10 +69,14 @@ test("builder headings use the same UI typography as the standard case pages", (
   const globalCss = readFileSync("assets/css/main.css", "utf8");
 
   assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*clamp\(54px,6cqw,82px\)/s);
   assert.match(css, /\.builder-heading h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
   assert.match(css, /\.builder-image-text__copy h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
   assert.match(css, /\.builder-block--next_case h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
   assert.match(canvas, /\.preview-hero-copy h3\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
+  assert.match(canvas, /class="preview-hero-facts"/);
+  assert.match(canvas, /class="preview-media preview-hero-media"/);
+  assert.match(canvas, /\.canvas-block__preview--hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*\.9fr\)\s+minmax\(300px,\s*1\.1fr\)/s);
   assert.doesNotMatch(css, /\.builder-(?:hero__copy h1|heading h2|image-text__copy h2|block--next_case h2)\s*\{[^}]*var\(--font-epilepsy\)/s);
   assert.doesNotMatch(globalCss, /Epilepsy Sans|--font-epilepsy/);
 });

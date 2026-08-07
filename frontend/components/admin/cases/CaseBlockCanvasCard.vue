@@ -11,10 +11,25 @@
       </div>
     </header>
 
-    <div class="canvas-block__preview">
+    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero' }">
       <template v-if="block.type === 'hero'">
-        <div class="preview-hero-copy"><CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Метка" label="Метка блока" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" /><h3><CaseInlineEdit :model-value="content.title" placeholder="Название проекта" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></h3><p><CaseInlineEdit :model-value="content.subtitle" placeholder="Добавьте подзаголовок кейса" label="Подзаголовок" multiline @focus="$emit('select')" @update:model-value="edit(['subtitle'], $event)" /></p></div>
-        <div class="preview-media"><img v-if="content.image_url" :src="content.image_url" alt="" /><span v-else>HERO VISUAL</span><i v-if="content.device_screen_url" class="preview-device-screen"><img :src="content.device_screen_url" alt="" /></i></div>
+        <div class="preview-hero-copy">
+          <CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Метка" label="Метка блока" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" />
+          <h3><CaseInlineEdit :model-value="content.title" placeholder="Название проекта" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></h3>
+          <p><CaseInlineEdit :model-value="content.subtitle" placeholder="Добавьте подзаголовок кейса" label="Подзаголовок" multiline @focus="$emit('select')" @update:model-value="edit(['subtitle'], $event)" /></p>
+          <dl class="preview-hero-facts">
+            <div v-if="content.type_label"><dt>{{ locale === 'ru' ? 'Формат' : 'Format' }}</dt><dd><CaseInlineEdit :model-value="content.type_label" placeholder="Формат" label="Формат" @focus="$emit('select')" @update:model-value="edit(['type_label'], $event)" /></dd></div>
+            <div v-if="content.industry"><dt>{{ locale === 'ru' ? 'Сфера' : 'Industry' }}</dt><dd><CaseInlineEdit :model-value="content.industry" placeholder="Сфера" label="Сфера" @focus="$emit('select')" @update:model-value="edit(['industry'], $event)" /></dd></div>
+            <div v-if="content.timeline"><dt>{{ locale === 'ru' ? 'Срок' : 'Timeline' }}</dt><dd><CaseInlineEdit :model-value="content.timeline" placeholder="Срок" label="Срок" @focus="$emit('select')" @update:model-value="edit(['timeline'], $event)" /></dd></div>
+            <div v-if="content.year"><dt>{{ locale === 'ru' ? 'Год' : 'Year' }}</dt><dd><CaseInlineEdit :model-value="content.year" placeholder="Год" label="Год" @focus="$emit('select')" @update:model-value="edit(['year'], $event)" /></dd></div>
+          </dl>
+        </div>
+        <figure class="preview-media preview-hero-media">
+          <img v-if="content.image_url" :src="content.image_url" alt="" />
+          <span v-else>HERO VISUAL</span>
+          <i v-if="content.device_screen_url" class="preview-device-screen"><img :src="content.device_screen_url" alt="" /></i>
+          <figcaption v-if="content.metric_value"><b><CaseInlineEdit :model-value="content.metric_value" placeholder="0" label="Значение метрики" @focus="$emit('select')" @update:model-value="edit(['metric_value'], $event)" /></b><CaseInlineEdit :model-value="content.metric_label" placeholder="Метрика" label="Подпись метрики" @focus="$emit('select')" @update:model-value="edit(['metric_label'], $event)" /></figcaption>
+        </figure>
       </template>
       <template v-else-if="block.type === 'image'">
         <div class="preview-media preview-media--wide"><img v-if="content.image_url" :src="content.image_url" alt="" /><span v-else>IMAGE</span></div><CaseInlineEdit class="preview-caption" :model-value="content.caption" placeholder="Добавить подпись" label="Подпись изображения" @focus="$emit('select')" @update:model-value="edit(['caption'], $event)" />
@@ -158,25 +173,36 @@ function resizeWithKeyboard(direction: number) {
 .canvas-block__tools button:hover { color: #18202d; background: #edf0f4; }
 .canvas-block__tools > span { padding-left: 4px; color: #8b95a5; cursor: grab; }
 .canvas-block__preview { min-height: 128px; padding: clamp(16px, 3vw, 34px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: 20px; overflow: hidden; }
+.canvas-block__preview--hero { min-height: 0; padding: clamp(34px, 7cqw, 68px) clamp(18px, 4cqw, 40px); grid-template-columns: minmax(0, .9fr) minmax(300px, 1.1fr); gap: clamp(24px, 5cqw, 54px); }
 .theme-soft .canvas-block__preview { background: #eef1f5; }
 .theme-ink .canvas-block__preview { color: white; background: #18202d; }
 .theme-signal .canvas-block__preview { color: white; background: var(--studio-blue); }
 .inline-eyebrow { color: var(--studio-blue); font: 600 7px var(--font-mono); letter-spacing: .04em; text-transform: uppercase; }
 .theme-ink .inline-eyebrow, .theme-signal .inline-eyebrow { color: #9fb9ff; }
-.preview-hero-copy h3 { margin: 7px 0; font: 500 clamp(22px, 4vw, 46px)/.9 var(--font-ui); letter-spacing: -.06em; }
+.preview-hero-copy { min-width: 0; }
+.preview-hero-copy h3 { margin: 12px 0 16px; font: 500 clamp(34px, 6.5cqw, 58px)/.86 var(--font-ui); letter-spacing: -.067em; overflow-wrap: anywhere; }
 .preview-copy h3 { margin: 5px 0; font-size: clamp(16px, 2.5vw, 26px); font-weight: 500; line-height: 1; letter-spacing: -.04em; }
-.preview-hero-copy p, .preview-copy p { max-height: 58px; margin: 0; overflow: hidden; color: #6a7485; font-size: 9px; white-space: pre-line; }
+.preview-hero-copy p { margin: 0 0 clamp(24px, 5cqw, 46px); color: #6a7485; font-size: clamp(11px, 1.7cqw, 15px); line-height: 1.45; white-space: pre-line; }
+.preview-copy p { max-height: 58px; margin: 0; overflow: hidden; color: #6a7485; font-size: 9px; white-space: pre-line; }
+.preview-hero-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; border-top: 1px solid currentColor; }
+.preview-hero-facts div { min-width: 0; padding: 10px 8px 10px 0; border-bottom: 1px solid currentColor; }
+.preview-hero-facts dt { opacity: .55; font: 7px var(--font-mono); text-transform: uppercase; }
+.preview-hero-facts dd { margin: 4px 0 0; overflow-wrap: anywhere; font-size: 10px; }
 .theme-ink p, .theme-signal p { color: #c5cedb; }
 .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption { grid-column: 1 / -1; }
 .preview-section-copy { display: grid; gap: 4px; }
 .inline-section-title { font: 500 clamp(15px, 2.3vw, 24px)/1 var(--font-ui); letter-spacing: -.04em; }
 .preview-caption { color: #778294; font: 8px var(--font-mono); }
 .preview-media { position: relative; min-height: 100px; display: grid; place-items: center; overflow: hidden; color: #8c96a6; background: #e7ebf0; font: 600 9px var(--font-mono); }
+.preview-hero-media { min-height: clamp(360px, 70cqw, 620px); margin: 0; }
 .preview-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .preview-media .preview-device-screen { position: absolute; top: 9.7%; left: calc(50% + 3px); z-index: 2; height: 75.7%; aspect-ratio: .477; overflow: hidden; border-radius: 4.6% / 2.4%; transform: translateX(-50%); }
 .preview-media .preview-device-screen img { width: 100%; height: 100%; object-fit: fill; }
 .preview-media b { z-index: 1; font-size: 22px; }
 .preview-media span { z-index: 1; }
+.preview-hero-media figcaption { position: absolute; right: 14px; bottom: 14px; z-index: 3; max-width: 120px; padding: 12px; display: grid; color: white; background: var(--studio-blue); }
+.preview-hero-media figcaption b { font: 700 24px/1 var(--font-mono); }
+.preview-hero-media figcaption > .inline-edit { margin-top: 5px; font-size: 7px; }
 .preview-grid { grid-column: 1 / -1; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 5px; }
 .preview-grid div { min-height: 52px; display: grid; place-items: center; background: #dfe4ea; color: #8a94a4; font: 7px var(--font-mono); }
 .preview-grid div:first-child { grid-row: span 2; }
@@ -195,5 +221,5 @@ blockquote { grid-column: 1 / -1; margin: 0; font: 600 clamp(17px, 3vw, 30px)/1.
 .canvas-block__resize:hover span, .canvas-block__resize:focus-visible span, .canvas-block.resizing .canvas-block__resize span { opacity: 1; transform: translateX(0); }
 .canvas-block__resize:focus-visible { outline: 2px solid white; outline-offset: 2px; }
 @media (max-width: 640px) { .canvas-block__preview { grid-template-columns: 1fr; } .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; } }
-@container (max-width: 520px) { .canvas-block { grid-template-columns: 30px minmax(0,1fr); }.canvas-block__rail { padding-top: 10px; }.canvas-block__header { padding: 7px 8px; }.canvas-block__tools button { width: 21px; }.canvas-block__preview { min-height: 110px; padding: 13px; grid-template-columns: 1fr; gap: 12px; }.preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; }.preview-grid { grid-template-columns: 1fr 1fr; }.preview-hero-copy h3 { font-size: clamp(20px, 9cqw, 34px); }.canvas-block__resize span { display: none; } }
+@container (max-width: 520px) { .canvas-block { grid-template-columns: 30px minmax(0,1fr); }.canvas-block__rail { padding-top: 10px; }.canvas-block__header { padding: 7px 8px; }.canvas-block__tools button { width: 21px; }.canvas-block__preview { min-height: 110px; padding: 13px; grid-template-columns: 1fr; gap: 12px; }.canvas-block__preview--hero { padding: clamp(22px, 7cqw, 34px) 16px; }.preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; }.preview-grid { grid-template-columns: 1fr 1fr; }.preview-hero-copy h3 { font-size: clamp(34px, 12cqw, 54px); }.preview-hero-media { min-height: clamp(300px, 110cqw, 480px); }.canvas-block__resize span { display: none; } }
 </style>
