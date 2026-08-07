@@ -63,6 +63,15 @@ test("reversed wellness chapters change desktop composition only", () => {
   assert.match(css, /\.wellness-chapter--reverse\s+\.wellness-chapter__screens\s*\{[^}]*direction:\s*rtl;/s);
 });
 
+test("builder section headings use the site font while the hero keeps its display face", () => {
+  const css = readFileSync("assets/css/case-builder-public.css", "utf8");
+
+  assert.match(css, /\.builder-heading h2\s*\{[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-image-text__copy h2\s*\{[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-block--next_case h2\s*\{[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*var\(--font-epilepsy\)/s);
+});
+
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP chapters are complete for ${locale}`, () => {
     const content = getWellnessCaseContent(locale);
