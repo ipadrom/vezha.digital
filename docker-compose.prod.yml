@@ -38,6 +38,8 @@ services:
         - NUXT_APP_BASE_URL=/
     container_name: vezha-frontend
     restart: unless-stopped
+    environment:
+      - NUXT_PUBLIC_TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME:?TELEGRAM_BOT_USERNAME must be set}
     ports:
       - "127.0.0.1:3002:3000"
     depends_on:
