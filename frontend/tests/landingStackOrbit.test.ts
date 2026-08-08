@@ -49,6 +49,7 @@ import {
 } from "../utils/landingStackOrbit.ts";
 import {
   getServiceHighlightFrames,
+  getServiceHighlightLayoutBounds,
   getServiceHighlightTargetBounds,
 } from "../utils/landingServicesHighlight.ts";
 
@@ -213,11 +214,12 @@ test("renders desktop service navigation as full-width client-style capsules", (
   assert.match(desktopCss, /\[data-serv-nav-num\]\s*\{[^}]*display:\s*none;/);
   assert.match(desktopCss, /\.vz-services__nav-highlight\s*\{[^}]*display:\s*block;/);
   assert.match(desktopCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*var\(--ink\);/s);
-  assert.match(desktopCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid var\(--chipbd\);[^}]*border-radius:\s*999px;[^}]*background:\s*var\(--bg\);/s);
+  assert.match(desktopCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;[^}]*border-radius:\s*999px;[^}]*background:\s*var\(--bg\);/s);
+  assert.match(desktopCss, /button\[data-active="true"\]\s*\{[^}]*border-color:\s*transparent;/s);
   assert.match(desktopCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*color:\s*var\(--bg\);[^}]*font-size:\s*16px;/s);
   assert.doesNotMatch(desktopCss, /button\[data-active="true"\] \[data-serv-nav-label\][^}]*linear-gradient/s);
   assert.match(desktopCss, /\.vz-services__nav button:focus\s*\{[^}]*outline:\s*none;/);
-  assert.match(desktopCss, /\.vz-services__nav button:focus-visible\s*\{[^}]*border-color:\s*var\(--ink\);/s);
+  assert.match(desktopCss, /\.vz-services__nav button:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--ink\);[^}]*outline-offset:\s*2px;/s);
   assert.match(servicesComposable, /const targetElement = target;/);
   assert.match(servicesComposable, /const horizontalPadding = 0;/);
   assert.match(servicesComposable, /const verticalPadding = 0;/);
@@ -242,13 +244,14 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.match(servicesComponent, /data-serv-nav-highlight/);
   assert.match(mobileCss, /\.vz-services \[data-sec-head\]\s*\{[^}]*margin-bottom:\s*8px;/);
   assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*var\(--ink\);/s);
-  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid var\(--chipbd\);/s);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/s);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*transition:\s*none;/);
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
   assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*11px;/);
   assert.doesNotMatch(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*top:/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px 0;/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*border-color:\s*transparent;/s);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*transparent;/);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*color:\s*var\(--bg\);/s);
   assert.doesNotMatch(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\][^}]*linear-gradient/s);
@@ -265,6 +268,18 @@ test("keeps service text fixed while expanding only the highlight background", (
   assert.match(highlightSource, /export function getServiceHighlightTargetBounds/);
   assert.match(highlightSource, /x:\s*bounds\.x - horizontalPadding/);
   assert.match(highlightSource, /width:\s*bounds\.width \+ horizontalPadding \* 2/);
+});
+
+test("positions the service highlight from stable layout geometry", () => {
+  assert.deepEqual(
+    getServiceHighlightLayoutBounds({
+      offsetLeft: 24,
+      offsetTop: 56,
+      offsetWidth: 300,
+      offsetHeight: 48,
+    }),
+    { x: 24, y: 56, width: 300, height: 48 },
+  );
 });
 
 test("expands a service highlight rectangle on both axes without a midpoint", () => {

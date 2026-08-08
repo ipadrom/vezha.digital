@@ -243,7 +243,7 @@
   align-items: center;
   gap: 0;
   padding: 0 16px;
-  border: 1px solid var(--chipbd);
+  border: 1px solid transparent;
   border-radius: 999px;
   background: var(--bg);
   cursor: pointer;
@@ -255,9 +255,9 @@
   outline: none;
 }
 
-.vz-services__nav button:hover,
 .vz-services__nav button:focus-visible {
-  border-color: var(--ink);
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 .vz-services__nav [data-serv-nav-num] {
@@ -280,7 +280,7 @@
 
 .vz-services__nav button[data-active="true"] {
   padding: 0 16px;
-  border-color: var(--ink);
+  border-color: transparent;
   background: transparent;
 }
 
@@ -934,7 +934,7 @@
     justify-content: center;
     gap: 0;
     padding: 4px 0;
-    border: 1px solid var(--chipbd);
+    border: 1px solid transparent;
     border-radius: 999px;
     background: var(--bg);
     box-shadow: none;
@@ -944,7 +944,7 @@
 
   .vz-services__nav button[data-active="true"] {
     padding: 4px 0;
-    border-color: var(--ink);
+    border-color: transparent;
     background: transparent;
   }
 

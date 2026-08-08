@@ -5,6 +5,17 @@ export type ServiceHighlightBounds = {
   height: number;
 };
 
+export function getServiceHighlightLayoutBounds(
+  element: Pick<HTMLElement, "offsetLeft" | "offsetTop" | "offsetWidth" | "offsetHeight">,
+): ServiceHighlightBounds {
+  return {
+    x: element.offsetLeft,
+    y: element.offsetTop,
+    width: element.offsetWidth,
+    height: element.offsetHeight,
+  };
+}
+
 export function getServiceHighlightTargetBounds(
   bounds: ServiceHighlightBounds,
   horizontalPadding = 7,

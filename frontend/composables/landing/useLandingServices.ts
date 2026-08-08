@@ -1,6 +1,7 @@
 import type { Ref } from "vue";
 import {
   getServiceHighlightFrames,
+  getServiceHighlightLayoutBounds,
   getServiceHighlightTargetBounds,
   type ServiceHighlightBounds,
 } from "~/utils/landingServicesHighlight";
@@ -52,7 +53,7 @@ export function useLandingServices(
     const horizontalPadding = 0;
     const verticalPadding = 0;
     const targetBounds = getServiceHighlightTargetBounds(
-      getRelativeHighlightBounds(targetElement, navList),
+      getServiceHighlightLayoutBounds(targetElement),
       horizontalPadding,
       verticalPadding,
     );
