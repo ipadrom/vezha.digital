@@ -13,8 +13,6 @@ export function useLandingServices(
 ) {
   const activeIndex = ref(0);
   let raf = 0;
-  let autoplayTimer: ReturnType<typeof window.setInterval> | null = null;
-  let manualPauseUntil = 0;
   let highlightAnimation: Animation | null = null;
   let highlightTargetIndex = -1;
   let pendingActiveNotification = false;
@@ -102,7 +100,6 @@ export function useLandingServices(
     const navs = root.querySelectorAll<HTMLElement>("[data-serv-nav]");
     const screens = root.querySelectorAll<HTMLElement>("[data-screen]");
     const bar = root.querySelector<HTMLElement>("[data-serv-bar]");
-    const counter = root.querySelector<HTMLElement>("[data-serv-counter]");
     const rect = root.getBoundingClientRect();
     const intro = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight * 0.62)));
     const active = Math.max(0, Math.min(activeIndex.value, Math.max(0, panels.length - 1)));
@@ -111,11 +108,64 @@ export function useLandingServices(
     panels.forEach((panel, index) => {
       const isActive = index === active;
       panel.style.opacity = isActive ? "1" : "0";
-      panel.style.transform = isActive ? "translateY(0)" : `translateY(${index < active ? -36 : 36}px)`;
+      panel.style.transform = "none";
       panel.style.pointerEvents = isActive ? "auto" : "none";
       panel.style.zIndex = isActive ? "2" : "1";
       panel.setAttribute("aria-hidden", isActive ? "false" : "true");
+      panel.toggleAttribute("inert", !isActive);
     });
+
+    const caption = root.querySelector<HTMLElement>("[data-serv-caption]");
+    const sharedCta = root.querySelector<HTMLElement>("[data-serv-shared-cta]");
+    const activeIncluded = panels[active]?.querySelector<HTMLElement>("[data-serv-included]");
+    const activeMetawrap = activeIncluded?.querySelector<HTMLElement>("[data-serv-metawrap]");
+
+    if (caption && sharedCta && activeIncluded && activeMetawrap) {
+      caption.style.height = "";
+      caption.style.minHeight = "";
+
+      const captionRect = caption.getBoundingClientRect();
+      const metawrapRect = activeMetawrap.getBoundingClientRect();
+      const metawrapTransform = getComputedStyle(activeMetawrap).transform;
+      const animatedMetawrapY = metawrapTransform === "none"
+        ? 0
+        : new DOMMatrixReadOnly(metawrapTransform).m42;
+      const metawrapBottom = metawrapRect.bottom - captionRect.top - animatedMetawrapY;
+      const dividerGap = Number.parseFloat(getComputedStyle(activeIncluded).paddingTop) || 12;
+      const ctaTop = Math.ceil(metawrapBottom + dividerGap * 2 + 1);
+      const isWideDesktop = window.matchMedia("(min-width: 1200px)").matches;
+
+      sharedCta.style.setProperty("--service-cta-offset", `${ctaTop}px`);
+      sharedCta.style.setProperty("--service-divider-gap", `${dividerGap}px`);
+      sharedCta.style.top = "0";
+      sharedCta.style.bottom = "auto";
+
+      if (isWideDesktop) {
+        const contentHeight = ctaTop + sharedCta.offsetHeight;
+        const centerOffset = Math.round((caption.clientHeight - contentHeight) / 2 - 20);
+        caption.style.transform = `translateY(${centerOffset}px)`;
+      } else {
+        const contentHeight = Math.ceil(ctaTop + sharedCta.offsetHeight + 8);
+        caption.style.height = `${contentHeight}px`;
+        caption.style.minHeight = `${contentHeight}px`;
+        caption.style.transform = "";
+      }
+
+      if (sharedCta.dataset.positioned !== "true" || caption.dataset.positioned !== "true") {
+        requestAnimationFrame(() => {
+          sharedCta.dataset.positioned = "true";
+          caption.dataset.positioned = "true";
+        });
+      }
+    } else if (caption && sharedCta) {
+      sharedCta.style.removeProperty("--service-cta-offset");
+      sharedCta.style.removeProperty("--service-divider-gap");
+      sharedCta.style.top = "";
+      sharedCta.style.bottom = "";
+      delete sharedCta.dataset.positioned;
+      caption.style.transform = "";
+      delete caption.dataset.positioned;
+    }
 
     screens.forEach((screen) => {
       const index = Number(screen.dataset.si);
@@ -125,6 +175,7 @@ export function useLandingServices(
       screen.style.opacity = isActive ? "1" : "0";
       screen.style.zIndex = isActive ? "3" : "2";
       screen.style.pointerEvents = isActive ? "auto" : "none";
+      screen.setAttribute("aria-hidden", isActive ? "false" : "true");
     });
 
     const deviceByIndex = ["phone", "phone", "laptop", "laptop", "laptop", "laptop", "phone"] as const;
@@ -148,7 +199,6 @@ export function useLandingServices(
     syncServiceHighlight(root, navs, active);
 
     if (bar) bar.style.width = `${(progress * 100).toFixed(2)}%`;
-    if (counter) counter.textContent = `${String(active + 1).padStart(2, "0")} / ${String(panels.length).padStart(2, "0")}`;
     if (pendingActiveNotification) {
       pendingActiveNotification = false;
       onActiveChange(active);
@@ -163,10 +213,9 @@ export function useLandingServices(
     });
   }
 
-  function select(index: number, manual = true) {
+  function select(index: number) {
     const count = Math.max(1, serviceCount.value);
     activeIndex.value = ((index % count) + count) % count;
-    if (manual) manualPauseUntil = performance.now() + 6500;
     pendingActiveNotification = true;
     scheduleRender();
   }
@@ -180,22 +229,9 @@ export function useLandingServices(
     scheduleRender();
   }
 
-  function startAutoplay() {
-    if (autoplayTimer || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    autoplayTimer = window.setInterval(() => {
-      const root = rootRef.value;
-      if (!root || document.hidden || performance.now() < manualPauseUntil) return;
-      const rect = root.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.82 && rect.bottom > window.innerHeight * 0.18) {
-        select(activeIndex.value + 1, false);
-      }
-    }, 3200);
-  }
-
   onMounted(() => {
     window.addEventListener("scroll", scheduleRender, { passive: true });
     window.addEventListener("resize", handleResize, { passive: true });
-    startAutoplay();
     nextTick(scheduleRender);
   });
 
@@ -204,11 +240,10 @@ export function useLandingServices(
     window.removeEventListener("resize", handleResize);
     if (raf) cancelAnimationFrame(raf);
     highlightAnimation?.cancel();
-    if (autoplayTimer) window.clearInterval(autoplayTimer);
   });
 
   watch(serviceCount, () => {
-    if (activeIndex.value >= serviceCount.value) select(0, false);
+    if (activeIndex.value >= serviceCount.value) select(0);
     nextTick(scheduleRender);
   });
 

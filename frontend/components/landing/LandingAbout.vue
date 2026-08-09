@@ -160,7 +160,7 @@
         <p>{{ copy.paragraphs[0] }}</p>
         <dl>
           <div>
-            <dt>01</dt>
+            <dt>1</dt>
             <dd>{{ copy.metrics[0] }}</dd>
           </div>
           <div>
@@ -765,48 +765,55 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__proof {
   display: grid;
   grid-template-columns: minmax(280px, 1.35fr) minmax(0, 2fr);
-  border-bottom: 1px solid var(--border);
+  gap: clamp(24px, 3vw, 48px);
+  align-items: center;
+  padding-block: clamp(28px, 4vw, 56px);
 }
 
 .vz-about__proof > p {
   max-width: 44ch;
   margin: 0;
-  padding: 28px clamp(28px, 4vw, 54px) 30px 0;
-  align-self: center;
   color: var(--text2);
   font-size: 15px;
   line-height: 1.6;
 }
 
 .vz-about__proof dl {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  align-items: center;
   margin: 0;
-  border-left: 1px solid var(--border);
 }
 
 .vz-about__proof dl div {
-  min-height: 132px;
-  padding: 24px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
 }
 
-.vz-about__proof dl div + div {
-  border-left: 1px solid var(--border);
+.vz-about__proof dl div:not(:last-child)::after {
+  width: 3px;
+  height: 3px;
+  margin-left: 13px;
+  border-radius: 50%;
+  background: var(--muted2);
+  content: "";
 }
 
 .vz-about__proof dt {
   color: var(--ink);
-  font-size: clamp(26px, 2.6vw, 38px);
+  font-size: 14px;
   font-weight: 600;
-  letter-spacing: -0.04em;
-  line-height: 1;
+  line-height: 1.4;
 }
 
 .vz-about__proof dd {
-  max-width: 15ch;
-  margin: 20px 0 0;
+  margin: 0;
   color: var(--text2);
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.4;
 }
 
@@ -835,9 +842,8 @@ onBeforeUnmount(() => emit("flow-ready", null));
   .vz-about__head h2 { max-width: 14ch; font-size: clamp(30px, 8.8vw, 46px); }
   .vz-about__intro { width: min(100%, 520px); }
   .vz-about__step-copy p { max-width: 44ch; }
-  .vz-about__proof { grid-template-columns: 1fr; }
-  .vz-about__proof > p { max-width: 58ch; padding-right: 0; }
-  .vz-about__proof dl { border-top: 1px solid var(--border); border-left: 0; }
+  .vz-about__proof { grid-template-columns: 1fr; gap: 24px; }
+  .vz-about__proof > p { max-width: 58ch; }
 }
 
 @media (max-width: 720px) {
@@ -936,9 +942,10 @@ onBeforeUnmount(() => emit("flow-ready", null));
     max-width: none;
     text-align: center;
   }
-  .vz-about__proof dl { grid-template-columns: 1fr 1fr; }
-  .vz-about__proof dl div { min-height: 116px; padding: 20px 14px; }
-  .vz-about__proof dl div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--border); border-left: 0; }
+  .vz-about__proof dl { gap: 10px 14px; }
+  .vz-about__proof dl div:not(:last-child)::after { margin-left: 9px; }
+  .vz-about__proof dt,
+  .vz-about__proof dd { font-size: 12px; }
   .vz-about__step-copy {
     height: 100%;
     min-height: 0;

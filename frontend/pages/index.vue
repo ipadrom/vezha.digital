@@ -662,6 +662,7 @@ function selectAboutFlowStep(index: number) {
   activeAboutProduct.value = isSupportStep
     ? activeAboutProduct.value || pickNextAboutProduct()
     : null;
+  aboutFlowStepIndex.value = target;
   aboutFlowDisplayStepIndex.value = target;
   aboutFlowTargetStepIndex.value = target;
   aboutFlowPhase.value = isSupportStep ? "result" : "signal";

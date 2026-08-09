@@ -30,7 +30,8 @@ const LEG_COUNT = 7;
 const LAST_STEP_INDEX = LEG_COUNT - 1;
 const TRAVEL_MS = 1200;
 const FINAL_SETTLE_MS = 760;
-const REVERSE_SETTLE_MS = 180;
+const CLICK_NAVIGATION_TOTAL_MS = 1500;
+const CLICK_NAVIGATION_SETTLE_MS = 120;
 const DESKTOP_PARTICLES_PER_LEG = [3, 3, 3, 4, 3, 3, 4];
 const MOBILE_PARTICLES_PER_LEG = [2, 2, 2, 3, 2, 2, 3];
 const OFFSETS = [-8, 18, -24, 13, -31, 26, -15, 34, -22, 10, -35, 20, -12, 29, -27, 16, -33, 24, -17, 31, -21, 14, -9];
@@ -54,7 +55,6 @@ let navigationTravelMs = 0;
 let navigationSettleMs = 0;
 let navigationWaypoints: number[] = [];
 let navigationSegmentDurations: number[] = [];
-let navigationPreviousProgress = 1;
 let reducedMotion = false;
 let inViewport = true;
 let routeAnchors: Point[] = [];
@@ -422,23 +422,10 @@ function navigationProgressAt(now: number) {
   return navigationToProgress;
 }
 
-function emitCrossedStages(previous: number, current: number) {
-  const direction = current >= previous ? 1 : -1;
-  for (let junctionIndex = 1; junctionIndex < LEG_COUNT; junctionIndex += 1) {
-    const junction = junctionIndex / LEG_COUNT;
-    const crossed = direction > 0
-      ? previous < junction && current >= junction
-      : previous > junction && current <= junction;
-    if (crossed) emit("stage-reached", junctionIndex - 1);
-  }
-}
-
 function navigationAnimationFrame(now: number) {
   const elapsed = Math.max(0, now - navigationStartedAt);
   const reversing = navigationToProgress < navigationFromProgress;
   lastProgress = navigationProgressAt(now);
-  emitCrossedStages(navigationPreviousProgress, lastProgress);
-  navigationPreviousProgress = lastProgress;
   if (!reversing) revealWorld(lastProgress, now);
   drawScene(lastProgress, now, false, reversing);
 
@@ -551,13 +538,16 @@ function navigateToStep(stepIndex: number) {
   navigationFromProgress = current;
   navigationToProgress = target;
   navigationWaypoints = buildNavigationWaypoints(current, target);
+  const totalDistance = navigationWaypoints.slice(1).reduce((distance, point, index) => (
+    distance + Math.abs(point - (navigationWaypoints[index] ?? current))
+  ), 0) || 1;
+  const navigationMotionMs = CLICK_NAVIGATION_TOTAL_MS - CLICK_NAVIGATION_SETTLE_MS;
   navigationSegmentDurations = navigationWaypoints.slice(1).map((point, index) => (
-    Math.max(1, Math.abs(point - (navigationWaypoints[index] ?? current)) * LEG_COUNT * TRAVEL_MS)
+    Math.max(1, navigationMotionMs * Math.abs(point - (navigationWaypoints[index] ?? current)) / totalDistance)
   ));
   navigationTravelMs = navigationSegmentDurations.reduce((total, duration) => total + duration, 0);
-  navigationSettleMs = target > current ? FINAL_SETTLE_MS : REVERSE_SETTLE_MS;
+  navigationSettleMs = CLICK_NAVIGATION_SETTLE_MS;
   navigationStartedAt = now;
-  navigationPreviousProgress = current;
   playbackMode = "navigation";
 
   resetWorld(now, current);

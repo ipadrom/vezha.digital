@@ -9,23 +9,58 @@
             </div>
             <h2><span><span data-reveal>{{ copy.title }}</span></span></h2>
           </div>
-          <div class="vz-services__counter"><span data-serv-counter>01 / 07</span></div>
         </div>
 
         <div class="vz-services__grid" data-serv-grid>
-          <div class="vz-services__nav" data-serv-list>
-            <span class="vz-services__nav-highlight" data-serv-nav-highlight aria-hidden="true"></span>
-            <button
-              v-for="(service, index) in services"
-              :key="`${service.n}-${service.title}`"
-              data-serv-nav
-              type="button"
-              @click="select(index)"
-            >
-              <span data-serv-nav-num>{{ service.n }}</span>
-              <span data-serv-nav-label class="vz-services__nav-label-full">{{ service.title }}</span>
-              <span data-serv-nav-label class="vz-services__nav-label-compact">{{ copy.navLabels[index] ?? service.title }}</span>
-            </button>
+          <div class="vz-services__rail">
+            <div class="vz-services__nav" data-serv-list>
+              <span class="vz-services__nav-highlight" data-serv-nav-highlight aria-hidden="true"></span>
+              <button
+                v-for="(service, index) in services"
+                :key="`${service.n}-${service.title}`"
+                data-serv-nav
+                type="button"
+                @click="select(index)"
+              >
+                <span data-serv-nav-num>{{ service.n }}</span>
+                <span data-serv-nav-label class="vz-services__nav-label-full">{{ service.title }}</span>
+                <span data-serv-nav-label class="vz-services__nav-label-compact">{{ copy.navLabels[index] ?? service.title }}</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="vz-service-caption" data-serv-caption aria-live="polite">
+            <article v-for="(service, index) in services" :key="service.n" data-serv-panel class="vz-service-panel">
+              <div class="vz-service-panel__title"><span>{{ service.n }}</span><h3>{{ service.title }}</h3></div>
+              <p>{{ service.desc }}</p>
+              <div class="vz-service-commercial">
+                <div class="vz-service-commercial__metrics">
+                  <div>
+                    <small>{{ copy.commercialLabels.price }}</small>
+                    <strong>{{ copy.commercial[index]?.price }}</strong>
+                  </div>
+                  <div>
+                    <small>{{ copy.commercialLabels.timeline }}</small>
+                    <strong>{{ copy.commercial[index]?.timeline }}</strong>
+                  </div>
+                </div>
+                <div class="vz-service-commercial__included" data-serv-included>
+                  <small>{{ copy.commercialLabels.included }}</small>
+                  <div data-serv-metawrap>
+                    <span v-for="item in copy.commercial[index]?.included ?? []" :key="item">{{ item }}</span>
+                  </div>
+                </div>
+              </div>
+            </article>
+            <a class="vz-service-panel__cta vz-service-panel__cta--shared" data-serv-shared-cta href="#contacts">
+              <span>
+                <small>{{ copy.asideCta.eyebrow }}</small>
+                <strong>{{ copy.asideCta.link }}</strong>
+              </span>
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M5 12h13M13 7l5 5-5 5" />
+              </svg>
+            </a>
           </div>
 
           <a class="vz-services__aside-cta" href="#contacts">
@@ -38,7 +73,7 @@
           </a>
 
           <div class="vz-services__stage" data-serv-stage>
-            <div class="vz-services__devices" data-serv-devices>
+            <div class="vz-services__devices" data-serv-devices inert aria-hidden="true">
               <div class="vz-device-mac" data-device-mac>
                 <div class="vz-macbook" data-macbook>
                   <div class="vz-macbook__tilt">
@@ -154,32 +189,18 @@ func main() {
                   </div>
                   <div class="vz-macbook__shadow"></div>
                 </div>
-              </div>
-            </div>
 
-            <div class="vz-service-caption" data-serv-caption>
-              <article v-for="(service, index) in services" :key="service.n" data-serv-panel class="vz-service-panel">
-                <div class="vz-service-panel__title"><span>{{ service.n }}</span><h3>{{ service.title }}</h3></div>
-                <p>{{ service.desc }}</p>
-                <div class="vz-service-commercial">
-                  <div class="vz-service-commercial__metrics">
-                    <div>
-                      <small>{{ copy.commercialLabels.price }}</small>
-                      <strong>{{ copy.commercial[index]?.price }}</strong>
-                    </div>
-                    <div>
-                      <small>{{ copy.commercialLabels.timeline }}</small>
-                      <strong>{{ copy.commercial[index]?.timeline }}</strong>
-                    </div>
-                  </div>
-                  <div class="vz-service-commercial__included">
-                    <small>{{ copy.commercialLabels.included }}</small>
-                    <div data-serv-metawrap>
-                      <span v-for="item in copy.commercial[index]?.included ?? []" :key="item">{{ item }}</span>
-                    </div>
-                  </div>
+                <div class="vz-services__callouts">
+                  <span
+                    v-for="(item, index) in activeServiceCallouts"
+                    :key="`${activeIndex}-${item}`"
+                    :data-callout-position="index"
+                  >
+                    <small>{{ String(index + 1).padStart(2, "0") }}</small>
+                    <b>{{ item }}</b>
+                  </span>
                 </div>
-              </article>
+              </div>
             </div>
           </div>
         </div>
@@ -221,7 +242,8 @@ const emit = defineEmits<{ activeChange: [index: number] }>();
 const rootRef = ref<HTMLElement | null>(null);
 const serviceScreens = ["miniapp", "bot", "site", "shop", "ai", "corp", "mobile"] as const;
 const serviceCount = computed(() => props.services.length);
-const { select } = useLandingServices(rootRef, serviceCount, (index) => emit("activeChange", index));
+const { activeIndex, select } = useLandingServices(rootRef, serviceCount, (index) => emit("activeChange", index));
+const activeServiceCallouts = computed(() => props.copy.commercial[activeIndex.value]?.included ?? []);
 </script>
 
 <style src="~/assets/css/landing-redesign.css"></style>

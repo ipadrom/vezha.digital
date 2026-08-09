@@ -338,6 +338,27 @@ test("exposes the final about endpoint as the localized support step", () => {
   assert.match(aboutGoo, /Math\.min\(LAST_STEP_INDEX, stepIndex\)/);
 });
 
+test("keeps click navigation near 1.5 seconds and activates only the selected stage", () => {
+  const aboutGoo = readFileSync("components/landing/LandingAboutGoo.vue", "utf8");
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(aboutGoo, /const CLICK_NAVIGATION_TOTAL_MS = 1500;/);
+  assert.match(aboutGoo, /const navigationMotionMs = CLICK_NAVIGATION_TOTAL_MS - CLICK_NAVIGATION_SETTLE_MS;/);
+  assert.doesNotMatch(aboutGoo, /function emitCrossedStages/);
+  assert.doesNotMatch(aboutGoo, /emitCrossedStages\(/);
+  assert.match(landingPage, /function selectAboutFlowStep[\s\S]*?aboutFlowStepIndex\.value = target;[\s\S]*?aboutFlowTargetStepIndex\.value = target;/);
+});
+
+test("expands services into a three-column scene only on wide desktop", () => {
+  const services = readFileSync("components/landing/LandingServices.vue", "utf8");
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+
+  assert.match(services, /class="vz-services__rail"[\s\S]*?<\/div>\s*<div class="vz-service-caption"/);
+  assert.match(services, /class="vz-services__callouts"[\s\S]*?activeServiceCallouts/);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?grid-template-columns:\s*minmax\(220px, 0\.75fr\) minmax\(420px, 1\.55fr\) minmax\(280px, 0\.9fr\);/);
+  assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1199px\)[\s\S]*?\.vz-service-caption\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
+});
+
 test("expands a service highlight rectangle on both axes without a midpoint", () => {
   assert.deepEqual(
     getServiceHighlightTargetBounds({ x: 20, y: 30, width: 80, height: 18 }, 16, 7),
