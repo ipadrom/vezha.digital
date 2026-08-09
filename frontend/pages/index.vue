@@ -85,11 +85,16 @@
       :copy="copy.about"
       :flow-phase="aboutFlowPhase"
       :flow-cycle-key="aboutFlowCycleKey"
+      :target-step-index="aboutFlowTargetStepIndex"
+      :navigation-key="aboutFlowNavigationKey"
       :active-step-index="aboutFlowStepIndex"
+      :display-step-index="aboutFlowDisplayStepIndex"
       :snake-segments="aboutFlowSnakeSegments"
       :active-business="activeAboutBusiness"
       :active-product="activeAboutProduct"
       @replay="replayAboutFlow"
+      @select-step="selectAboutFlowStep"
+      @stage-reached="setAboutFlowReachedStep"
       @flow-ready="setAboutFlowHost"
     />
 
@@ -498,9 +503,12 @@ const aboutFlowStepDelaysMs = [6770, 12750, 18740, 24720, 30700];
 const aboutFlowResultDelayMs = 37130;
 const aboutFlowBusinessIndex = ref(0);
 const aboutFlowStepIndex = ref(0);
+const aboutFlowDisplayStepIndex = ref(0);
 const activeAboutProduct = ref<AboutFlowItem | null>(null);
 const aboutFlowPhase = ref<"signal" | "result">("result");
 const aboutFlowCycleKey = ref(0);
+const aboutFlowTargetStepIndex = ref<number | null>(null);
+const aboutFlowNavigationKey = ref(0);
 const activeAboutBusiness = computed<AboutFlowItem>(() => (
   aboutBusinessItems.value[aboutFlowBusinessIndex.value] || aboutBusinessItems.value[0]!
 ));
@@ -609,12 +617,14 @@ function clearAboutFlowStepTimers() {
 function runAboutFlowCycle(advanceBusiness = true) {
   clearAboutFlowResultTimer();
   clearAboutFlowStepTimers();
+  aboutFlowTargetStepIndex.value = null;
   if (advanceBusiness) {
     aboutFlowBusinessIndex.value = (aboutFlowBusinessIndex.value + 1) % aboutBusinessItems.value.length;
   }
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     aboutFlowStepIndex.value = 5;
+    aboutFlowDisplayStepIndex.value = 5;
     activeAboutProduct.value = pickNextAboutProduct();
     aboutFlowPhase.value = "result";
     return;
@@ -622,10 +632,12 @@ function runAboutFlowCycle(advanceBusiness = true) {
 
   activeAboutProduct.value = null;
   aboutFlowStepIndex.value = 0;
+  aboutFlowDisplayStepIndex.value = 0;
   aboutFlowPhase.value = "signal";
   aboutFlowCycleKey.value += 1;
   aboutFlowStepTimers = aboutFlowStepDelaysMs.map((delay, index) => setTimeout(() => {
     aboutFlowStepIndex.value = index + 1;
+    aboutFlowDisplayStepIndex.value = index + 1;
   }, delay));
   aboutFlowResultTimer = setTimeout(() => {
     activeAboutProduct.value = pickNextAboutProduct();
@@ -638,6 +650,23 @@ function replayAboutFlow() {
   runAboutFlowCycle(true);
 }
 
+function selectAboutFlowStep(index: number) {
+  const target = Math.max(0, Math.min(5, index));
+  aboutFlowObserver?.disconnect();
+  aboutFlowObserver = null;
+  clearAboutFlowResultTimer();
+  clearAboutFlowStepTimers();
+  activeAboutProduct.value = null;
+  aboutFlowDisplayStepIndex.value = target;
+  aboutFlowTargetStepIndex.value = target;
+  aboutFlowPhase.value = "signal";
+  aboutFlowNavigationKey.value += 1;
+}
+
+function setAboutFlowReachedStep(index: number) {
+  aboutFlowStepIndex.value = Math.max(0, Math.min(5, index));
+}
+
 function setupAboutFlowObserver() {
   if (!aboutFlowRef.value) return;
   aboutFlowObserver?.disconnect();
@@ -648,6 +677,11 @@ function setupAboutFlowObserver() {
   }
 
   aboutFlowObserver = new IntersectionObserver((entries) => {
+    if (aboutFlowTargetStepIndex.value !== null) {
+      aboutFlowObserver?.disconnect();
+      aboutFlowObserver = null;
+      return;
+    }
     if (!entries.some((entry) => entry.isIntersecting)) return;
     runAboutFlowCycle(false);
     aboutFlowObserver?.disconnect();

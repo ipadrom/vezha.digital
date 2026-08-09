@@ -9,9 +9,9 @@
           <h2>{{ copy.teamLead }}</h2>
         </div>
 
-        <div class="vz-about__intro">
+        <div class="vz-about__intro" aria-live="polite" aria-atomic="true">
           <Transition name="vz-flow-copy" mode="out-in">
-            <div :key="activeFlowStep.number" class="vz-about__step-copy" aria-live="polite">
+            <div :key="activeFlowStep.number" class="vz-about__step-copy">
               <div class="vz-about__step-meta">
                 <span>{{ activeFlowStep.number }}</span>
                 <div>
@@ -35,6 +35,7 @@
         class="vz-about__flow"
         :class="`is-${flowPhase}`"
         :aria-label="copy.flowAria"
+        role="group"
       >
         <button
           class="vz-about__flow-replay"
@@ -55,12 +56,15 @@
           <LandingAboutGoo
             :flow-phase="flowPhase"
             :flow-cycle-key="flowCycleKey"
+            :target-step-index="targetStepIndex"
+            :navigation-key="navigationKey"
             :snake-segments="snakeSegments"
+            @stage-reached="$emit('stage-reached', $event)"
           />
 
           <div
             class="vz-about__flow-node vz-about__flow-node--business"
-            :class="{ 'is-sending': flowPhase === 'signal' }"
+            :class="{ 'is-sending': flowPhase === 'signal' && targetStepIndex === null }"
           >
             <div class="vz-about__endpoint-content">
               <div
@@ -80,32 +84,38 @@
             </div>
           </div>
 
-          <div
+          <button
+            type="button"
             class="vz-about__flow-stage vz-about__flow-stage--brief"
             :class="{ 'is-active': activeStepIndex === 0 }"
+            :aria-current="activeStepIndex === 0 ? 'step' : undefined"
+            @click="$emit('select-step', 0)"
           >
             <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true"><i></i></span>
             <span class="vz-about__flow-stage-label">
               <small>00</small>
               <b>{{ copy.brief }}</b>
             </span>
-          </div>
+          </button>
 
-          <div
+          <button
             v-for="(stage, index) in copy.stages"
             :key="stage"
+            type="button"
             class="vz-about__flow-stage"
             :class="[
               `vz-about__flow-stage--${stageKeys[index]}`,
               { 'is-active': activeStepIndex === index + 1 },
             ]"
+            :aria-current="activeStepIndex === index + 1 ? 'step' : undefined"
+            @click="$emit('select-step', index + 1)"
           >
             <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true"><i></i></span>
             <span class="vz-about__flow-stage-label">
               <small>{{ String(index + 1).padStart(2, '0') }}</small>
               <b>{{ stage }}</b>
             </span>
-          </div>
+          </button>
 
           <div
             class="vz-about__flow-node vz-about__flow-node--product"
@@ -184,7 +194,10 @@ const props = defineProps<{
   copy: AboutCopy;
   flowPhase: "signal" | "result";
   flowCycleKey: number;
+  targetStepIndex: number | null;
+  navigationKey: number;
   activeStepIndex: number;
+  displayStepIndex: number;
   snakeSegments: Array<{ key: string; path: string; begin: string }>;
   activeBusiness: AboutFlowItem;
   activeProduct: AboutFlowItem | null;
@@ -192,13 +205,15 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   replay: [];
+  "select-step": [index: number];
+  "stage-reached": [index: number];
   "flow-ready": [element: HTMLElement | null];
 }>();
 
 const flowRef = ref<HTMLElement | null>(null);
 const stageKeys = ["design", "ux", "development", "testing", "launch"] as const;
 const activeFlowStep = computed(() => {
-  const index = Math.max(0, Math.min(5, props.activeStepIndex));
+  const index = Math.max(0, Math.min(5, props.displayStepIndex));
   const details = props.copy.stepDetails[index] || { duration: "", description: "", deliverables: [] };
   return {
     number: String(index).padStart(2, "0"),
@@ -569,7 +584,21 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__flow-stage {
   width: 110px;
   height: 72px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
   color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.vz-about__flow-stage:focus-visible { outline: none; }
+
+.vz-about__flow-stage:focus-visible .vz-about__flow-stage-anchor {
+  outline: 2px solid var(--flow-blue);
+  outline-offset: 7px;
 }
 
 .vz-about__flow-stage-anchor {
@@ -753,7 +782,8 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 @media (max-width: 720px) {
   .vz-about__head { margin-bottom: 28px; }
-  .vz-about__flow { overflow: hidden; }
+  .vz-about__intro { height: 168px; }
+  .vz-about__flow { overflow: visible; }
   .vz-about__flow-canvas { width: 100%; min-height: clamp(460px, 125vw, 500px); }
   .vz-about__flow-replay { position: absolute; right: 0; left: auto; width: max-content; }
   .vz-about__flow-zones { grid-template-columns: 1fr; grid-template-rows: 30fr 40fr 30fr; }
@@ -802,12 +832,12 @@ onBeforeUnmount(() => emit("flow-ready", null));
     transform: translateY(-50%) translateX(3px);
   }
   .vz-about__flow-stage--design .vz-about__flow-stage-label {
-    right: calc(50% + 10px);
+    right: calc(50% + 4px);
     left: auto;
     transform: translateY(-50%);
   }
   .vz-about__flow-stage--design.is-active .vz-about__flow-stage-label {
-    transform: translateY(-50%) translateX(-3px);
+    transform: translateY(-50%) translateX(2px);
   }
   .vz-about__flow-stage--development .vz-about__flow-stage-label {
     top: calc(50% + 15px);
@@ -850,7 +880,8 @@ onBeforeUnmount(() => emit("flow-ready", null));
   .vz-about__proof dl div { min-height: 116px; padding: 20px 14px; }
   .vz-about__proof dl div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--border); border-left: 0; }
   .vz-about__step-copy {
-    min-height: 112px;
+    height: 100%;
+    min-height: 0;
     grid-template-columns: minmax(106px, 0.72fr) minmax(0, 1.28fr);
     gap: 18px;
     padding-top: 16px;

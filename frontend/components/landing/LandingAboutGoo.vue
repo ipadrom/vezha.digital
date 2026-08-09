@@ -15,7 +15,13 @@ type Junction = { t: number; bornAt: number; born: boolean };
 const props = defineProps<{
   flowPhase: "signal" | "result";
   flowCycleKey: number;
+  targetStepIndex: number | null;
+  navigationKey: number;
   snakeSegments: Array<{ begin: string }>;
+}>();
+
+const emit = defineEmits<{
+  "stage-reached": [index: number];
 }>();
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -23,6 +29,7 @@ const canvasRef = ref<HTMLCanvasElement | null>(null);
 const LEG_COUNT = 7;
 const TRAVEL_MS = 1200;
 const FINAL_SETTLE_MS = 760;
+const REVERSE_SETTLE_MS = 180;
 const DESKTOP_PARTICLES_PER_LEG = [3, 3, 3, 4, 3, 3, 4];
 const MOBILE_PARTICLES_PER_LEG = [2, 2, 2, 3, 2, 2, 3];
 const OFFSETS = [-8, 18, -24, 13, -31, 26, -15, 34, -22, 10, -35, 20, -12, 29, -27, 16, -33, 24, -17, 31, -21, 14, -9];
@@ -38,6 +45,15 @@ let height = 0;
 let dpr = 1;
 let cycleStartedAt = 0;
 let lastProgress = 1;
+let playbackMode: "auto" | "navigation" | "paused" = "paused";
+let navigationStartedAt = 0;
+let navigationFromProgress = 0;
+let navigationToProgress = 0;
+let navigationTravelMs = 0;
+let navigationSettleMs = 0;
+let navigationWaypoints: number[] = [];
+let navigationSegmentDurations: number[] = [];
+let navigationPreviousProgress = 1;
 let reducedMotion = false;
 let inViewport = true;
 let routeAnchors: Point[] = [];
@@ -163,7 +179,7 @@ function findSafeParticle(leg: number, slot: number, count: number, offset: numb
   return null;
 }
 
-function resetWorld(now = performance.now(), revealProgress = 0, settled = false) {
+function resetWorld(now = performance.now(), revealProgress = 0) {
   let offsetIndex = 0;
   particles = [];
 
@@ -179,7 +195,7 @@ function resetWorld(now = performance.now(), revealProgress = 0, settled = false
       offsetIndex += 1;
       if (!safe) continue;
 
-      const born = settled || safe.t <= revealProgress - 0.006;
+      const born = safe.t <= revealProgress - 0.006;
       particles.push({
         x: safe.target.x,
         y: safe.target.y,
@@ -209,7 +225,7 @@ function resetWorld(now = performance.now(), revealProgress = 0, settled = false
 
   junctions = Array.from({ length: LEG_COUNT + 1 }, (_, index) => {
     const t = index / LEG_COUNT;
-    const born = index === 0 || settled || t <= revealProgress + 0.003;
+    const born = index === 0 || t <= revealProgress + 0.003;
     return { t, born, bornAt: born ? now - 2000 : 0 };
   });
 }
@@ -274,7 +290,12 @@ function drawRod(
   ctx.stroke();
 }
 
-function drawScene(progress: number, now: number, settled = false) {
+function reverseVisibility(progress: number, threshold: number) {
+  const fadeWindow = 0.014;
+  return Math.max(0, Math.min(1, (progress - threshold + fadeWindow) / fadeWindow));
+}
+
+function drawScene(progress: number, now: number, settled = false, reversing = false) {
   if (!context || !width || !height) return;
   const ctx = context;
   ctx.clearRect(0, 0, width, height);
@@ -284,9 +305,10 @@ function drawScene(progress: number, now: number, settled = false) {
     const b = particles[link.b]!;
     if (!a.born || !b.born) return;
     const growth = rodGrowth(now, Math.max(a.bornAt, b.bornAt), 140, settled);
+    const visibility = reversing ? reverseVisibility(progress, Math.max(a.t, b.t)) : 1;
     const middleT = (a.t + b.t) * 0.5;
     const recent = Math.max(0, 1 - Math.abs(progress - middleT) * 11);
-    drawRod(ctx, a, b, growth, !settled && recent > 0.08, link.weight);
+    drawRod(ctx, a, b, growth * visibility, !settled && recent > 0.08, link.weight);
   });
   ctx.shadowBlur = 0;
 
@@ -299,7 +321,8 @@ function drawScene(progress: number, now: number, settled = false) {
       const incoming = particles.filter((particle) => particle.born && particle.leg === junctionIndex - 1).slice(-3);
       incoming.forEach((particle, index) => {
         const growth = rodGrowth(now, junction.bornAt, 70 + index * 70, settled);
-        drawRod(ctx, particle, anchor, growth, !settled && Math.abs(progress - junction.t) < 0.055, 0.86 - index * 0.1);
+        const visibility = reversing ? reverseVisibility(progress, junction.t) : 1;
+        drawRod(ctx, particle, anchor, growth * visibility, !settled && Math.abs(progress - junction.t) < 0.055, 0.86 - index * 0.1);
       });
     }
 
@@ -310,7 +333,8 @@ function drawScene(progress: number, now: number, settled = false) {
       outgoing.forEach((particle, index) => {
         const delay = junctionIndex === 0 ? index * 60 : 140 + index * 60;
         const growth = rodGrowth(now, particle.bornAt, delay, settled);
-        drawRod(ctx, anchor, particle, growth, !settled && Math.abs(progress - particle.t) < 0.065, 0.78 - index * 0.08);
+        const visibility = reversing ? reverseVisibility(progress, particle.t) : 1;
+        drawRod(ctx, anchor, particle, growth * visibility, !settled && Math.abs(progress - particle.t) < 0.065, 0.78 - index * 0.08);
       });
     }
   });
@@ -318,10 +342,13 @@ function drawScene(progress: number, now: number, settled = false) {
 
   particles.forEach((particle) => {
     if (!particle.born) return;
+    const visibility = reversing ? reverseVisibility(progress, particle.t) : 1;
+    if (visibility <= 0) return;
     const age = settled ? 1 : Math.min(1, (now - particle.bornAt) / 400);
     const recent = Math.max(0, 1 - Math.abs(progress - particle.t) * 14);
+    ctx.globalAlpha = visibility;
     ctx.beginPath();
-    ctx.arc(particle.x, particle.y, particle.radius * (0.72 + age * 0.28), 0, Math.PI * 2);
+    ctx.arc(particle.x, particle.y, particle.radius * (0.72 + age * 0.28) * (0.72 + visibility * 0.28), 0, Math.PI * 2);
     ctx.fillStyle = recent > 0.15 && !settled
       ? `rgba(${Math.round(46 + recent * 22)}, ${Math.round(48 + recent * 70)}, ${Math.round(54 + recent * 158)}, ${0.72 + recent * 0.28})`
       : `rgba(29, 30, 34, ${0.72 + age * 0.24})`;
@@ -330,6 +357,7 @@ function drawScene(progress: number, now: number, settled = false) {
     ctx.arc(particle.x - particle.radius * 0.25, particle.y - particle.radius * 0.28, Math.max(0.65, particle.radius * 0.17), 0, Math.PI * 2);
     ctx.fillStyle = `rgba(255, 255, 255, ${0.2 + recent * 0.34})`;
     ctx.fill();
+    ctx.globalAlpha = 1;
   });
 }
 
@@ -354,49 +382,182 @@ function finalAnimationEnd() {
   return (starts[LEG_COUNT - 1] ?? 0) + TRAVEL_MS + FINAL_SETTLE_MS;
 }
 
-function shouldAnimate(now = performance.now()) {
+function shouldAutoAnimate(now = performance.now()) {
   if (reducedMotion || document.hidden || !inViewport || !cycleStartedAt) return false;
   return now - cycleStartedAt < finalAnimationEnd();
 }
 
-function animationFrame(now: number) {
+function canRenderMotion() {
+  return !reducedMotion && !document.hidden && inViewport;
+}
+
+function autoAnimationFrame(now: number) {
   const elapsed = Math.max(0, now - cycleStartedAt);
   lastProgress = progressAt(elapsed);
   revealClientDeparture(elapsed, now);
   revealWorld(lastProgress, now);
   drawScene(lastProgress, now);
 
-  if (shouldAnimate(now)) {
+  if (shouldAutoAnimate(now)) {
     frameId = requestAnimationFrame(animationFrame);
   } else {
     frameId = 0;
     if (lastProgress >= 1) {
-      resetWorld(now, 1, true);
-      drawScene(1, now, true);
+      playbackMode = "paused";
+      showProgressSettled(1, now);
     }
   }
 }
 
+function navigationProgressAt(now: number) {
+  let elapsed = Math.max(0, now - navigationStartedAt);
+  for (let index = 0; index < navigationSegmentDurations.length; index += 1) {
+    const duration = navigationSegmentDurations[index] || 1;
+    const from = navigationWaypoints[index] ?? navigationFromProgress;
+    const to = navigationWaypoints[index + 1] ?? navigationToProgress;
+    if (elapsed <= duration) return from + (to - from) * easeInOut(elapsed / duration);
+    elapsed -= duration;
+  }
+  return navigationToProgress;
+}
+
+function emitCrossedStages(previous: number, current: number) {
+  const direction = current >= previous ? 1 : -1;
+  for (let junctionIndex = 1; junctionIndex < LEG_COUNT; junctionIndex += 1) {
+    const junction = junctionIndex / LEG_COUNT;
+    const crossed = direction > 0
+      ? previous < junction && current >= junction
+      : previous > junction && current <= junction;
+    if (crossed) emit("stage-reached", junctionIndex - 1);
+  }
+}
+
+function navigationAnimationFrame(now: number) {
+  const elapsed = Math.max(0, now - navigationStartedAt);
+  const reversing = navigationToProgress < navigationFromProgress;
+  lastProgress = navigationProgressAt(now);
+  emitCrossedStages(navigationPreviousProgress, lastProgress);
+  navigationPreviousProgress = lastProgress;
+  if (!reversing) revealWorld(lastProgress, now);
+  drawScene(lastProgress, now, false, reversing);
+
+  if (elapsed < navigationTravelMs + navigationSettleMs && canRenderMotion()) {
+    frameId = requestAnimationFrame(animationFrame);
+    return;
+  }
+
+  frameId = 0;
+  playbackMode = "paused";
+  emit("stage-reached", Math.round(navigationToProgress * LEG_COUNT) - 1);
+  showProgressSettled(navigationToProgress, now);
+}
+
+function animationFrame(now: number) {
+  if (playbackMode === "navigation") navigationAnimationFrame(now);
+  else if (playbackMode === "auto") autoAnimationFrame(now);
+  else frameId = 0;
+}
+
 function ensureAnimation() {
-  if (!frameId && shouldAnimate()) frameId = requestAnimationFrame(animationFrame);
+  if (frameId || !canRenderMotion()) return;
+  if (playbackMode === "navigation") {
+    frameId = requestAnimationFrame(animationFrame);
+  } else if (playbackMode === "auto" && shouldAutoAnimate()) {
+    frameId = requestAnimationFrame(animationFrame);
+  } else if (playbackMode === "auto" && cycleStartedAt && performance.now() - cycleStartedAt >= finalAnimationEnd()) {
+    playbackMode = "paused";
+    showProgressSettled(1);
+  }
 }
 
 function startCycle() {
   const now = performance.now();
+  cancelAnimationFrame(frameId);
+  frameId = 0;
+  playbackMode = "auto";
   cycleStartedAt = now;
   lastProgress = 0;
   resetWorld(now);
   drawScene(0, now);
-  cancelAnimationFrame(frameId);
-  frameId = 0;
   ensureAnimation();
 }
 
+function showProgressSettled(progress: number, now = performance.now()) {
+  lastProgress = Math.max(0, Math.min(1, progress));
+  resetWorld(now, lastProgress);
+  drawScene(lastProgress, now, true);
+}
+
+function pauseAtProgress(progress: number, now = performance.now()) {
+  cancelAnimationFrame(frameId);
+  frameId = 0;
+  playbackMode = "paused";
+  showProgressSettled(progress, now);
+}
+
 function showSettled() {
+  pauseAtProgress(1);
+}
+
+function sampleCurrentProgress(now: number) {
+  if (playbackMode === "auto" && cycleStartedAt) {
+    return progressAt(Math.max(0, now - cycleStartedAt));
+  }
+  if (playbackMode === "navigation") return navigationProgressAt(now);
+  return lastProgress;
+}
+
+function buildNavigationWaypoints(from: number, to: number) {
+  const points = [from];
+  const direction = to > from ? 1 : -1;
+  for (let index = 1; index < LEG_COUNT; index += 1) {
+    const junction = index / LEG_COUNT;
+    const between = direction > 0
+      ? junction > from + 0.0001 && junction < to - 0.0001
+      : junction < from - 0.0001 && junction > to + 0.0001;
+    if (between) points.push(junction);
+  }
+  if (direction < 0) points.splice(1, points.length - 1, ...points.slice(1).sort((a, b) => b - a));
+  points.push(to);
+  return points;
+}
+
+function navigateToStep(stepIndex: number) {
   const now = performance.now();
-  lastProgress = 1;
-  resetWorld(now, 1, true);
-  drawScene(1, now, true);
+  const target = (Math.max(0, Math.min(5, stepIndex)) + 1) / LEG_COUNT;
+  const current = Math.max(0, Math.min(1, sampleCurrentProgress(now)));
+
+  if (
+    (playbackMode === "navigation" && Math.abs(navigationToProgress - target) < 0.0001)
+    || (playbackMode === "paused" && Math.abs(current - target) < 0.0001)
+  ) return;
+
+  cancelAnimationFrame(frameId);
+  frameId = 0;
+  lastProgress = current;
+  refreshAnchors();
+
+  if (reducedMotion || Math.abs(target - current) < 0.0001) {
+    emit("stage-reached", Math.round(target * LEG_COUNT) - 1);
+    pauseAtProgress(target, now);
+    return;
+  }
+
+  navigationFromProgress = current;
+  navigationToProgress = target;
+  navigationWaypoints = buildNavigationWaypoints(current, target);
+  navigationSegmentDurations = navigationWaypoints.slice(1).map((point, index) => (
+    Math.max(1, Math.abs(point - (navigationWaypoints[index] ?? current)) * LEG_COUNT * TRAVEL_MS)
+  ));
+  navigationTravelMs = navigationSegmentDurations.reduce((total, duration) => total + duration, 0);
+  navigationSettleMs = target > current ? FINAL_SETTLE_MS : REVERSE_SETTLE_MS;
+  navigationStartedAt = now;
+  navigationPreviousProgress = current;
+  playbackMode = "navigation";
+
+  resetWorld(now, current);
+  drawScene(current, now, true);
+  ensureAnimation();
 }
 
 function resizeCanvas() {
@@ -416,9 +577,17 @@ function resizeCanvas() {
   refreshAnchors();
 
   const now = performance.now();
-  const settled = reducedMotion || (!cycleStartedAt && props.flowPhase === "result") || lastProgress >= 1;
-  resetWorld(now, settled ? 1 : lastProgress, settled);
-  drawScene(settled ? 1 : lastProgress, now, settled);
+  const current = Math.max(0, Math.min(1, sampleCurrentProgress(now)));
+  if (props.targetStepIndex !== null || playbackMode === "paused") {
+    showProgressSettled(props.targetStepIndex === null && props.flowPhase === "result" ? 1 : current, now);
+  } else if (reducedMotion || props.flowPhase === "result" || current >= 1) {
+    showProgressSettled(1, now);
+  } else {
+    lastProgress = current;
+    resetWorld(now, current);
+    drawScene(current, now);
+  }
+  ensureAnimation();
 }
 
 function onDocumentVisibility() {
@@ -434,15 +603,26 @@ function onMotionPreference(event: MediaQueryListEvent | MediaQueryList) {
   reducedMotion = event.matches;
   cancelAnimationFrame(frameId);
   frameId = 0;
-  if (reducedMotion) showSettled();
-  else if (props.flowPhase === "signal") startCycle();
-  else showSettled();
+  if (props.targetStepIndex !== null) {
+    const target = (Math.max(0, Math.min(5, props.targetStepIndex)) + 1) / LEG_COUNT;
+    emit("stage-reached", Math.round(target * LEG_COUNT) - 1);
+    pauseAtProgress(target);
+  } else if (reducedMotion || props.flowPhase === "result") showSettled();
+  else startCycle();
 }
 
 watch(() => props.flowCycleKey, async () => {
   await nextTick();
   refreshAnchors();
-  startCycle();
+  if (reducedMotion) showSettled();
+  else startCycle();
+});
+
+watch(() => props.navigationKey, async () => {
+  if (props.targetStepIndex === null) return;
+  await nextTick();
+  refreshAnchors();
+  navigateToStep(props.targetStepIndex);
 });
 
 watch(() => props.flowPhase, (phase) => {
@@ -477,7 +657,10 @@ onMounted(async () => {
   document.addEventListener("visibilitychange", onDocumentVisibility);
   await nextTick();
   resizeCanvas();
-  if (props.flowPhase === "signal") startCycle();
+  if (props.targetStepIndex !== null) {
+    const target = (Math.max(0, Math.min(5, props.targetStepIndex)) + 1) / LEG_COUNT;
+    pauseAtProgress(target);
+  } else if (props.flowPhase === "signal") startCycle();
   else showSettled();
 });
 
