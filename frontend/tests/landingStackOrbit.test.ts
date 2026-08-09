@@ -239,27 +239,24 @@ test("keeps mobile service navigation on one line with only the active item fill
 
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*flex-wrap:\s*nowrap;/);
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*justify-content:\s*space-between;/);
-  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*5px;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*2px;/);
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*padding:\s*2px 0 24px;/);
   assert.match(servicesComponent, /data-serv-nav-highlight/);
   assert.match(mobileCss, /\.vz-services \[data-sec-head\]\s*\{[^}]*margin-bottom:\s*8px;/);
-  assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*background:\s*var\(--ink\);/s);
+  assert.match(mobileCss, /\.vz-services__nav-highlight\s*\{[^}]*display:\s*none;/s);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*border:\s*1px solid transparent;/s);
+  assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-width:\s*max-content;[^}]*flex:\s*0 0 auto;/s);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*min-height:\s*0;/);
   assert.match(mobileCss, /\.vz-services__nav button\s*\{[^}]*transition:\s*none;/);
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
-  assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*11px;/);
+  assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*clamp\(9px, 2\.6vw, 10px\);/);
   assert.doesNotMatch(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*top:/);
-  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px 0;/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px clamp\(2px, 1vw, 4px\);/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*border-color:\s*transparent;/s);
-  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*transparent;/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*var\(--ink\);/);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*color:\s*var\(--bg\);/s);
   assert.doesNotMatch(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\][^}]*linear-gradient/s);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*font-weight:\s*400;/);
-  assert.doesNotMatch(
-    css,
-    /\.vz-services__nav button\[data-active="true"\]\s*\{\s*background:\s*var\(--ink\);/,
-  );
 });
 
 test("keeps service text fixed while expanding only the highlight background", () => {
