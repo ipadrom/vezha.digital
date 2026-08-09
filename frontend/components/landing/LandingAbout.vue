@@ -640,12 +640,28 @@ onBeforeUnmount(() => emit("flow-ready", null));
   border-radius: 999px;
   color: var(--ink);
   background: transparent;
+  isolation: isolate;
   transform: translateX(-50%);
   white-space: nowrap;
   transition:
-    color 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
-    background-color 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
-    transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+    color 400ms ease,
+    transform 400ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
+}
+
+.vz-about__flow-stage-label::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ink);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 12%, transparent);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.97);
+  transition:
+    opacity 400ms ease,
+    transform 400ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
 }
 
 .vz-about__flow-stage--brief .vz-about__flow-stage-label,
@@ -656,13 +672,17 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 .vz-about__flow-stage-label small {
+  position: relative;
+  z-index: 1;
   color: var(--muted2);
   font: 500 9px/1 "JetBrains Mono", monospace;
   letter-spacing: 0.1em;
-  transition: color 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  transition: color 400ms ease;
 }
 
 .vz-about__flow-stage-label b {
+  position: relative;
+  z-index: 1;
   font: 600 13px/1 "Onest", sans-serif;
   letter-spacing: 0.01em;
   text-transform: uppercase;
@@ -684,15 +704,17 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 .vz-about__flow-stage.is-active .vz-about__flow-stage-label {
   color: var(--bg);
-  background: var(--ink);
-  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 12%, transparent);
+  background: transparent;
   transform: translateX(-50%) translateY(-3px);
-  transition-delay: 220ms;
+}
+
+.vz-about__flow-stage.is-active .vz-about__flow-stage-label::before {
+  opacity: 1;
+  transform: scale(1);
 }
 
 .vz-about__flow-stage.is-active .vz-about__flow-stage-label small {
   color: rgb(255 255 255 / 46%);
-  transition-delay: 220ms;
 }
 
 .vz-about__flow-stage--brief { --x: 25%; --y: 50%; }
@@ -781,8 +803,8 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 @media (max-width: 720px) {
-  .vz-about__head { margin-bottom: 28px; }
-  .vz-about__intro { height: 168px; }
+  .vz-about__head { margin-bottom: 0; }
+  .vz-about__intro { height: clamp(128px, 32vw, 132px); }
   .vz-about__flow { overflow: visible; }
   .vz-about__flow-canvas { width: 100%; min-height: clamp(460px, 125vw, 500px); }
   .vz-about__flow-replay { position: absolute; right: 0; left: auto; width: max-content; }
@@ -832,12 +854,12 @@ onBeforeUnmount(() => emit("flow-ready", null));
     transform: translateY(-50%) translateX(3px);
   }
   .vz-about__flow-stage--design .vz-about__flow-stage-label {
-    right: calc(50% + 4px);
+    right: calc(50% + 15px);
     left: auto;
     transform: translateY(-50%);
   }
   .vz-about__flow-stage--design.is-active .vz-about__flow-stage-label {
-    transform: translateY(-50%) translateX(2px);
+    transform: translateY(-50%) translateX(-3px);
   }
   .vz-about__flow-stage--development .vz-about__flow-stage-label {
     top: calc(50% + 15px);
@@ -926,5 +948,11 @@ onBeforeUnmount(() => emit("flow-ready", null));
   .vz-flow-label-leave-active,
   .vz-flow-copy-enter-active,
   .vz-flow-copy-leave-active { transition-duration: 1ms; }
+
+  .vz-about__flow-stage-label::before,
+  .vz-about__flow-stage.is-active .vz-about__flow-stage-label::before {
+    transform: none;
+    transition: opacity 180ms ease;
+  }
 }
 </style>

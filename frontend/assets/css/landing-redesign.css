@@ -912,8 +912,9 @@
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
-    overflow-x: visible;
-    gap: 2px;
+    max-width: 100%;
+    overflow-x: clip;
+    gap: 0;
     padding: 2px 0 24px;
     border-top: 0;
     scrollbar-width: none;
@@ -933,7 +934,7 @@
     align-items: center;
     justify-content: center;
     gap: 0;
-    padding: 4px clamp(2px, 1vw, 4px);
+    padding: 4px 1px;
     border: 1px solid transparent;
     border-radius: 999px;
     background: var(--bg);
@@ -943,7 +944,7 @@
   }
 
   .vz-services__nav button[data-active="true"] {
-    padding: 4px clamp(2px, 1vw, 4px);
+    padding: 4px clamp(4px, 1.25vw, 5px);
     border-color: transparent;
     background: var(--ink);
   }
@@ -984,6 +985,7 @@
 
   .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
     color: var(--bg);
+    font-size: clamp(12px, 4vw, 16px);
     font-weight: 400;
   }
 

@@ -239,7 +239,9 @@ test("keeps mobile service navigation on one line with only the active item fill
 
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*flex-wrap:\s*nowrap;/);
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*justify-content:\s*space-between;/);
-  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*2px;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*max-width:\s*100%;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*overflow-x:\s*clip;/);
+  assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*gap:\s*0;/);
   assert.match(mobileCss, /\.vz-services__nav\s*\{[^}]*padding:\s*2px 0 24px;/);
   assert.match(servicesComponent, /data-serv-nav-highlight/);
   assert.match(mobileCss, /\.vz-services \[data-sec-head\]\s*\{[^}]*margin-bottom:\s*8px;/);
@@ -251,10 +253,11 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.match(mobileCss, /\.vz-services__nav button span:first-child\s*\{[^}]*display:\s*none;/);
   assert.match(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*clamp\(9px, 2\.6vw, 10px\);/);
   assert.doesNotMatch(mobileCss, /button \[data-serv-nav-label\]\s*\{[^}]*top:/);
-  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px clamp\(2px, 1vw, 4px\);/);
+  assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*padding:\s*4px clamp\(4px, 1\.25vw, 5px\);/);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*border-color:\s*transparent;/s);
   assert.match(mobileCss, /button\[data-active="true"\]\s*\{[^}]*background:\s*var\(--ink\);/);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*color:\s*var\(--bg\);/s);
+  assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*font-size:\s*clamp\(12px, 4vw, 16px\);/s);
   assert.doesNotMatch(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\][^}]*linear-gradient/s);
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*font-weight:\s*400;/);
 });
@@ -277,6 +280,27 @@ test("positions the service highlight from stable layout geometry", () => {
     }),
     { x: 24, y: 56, width: 300, height: 48 },
   );
+});
+
+test("keeps the mobile about flow connected and the design label clear of its point", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+  const mobileStart = aboutComponent.indexOf("@media (max-width: 720px)");
+  const compactStart = aboutComponent.indexOf("@media (max-width: 390px)", mobileStart);
+  const mobileCss = aboutComponent.slice(mobileStart, compactStart);
+
+  assert.match(mobileCss, /\.vz-about__head\s*\{[^}]*margin-bottom:\s*0;/);
+  assert.match(mobileCss, /\.vz-about__intro\s*\{[^}]*height:\s*clamp\(128px, 32vw, 132px\);/);
+  assert.match(mobileCss, /\.vz-about__flow-stage--design \.vz-about__flow-stage-label\s*\{[^}]*right:\s*calc\(50% \+ 15px\);/s);
+  assert.match(mobileCss, /\.vz-about__flow-stage--design\.is-active \.vz-about__flow-stage-label\s*\{[^}]*translateX\(-3px\)/s);
+});
+
+test("crossfades the about flow label fill instead of snapping the black state", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /\.vz-about__flow-stage-label::before\s*\{[^}]*opacity:\s*0;[^}]*transform:\s*scale\(0\.97\);[^}]*opacity 400ms ease/s);
+  assert.match(aboutComponent, /\.vz-about__flow-stage\.is-active \.vz-about__flow-stage-label::before\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*scale\(1\);/s);
+  assert.match(aboutComponent, /\.vz-about__flow-stage-label\s*\{[^}]*color 400ms ease,[^}]*transform 400ms var\(--ease-in-out/s);
+  assert.doesNotMatch(aboutComponent, /\.vz-about__flow-stage\.is-active \.vz-about__flow-stage-label\s*\{[^}]*transition-delay/s);
 });
 
 test("expands a service highlight rectangle on both axes without a midpoint", () => {
