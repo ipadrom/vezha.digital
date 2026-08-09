@@ -27,6 +27,7 @@ const emit = defineEmits<{
 const canvasRef = ref<HTMLCanvasElement | null>(null);
 
 const LEG_COUNT = 7;
+const LAST_STEP_INDEX = LEG_COUNT - 1;
 const TRAVEL_MS = 1200;
 const FINAL_SETTLE_MS = 760;
 const REVERSE_SETTLE_MS = 180;
@@ -524,13 +525,17 @@ function buildNavigationWaypoints(from: number, to: number) {
 
 function navigateToStep(stepIndex: number) {
   const now = performance.now();
-  const target = (Math.max(0, Math.min(5, stepIndex)) + 1) / LEG_COUNT;
+  const targetStepIndex = Math.max(0, Math.min(LAST_STEP_INDEX, stepIndex));
+  const target = (targetStepIndex + 1) / LEG_COUNT;
   const current = Math.max(0, Math.min(1, sampleCurrentProgress(now)));
 
   if (
     (playbackMode === "navigation" && Math.abs(navigationToProgress - target) < 0.0001)
     || (playbackMode === "paused" && Math.abs(current - target) < 0.0001)
-  ) return;
+  ) {
+    emit("stage-reached", targetStepIndex);
+    return;
+  }
 
   cancelAnimationFrame(frameId);
   frameId = 0;
@@ -604,7 +609,7 @@ function onMotionPreference(event: MediaQueryListEvent | MediaQueryList) {
   cancelAnimationFrame(frameId);
   frameId = 0;
   if (props.targetStepIndex !== null) {
-    const target = (Math.max(0, Math.min(5, props.targetStepIndex)) + 1) / LEG_COUNT;
+    const target = (Math.max(0, Math.min(LAST_STEP_INDEX, props.targetStepIndex)) + 1) / LEG_COUNT;
     emit("stage-reached", Math.round(target * LEG_COUNT) - 1);
     pauseAtProgress(target);
   } else if (reducedMotion || props.flowPhase === "result") showSettled();
@@ -658,7 +663,7 @@ onMounted(async () => {
   await nextTick();
   resizeCanvas();
   if (props.targetStepIndex !== null) {
-    const target = (Math.max(0, Math.min(5, props.targetStepIndex)) + 1) / LEG_COUNT;
+    const target = (Math.max(0, Math.min(LAST_STEP_INDEX, props.targetStepIndex)) + 1) / LEG_COUNT;
     pauseAtProgress(target);
   } else if (props.flowPhase === "signal") startCycle();
   else showSettled();

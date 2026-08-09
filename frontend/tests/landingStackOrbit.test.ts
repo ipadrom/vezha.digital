@@ -289,9 +289,19 @@ test("keeps the mobile about flow connected and the design label clear of its po
   const mobileCss = aboutComponent.slice(mobileStart, compactStart);
 
   assert.match(mobileCss, /\.vz-about__head\s*\{[^}]*margin-bottom:\s*0;/);
-  assert.match(mobileCss, /\.vz-about__intro\s*\{[^}]*height:\s*clamp\(128px, 32vw, 132px\);/);
+  assert.match(mobileCss, /\.vz-about__intro\s*\{[^}]*height:\s*clamp\(138px, 35vw, 144px\);/);
   assert.match(mobileCss, /\.vz-about__flow-stage--design \.vz-about__flow-stage-label\s*\{[^}]*right:\s*calc\(50% \+ 15px\);/s);
   assert.match(mobileCss, /\.vz-about__flow-stage--design\.is-active \.vz-about__flow-stage-label\s*\{[^}]*translateX\(-3px\)/s);
+});
+
+test("matches the mobile about label offset to the stack section divider", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+  const stackComponent = readFileSync("components/landing/LandingStack.vue", "utf8");
+
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-hero\s*\{[^}]*padding:\s*112px 20px 0;/);
+  assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about\s*\{[^}]*padding:\s*var\(--section-space\) 20px 0;/);
+  assert.match(stackComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-stack\s*\{[^}]*padding:\s*var\(--section-space\) 0;/);
 });
 
 test("crossfades the about flow label fill instead of snapping the black state", () => {
@@ -301,6 +311,31 @@ test("crossfades the about flow label fill instead of snapping the black state",
   assert.match(aboutComponent, /\.vz-about__flow-stage\.is-active \.vz-about__flow-stage-label::before\s*\{[^}]*opacity:\s*1;[^}]*transform:\s*scale\(1\);/s);
   assert.match(aboutComponent, /\.vz-about__flow-stage-label\s*\{[^}]*color 400ms ease,[^}]*transform 400ms var\(--ease-in-out/s);
   assert.doesNotMatch(aboutComponent, /\.vz-about__flow-stage\.is-active \.vz-about__flow-stage-label\s*\{[^}]*transition-delay/s);
+});
+
+test("exposes the final about endpoint as the localized support step", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+  const aboutGoo = readFileSync("components/landing/LandingAboutGoo.vue", "utf8");
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  for (const [locale, title, duration] of [
+    ["ru", "Поддержка", "2 месяца"],
+    ["en", "Support", "2 months"],
+  ] as const) {
+    const messages = JSON.parse(readFileSync(`locales/${locale}.json`, "utf8"));
+    assert.equal(messages.landing.about.support, title);
+    assert.equal(messages.landing.about.stepDetails.length, 7);
+    assert.equal(messages.landing.about.stepDetails[6].duration, duration);
+  }
+
+  assert.match(aboutComponent, /class="vz-about__flow-node vz-about__flow-node--product"[\s\S]*?<button[\s\S]*?class="vz-about__endpoint-frame"/);
+  assert.match(aboutComponent, /@click="\$emit\('select-step', supportStepIndex\)"/);
+  assert.match(aboutComponent, /activeStepIndex === supportStepIndex/);
+  assert.match(aboutComponent, /\.vz-about__flow-node--product \.vz-about__endpoint-frame:focus-visible/);
+  assert.match(landingPage, /const aboutSupportStepIndex = 6;/);
+  assert.match(landingPage, /Math\.min\(aboutSupportStepIndex, index\)/);
+  assert.match(aboutGoo, /const LAST_STEP_INDEX = LEG_COUNT - 1;/);
+  assert.match(aboutGoo, /Math\.min\(LAST_STEP_INDEX, stepIndex\)/);
 });
 
 test("expands a service highlight rectangle on both axes without a midpoint", () => {

@@ -119,10 +119,20 @@
 
           <div
             class="vz-about__flow-node vz-about__flow-node--product"
-            :class="{ 'is-arrived': flowPhase === 'result' }"
+            :class="{
+              'is-arrived': flowPhase === 'result',
+              'is-active': activeStepIndex === supportStepIndex,
+            }"
           >
             <div class="vz-about__endpoint-content">
-              <div class="vz-about__endpoint-frame" data-flow-anchor>
+              <button
+                type="button"
+                class="vz-about__endpoint-frame"
+                data-flow-anchor
+                :aria-current="activeStepIndex === supportStepIndex ? 'step' : undefined"
+                :aria-label="copy.support"
+                @click="$emit('select-step', supportStepIndex)"
+              >
                 <Transition name="vz-flow-icon" mode="out-in">
                   <svg
                     v-if="flowPhase === 'result' && activeProduct"
@@ -134,7 +144,7 @@
                     <path v-for="path in activeProduct.iconPaths" :key="path" :d="path" />
                   </svg>
                 </Transition>
-              </div>
+              </button>
               <Transition name="vz-flow-label" mode="out-in">
                 <span
                   v-if="flowPhase === 'result' && activeProduct"
@@ -186,6 +196,7 @@ type AboutCopy = {
   replay: string;
   zones: [string, string, string];
   brief: string;
+  support: string;
   stages: [string, string, string, string, string];
   stepDetails: Array<{ duration: string; description: string; deliverables: string[] }>;
 };
@@ -212,12 +223,17 @@ const emit = defineEmits<{
 
 const flowRef = ref<HTMLElement | null>(null);
 const stageKeys = ["design", "ux", "development", "testing", "launch"] as const;
+const supportStepIndex = stageKeys.length + 1;
 const activeFlowStep = computed(() => {
-  const index = Math.max(0, Math.min(5, props.displayStepIndex));
+  const index = Math.max(0, Math.min(supportStepIndex, props.displayStepIndex));
   const details = props.copy.stepDetails[index] || { duration: "", description: "", deliverables: [] };
   return {
     number: String(index).padStart(2, "0"),
-    title: index === 0 ? props.copy.brief : props.copy.stages[index - 1] || "",
+    title: index === 0
+      ? props.copy.brief
+      : index === supportStepIndex
+        ? props.copy.support
+        : props.copy.stages[index - 1] || "",
     ...details,
   };
 });
@@ -472,6 +488,19 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__flow-node--business { --x: 0%; --y: 50%; }
 .vz-about__flow-node--product { --x: 75%; --y: 50%; }
 
+.vz-about__flow-node--product .vz-about__endpoint-frame {
+  padding: 0;
+  appearance: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.vz-about__flow-node--product .vz-about__endpoint-frame:focus-visible {
+  outline: 2px solid var(--flow-blue);
+  outline-offset: 6px;
+}
+
 .vz-about__endpoint-content {
   position: absolute;
   inset: 0;
@@ -503,6 +532,15 @@ onBeforeUnmount(() => emit("flow-ready", null));
   box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 7%, transparent);
   margin-bottom: clamp(-43px, -3.25vw, -36px);
   transform: translateY(-50%);
+  transition: border-color 320ms ease;
+}
+
+.vz-about__flow-node--product.is-active .vz-about__endpoint-frame {
+  border-color: var(--flow-blue);
+}
+
+@media (hover: hover) {
+  .vz-about__flow-node--product .vz-about__endpoint-frame:hover { border-color: var(--flow-blue); }
 }
 
 .vz-about__flow-node--product.is-arrived .vz-about__endpoint-frame {
@@ -804,7 +842,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 @media (max-width: 720px) {
   .vz-about__head { margin-bottom: 0; }
-  .vz-about__intro { height: clamp(128px, 32vw, 132px); }
+  .vz-about__intro { height: clamp(138px, 35vw, 144px); }
   .vz-about__flow { overflow: visible; }
   .vz-about__flow-canvas { width: 100%; min-height: clamp(460px, 125vw, 500px); }
   .vz-about__flow-replay { position: absolute; right: 0; left: auto; width: max-content; }

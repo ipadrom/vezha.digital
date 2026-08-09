@@ -251,6 +251,7 @@ type LandingCopy = {
     replay: string;
     zones: [string, string, string];
     brief: string;
+    support: string;
     stages: [string, string, string, string, string];
     stepDetails: Array<{ duration: string; description: string; deliverables: string[] }>;
     business: [string, string, string, string];
@@ -501,6 +502,7 @@ const aboutFlowSnakeSegments = [
 ];
 const aboutFlowStepDelaysMs = [6770, 12750, 18740, 24720, 30700];
 const aboutFlowResultDelayMs = 37130;
+const aboutSupportStepIndex = 6;
 const aboutFlowBusinessIndex = ref(0);
 const aboutFlowStepIndex = ref(0);
 const aboutFlowDisplayStepIndex = ref(0);
@@ -651,20 +653,23 @@ function replayAboutFlow() {
 }
 
 function selectAboutFlowStep(index: number) {
-  const target = Math.max(0, Math.min(5, index));
+  const target = Math.max(0, Math.min(aboutSupportStepIndex, index));
+  const isSupportStep = target === aboutSupportStepIndex;
   aboutFlowObserver?.disconnect();
   aboutFlowObserver = null;
   clearAboutFlowResultTimer();
   clearAboutFlowStepTimers();
-  activeAboutProduct.value = null;
+  activeAboutProduct.value = isSupportStep
+    ? activeAboutProduct.value || pickNextAboutProduct()
+    : null;
   aboutFlowDisplayStepIndex.value = target;
   aboutFlowTargetStepIndex.value = target;
-  aboutFlowPhase.value = "signal";
+  aboutFlowPhase.value = isSupportStep ? "result" : "signal";
   aboutFlowNavigationKey.value += 1;
 }
 
 function setAboutFlowReachedStep(index: number) {
-  aboutFlowStepIndex.value = Math.max(0, Math.min(5, index));
+  aboutFlowStepIndex.value = Math.max(0, Math.min(aboutSupportStepIndex, index));
 }
 
 function setupAboutFlowObserver() {
@@ -5086,7 +5091,7 @@ useHead(() => ({
 
   .vz-hero {
     --hero-art-bottom: 118px;
-    padding: 112px 20px 24px;
+    padding: 112px 20px 0;
   }
 
   .vz-hero > .vz-marquee {

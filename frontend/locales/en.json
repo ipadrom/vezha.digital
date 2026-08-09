@@ -161,6 +161,7 @@
         "Product"
       ],
       "brief": "Brief",
+      "support": "Support",
       "stages": [
         "Design",
         "UX/UI",
@@ -198,6 +199,11 @@
           "duration": "1–2 days",
           "description": "We deploy the product, connect analytics and hand over the finished result.",
           "deliverables": ["Deploy", "Analytics", "Handover"]
+        },
+        {
+          "duration": "2 months",
+          "description": "After launch, we monitor product stability, fix issues and help with the first updates.",
+          "deliverables": ["Monitoring", "Fixes", "Consulting"]
         }
       ],
       "business": [
