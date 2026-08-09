@@ -160,11 +160,45 @@
         "VEZHA.DIGITAL",
         "Product"
       ],
+      "brief": "Brief",
       "stages": [
         "Design",
         "UX/UI",
         "Development",
-        "Testing"
+        "Testing",
+        "Launch"
+      ],
+      "stepDetails": [
+        {
+          "duration": "1–2 days",
+          "description": "We define the task, constraints and success criteria before work begins.",
+          "deliverables": ["Goals", "Constraints", "Success criteria"]
+        },
+        {
+          "duration": "3–5 days",
+          "description": "We establish the visual direction and key scenarios without unnecessary approval loops.",
+          "deliverables": ["Concept", "Visual language", "Scenarios"]
+        },
+        {
+          "duration": "4–7 days",
+          "description": "We design a clear interface and validate its logic before development.",
+          "deliverables": ["User flow", "Prototype", "UI system"]
+        },
+        {
+          "duration": "1–3 weeks",
+          "description": "We build the product on the agreed architecture and show progress step by step.",
+          "deliverables": ["Frontend", "Backend", "Integrations"]
+        },
+        {
+          "duration": "2–4 days",
+          "description": "We test scenarios, responsiveness and edge cases before release.",
+          "deliverables": ["Scenarios", "Responsive QA", "Edge cases"]
+        },
+        {
+          "duration": "1–2 days",
+          "description": "We deploy the product, connect analytics and hand over the finished result.",
+          "deliverables": ["Deploy", "Analytics", "Handover"]
+        }
       ],
       "business": [
         "Independent specialist",

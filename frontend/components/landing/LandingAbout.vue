@@ -1,150 +1,165 @@
 <template>
   <section id="about" class="vz-about">
-    <div class="vz-about__grid">
-      <div class="vz-about__brand">
-        <div class="vz-section-label">
-          <span>{{ copy.label }}</span>
-          <i>/</i>
-          <span data-secnum>01</span>
-        </div>
-        <div class="vz-about__mark" aria-hidden="true">
-          <span>VEZHA</span>
-          <i>digital</i>
-        </div>
-        <div class="vz-about__metrics vz-about__metrics--brand">
-          <div>
-            <strong>01</strong>
-            <span>{{ copy.metrics[0] }}</span>
+    <div class="vz-about__inner">
+      <header class="vz-about__head">
+        <div class="vz-about__title">
+          <div class="vz-section-label">
+            <span>{{ copy.label }}</span><i>/</i><span data-secnum>01</span>
           </div>
-          <div>
-            <strong>0</strong>
-            <span>{{ copy.metrics[1] }}</span>
-          </div>
-          <div>
-            <strong>1-4</strong>
-            <span>{{ copy.metrics[2] }}</span>
-          </div>
-        </div>
-        <p class="vz-about__note">{{ copy.note }}</p>
-      </div>
-
-      <div class="vz-about__copy">
-        <div class="vz-about__eyebrow">
-          <span>{{ copy.eyebrow[0] }}</span>
-          <span>{{ copy.eyebrow[1] }}</span>
-        </div>
-        <p class="vz-about__lead">{{ copy.teamLead }}</p>
-        <div class="vz-about__principles">
-          <article>
-            <span>01</span>
-            <p>{{ copy.paragraphs[0] }}</p>
-          </article>
-          <article>
-            <span>02</span>
-            <p>{{ copy.paragraphs[1] }}</p>
-          </article>
+          <h2>{{ copy.teamLead }}</h2>
         </div>
 
-        <div
-          ref="flowRef"
-          class="vz-about__flow"
-          :class="`is-${flowPhase}`"
-          :aria-label="copy.flowAria"
+        <div class="vz-about__intro">
+          <Transition name="vz-flow-copy" mode="out-in">
+            <div :key="activeFlowStep.number" class="vz-about__step-copy" aria-live="polite">
+              <div class="vz-about__step-meta">
+                <span>{{ activeFlowStep.number }}</span>
+                <div>
+                  <strong>{{ activeFlowStep.title }}</strong>
+                  <small>{{ activeFlowStep.duration }}</small>
+                </div>
+              </div>
+              <div class="vz-about__step-detail">
+                <p>{{ activeFlowStep.description }}</p>
+                <ul class="vz-about__step-deliverables">
+                  <li v-for="item in activeFlowStep.deliverables" :key="item">{{ item }}</li>
+                </ul>
+              </div>
+            </div>
+          </Transition>
+        </div>
+      </header>
+
+      <div
+        ref="flowRef"
+        class="vz-about__flow"
+        :class="`is-${flowPhase}`"
+        :aria-label="copy.flowAria"
+      >
+        <button
+          class="vz-about__flow-replay"
+          type="button"
+          :aria-label="copy.replay"
+          @click="$emit('replay')"
         >
-          <button
-            class="vz-about__flow-replay"
-            type="button"
-            :aria-label="copy.replay"
-            @click="$emit('replay')"
-          >
-            {{ copy.replay }} ↻
-          </button>
+          {{ copy.replay }} <span aria-hidden="true">↻</span>
+        </button>
 
+        <div class="vz-about__flow-canvas">
           <div class="vz-about__flow-zones" aria-hidden="true">
             <div class="vz-about__flow-zone vz-about__flow-zone--client"><span>{{ copy.zones[0] }}</span></div>
             <div class="vz-about__flow-zone vz-about__flow-zone--vezha"><span>{{ copy.zones[1] }}</span></div>
             <div class="vz-about__flow-zone vz-about__flow-zone--product"><span>{{ copy.zones[2] }}</span></div>
           </div>
 
-          <svg
-            :key="flowCycleKey"
-            class="vz-about__flow-lines"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
-            aria-hidden="true"
-          >
-            <path class="is-primary" d="M 20.5 50 C 24 50 28 50 32 50" />
-            <path v-for="segment in snakeSegments" :key="`line-${segment.key}`" :d="segment.path" />
-            <path
-              class="vz-about__flow-pulse vz-about__flow-pulse--entry"
-              d="M 20.5 50 C 24 50 28 50 32 50"
-              pathLength="100"
-              stroke-dasharray="12 100"
-              stroke-dashoffset="0"
-              opacity="0"
-            >
-              <animate attributeName="opacity" begin="0.24s" dur="0.8s" values="0;0.95;0.95;0" keyTimes="0;0.08;0.9;1" repeatCount="1" />
-              <animate attributeName="stroke-dashoffset" begin="0.24s" dur="0.8s" values="0;-100" repeatCount="1" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.66 0 0.34 1" />
-            </path>
-            <path
-              v-for="segment in snakeSegments"
-              :key="`pulse-${segment.key}`"
-              class="vz-about__flow-pulse vz-about__flow-pulse--snake"
-              :d="segment.path"
-              pathLength="100"
-              stroke-dasharray="12 100"
-              stroke-dashoffset="0"
-              opacity="0"
-            >
-              <animate attributeName="opacity" :begin="segment.begin" dur="0.45s" values="0;0.95;0.95;0" keyTimes="0;0.08;0.9;1" repeatCount="1" />
-              <animate attributeName="stroke-dashoffset" :begin="segment.begin" dur="0.45s" values="0;-100" repeatCount="1" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.66 0 0.34 1" />
-            </path>
-          </svg>
+          <LandingAboutGoo
+            :flow-phase="flowPhase"
+            :flow-cycle-key="flowCycleKey"
+            :snake-segments="snakeSegments"
+          />
 
-          <div class="vz-about__flow-node vz-about__flow-node--business">
-            <Transition name="vz-flow-business">
-              <div :key="activeBusiness.label" class="vz-about__business-content">
-                <svg class="vz-about__business-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path v-for="path in activeBusiness.iconPaths" :key="path" :d="path" />
-                </svg>
-                <span class="vz-about__business-label">{{ activeBusiness.label }}</span>
+          <div
+            class="vz-about__flow-node vz-about__flow-node--business"
+            :class="{ 'is-sending': flowPhase === 'signal' }"
+          >
+            <div class="vz-about__endpoint-content">
+              <div
+                :key="`business-frame-${flowCycleKey}`"
+                class="vz-about__endpoint-frame"
+                data-flow-anchor
+              >
+                <Transition name="vz-flow-icon" mode="out-in">
+                  <svg :key="activeBusiness.label" class="vz-about__endpoint-icon" viewBox="0 0 256 256" aria-hidden="true">
+                    <path v-for="path in activeBusiness.iconPaths" :key="path" :d="path" />
+                  </svg>
+                </Transition>
               </div>
-            </Transition>
+              <Transition name="vz-flow-label" mode="out-in">
+                <span :key="activeBusiness.label">{{ activeBusiness.label }}</span>
+              </Transition>
+            </div>
           </div>
 
-          <div class="vz-about__flow-node vz-about__flow-node--vezha">VEZHA<br />Digital</div>
+          <div
+            class="vz-about__flow-stage vz-about__flow-stage--brief"
+            :class="{ 'is-active': activeStepIndex === 0 }"
+          >
+            <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true"><i></i></span>
+            <span class="vz-about__flow-stage-label">
+              <small>00</small>
+              <b>{{ copy.brief }}</b>
+            </span>
+          </div>
 
           <div
             v-for="(stage, index) in copy.stages"
             :key="stage"
             class="vz-about__flow-stage"
-            :class="`vz-about__flow-stage--${stageKeys[index]}`"
+            :class="[
+              `vz-about__flow-stage--${stageKeys[index]}`,
+              { 'is-active': activeStepIndex === index + 1 },
+            ]"
           >
-            <span class="vz-about__flow-stage-base" aria-hidden="true"></span>
-            <span class="vz-about__flow-stage-card">{{ stage }}</span>
+            <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true"><i></i></span>
+            <span class="vz-about__flow-stage-label">
+              <small>{{ String(index + 1).padStart(2, '0') }}</small>
+              <b>{{ stage }}</b>
+            </span>
           </div>
 
-          <div class="vz-about__flow-node vz-about__flow-node--product">
-            <Transition name="vz-flow-product" mode="out-in">
-              <div
-                v-if="flowPhase === 'result' && activeProduct"
-                :key="activeProduct.label"
-                class="vz-about__product-content"
-              >
-                <svg class="vz-about__product-icon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path v-for="path in activeProduct.iconPaths" :key="path" :d="path" />
-                </svg>
-                <span class="vz-about__product-label">{{ activeProduct.label }}</span>
+          <div
+            class="vz-about__flow-node vz-about__flow-node--product"
+            :class="{ 'is-arrived': flowPhase === 'result' }"
+          >
+            <div class="vz-about__endpoint-content">
+              <div class="vz-about__endpoint-frame" data-flow-anchor>
+                <Transition name="vz-flow-icon" mode="out-in">
+                  <svg
+                    v-if="flowPhase === 'result' && activeProduct"
+                    :key="activeProduct.label"
+                    class="vz-about__endpoint-icon"
+                    viewBox="0 0 256 256"
+                    aria-hidden="true"
+                  >
+                    <path v-for="path in activeProduct.iconPaths" :key="path" :d="path" />
+                  </svg>
+                </Transition>
               </div>
-            </Transition>
+              <Transition name="vz-flow-label" mode="out-in">
+                <span
+                  v-if="flowPhase === 'result' && activeProduct"
+                  :key="activeProduct.label"
+                >{{ activeProduct.label }}</span>
+              </Transition>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div class="vz-about__proof">
+        <p>{{ copy.paragraphs[0] }}</p>
+        <dl>
+          <div>
+            <dt>01</dt>
+            <dd>{{ copy.metrics[0] }}</dd>
+          </div>
+          <div>
+            <dt>0</dt>
+            <dd>{{ copy.metrics[1] }}</dd>
+          </div>
+          <div>
+            <dt>1–4</dt>
+            <dd>{{ copy.metrics[2] }}</dd>
+          </div>
+        </dl>
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+import LandingAboutGoo from "./LandingAboutGoo.vue";
+
 type AboutFlowItem = {
   label: string;
   iconPaths: string[];
@@ -160,13 +175,16 @@ type AboutCopy = {
   flowAria: string;
   replay: string;
   zones: [string, string, string];
-  stages: [string, string, string, string];
+  brief: string;
+  stages: [string, string, string, string, string];
+  stepDetails: Array<{ duration: string; description: string; deliverables: string[] }>;
 };
 
-defineProps<{
+const props = defineProps<{
   copy: AboutCopy;
   flowPhase: "signal" | "result";
   flowCycleKey: number;
+  activeStepIndex: number;
   snakeSegments: Array<{ key: string; path: string; begin: string }>;
   activeBusiness: AboutFlowItem;
   activeProduct: AboutFlowItem | null;
@@ -178,224 +196,211 @@ const emit = defineEmits<{
 }>();
 
 const flowRef = ref<HTMLElement | null>(null);
-const stageKeys = ["design", "ux", "development", "testing"] as const;
-
-onMounted(() => emit("flow-ready", flowRef.value));
+const stageKeys = ["design", "ux", "development", "testing", "launch"] as const;
+const activeFlowStep = computed(() => {
+  const index = Math.max(0, Math.min(5, props.activeStepIndex));
+  const details = props.copy.stepDetails[index] || { duration: "", description: "", deliverables: [] };
+  return {
+    number: String(index).padStart(2, "0"),
+    title: index === 0 ? props.copy.brief : props.copy.stages[index - 1] || "",
+    ...details,
+  };
+});
+onMounted(() => {
+  emit("flow-ready", flowRef.value);
+});
 onBeforeUnmount(() => emit("flow-ready", null));
 </script>
 
 <style scoped>
 .vz-about {
+  --flow-blue: #5aa9ff;
   position: relative;
   overflow: clip;
-  padding: var(--section-space) 40px;
+  padding: var(--section-space) 40px 0;
 }
 
-.vz-about__grid {
-  position: relative;
-  display: grid;
+.vz-about__inner {
   width: 100%;
-  max-width: 1240px;
+  max-width: 1320px;
   margin: 0 auto;
-  align-items: center;
-  grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
-  gap: clamp(56px, 8vw, 118px);
 }
 
-.vz-about__brand,
-.vz-about__copy,
-.vz-about__flow {
+.vz-about__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(48px, 8vw, 120px);
+  margin-bottom: clamp(32px, 4vw, 48px);
+}
+
+.vz-about__title {
+  max-width: 720px;
+}
+
+.vz-about__head h2 {
+  max-width: 680px;
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+  text-transform: uppercase;
+}
+
+.vz-about__intro {
+  width: min(100%, 560px);
+  flex: 0 0 auto;
+}
+
+.vz-about__step-copy {
+  display: grid;
+  min-height: 154px;
+  grid-template-columns: minmax(150px, 0.72fr) minmax(240px, 1.28fr);
+  align-items: start;
+  gap: clamp(24px, 3vw, 46px);
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
+}
+
+.vz-about__step-meta {
+  display: block;
+}
+
+.vz-about__step-meta > span {
+  display: block;
+  color: var(--ink);
+  font-size: clamp(42px, 4vw, 58px);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 0.86;
+}
+
+.vz-about__step-meta strong,
+.vz-about__step-meta small {
+  display: block;
+}
+
+.vz-about__step-meta strong {
+  margin-top: 22px;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.vz-about__step-meta small {
+  margin-top: 10px;
+  color: var(--muted);
+  font: 500 9px/1.3 "JetBrains Mono", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.vz-about__step-copy p {
+  max-width: 32ch;
+  margin: 2px 0 0;
+  color: var(--text2);
+  font-size: 15px;
+  line-height: 1.62;
+}
+
+.vz-about__step-detail {
   min-width: 0;
 }
 
-.vz-about__brand {
-  position: relative;
-  z-index: 1;
-  align-self: stretch;
+.vz-about__step-deliverables {
   display: flex;
-  min-height: clamp(420px, 58vh, 520px);
-  flex-direction: column;
-  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: 7px;
+  margin: 16px 0 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: none;
 }
 
-.vz-about__mark {
-  position: relative;
-  display: grid;
-  min-height: clamp(168px, 26vh, 232px);
-  margin-top: clamp(26px, 5vh, 46px);
-  place-items: center start;
-}
+.vz-about__step-deliverables::-webkit-scrollbar { display: none; }
 
-.vz-about__mark span {
-  position: relative;
-  z-index: 1;
-  max-width: 100%;
-  color: var(--ink);
-  font-size: clamp(58px, 7.5vw, 118px);
-  font-weight: 700;
-  letter-spacing: -0.04em;
-  line-height: 0.82;
-}
-
-.vz-about__mark i {
-  position: absolute;
-  right: 0;
-  bottom: 18px;
-  color: var(--muted2);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  font-style: normal;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
-.vz-about__metrics {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  margin-top: 32px;
-  border: 1px solid var(--border);
-}
-
-.vz-about__metrics div {
-  min-height: 108px;
-  padding: 18px;
-}
-
-.vz-about__metrics div + div {
-  border-left: 1px solid var(--border);
-}
-
-.vz-about__metrics strong {
-  display: block;
-  color: var(--ink);
-  font-size: clamp(32px, 3vw, 48px);
-  line-height: 0.9;
-}
-
-.vz-about__metrics span {
-  display: block;
-  margin-top: 18px;
-  color: var(--text2);
-  font-size: 13px;
-  line-height: 1.35;
-}
-
-.vz-about__note {
-  max-width: 32ch;
-  margin: 28px 0 0;
-  color: var(--text2);
-  font-size: 16px;
-  line-height: 1.55;
-}
-
-.vz-about__copy {
-  position: relative;
-  z-index: 1;
-  justify-self: end;
-  width: 100%;
-  max-width: 760px;
-}
-
-.vz-about__eyebrow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 22px;
-  margin-bottom: 20px;
-  color: var(--muted2);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.vz-about__eyebrow span + span::before {
-  content: "/";
-  margin-right: 22px;
-  color: var(--slash);
-}
-
-.vz-about__lead {
-  max-width: 13ch;
-  margin: 0;
-  color: var(--ink);
-  font-size: clamp(34px, 4vw, 56px);
-  font-weight: 650;
-  letter-spacing: -0.04em;
-  line-height: 0.98;
-  text-transform: uppercase;
-}
-
-.vz-about__principles {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-top: clamp(26px, 4vh, 38px);
-  border-block: 1px solid var(--border);
-}
-
-.vz-about__principles article {
-  display: grid;
-  grid-template-columns: 42px 1fr;
-  gap: 18px;
-  padding: 20px 0;
-}
-
-.vz-about__principles article + article {
-  padding-left: 28px;
-  border-left: 1px solid var(--border);
-}
-
-.vz-about__principles span {
-  color: var(--muted2);
+.vz-about__step-deliverables li {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 13px;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--chipink);
   font-family: "JetBrains Mono", monospace;
   font-size: 12px;
+  letter-spacing: 0.03em;
+  text-transform: none;
+  white-space: nowrap;
 }
 
-.vz-about__principles p {
-  margin: 0;
-  color: var(--text2);
-  font-size: 16px;
-  line-height: 1.65;
+.vz-flow-copy-enter-active,
+.vz-flow-copy-leave-active {
+  transition:
+    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
 }
+
+.vz-flow-copy-enter-from { opacity: 0; transform: translateY(8px); }
+.vz-flow-copy-leave-to { opacity: 0; transform: translateY(-8px); }
 
 .vz-about__flow {
   position: relative;
-  width: 125%;
-  min-height: clamp(320px, 40vh, 390px);
-  margin-top: clamp(20px, 3.6vh, 32px);
-  margin-left: -25%;
-  margin-bottom: 46px;
-  overflow: visible;
+  width: 100%;
+  overflow: hidden;
+  border-block: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 55% 52%, color-mix(in srgb, var(--flow-blue) 7%, transparent), transparent 34%),
+    linear-gradient(180deg, color-mix(in srgb, var(--ink) 1.5%, transparent), transparent 22% 78%, color-mix(in srgb, var(--ink) 1.5%, transparent));
+}
+
+.vz-about__flow-canvas {
+  position: relative;
+  width: 100%;
+  min-height: clamp(390px, 42vw, 500px);
 }
 
 .vz-about__flow-replay {
   position: absolute;
-  z-index: 3;
-  top: 0;
+  z-index: 5;
+  top: 18px;
   right: 0;
-  padding: 7px 10px;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 0 8px 12px;
+  border: 0;
+  background: transparent;
   color: var(--muted);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 9px;
-  font-weight: 500;
+  font: 500 9px/1 "JetBrains Mono", monospace;
   letter-spacing: 0.12em;
-  line-height: 1;
   text-transform: uppercase;
   cursor: pointer;
-  transition:
-    color 0.15s ease,
-    border-color 0.15s ease,
-    background 0.15s ease;
+  transition: color 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
-.vz-about__flow-replay:hover,
-.vz-about__flow-replay:focus-visible {
-  border-color: color-mix(in srgb, #5aa9ff 48%, var(--border));
-  background: color-mix(in srgb, #5aa9ff 6%, var(--bg));
+.vz-about__flow-replay span {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
   color: var(--ink);
-  outline: none;
+  font-size: 12px;
+  transition: transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-about__flow-replay:focus-visible {
+  color: var(--ink);
+  outline: 1px solid var(--flow-blue);
+  outline-offset: 4px;
 }
 
 .vz-about__flow-zones {
@@ -403,408 +408,492 @@ onBeforeUnmount(() => emit("flow-ready", null));
   z-index: 0;
   inset: 0;
   display: grid;
-  grid-template-columns: 32fr 49fr 19fr;
+  grid-template-columns: 25fr 50fr 25fr;
   pointer-events: none;
 }
 
 .vz-about__flow-zone {
   position: relative;
   min-width: 0;
-  isolation: isolate;
 }
 
 .vz-about__flow-zone:not(:last-child) {
-  border-right: 1px solid color-mix(in srgb, var(--ink) 9%, transparent);
+  border-right: 1px solid var(--border);
 }
 
 .vz-about__flow-zone--vezha {
-  background: linear-gradient(
-    180deg,
-    transparent,
-    color-mix(in srgb, #5aa9ff 2.5%, transparent) 48%,
-    transparent
-  );
+  background-image: linear-gradient(90deg, transparent, color-mix(in srgb, var(--flow-blue) 3%, transparent), transparent);
 }
 
 .vz-about__flow-zone span {
   position: absolute;
-  z-index: 1;
-  bottom: -34px;
+  bottom: 24px;
   left: 50%;
   color: var(--muted2);
-  font-family: "JetBrains Mono", monospace;
-  font-size: clamp(9px, 0.72vw, 11px);
-  font-weight: 500;
+  font: 500 clamp(9px, 0.72vw, 11px)/1 "JetBrains Mono", monospace;
   letter-spacing: 0.18em;
-  line-height: 1;
   text-transform: uppercase;
   transform: translateX(-50%);
   white-space: nowrap;
 }
 
-.vz-about__flow-lines {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  pointer-events: none;
-}
-
-.vz-about__flow-lines path {
-  fill: none;
-  stroke: color-mix(in srgb, var(--muted2) 34%, transparent);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke-width: 1.48;
-  vector-effect: non-scaling-stroke;
-}
-
-.vz-about__flow-lines path.is-primary {
-  stroke: color-mix(in srgb, var(--ink) 22%, var(--border));
-  stroke-width: 1.55;
-}
-
-.vz-about__flow-lines path.vz-about__flow-pulse {
-  fill: none;
-  stroke: #5aa9ff;
-  stroke-width: 1.1;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 0 5px rgba(90, 169, 255, 0.52));
-  vector-effect: none;
-}
-
-.vz-about__flow-node {
-  --flow-stage-color: #5aa9ff;
-  position: absolute;
-  z-index: 2;
-  left: var(--x);
-  top: var(--y);
-  display: grid;
-  width: clamp(76px, 6.8vw, 88px);
-  aspect-ratio: 1;
-  place-items: center;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--bg) 94%, transparent);
-  color: var(--ink);
-  font-family: "JetBrains Mono", monospace;
-  font-size: clamp(10px, 0.82vw, 12px);
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
-  text-align: center;
-  text-transform: uppercase;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 6%, transparent);
-}
-
-.vz-about__flow-node--vezha {
-  --flow-stage-color: #9b6cff;
-  border-color: color-mix(in srgb, var(--ink) 20%, var(--border));
-  box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 6%, transparent);
-}
-
-.vz-about__flow-node--business {
-  --x: 16%;
-  --y: 50%;
-  display: block;
-  width: clamp(118px, 10.5vw, 144px);
-  min-height: 100px;
-  aspect-ratio: auto;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
-}
-
-.vz-about__business-content,
-.vz-about__product-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: flex;
-  width: 100%;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.vz-about__business-icon,
-.vz-about__product-icon {
-  width: clamp(48px, 4vw, 56px);
-  height: auto;
-  box-sizing: content-box;
-  padding: 4px;
-  margin-bottom: -32px;
-  overflow: visible;
-  background: var(--bg);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.45;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transform: translateY(-50%);
-}
-
-.vz-about__business-label,
-.vz-about__product-label {
-  display: block;
-  width: 100%;
-  min-height: 2.3em;
-  overflow-wrap: anywhere;
-  line-height: 1.15;
-}
-
-.vz-about__flow-node--vezha { --x: 32%; --y: 50%; }
-
+.vz-about__flow-node,
 .vz-about__flow-stage {
-  --flow-stage-color: #5aa9ff;
   position: absolute;
-  z-index: 2;
+  z-index: 4;
   left: var(--x);
   top: var(--y);
-  width: clamp(62px, 5.4vw, 72px);
-  aspect-ratio: 1;
-  color: var(--ink);
-  font-family: "JetBrains Mono", monospace;
-  font-size: clamp(9px, 0.7vw, 10px);
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  line-height: 1.15;
-  text-align: center;
-  text-transform: uppercase;
   transform: translate(-50%, -50%);
-}
-
-.vz-about__flow-stage-base,
-.vz-about__flow-stage-card {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-}
-
-.vz-about__flow-stage-base {
-  z-index: 0;
-  background: color-mix(in srgb, var(--ink) 4%, var(--bg));
-  box-shadow: 0 10px 20px color-mix(in srgb, var(--ink) 7%, transparent);
-  transform: translateY(7px);
-}
-
-.vz-about__flow-stage-card {
-  z-index: 1;
-  padding: 7px;
-  overflow-wrap: anywhere;
-  background: color-mix(in srgb, var(--bg) 97%, transparent);
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 5%, transparent);
-  transform: translateY(0);
-  will-change: transform;
-}
-
-.vz-about__flow-stage--design {
-  --x: 44%;
-  --y: 70%;
-}
-
-.vz-about__flow-stage--ux {
-  --x: 53%;
-  --y: 30%;
-}
-
-.vz-about__flow-stage--development {
-  --x: 63%;
-  --y: 66%;
-}
-
-.vz-about__flow-stage--testing {
-  --x: 74%;
-  --y: 34%;
-}
-
-.vz-about__flow-node--product {
-  --x: 90.5%;
-  --y: 50%;
-  display: block;
-  width: clamp(118px, 10.5vw, 144px);
-  min-height: 100px;
-  aspect-ratio: auto;
-  padding: 0;
-  overflow: visible;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  box-shadow: none;
 }
 
 .vz-about__flow-node--business,
 .vz-about__flow-node--product {
-  transform: translate(-50%, 0);
+  display: block;
+  width: 25%;
+  min-height: 112px;
+  transform: none;
 }
 
-.vz-about__flow.is-signal .vz-about__flow-node--vezha {
-  animation: vz-flow-node-receive 0.38s 0.84s cubic-bezier(0.16, 1, 0.3, 1) both;
+.vz-about__flow-node--business { --x: 0%; --y: 50%; }
+.vz-about__flow-node--product { --x: 75%; --y: 50%; }
+
+.vz-about__endpoint-content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 14px;
+  color: var(--ink);
+  text-align: center;
 }
 
-.vz-about__flow.is-signal .vz-about__flow-stage--design .vz-about__flow-stage-card {
-  animation: vz-flow-stage-lift 0.45s 1.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+.vz-about__endpoint-icon {
+  width: clamp(38px, 3.4vw, 46px);
+  height: clamp(38px, 3.4vw, 46px);
+  overflow: visible;
+  fill: currentColor;
 }
 
-.vz-about__flow.is-signal .vz-about__flow-stage--ux .vz-about__flow-stage-card {
-  animation: vz-flow-stage-lift 0.45s 1.77s cubic-bezier(0.16, 1, 0.3, 1) both;
+.vz-about__endpoint-frame {
+  position: relative;
+  display: grid;
+  width: clamp(72px, 6.5vw, 86px);
+  aspect-ratio: 1;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 7%, transparent);
+  margin-bottom: clamp(-43px, -3.25vw, -36px);
+  transform: translateY(-50%);
 }
 
-.vz-about__flow.is-signal .vz-about__flow-stage--development .vz-about__flow-stage-card {
-  animation: vz-flow-stage-lift 0.45s 2.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+.vz-about__flow-node--product.is-arrived .vz-about__endpoint-frame {
+  animation: vz-flow-product-arrival 720ms 210ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
-.vz-about__flow.is-signal .vz-about__flow-stage--testing .vz-about__flow-stage-card {
-  animation: vz-flow-stage-lift 0.45s 2.67s cubic-bezier(0.16, 1, 0.3, 1) both;
+.vz-about__flow-node--business.is-sending .vz-about__endpoint-frame {
+  animation: vz-flow-client-send 680ms 240ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
-@keyframes vz-flow-node-receive {
-  0%,
+.vz-about__flow-node--business.is-sending .vz-about__endpoint-frame::after,
+.vz-about__flow-node--product.is-arrived .vz-about__endpoint-frame::after {
+  position: absolute;
+  inset: -1px;
+  border: 1px solid var(--flow-blue);
+  border-radius: inherit;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  animation: vz-flow-product-ring 760ms 210ms cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.vz-about__flow-node--business.is-sending .vz-about__endpoint-frame::after {
+  animation-delay: 240ms;
+}
+
+@keyframes vz-flow-client-send {
+  0% {
+    border-color: var(--border);
+    transform: translateY(-50%) scale(1);
+  }
+  32% {
+    border-color: var(--flow-blue);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--flow-blue) 9%, transparent), 0 12px 30px color-mix(in srgb, var(--ink) 8%, transparent);
+    transform: translateY(-50%) scale(0.95);
+  }
+  66% {
+    border-color: var(--flow-blue);
+    transform: translateY(-50%) scale(1.06);
+  }
   100% {
     border-color: var(--border);
-    background: color-mix(in srgb, var(--bg) 94%, transparent);
-    color: var(--ink);
-    box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 6%, transparent);
-  }
-  50% {
-    border-color: color-mix(in srgb, var(--flow-stage-color) 68%, var(--border));
-    background: color-mix(in srgb, var(--flow-stage-color) 7%, var(--bg));
-    color: var(--ink);
-    box-shadow: 0 0 22px color-mix(in srgb, var(--flow-stage-color) 24%, transparent);
+    box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 7%, transparent);
+    transform: translateY(-50%) scale(1);
   }
 }
 
-@keyframes vz-flow-stage-lift {
-  0%,
+@keyframes vz-flow-product-arrival {
+  0% {
+    border-color: var(--flow-blue);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--flow-blue) 28%, transparent);
+    transform: translateY(-50%) scale(0.94);
+  }
+  48% {
+    border-color: var(--flow-blue);
+    box-shadow: 0 0 0 8px color-mix(in srgb, var(--flow-blue) 10%, transparent), 0 16px 38px color-mix(in srgb, var(--ink) 10%, transparent);
+    transform: translateY(-50%) scale(1.07);
+  }
   100% {
     border-color: var(--border);
-    background: color-mix(in srgb, var(--bg) 97%, transparent);
-    box-shadow: 0 8px 20px color-mix(in srgb, var(--ink) 5%, transparent);
-    transform: translateY(0);
-  }
-  45%,
-  62% {
-    border-color: color-mix(in srgb, var(--flow-stage-color) 68%, var(--border));
-    background: color-mix(in srgb, var(--flow-stage-color) 7%, var(--bg));
-    box-shadow: 0 14px 24px color-mix(in srgb, var(--flow-stage-color) 24%, transparent);
-    transform: translateY(-9px);
+    box-shadow: 0 14px 34px color-mix(in srgb, var(--ink) 7%, transparent);
+    transform: translateY(-50%) scale(1);
   }
 }
 
-.vz-flow-business-enter-active,
-.vz-flow-business-leave-active {
+@keyframes vz-flow-product-ring {
+  0% { opacity: 0; transform: scale(0.9); }
+  24% { opacity: 0.55; }
+  100% { opacity: 0; transform: scale(1.38); }
+}
+
+.vz-about__endpoint-content span {
+  max-width: 17ch;
+  font: 500 clamp(9px, 0.78vw, 11px)/1.3 "JetBrains Mono", monospace;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.vz-about__flow-stage {
+  width: 110px;
+  height: 72px;
+  color: var(--ink);
+}
+
+.vz-about__flow-stage-anchor {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  display: grid;
+  width: 14px;
+  height: 14px;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: 0 0 0 5px var(--bg), 0 0 0 6px var(--border);
+  transform: translate(-50%, -50%);
   transition:
-    opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+    background-color 240ms cubic-bezier(0.23, 1, 0.32, 1),
+    border-color 240ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 240ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.vz-flow-business-enter-from {
-  opacity: 0;
-  transform: translateX(-10px);
+.vz-about__flow-stage-anchor i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: background-color 240ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.vz-flow-business-leave-to {
-  opacity: 0;
-  transform: translateX(10px);
-}
-
-.vz-flow-product-enter-active {
+.vz-about__flow-stage-label {
+  position: absolute;
+  top: calc(50% + 21px);
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--ink);
+  background: transparent;
+  transform: translateX(-50%);
+  white-space: nowrap;
   transition:
-    opacity 0.12s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+    color 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    background-color 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
-.vz-flow-product-leave-active {
+.vz-about__flow-stage--brief .vz-about__flow-stage-label,
+.vz-about__flow-stage--ux .vz-about__flow-stage-label,
+.vz-about__flow-stage--testing .vz-about__flow-stage-label {
+  top: auto;
+  bottom: calc(50% + 21px);
+}
+
+.vz-about__flow-stage-label small {
+  color: var(--muted2);
+  font: 500 9px/1 "JetBrains Mono", monospace;
+  letter-spacing: 0.1em;
+  transition: color 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-about__flow-stage-label b {
+  font: 600 13px/1 "Onest", sans-serif;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.vz-about__flow-stage.is-active { z-index: 5; }
+
+.vz-about__flow-stage.is-active .vz-about__flow-stage-anchor {
+  border-color: var(--ink);
+  background: var(--ink);
+  transform: translate(-50%, -50%) scale(1.16);
+  transition-delay: 220ms;
+}
+
+.vz-about__flow-stage.is-active .vz-about__flow-stage-anchor i {
+  background: var(--flow-blue);
+  transition-delay: 220ms;
+}
+
+.vz-about__flow-stage.is-active .vz-about__flow-stage-label {
+  color: var(--bg);
+  background: var(--ink);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--ink) 12%, transparent);
+  transform: translateX(-50%) translateY(-3px);
+  transition-delay: 220ms;
+}
+
+.vz-about__flow-stage.is-active .vz-about__flow-stage-label small {
+  color: rgb(255 255 255 / 46%);
+  transition-delay: 220ms;
+}
+
+.vz-about__flow-stage--brief { --x: 25%; --y: 50%; }
+.vz-about__flow-stage--design { --x: 35%; --y: 69%; }
+.vz-about__flow-stage--ux { --x: 45%; --y: 30%; }
+.vz-about__flow-stage--development { --x: 55%; --y: 65%; }
+.vz-about__flow-stage--testing { --x: 65%; --y: 33%; }
+.vz-about__flow-stage--launch { --x: 75%; --y: 50%; }
+
+.vz-about__proof {
+  display: grid;
+  grid-template-columns: minmax(280px, 1.35fr) minmax(0, 2fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.vz-about__proof > p {
+  max-width: 44ch;
+  margin: 0;
+  padding: 28px clamp(28px, 4vw, 54px) 30px 0;
+  align-self: center;
+  color: var(--text2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.vz-about__proof dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border-left: 1px solid var(--border);
+}
+
+.vz-about__proof dl div {
+  min-height: 132px;
+  padding: 24px;
+}
+
+.vz-about__proof dl div + div {
+  border-left: 1px solid var(--border);
+}
+
+.vz-about__proof dt {
+  color: var(--ink);
+  font-size: clamp(26px, 2.6vw, 38px);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.vz-about__proof dd {
+  max-width: 15ch;
+  margin: 20px 0 0;
+  color: var(--text2);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.vz-flow-icon-enter-active,
+.vz-flow-icon-leave-active,
+.vz-flow-label-enter-active,
+.vz-flow-label-leave-active {
   transition:
-    opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 180ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 180ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.vz-flow-product-enter-from {
-  opacity: 0;
-  transform: translateX(-8px);
-}
+.vz-flow-icon-enter-from { opacity: 0; transform: scale(0.94); }
+.vz-flow-icon-leave-to { opacity: 0; transform: scale(0.97); }
+.vz-flow-label-enter-from { opacity: 0; transform: translateY(4px); }
+.vz-flow-label-leave-to { opacity: 0; transform: translateY(-4px); }
 
-.vz-flow-product-leave-to {
-  opacity: 0;
-  transform: translateX(8px);
+@media (hover: hover) and (pointer: fine) {
+  .vz-about__flow-replay:hover { color: var(--ink); }
+  .vz-about__flow-replay:hover span { transform: rotate(-90deg); }
 }
 
 @media (max-width: 900px) {
-  .vz-about {
-    padding: var(--section-space) 20px;
-    overflow: hidden;
-  }
-
-  .vz-about__grid {
-    grid-template-columns: 1fr;
-    gap: 56px;
-  }
-
-  .vz-about__brand {
-    min-height: 0;
-  }
-
-  .vz-about__mark span {
-    font-size: clamp(64px, 20vw, 104px);
-  }
-
-  .vz-about__copy {
-    max-width: none;
-  }
-
-  .vz-about__principles {
-    grid-template-columns: 1fr;
-  }
-
-  .vz-about__principles article + article {
-    padding-left: 0;
-    border-top: 1px solid var(--border);
-    border-left: 0;
-  }
-
-  .vz-about__flow {
-    width: 100%;
-    min-height: 300px;
-    margin-left: 0;
-  }
-
-  .vz-about__flow-zone span {
-    font-size: 8px;
-    letter-spacing: 0.08em;
-  }
-
-  .vz-about__flow-node--business,
-  .vz-about__flow-node--product {
-    width: 90px;
-  }
-
-  .vz-about__flow-stage {
-    width: 52px;
-    font-size: 7px;
-  }
+  .vz-about { padding: var(--section-space) 20px 0; }
+  .vz-about__head { align-items: flex-start; flex-direction: column; gap: 30px; margin-bottom: 48px; }
+  .vz-about__head h2 { max-width: 14ch; font-size: clamp(30px, 8.8vw, 46px); }
+  .vz-about__intro { width: min(100%, 520px); }
+  .vz-about__step-copy p { max-width: 44ch; }
+  .vz-about__proof { grid-template-columns: 1fr; }
+  .vz-about__proof > p { max-width: 58ch; padding-right: 0; }
+  .vz-about__proof dl { border-top: 1px solid var(--border); border-left: 0; }
 }
 
-@media (max-width: 520px) {
-  .vz-about__metrics div {
-    min-height: 92px;
-    padding: 12px;
+@media (max-width: 720px) {
+  .vz-about__head { margin-bottom: 28px; }
+  .vz-about__flow { overflow: hidden; }
+  .vz-about__flow-canvas { width: 100%; min-height: clamp(460px, 125vw, 500px); }
+  .vz-about__flow-replay { position: absolute; right: 0; left: auto; width: max-content; }
+  .vz-about__flow-zones { grid-template-columns: 1fr; grid-template-rows: 30fr 40fr 30fr; }
+  .vz-about__flow-zone:not(:last-child) { border-right: 0; border-bottom: 1px solid var(--border); }
+  .vz-about__flow-zone span {
+    top: 50%;
+    bottom: auto;
+    left: 8px;
+    font-size: 6.5px;
+    letter-spacing: 0.12em;
+    transform: translateY(-50%) rotate(180deg);
+    writing-mode: vertical-rl;
   }
-
-  .vz-about__metrics span {
+  .vz-about__flow-node--business,
+  .vz-about__flow-node--product { width: 100%; --x: 0%; }
+  .vz-about__flow-node--business { --y: 15%; }
+  .vz-about__flow-node--product { --y: 85%; }
+  .vz-about__flow-stage--brief { --x: 50%; --y: 30%; }
+  .vz-about__flow-stage--design { --x: 25%; --y: 38%; }
+  .vz-about__flow-stage--ux { --x: 50%; --y: 46%; }
+  .vz-about__flow-stage--development { --x: 75%; --y: 54%; }
+  .vz-about__flow-stage--testing { --x: 25%; --y: 62%; }
+  .vz-about__flow-stage--launch { --x: 50%; --y: 70%; }
+  .vz-about__flow-stage { width: 92px; height: 58px; }
+  .vz-about__flow-stage-anchor {
+    width: 11px;
+    height: 11px;
+    box-shadow: 0 0 0 4px var(--bg), 0 0 0 5px var(--border);
+  }
+  .vz-about__flow-stage-anchor i { width: 3px; height: 3px; }
+  .vz-about__flow-stage-label,
+  .vz-about__flow-stage--brief .vz-about__flow-stage-label,
+  .vz-about__flow-stage--ux .vz-about__flow-stage-label,
+  .vz-about__flow-stage--testing .vz-about__flow-stage-label {
+    top: 50%;
+    right: auto;
+    bottom: auto;
+    left: calc(50% + 15px);
+    gap: 7px;
+    padding: 7px 9px;
+    transform: translateY(-50%);
+  }
+  .vz-about__flow-stage-label small { font-size: 7px; }
+  .vz-about__flow-stage-label b { font-size: 10px; }
+  .vz-about__flow-stage.is-active .vz-about__flow-stage-label {
+    transform: translateY(-50%) translateX(3px);
+  }
+  .vz-about__flow-stage--design .vz-about__flow-stage-label {
+    right: calc(50% + 10px);
+    left: auto;
+    transform: translateY(-50%);
+  }
+  .vz-about__flow-stage--design.is-active .vz-about__flow-stage-label {
+    transform: translateY(-50%) translateX(-3px);
+  }
+  .vz-about__flow-stage--development .vz-about__flow-stage-label {
+    top: calc(50% + 15px);
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .vz-about__flow-stage--development.is-active .vz-about__flow-stage-label {
+    transform: translateX(-50%) translateY(3px);
+  }
+  .vz-about__flow-stage--ux .vz-about__flow-stage-label,
+  .vz-about__flow-stage--testing .vz-about__flow-stage-label {
+    top: auto;
+    right: auto;
+    bottom: calc(50% + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .vz-about__flow-stage--ux.is-active .vz-about__flow-stage-label,
+  .vz-about__flow-stage--testing.is-active .vz-about__flow-stage-label {
+    transform: translateX(-50%) translateY(-3px);
+  }
+  .vz-about__endpoint-frame {
+    width: 56px;
+    margin-bottom: -28px;
+  }
+  .vz-about__endpoint-icon { width: 28px; height: 28px; }
+  .vz-about__endpoint-content { gap: 6px; }
+  .vz-about__endpoint-content span { max-width: 15ch; font-size: 10px; line-height: 1.2; }
+  .vz-about__flow-node--business .vz-about__endpoint-content > span {
+    position: absolute;
+    top: -43px;
+    left: 0;
+    width: 100%;
+    max-width: none;
+    text-align: center;
+  }
+  .vz-about__proof dl { grid-template-columns: 1fr 1fr; }
+  .vz-about__proof dl div { min-height: 116px; padding: 20px 14px; }
+  .vz-about__proof dl div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--border); border-left: 0; }
+  .vz-about__step-copy {
+    min-height: 112px;
+    grid-template-columns: minmax(106px, 0.72fr) minmax(0, 1.28fr);
+    gap: 18px;
+    padding-top: 16px;
+  }
+  .vz-about__step-meta > span { font-size: 40px; }
+  .vz-about__step-meta strong { margin-top: 16px; font-size: 11px; }
+  .vz-about__step-meta small { margin-top: 7px; font-size: 8px; }
+  .vz-about__step-copy p {
+    max-width: none;
+    margin: 0;
+    color: var(--text2);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .vz-about__step-deliverables { gap: 6px; margin-top: 12px; }
+  .vz-about__step-deliverables li {
+    padding: 5px 10px;
     font-size: 11px;
   }
+  .vz-about__step-deliverables li:nth-child(n + 3) { display: none; }
+}
+
+@media (max-width: 390px) {
+  .vz-about__step-copy { grid-template-columns: 96px minmax(0, 1fr); gap: 14px; }
+  .vz-about__step-meta > span { font-size: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vz-about__flow-node--business.is-sending .vz-about__endpoint-frame,
+  .vz-about__flow-node--business.is-sending .vz-about__endpoint-frame::after,
+  .vz-about__flow-node--product.is-arrived .vz-about__endpoint-frame,
+  .vz-about__flow-node--product.is-arrived .vz-about__endpoint-frame::after {
+    animation: none;
+  }
+  .vz-about__flow-replay span,
+  .vz-about__flow-stage-anchor,
+  .vz-about__flow-stage-anchor i,
+  .vz-about__flow-stage-label,
+  .vz-flow-icon-enter-active,
+  .vz-flow-icon-leave-active,
+  .vz-flow-label-enter-active,
+  .vz-flow-label-leave-active,
+  .vz-flow-copy-enter-active,
+  .vz-flow-copy-leave-active { transition-duration: 1ms; }
 }
 </style>

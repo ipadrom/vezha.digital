@@ -85,6 +85,7 @@
       :copy="copy.about"
       :flow-phase="aboutFlowPhase"
       :flow-cycle-key="aboutFlowCycleKey"
+      :active-step-index="aboutFlowStepIndex"
       :snake-segments="aboutFlowSnakeSegments"
       :active-business="activeAboutBusiness"
       :active-product="activeAboutProduct"
@@ -117,12 +118,6 @@
       :copy="casesCopy"
     />
 
-    <LandingDevelopmentAnatomy
-      :stages="displayStages"
-      :copy="copy.stages"
-      @revealed="syncNegativeWorlds(true)"
-    />
-
     <LandingContacts :copy="copy.contacts" :contact-email="contactEmail" />
 
     <LandingFooter
@@ -147,7 +142,6 @@ import type { IProjects } from "~/utils/interfaces/IProjects";
 import type { IServices } from "~/utils/interfaces/IServices";
 import type { ISettings } from "~/utils/interfaces/ISettings";
 import type { ITechStack } from "~/utils/interfaces/ITechStack";
-import type { IWorkStages } from "~/utils/interfaces/IWorkStages";
 import enMessagesRaw from "~/locales/en.json?raw";
 import ruMessagesRaw from "~/locales/ru.json?raw";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
@@ -167,13 +161,6 @@ type DisplayService = {
   title: string;
   desc: string;
   meta: string[];
-};
-
-type DisplayStage = {
-  n: string;
-  title: string;
-  desc: string;
-  dur: string;
 };
 
 type ClientSegment = {
@@ -258,7 +245,9 @@ type LandingCopy = {
     flowAria: string;
     replay: string;
     zones: [string, string, string];
-    stages: [string, string, string, string];
+    brief: string;
+    stages: [string, string, string, string, string];
+    stepDetails: Array<{ duration: string; description: string; deliverables: string[] }>;
     business: [string, string, string, string];
     products: [string, string, string, string];
   };
@@ -301,13 +290,6 @@ type LandingCopy = {
     tabAria: string;
     segments: ClientSegment[];
   };
-  stages: {
-    label: string;
-    title: string;
-    text: string;
-    fallback: DisplayStage[];
-    fallbackDuration: string;
-  };
   contacts: {
     label: string;
     title: string;
@@ -342,7 +324,6 @@ const {
   getProjects,
   getAdvantages,
   getTechStack,
-  getWorkStages,
   getSettings,
 } = useApi();
 const { locale } = useI18n();
@@ -388,6 +369,7 @@ let footerGameStartBlockedUntil = 0;
 let footerGameNeedsReentry = false;
 let aboutLiquidCleanup: (() => void) | null = null;
 let aboutFlowResultTimer: ReturnType<typeof setTimeout> | null = null;
+let aboutFlowStepTimers: Array<ReturnType<typeof setTimeout>> = [];
 let aboutFlowObserver: IntersectionObserver | null = null;
 let stackSphereCleanup: (() => void) | null = null;
 let clientCubeCleanup: (() => void) | null = null;
@@ -433,7 +415,6 @@ const services = ref<IServices[]>([]);
 const projects = ref<IProjects[]>([]);
 const advantages = ref<IAdvantages[]>([]);
 const techStack = ref<ITechStack[]>([]);
-const workStages = ref<IWorkStages[]>([]);
 const settings = ref<ISettings | null>(null);
 const footerObstacles = ref<FooterObstacle[]>([]);
 
@@ -475,33 +456,26 @@ const casesCopy = computed(() => currentLocale.value === "ru" ? {
 
 const aboutBusinessIcons = [
   [
-    "M20 21a8 8 0 0 0-16 0",
-    "M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z",
+    "M224,40V76a8,8,0,0,1-16,0V48H180a8,8,0,0,1,0-16h36A8,8,0,0,1,224,40Zm-8,132a8,8,0,0,0-8,8v28H180a8,8,0,0,0,0,16h36a8,8,0,0,0,8-8V180A8,8,0,0,0,216,172ZM76,208H48V180a8,8,0,0,0-16,0v36a8,8,0,0,0,8,8H76a8,8,0,0,0,0-16ZM40,84a8,8,0,0,0,8-8V48H76a8,8,0,0,0,0-16H40a8,8,0,0,0-8,8V76A8,8,0,0,0,40,84Zm136,92a8,8,0,0,1-6.41-3.19,52,52,0,0,0-83.2,0,8,8,0,1,1-12.8-9.62A67.94,67.94,0,0,1,101,141.51a40,40,0,1,1,53.94,0,67.94,67.94,0,0,1,27.43,21.68A8,8,0,0,1,176,176Zm-48-40a24,24,0,1,0-24-24A24,24,0,0,0,128,136Z",
   ],
   [
-    "M12 15a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z",
-    "M9 14 7 22l5-3 5 3-2-8",
+    "M216,96A88,88,0,1,0,72,163.83V240a8,8,0,0,0,11.58,7.16L128,225l44.43,22.21A8.07,8.07,0,0,0,176,248a8,8,0,0,0,8-8V163.83A87.85,87.85,0,0,0,216,96ZM56,96a72,72,0,1,1,72,72A72.08,72.08,0,0,1,56,96ZM168,227.06l-36.43-18.21a8,8,0,0,0-7.16,0L88,227.06V174.37a87.89,87.89,0,0,0,80,0ZM128,152A56,56,0,1,0,72,96,56.06,56.06,0,0,0,128,152Zm0-96A40,40,0,1,1,88,96,40,40,0,0,1,128,56Z",
   ],
   [
-    "M14.7 6.3a4 4 0 0 0-5-5l2.1 2.1-2.8 2.8-2.1-2.1a4 4 0 0 0 5 5l-8.6 8.6a2 2 0 0 0 2.8 2.8l8.6-8.6a4 4 0 0 0 5-5l-2.1 2.1-2.8-2.8 2.1-2.1a4 4 0 0 0-5 0Z",
+    "M224,64H176V56a24,24,0,0,0-24-24H104A24,24,0,0,0,80,56v8H32A16,16,0,0,0,16,80V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V80A16,16,0,0,0,224,64ZM96,56a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96ZM224,80v32H192v-8a8,8,0,0,0-16,0v8H80v-8a8,8,0,0,0-16,0v8H32V80Zm0,112H32V128H64v8a8,8,0,0,0,16,0v-8h96v8a8,8,0,0,0,16,0v-8h32v64Z",
   ],
   [
-    "M4 21V3h10v18",
-    "M14 9h6v12",
-    "M2 21h20",
-    "M7 7h1M11 7h1M7 11h1M11 11h1M7 15h1M11 15h1M17 13h1M17 17h1",
+    "M240,208H224V96a16,16,0,0,0-16-16H144V32a16,16,0,0,0-24.88-13.32L39.12,72A16,16,0,0,0,32,85.34V208H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM208,96V208H144V96ZM48,85.34,128,32V208H48ZM112,112v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm-32,0v16a8,8,0,0,1-16,0V112a8,8,0,1,1,16,0Zm0,56v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Zm32,0v16a8,8,0,0,1-16,0V168a8,8,0,0,1,16,0Z",
   ],
 ];
 
 const aboutProductIcons = [
   [
-    "M12 3c4.4 0 8 1.3 8 3s-3.6 3-8 3-8-1.3-8-3 3.6-3 8-3Z",
-    "M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6",
-    "M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6",
+    "M128,24C74.17,24,32,48.6,32,80v96c0,31.4,42.17,56,96,56s96-24.6,96-56V80C224,48.6,181.83,24,128,24Zm80,104c0,9.62-7.88,19.43-21.61,26.92C170.93,163.35,150.19,168,128,168s-42.93-4.65-58.39-13.08C55.88,147.43,48,137.62,48,128V111.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64ZM69.61,53.08C85.07,44.65,105.81,40,128,40s42.93,4.65,58.39,13.08C200.12,60.57,208,70.38,208,80s-7.88,19.43-21.61,26.92C170.93,115.35,150.19,120,128,120s-42.93-4.65-58.39-13.08C55.88,99.43,48,89.62,48,80S55.88,60.57,69.61,53.08ZM186.39,202.92C170.93,211.35,150.19,216,128,216s-42.93-4.65-58.39-13.08C55.88,195.43,48,185.62,48,176V159.36c17.06,15,46.23,24.64,80,24.64s62.94-9.68,80-24.64V176C208,185.62,200.12,195.43,186.39,202.92Z",
   ],
-  ["M22 2 11 13", "M22 2 15 22l-4-9-9-4 20-7Z"],
-  ["M3 4h18v16H3V4Z", "M3 8h18", "M7 6h.01"],
-  ["M3 4h2l2 12h10l3-8H6", "M9 21h.01M17 21h.01"],
+  ["M228.88,26.19a9,9,0,0,0-9.16-1.57L17.06,103.93a14.22,14.22,0,0,0,2.43,27.21L72,141.45V200a15.92,15.92,0,0,0,10,14.83,15.91,15.91,0,0,0,17.51-3.73l25.32-26.26L165,220a15.88,15.88,0,0,0,10.51,4,16.3,16.3,0,0,0,5-.79,15.85,15.85,0,0,0,10.67-11.63L231.77,35A9,9,0,0,0,228.88,26.19Zm-61.14,36L78.15,126.35l-49.6-9.73ZM88,200V152.52l24.79,21.74Zm87.53,8L92.85,135.5l119-85.29Z"],
+  ["M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V88H40V56Zm0,144H40V104H216v96Z"],
+  ["M104,216a16,16,0,1,1-16-16A16,16,0,0,1,104,216Zm88-16a16,16,0,1,0,16,16A16,16,0,0,0,192,200ZM239.71,74.14l-25.64,92.28A24.06,24.06,0,0,1,191,184H92.16A24.06,24.06,0,0,1,69,166.42L33.92,40H16a8,8,0,0,1,0-16H40a8,8,0,0,1,7.71,5.86L57.19,64H232a8,8,0,0,1,7.71,10.14ZM221.47,80H61.64l22.81,82.14A8,8,0,0,0,92.16,168H191a8,8,0,0,0,7.71-5.86Z"],
 ];
 
 const aboutBusinessItems = computed<AboutFlowItem[]>(() => copy.value.about.business.map((label, index) => ({
@@ -513,14 +487,17 @@ const aboutProductItems = computed<AboutFlowItem[]>(() => copy.value.about.produ
   iconPaths: aboutProductIcons[index] || aboutProductIcons[0]!,
 })));
 const aboutFlowSnakeSegments = [
-  { key: "design", path: "M 32 50 C 37 50 39 70 44 70", begin: "1.07s" },
-  { key: "ux", path: "M 44 70 C 49 70 48 30 53 30", begin: "1.52s" },
-  { key: "development", path: "M 53 30 C 58 30 58 66 63 66", begin: "1.97s" },
-  { key: "testing", path: "M 63 66 C 68 66 69 34 74 34", begin: "2.42s" },
-  { key: "product", path: "M 74 34 C 80 34 82 50 86.5 50", begin: "2.87s" },
+  { key: "design", path: "M 25 50 C 29 50 31 69 35 69", begin: "6.22s" },
+  { key: "ux", path: "M 35 69 C 39 69 41 30 45 30", begin: "12.21s" },
+  { key: "development", path: "M 45 30 C 50 30 50 65 55 65", begin: "18.19s" },
+  { key: "testing", path: "M 55 65 C 60 65 60 33 65 33", begin: "24.18s" },
+  { key: "launch", path: "M 65 33 C 70 33 70 50 75 50", begin: "30.16s" },
+  { key: "product", path: "M 75 50 L 87.5 50", begin: "36.14s" },
 ];
-const aboutFlowResultDelayMs = 3200;
+const aboutFlowStepDelaysMs = [6770, 12750, 18740, 24720, 30700];
+const aboutFlowResultDelayMs = 37130;
 const aboutFlowBusinessIndex = ref(0);
+const aboutFlowStepIndex = ref(0);
 const activeAboutProduct = ref<AboutFlowItem | null>(null);
 const aboutFlowPhase = ref<"signal" | "result">("result");
 const aboutFlowCycleKey = ref(0);
@@ -530,9 +507,9 @@ const activeAboutBusiness = computed<AboutFlowItem>(() => (
 
 const clientSegments = computed(() => copy.value.clients.segments);
 const navItems = computed(() => {
-  const items = [...copy.value.nav.items];
-  const stagesIndex = items.findIndex((item) => item.href === "#stages");
-  items.splice(stagesIndex < 0 ? items.length : stagesIndex, 0, {
+  const items = copy.value.nav.items.filter((item) => item.href !== "#stages");
+  const contactsIndex = items.findIndex((item) => item.href === "#contacts");
+  items.splice(contactsIndex < 0 ? items.length : contactsIndex, 0, {
     href: "#cases",
     label: currentLocale.value === "ru" ? "Кейсы" : "Cases",
   });
@@ -543,7 +520,6 @@ const marqueeItems = computed(() => copy.value.marqueeItems);
 const fallbackServices = computed(() => copy.value.services.fallback);
 const fallbackStackGroups = computed(() => copy.value.stack.groups);
 const fallbackClients = computed(() => copy.value.clients.tags);
-const fallbackStages = computed(() => copy.value.stages.fallback);
 
 const displayServices = computed<DisplayService[]>(() => {
   if (!services.value.length) return fallbackServices.value;
@@ -589,17 +565,6 @@ const footerGameStatus = computed(() => {
   return copy.value.footer.game.ready;
 });
 
-const displayStages = computed<DisplayStage[]>(() => {
-  if (!workStages.value.length) return fallbackStages.value;
-
-  return workStages.value.slice(0, 7).map((stage, index) => ({
-    n: toNumber(stage.step_number || index + 1),
-    title: stage.title,
-    desc: stage.description || stage.full_description,
-    dur: stage.duration || fallbackStages.value[index]?.dur || copy.value.stages.fallbackDuration,
-  }));
-});
-
 const contactEmail = computed(() => settings.value?.contact_email || "contact@vezha.digital");
 
 function setAboutFlowHost(element: HTMLElement | null) {
@@ -636,21 +601,32 @@ function clearAboutFlowResultTimer() {
   aboutFlowResultTimer = null;
 }
 
+function clearAboutFlowStepTimers() {
+  aboutFlowStepTimers.forEach((timer) => clearTimeout(timer));
+  aboutFlowStepTimers = [];
+}
+
 function runAboutFlowCycle(advanceBusiness = true) {
   clearAboutFlowResultTimer();
+  clearAboutFlowStepTimers();
   if (advanceBusiness) {
     aboutFlowBusinessIndex.value = (aboutFlowBusinessIndex.value + 1) % aboutBusinessItems.value.length;
   }
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    aboutFlowStepIndex.value = 5;
     activeAboutProduct.value = pickNextAboutProduct();
     aboutFlowPhase.value = "result";
     return;
   }
 
   activeAboutProduct.value = null;
+  aboutFlowStepIndex.value = 0;
   aboutFlowPhase.value = "signal";
   aboutFlowCycleKey.value += 1;
+  aboutFlowStepTimers = aboutFlowStepDelaysMs.map((delay, index) => setTimeout(() => {
+    aboutFlowStepIndex.value = index + 1;
+  }, delay));
   aboutFlowResultTimer = setTimeout(() => {
     activeAboutProduct.value = pickNextAboutProduct();
     aboutFlowPhase.value = "result";
@@ -684,6 +660,7 @@ function stopAboutFlow() {
   aboutFlowObserver?.disconnect();
   aboutFlowObserver = null;
   clearAboutFlowResultTimer();
+  clearAboutFlowStepTimers();
 }
 
 function toNumber(value: number) {
@@ -738,18 +715,16 @@ async function loadPublicData(lang: LocaleCode = currentLocale.value) {
     getProjects(lang),
     getAdvantages(lang),
     getTechStack(lang),
-    getWorkStages(lang),
     getSettings(lang),
   ] as const);
 
   if (requestId !== publicDataRequestId || lang !== currentLocale.value) return;
 
-  const [servicesResult, projectsResult, advantagesResult, techStackResult, workStagesResult, settingsResult] = results;
+  const [servicesResult, projectsResult, advantagesResult, techStackResult, settingsResult] = results;
   if (servicesResult.status === "fulfilled") services.value = servicesResult.value;
   if (projectsResult.status === "fulfilled") projects.value = projectsResult.value;
   if (advantagesResult.status === "fulfilled") advantages.value = advantagesResult.value;
   if (techStackResult.status === "fulfilled") techStack.value = techStackResult.value;
-  if (workStagesResult.status === "fulfilled") workStages.value = workStagesResult.value;
   if (settingsResult.status === "fulfilled") settings.value = settingsResult.value.settings;
 
   const failures = results.filter((result) => result.status === "rejected");
@@ -1902,11 +1877,10 @@ function getSectionLiquidTargets() {
 
   const configs = [
     { key: "hero", selector: "#hero h1", section: "#hero" },
-    { key: "about", selector: "#about .vz-about__mark span", section: "#about" },
+    { key: "about", selector: "#about .vz-about__head h2", section: "#about" },
     { key: "stack", selector: "#stack .vz-sec-head h2", section: "#stack" },
     { key: "services", selector: "#services .vz-sec-head h2", section: "#services" },
     { key: "clients", selector: "#clients h2", section: "#clients" },
-    { key: "stages", selector: "#stages h2", section: "#stages" },
     { key: "contacts", selector: "#contacts h2", section: "#contacts" },
     { key: "footer", selector: ".vz-footer__sign strong", section: ".vz-footer" },
   ];
@@ -2107,11 +2081,10 @@ function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
 
   const cloneSelectors: Record<string, string> = {
     hero: "[data-negative-section='hero'] h1",
-    about: "[data-negative-section='about'] .vz-about__mark span",
+    about: "[data-negative-section='about'] .vz-about__head h2",
     stack: "[data-negative-section='stack'] .vz-sec-head h2",
     services: "[data-negative-section='services'] .vz-sec-head h2",
     clients: "[data-negative-section='clients'] h2",
-    stages: "[data-negative-section='stages'] h2",
     contacts: "[data-negative-section='contacts'] h2",
     footer: "[data-negative-section='footer'] .vz-footer__sign strong",
   };
@@ -2634,7 +2607,7 @@ function scanSectionEntrances() {
   const root = rootRef.value;
   if (!root) return;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const sections = root.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #stages, #contacts, .vz-footer");
+  const sections = root.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #contacts, .vz-footer");
 
   sections.forEach((section) => {
     if (section.classList.contains("is-motion-visible")) return;
@@ -2685,7 +2658,6 @@ function getNegativeWorldSignature(scope: "hero" | "page") {
     showPreloader.value ? "preloader" : "ready",
     displayServices.value.length,
     displayStackGroups.value.length,
-    displayStages.value.length,
     activeServiceIndex.value,
     activeClientSegment.value,
   ].join(":");
@@ -2696,10 +2668,9 @@ function cleanupNegativeClone(clone: HTMLElement) {
   clone.setAttribute("aria-hidden", "true");
   clone.removeAttribute("id");
   clone.classList.remove("vz-motion-ready");
-  clone.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #stages, #contacts, .vz-footer").forEach((section) => {
+  clone.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #contacts, .vz-footer").forEach((section) => {
     section.dataset.negativeSection = section.id || (section.classList.contains("vz-footer") ? "footer" : "");
     section.classList.add("is-motion-visible");
-    if (section.matches("#stages")) section.classList.add("is-anatomy-visible");
   });
   clone.querySelectorAll<HTMLElement>(".vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu").forEach((element) => element.remove());
   clone.querySelectorAll<HTMLElement>("[id]").forEach((element) => element.removeAttribute("id"));
@@ -3134,13 +3105,10 @@ useHead(() => ({
 .vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__stats,
 .vz-motion-ready #hero:not(.is-motion-visible) > .vz-marquee,
 .vz-motion-ready .vz-about:not(.is-motion-visible) .vz-section-label,
-.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__mark,
-.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__roles div,
-.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__note,
-.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__eyebrow,
-.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__lead,
-.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__principles article,
-.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__metrics div,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__head h2,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__intro,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__flow,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__proof,
 .vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-section-label,
 .vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-capsules button,
 .vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-copy > *,
@@ -3184,13 +3152,10 @@ useHead(() => ({
 .vz-motion-ready #hero.is-motion-visible .vz-hero__stats,
 .vz-motion-ready #hero.is-motion-visible > .vz-marquee,
 .vz-motion-ready .vz-about.is-motion-visible .vz-section-label,
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__mark,
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div,
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__note,
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__eyebrow,
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__lead,
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__principles article,
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__head h2,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__intro,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__flow,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__proof,
 .vz-motion-ready .vz-clients.is-motion-visible .vz-section-label,
 .vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy > *,
 .vz-motion-ready .vz-contacts.is-motion-visible .vz-section-label,
@@ -3219,18 +3184,10 @@ useHead(() => ({
 .vz-motion-ready #hero.is-motion-visible .vz-hero__stats { animation-delay: 0.5s; }
 .vz-motion-ready #hero.is-motion-visible > .vz-marquee { animation-delay: 0.62s; }
 
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__mark { animation-delay: 0.12s; }
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__eyebrow { animation-delay: 0.16s; }
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__lead { animation-delay: 0.22s; }
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div:nth-child(1),
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__principles article:nth-child(1),
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div:nth-child(1) { animation-delay: 0.3s; }
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div:nth-child(2),
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__principles article:nth-child(2),
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div:nth-child(2) { animation-delay: 0.4s; }
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__roles div:nth-child(3),
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__metrics div:nth-child(3) { animation-delay: 0.5s; }
-.vz-motion-ready .vz-about.is-motion-visible .vz-about__note { animation-delay: 0.58s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__head h2 { animation-delay: 0.12s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__intro { animation-delay: 0.2s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__flow { animation-delay: 0.3s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__proof { animation-delay: 0.38s; }
 
 .vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button {
   animation: vz-motion-pop 0.82s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -3814,7 +3771,7 @@ useHead(() => ({
 .vz-negative-world h2,
 .vz-negative-world h2 span,
 .vz-negative-world h2 span span,
-.vz-negative-world .vz-about__mark span,
+.vz-negative-world .vz-about__head h2,
 .vz-negative-world .vz-footer__sign strong,
 .vz-negative-world .vz-footer__sign strong span,
 .vz-negative-world .vz-footer-game__letter {
