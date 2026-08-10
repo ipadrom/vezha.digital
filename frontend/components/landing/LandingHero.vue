@@ -24,7 +24,7 @@
         <span>{{ copy.kicker }}</span>
       </div>
       <h1>
-        <span v-for="line in copy.title" :key="line"><span data-reveal>{{ line }}</span></span>
+        <span v-for="(line, index) in copy.title" :key="line"><span data-reveal :data-reveal-order="index">{{ line }}</span></span>
       </h1>
       <div class="vz-hero__grid" data-hero-grid>
         <p>{{ copy.text }}</p>

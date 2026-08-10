@@ -155,6 +155,7 @@
       ],
       "flowAria": "How a business task becomes a product",
       "replay": "Replay",
+      "continueAnimation": "Continue",
       "zones": [
         "Client",
         "VEZHA.DIGITAL",
@@ -245,8 +246,8 @@
           "items": [
             "Go",
             "Gin",
-            "PostgreSQL",
-            "Redis"
+            "Redis",
+            "PostgreSQL"
           ]
         },
         {
@@ -265,9 +266,9 @@
           "items": [
             "Kotlin",
             "Swift",
+            "PWA",
             "Flutter",
-            "Expo",
-            "PWA"
+            "Expo"
           ]
         }
       ]

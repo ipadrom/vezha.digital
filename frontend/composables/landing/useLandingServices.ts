@@ -1,6 +1,5 @@
 import type { Ref } from "vue";
 import {
-  getServiceHighlightFrames,
   getServiceHighlightLayoutBounds,
   getServiceHighlightTargetBounds,
   type ServiceHighlightBounds,
@@ -38,6 +37,7 @@ export function useLandingServices(
     highlight.style.width = `${bounds.width}px`;
     highlight.style.height = `${bounds.height}px`;
     highlight.style.transform = `translate3d(${bounds.x}px, ${bounds.y}px, 0)`;
+    highlight.style.transformOrigin = "top left";
     highlight.dataset.ready = "true";
   }
 
@@ -70,19 +70,23 @@ export function useLandingServices(
     }
 
     const currentBounds = getRelativeHighlightBounds(highlight, navList);
-    const frames = getServiceHighlightFrames(currentBounds, targetBounds);
+    const scaleX = currentBounds.width / Math.max(1, targetBounds.width);
+    const scaleY = currentBounds.height / Math.max(1, targetBounds.height);
 
     highlightAnimation?.cancel();
     placeHighlight(highlight, targetBounds);
     const animation = highlight.animate(
-      frames.map((frame) => ({
-        transform: `translate3d(${frame.x}px, ${frame.y}px, 0)`,
-        width: `${frame.width}px`,
-        height: `${frame.height}px`,
-      })),
+      [
+        {
+          transform: `translate3d(${currentBounds.x}px, ${currentBounds.y}px, 0) scale(${scaleX}, ${scaleY})`,
+        },
+        {
+          transform: `translate3d(${targetBounds.x}px, ${targetBounds.y}px, 0) scale(1, 1)`,
+        },
+      ],
       {
-        duration: 380,
-        easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        duration: 250,
+        easing: "cubic-bezier(0.77, 0, 0.175, 1)",
       },
     );
     highlightAnimation = animation;
@@ -132,11 +136,19 @@ export function useLandingServices(
         : new DOMMatrixReadOnly(metawrapTransform).m42;
       const metawrapBottom = metawrapRect.bottom - captionRect.top - animatedMetawrapY;
       const dividerGap = Number.parseFloat(getComputedStyle(activeIncluded).paddingTop) || 12;
-      const ctaTop = Math.ceil(metawrapBottom + dividerGap * 2 + 1);
+      const contentCtaTop = Math.ceil(metawrapBottom + dividerGap * 2 + 1);
       const isWideDesktop = window.matchMedia("(min-width: 1200px)").matches;
+      const desktopCardBottomSpace = 18;
+      const ctaTop = isWideDesktop
+        ? Math.max(0, Math.floor(caption.clientHeight - sharedCta.offsetHeight - desktopCardBottomSpace))
+        : contentCtaTop;
 
-      sharedCta.style.setProperty("--service-cta-offset", `${ctaTop}px`);
-      sharedCta.style.setProperty("--service-divider-gap", `${dividerGap}px`);
+      // Keep the divider on the caption rather than inside the lifting CTA.
+      // Both layers inherit the same geometry, but only the CTA responds to hover.
+      sharedCta.style.removeProperty("--service-cta-offset");
+      sharedCta.style.removeProperty("--service-divider-gap");
+      caption.style.setProperty("--service-cta-offset", `${ctaTop}px`);
+      caption.style.setProperty("--service-divider-gap", `${dividerGap}px`);
       sharedCta.style.top = "0";
       sharedCta.style.bottom = "auto";
 
@@ -145,7 +157,8 @@ export function useLandingServices(
         const centerOffset = Math.round((caption.clientHeight - contentHeight) / 2 - 20);
         caption.style.transform = `translateY(${centerOffset}px)`;
       } else {
-        const contentHeight = Math.ceil(ctaTop + sharedCta.offsetHeight + 8);
+        const cardBottomSpace = window.matchMedia("(max-width: 900px)").matches ? 20 : 10;
+        const contentHeight = Math.ceil(ctaTop + sharedCta.offsetHeight + cardBottomSpace);
         caption.style.height = `${contentHeight}px`;
         caption.style.minHeight = `${contentHeight}px`;
         caption.style.transform = "";
@@ -160,6 +173,8 @@ export function useLandingServices(
     } else if (caption && sharedCta) {
       sharedCta.style.removeProperty("--service-cta-offset");
       sharedCta.style.removeProperty("--service-divider-gap");
+      caption.style.removeProperty("--service-cta-offset");
+      caption.style.removeProperty("--service-divider-gap");
       sharedCta.style.top = "";
       sharedCta.style.bottom = "";
       delete sharedCta.dataset.positioned;
@@ -167,15 +182,64 @@ export function useLandingServices(
       delete caption.dataset.positioned;
     }
 
+    const reduceScreenMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     screens.forEach((screen) => {
       const index = Number(screen.dataset.si);
       const isActive = index === active;
+      const hadState = screen.dataset.active !== undefined;
+      const wasActive = screen.dataset.active === "true";
+
       screen.dataset.active = isActive ? "true" : "false";
-      screen.style.transform = `translateY(${isActive ? "0" : index < active ? "-12px" : "12px"}) scale(${isActive ? "1" : "0.985"})`;
-      screen.style.opacity = isActive ? "1" : "0";
       screen.style.zIndex = isActive ? "3" : "2";
       screen.style.pointerEvents = isActive ? "auto" : "none";
+      screen.style.transition = "none";
       screen.setAttribute("aria-hidden", isActive ? "false" : "true");
+
+      if (!hadState || reduceScreenMotion) {
+        screen.getAnimations().forEach((animation) => animation.cancel());
+        screen.style.transform = isActive
+          ? "translate3d(0, 0, 0) scale(1)"
+          : "translate3d(-26%, 5%, 0) scale(0.94)";
+        screen.style.opacity = isActive ? "1" : "0";
+        return;
+      }
+
+      if (isActive === wasActive) return;
+
+      screen.getAnimations().forEach((animation) => animation.cancel());
+
+      if (isActive) {
+        screen.style.transform = "translate3d(0, 0, 0) scale(1)";
+        screen.style.opacity = "1";
+        screen.animate(
+          [
+            { opacity: 0, transform: "translate3d(4%, 2%, 0) scale(0.985)" },
+            { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)" },
+          ],
+          {
+            duration: 380,
+            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          },
+        );
+        return;
+      }
+
+      // The outgoing view bends left and recedes under the new active screen.
+      // This keeps the transition away from the readable centre of the device.
+      screen.style.transform = "translate3d(-26%, 5%, 0) scale(0.94)";
+      screen.style.opacity = "0";
+      screen.animate(
+        [
+          { opacity: 1, transform: "translate3d(0, 0, 0) scale(1)", offset: 0 },
+          { opacity: 0.78, transform: "translate3d(-9%, -7%, 0) scale(0.982)", offset: 0.38 },
+          { opacity: 0, transform: "translate3d(-26%, 5%, 0) scale(0.94)", offset: 1 },
+        ],
+        {
+          duration: 540,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+        },
+      );
     });
 
     const deviceByIndex = ["phone", "phone", "laptop", "laptop", "laptop", "laptop", "phone"] as const;

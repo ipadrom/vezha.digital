@@ -52,6 +52,7 @@
                 </div>
               </div>
             </article>
+            <span class="vz-service-panel__cta-divider" aria-hidden="true"></span>
             <a class="vz-service-panel__cta vz-service-panel__cta--shared" data-serv-shared-cta href="#contacts">
               <span>
                 <small>{{ copy.asideCta.eyebrow }}</small>

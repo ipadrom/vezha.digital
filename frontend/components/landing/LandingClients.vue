@@ -1,7 +1,7 @@
 <template>
   <section id="clients" class="vz-clients">
     <div class="vz-clients__grid" data-clients-grid>
-      <div>
+      <div class="vz-clients__head">
         <div class="vz-section-label">
           <span>{{ copy.label }}</span>
           <i>/</i>

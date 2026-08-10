@@ -15,6 +15,8 @@ type Junction = { t: number; bornAt: number; born: boolean };
 const props = defineProps<{
   flowPhase: "signal" | "result";
   flowCycleKey: number;
+  resumeKey: number;
+  resumeElapsedMs: number;
   targetStepIndex: number | null;
   navigationKey: number;
   snakeSegments: Array<{ begin: string }>;
@@ -470,6 +472,19 @@ function startCycle() {
   ensureAnimation();
 }
 
+function resumeCycle(elapsedMs: number) {
+  const now = performance.now();
+  const elapsed = Math.max(0, Math.min(finalAnimationEnd(), elapsedMs));
+  cancelAnimationFrame(frameId);
+  frameId = 0;
+  playbackMode = "auto";
+  cycleStartedAt = now - elapsed;
+  lastProgress = progressAt(elapsed);
+  resetWorld(now, lastProgress);
+  drawScene(lastProgress, now);
+  ensureAnimation();
+}
+
 function showProgressSettled(progress: number, now = performance.now()) {
   lastProgress = Math.max(0, Math.min(1, progress));
   resetWorld(now, lastProgress);
@@ -611,6 +626,13 @@ watch(() => props.flowCycleKey, async () => {
   refreshAnchors();
   if (reducedMotion) showSettled();
   else startCycle();
+});
+
+watch(() => props.resumeKey, async () => {
+  await nextTick();
+  refreshAnchors();
+  if (reducedMotion) showSettled();
+  else resumeCycle(props.resumeElapsedMs);
 });
 
 watch(() => props.navigationKey, async () => {

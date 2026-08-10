@@ -35,11 +35,27 @@
             >
               <div data-label>{{ group.title }}</div>
               <div><span data-halo></span><span data-dot></span></div>
-              <div>
+              <div class="vz-stack-item__details" aria-hidden="true">
                 <p>{{ group.description }}</p>
                 <div><span v-for="item in group.items" :key="item">{{ item }}</span></div>
               </div>
             </article>
+
+            <div
+              v-if="activeGroup"
+              class="vz-stack__active-card"
+              :style="activeCardStyle"
+              aria-live="polite"
+            >
+              <Transition name="vz-stack-card-content" mode="out-in">
+                <div :key="`${activeIndex}-${activeGroup.title}`" class="vz-stack__active-card-body">
+                  <p>{{ activeGroup.description }}</p>
+                  <div>
+                    <span v-for="item in activeGroup.items" :key="item">{{ item }}</span>
+                  </div>
+                </div>
+              </Transition>
+            </div>
           </div>
 
           <div v-if="activeGroup" class="vz-stack__mobile-details">
@@ -81,6 +97,7 @@ const rootRef = ref<HTMLElement | null>(null);
 const sphereRef = ref<HTMLElement | null>(null);
 const timelineRef = ref<HTMLElement | null>(null);
 const lineStyle = ref<Record<string, string>>({});
+const activeCardStyle = ref<Record<string, string>>({});
 const itemCount = computed(() => props.groups.length);
 const total = computed(() => String(props.groups.length).padStart(2, "0"));
 const { activeIndex, progress, scrollToIndex } = useLandingStackScroll(
@@ -101,6 +118,35 @@ const stackSphere = useLandingStackSphere({
 
 let timelineResizeObserver: ResizeObserver | null = null;
 
+function getLayoutCenterY(element: HTMLElement, ancestor: HTMLElement) {
+  let offset = element.offsetHeight / 2;
+  let current: HTMLElement | null = element;
+
+  while (current && current !== ancestor) {
+    offset += current.offsetTop;
+    current = current.offsetParent as HTMLElement | null;
+  }
+
+  if (current === ancestor) return offset;
+
+  const ancestorRect = ancestor.getBoundingClientRect();
+  const elementRect = element.getBoundingClientRect();
+  return elementRect.top + elementRect.height / 2 - ancestorRect.top;
+}
+
+function updateActiveCardPosition() {
+  const timeline = timelineRef.value;
+  if (!timeline) return;
+
+  const items = timeline.querySelectorAll<HTMLElement>("[data-stack-item]");
+  const activeItem = items.item(activeIndex.value);
+  if (!activeItem) return;
+
+  activeCardStyle.value = {
+    "--stack-card-y": `${getLayoutCenterY(activeItem, timeline).toFixed(3)}px`,
+  };
+}
+
 function updateTimelineGeometry() {
   const timeline = timelineRef.value;
   if (!timeline) return;
@@ -110,17 +156,17 @@ function updateTimelineGeometry() {
   const lastDot = dots.item(dots.length - 1);
   if (!firstDot || !lastDot) return;
 
-  const timelineRect = timeline.getBoundingClientRect();
-  const firstRect = firstDot.getBoundingClientRect();
-  const lastRect = lastDot.getBoundingClientRect();
-  const start = firstRect.top + firstRect.height / 2 - timelineRect.top;
-  const end = lastRect.top + lastRect.height / 2 - timelineRect.top;
+  // Layout offsets intentionally ignore entrance transforms. Measuring visual
+  // rects while the rows reveal would leave the rail shifted after they settle.
+  const start = getLayoutCenterY(firstDot, timeline);
+  const end = getLayoutCenterY(lastDot, timeline);
 
   lineStyle.value = {
     top: `${start.toFixed(3)}px`,
     bottom: "auto",
     height: `${Math.max(0, end - start).toFixed(3)}px`,
   };
+  updateActiveCardPosition();
 }
 
 onMounted(async () => {
@@ -137,6 +183,11 @@ onMounted(async () => {
 watch(itemCount, async () => {
   await nextTick();
   updateTimelineGeometry();
+});
+
+watch(activeIndex, async () => {
+  await nextTick();
+  updateActiveCardPosition();
 });
 
 onBeforeUnmount(() => {
@@ -185,5 +236,112 @@ onBeforeUnmount(() => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+@media (min-width: 901px) {
+  .vz-stack-item > .vz-stack-item__details {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .vz-stack__active-card {
+    --stack-card-y: 58px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 320px;
+    z-index: 3;
+    display: flex;
+    min-height: 112px;
+    align-items: center;
+    padding: 14px 18px;
+    overflow: hidden;
+    border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+    border-radius: 16px;
+    background: var(--landing-card-surface-cyan-left, var(--landing-card-surface, var(--bg)));
+    box-shadow: var(--landing-card-shadow, 0 22px 50px -34px color-mix(in srgb, var(--ink) 36%, transparent));
+    backdrop-filter: blur(18px) saturate(1.08);
+    pointer-events: none;
+    transform: translate3d(0, calc(var(--stack-card-y) - 50%), 0);
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  .vz-stack__active-card-body {
+    width: 100%;
+  }
+
+  .vz-stack__active-card p {
+    max-width: 48ch;
+    margin: 0 0 10px;
+    color: var(--text2);
+    font-size: 15px;
+    line-height: 1.45;
+  }
+
+  .vz-stack__active-card-body > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .vz-stack__active-card span {
+    padding: 6px 11px;
+    border: 1px solid var(--chipbd);
+    border-radius: 999px;
+    color: var(--chipink);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 11px;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+  }
+
+  .vz-stack-card-content-enter-active {
+    transition:
+      opacity 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .vz-stack-card-content-leave-active {
+    transition:
+      opacity 140ms ease-in,
+      transform 140ms ease-in;
+  }
+
+  .vz-stack-card-content-enter-from {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0);
+  }
+
+  .vz-stack-card-content-leave-to {
+    opacity: 0;
+    transform: translate3d(0, -3px, 0);
+  }
+}
+
+@media (max-width: 900px) {
+  .vz-stack__active-card {
+    display: none;
+  }
+
+  .vz-stack__mobile-details {
+    padding: 13px 12px;
+    border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+    border-radius: 16px;
+    background: var(--landing-card-surface-violet-top, var(--landing-card-surface, var(--bg)));
+    box-shadow: var(--landing-card-shadow, 0 18px 44px -32px color-mix(in srgb, var(--ink) 32%, transparent));
+    backdrop-filter: blur(16px) saturate(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vz-stack__active-card {
+    transition: none;
+  }
+
+  .vz-stack-card-content-enter-active,
+  .vz-stack-card-content-leave-active {
+    transition: opacity 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
 }
 </style>

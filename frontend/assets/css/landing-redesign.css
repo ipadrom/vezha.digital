@@ -3,39 +3,49 @@
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-sec-head,
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__nav button,
 .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__stage,
-.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__bar {
+.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-service-caption {
   opacity: 0;
-  transform: translate3d(0, 28px, 0);
 }
 
-.vz-motion-ready .vz-services.is-motion-visible .vz-sec-head,
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button,
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__stage,
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__bar {
-  animation: vz-motion-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-sec-head {
+  transform: translate3d(0, 22px, 0);
+}
+
+.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__nav button {
+  transform: translate3d(-18px, 0, 0);
+}
+
+.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-services__stage {
+  transform: translate3d(0, 24px, 0) scale(0.96);
+}
+
+.vz-motion-ready .vz-services:not(.is-motion-visible) .vz-service-caption {
+  clip-path: inset(0 0 12% 0 round 30px);
+}
+
+.vz-motion-ready .vz-services.is-motion-visible .vz-sec-head {
+  animation: vz-motion-rise-soft 720ms var(--ease-out) both;
 }
 
 .vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button {
-  animation-duration: 0.72s;
+  animation: vz-motion-slide-x 560ms var(--ease-out) both;
 }
 
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(1) { animation-delay: 0.14s; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__stage {
+  animation: vz-motion-device-enter 820ms var(--ease-out) 140ms both;
+}
 
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(2) { animation-delay: 0.2s; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-service-caption {
+  animation: vz-motion-card-reveal 720ms var(--ease-in-out) 210ms both;
+}
 
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(3) { animation-delay: 0.26s; }
-
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(4) { animation-delay: 0.32s; }
-
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(5) { animation-delay: 0.38s; }
-
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(6) { animation-delay: 0.44s; }
-
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(7) { animation-delay: 0.5s; }
-
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__stage { animation-delay: 0.22s; }
-
-.vz-motion-ready .vz-services.is-motion-visible .vz-services__bar { animation-delay: 0.56s; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(1) { animation-delay: 70ms; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(2) { animation-delay: 120ms; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(3) { animation-delay: 170ms; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(4) { animation-delay: 220ms; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(5) { animation-delay: 270ms; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(6) { animation-delay: 320ms; }
+.vz-motion-ready .vz-services.is-motion-visible .vz-services__nav button:nth-child(7) { animation-delay: 370ms; }
 
 .vz-service-panel > div:first-child {
   position: absolute;
@@ -2481,15 +2491,17 @@
     box-shadow 0.3s ease;
 }
 
-.vz-service-panel__cta--shared::before {
+.vz-service-panel__cta-divider {
   position: absolute;
-  top: calc(-1px - var(--service-divider-gap, 12px));
+  top: 0;
   right: 0;
   left: 0;
+  z-index: 3;
+  display: block;
   height: 1px;
   background: var(--border);
-  content: "";
   pointer-events: none;
+  transform: translateY(calc(var(--service-cta-offset, 300px) - var(--service-divider-gap, 12px) - 1px));
 }
 
 .vz-service-panel__cta > span {
@@ -2951,13 +2963,13 @@
   }
 
   .vz-service-caption > .vz-service-panel__cta--shared[data-positioned="true"] {
-    transition:
-      transform 220ms cubic-bezier(0.22, 1, 0.36, 1),
-      box-shadow 300ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition: transform 250ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
   }
 
-  .vz-service-caption > .vz-service-panel__cta--shared[data-positioned="true"]:hover {
-    transform: translateY(calc(var(--service-cta-offset, 300px) - 2px));
+  @media (hover: hover) and (pointer: fine) {
+    .vz-service-caption > .vz-service-panel__cta--shared[data-positioned="true"]:hover {
+      transform: translateY(calc(var(--service-cta-offset, 300px) - 2px));
+    }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -3279,7 +3291,75 @@
 
 @media (hover: hover) and (pointer: fine) and (min-width: 1200px) {
   .vz-services__nav button:not([data-active="true"]):hover {
-    background: var(--surface);
+    background: transparent;
+  }
+}
+
+@media (min-width: 901px) {
+  .vz-services__nav {
+    gap: 0;
+  }
+
+  .vz-services__nav button,
+  .vz-services__nav button[data-active="true"] {
+    border-color: transparent;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .vz-services__nav button::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    bottom: 0;
+    left: 16px;
+    height: 1px;
+    background: color-mix(in srgb, var(--ink) 12%, transparent);
+    opacity: 0.72;
+    pointer-events: none;
+    transition:
+      background-color var(--motion-fast, 160ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      opacity var(--motion-fast, 160ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .vz-services__nav button[data-active="true"] {
+    border-radius: 999px;
+  }
+
+  .vz-services__nav button[data-active="true"]::after {
+    opacity: 0;
+  }
+
+  .vz-services__nav button [data-serv-nav-label] {
+    color: var(--text2);
+    transition:
+      color var(--motion-fast, 160ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      transform var(--motion-fast, 160ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
+    color: var(--bg);
+  }
+
+  .vz-services__nav-highlight {
+    box-shadow: 0 14px 28px -24px color-mix(in srgb, var(--ink) 62%, transparent);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (min-width: 901px) {
+  .vz-services__nav button:not([data-active="true"]):hover [data-serv-nav-label] {
+    color: var(--ink);
+    transform: translate3d(4px, 0, 0);
+  }
+
+  .vz-services__nav button:not([data-active="true"]):hover::after {
+    background: color-mix(in srgb, var(--ink) 22%, transparent);
+  }
+}
+
+@media (min-width: 1200px) {
+  .vz-services__nav button::after {
+    left: 46px;
   }
 }
 
@@ -3378,5 +3458,967 @@
 @media (max-width: 900px) {
   .vz-service-panel > div.vz-service-panel__title {
     min-height: 0;
+  }
+}
+
+/* Services showcase: keep the device floating, collect only commercial copy in a surface. */
+.vz-services {
+  --services-card-text: var(--ink);
+  --services-card-muted: var(--text2);
+  --services-card-faint: var(--muted2);
+  --services-card-border: var(--landing-card-border, var(--landing-glass-border));
+  --services-card-chip: color-mix(in srgb, var(--bg) 64%, transparent);
+  --services-card-gradient: var(--landing-card-surface);
+  --services-card-shadow: var(--landing-card-shadow, var(--landing-glass-shadow));
+}
+
+.vz-service-caption {
+  overflow: hidden;
+  border: 1px solid var(--services-card-border);
+  border-radius: 30px;
+  background: var(--services-card-gradient);
+  box-shadow: var(--services-card-shadow);
+  backdrop-filter: blur(18px) saturate(1.1);
+}
+
+.vz-services__stage {
+  background: radial-gradient(ellipse at 50% 52%, rgb(112 145 255 / 16%), transparent 64%);
+}
+
+.vz-min[data-theme="dark"] .vz-services {
+  --services-card-gradient: var(--landing-card-surface);
+}
+
+@media (min-width: 1200px) {
+  .vz-services__grid {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .vz-services__stage,
+  .vz-service-caption {
+    z-index: 1;
+  }
+
+  .vz-services__stage {
+    padding: 0;
+  }
+
+  .vz-service-panel {
+    padding: clamp(34px, 3vw, 44px) clamp(28px, 2.6vw, 40px) 80px clamp(8px, 1.4vw, 20px);
+  }
+
+  .vz-service-panel > div.vz-service-panel__title,
+  .vz-service-panel h3,
+  .vz-service-commercial__metrics strong {
+    color: var(--services-card-text);
+  }
+
+  .vz-service-panel__title span,
+  .vz-service-commercial small {
+    color: var(--services-card-faint);
+  }
+
+  .vz-service-panel p {
+    color: var(--services-card-muted);
+  }
+
+  .vz-service-commercial__metrics {
+    border-color: var(--services-card-border);
+  }
+
+  .vz-service-commercial__metrics > div + div {
+    border-color: var(--services-card-border);
+  }
+
+  .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
+    border-color: var(--services-card-border);
+    background: var(--services-card-chip);
+    box-shadow: none;
+    color: var(--services-card-text);
+  }
+
+  .vz-service-caption > .vz-service-panel__cta--shared {
+    right: clamp(28px, 2.6vw, 40px);
+    left: clamp(8px, 1.4vw, 20px);
+    background: var(--ink);
+    box-shadow: 0 18px 42px -28px color-mix(in srgb, var(--ink) 58%, transparent);
+    color: var(--bg);
+  }
+
+  .vz-service-panel__cta-divider {
+    right: clamp(28px, 2.6vw, 40px);
+    left: clamp(8px, 1.4vw, 20px);
+    background: var(--services-card-border);
+  }
+
+  .vz-service-panel__cta small {
+    color: color-mix(in srgb, var(--bg) 64%, transparent);
+  }
+
+  .vz-service-panel__cta:focus-visible {
+    outline-color: var(--ink);
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1199px) {
+  .vz-service-panel {
+    padding: 24px 22px 76px;
+  }
+
+  .vz-service-caption > .vz-service-panel__cta--shared {
+    right: 22px;
+    left: 22px;
+  }
+
+  .vz-service-panel__cta-divider {
+    right: 22px;
+    left: 22px;
+  }
+}
+
+@media (max-width: 900px) {
+  .vz-services__stage {
+    height: 320px;
+    min-height: 320px;
+    margin-top: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .vz-service-caption {
+    border-radius: 24px;
+  }
+
+  .vz-service-panel {
+    padding: 22px 18px 72px;
+  }
+
+  .vz-service-caption > .vz-service-panel__cta--shared {
+    right: 18px;
+    left: 18px;
+  }
+
+  .vz-service-panel__cta-divider {
+    right: 18px;
+    left: 18px;
+  }
+}
+
+/* Landing atmosphere: one continuous mesh, with selective surfaces for hierarchy. */
+.vz-min[data-theme="light"] {
+  --landing-glass: rgb(255 255 255 / 58%);
+  --landing-glass-strong: rgb(255 255 255 / 72%);
+  --landing-glass-border: rgb(255 255 255 / 72%);
+  --landing-glass-shadow:
+    0 34px 90px -58px rgb(68 76 128 / 48%),
+    inset 0 1px 0 rgb(255 255 255 / 74%);
+  --landing-card-surface:
+    radial-gradient(circle at 10% 7%, rgb(255 255 255 / 98%), transparent 38%),
+    radial-gradient(circle at 94% 96%, rgb(190 160 255 / 18%), transparent 43%),
+    radial-gradient(circle at 8% 92%, rgb(122 210 245 / 10%), transparent 38%),
+    linear-gradient(145deg, rgb(255 255 255 / 92%), rgb(255 255 255 / 72%));
+  --landing-card-surface-north-east:
+    radial-gradient(circle at 92% 8%, rgb(255 255 255 / 98%), transparent 38%),
+    radial-gradient(circle at 6% 94%, rgb(190 160 255 / 18%), transparent 43%),
+    radial-gradient(circle at 94% 72%, rgb(122 210 245 / 11%), transparent 38%),
+    linear-gradient(215deg, rgb(255 255 255 / 92%), rgb(255 255 255 / 72%));
+  --landing-card-surface-cyan-left:
+    radial-gradient(circle at 48% -8%, rgb(255 255 255 / 98%), transparent 40%),
+    radial-gradient(circle at 4% 70%, rgb(122 210 245 / 14%), transparent 42%),
+    radial-gradient(circle at 94% 18%, rgb(190 160 255 / 15%), transparent 40%),
+    linear-gradient(125deg, rgb(255 255 255 / 74%), rgb(255 255 255 / 92%));
+  --landing-card-surface-violet-top:
+    radial-gradient(circle at 16% 18%, rgb(255 255 255 / 97%), transparent 36%),
+    radial-gradient(circle at 72% -10%, rgb(190 160 255 / 19%), transparent 42%),
+    radial-gradient(circle at 88% 98%, rgb(122 210 245 / 11%), transparent 39%),
+    linear-gradient(165deg, rgb(255 255 255 / 90%), rgb(255 255 255 / 72%));
+  --landing-card-surface-diagonal:
+    radial-gradient(circle at 84% 20%, rgb(255 255 255 / 98%), transparent 38%),
+    radial-gradient(circle at 12% 32%, rgb(190 160 255 / 16%), transparent 42%),
+    radial-gradient(circle at 54% 110%, rgb(122 210 245 / 13%), transparent 40%),
+    linear-gradient(35deg, rgb(255 255 255 / 73%), rgb(255 255 255 / 92%));
+  --landing-card-border: rgb(255 255 255 / 82%);
+  --landing-card-shadow:
+    0 30px 82px -54px rgb(72 78 128 / 48%),
+    inset 0 1px 0 rgb(255 255 255 / 88%);
+  --navbg: rgb(248 249 255 / 72%);
+  background:
+    radial-gradient(1050px 780px at 86% 3%, rgb(107 148 255 / 28%), transparent 70%),
+    radial-gradient(920px 720px at 5% 19%, rgb(205 136 255 / 22%), transparent 72%),
+    radial-gradient(1100px 820px at 96% 37%, rgb(67 205 236 / 18%), transparent 72%),
+    radial-gradient(980px 780px at 4% 57%, rgb(126 108 255 / 20%), transparent 72%),
+    radial-gradient(1040px 820px at 92% 78%, rgb(206 132 255 / 20%), transparent 72%),
+    radial-gradient(980px 760px at 16% 96%, rgb(70 196 232 / 18%), transparent 72%),
+    linear-gradient(180deg, #fbfcff 0%, #f2f5ff 24%, #faf7ff 48%, #eef7fb 71%, #f7f2ff 100%);
+}
+
+.vz-min[data-theme="dark"] {
+  --landing-glass: rgb(19 23 38 / 62%);
+  --landing-glass-strong: rgb(22 26 43 / 76%);
+  --landing-glass-border: rgb(255 255 255 / 10%);
+  --landing-glass-shadow:
+    0 34px 100px -58px rgb(0 0 0 / 92%),
+    inset 0 1px 0 rgb(255 255 255 / 9%);
+  --landing-card-surface:
+    radial-gradient(circle at 10% 7%, rgb(80 100 158 / 20%), transparent 38%),
+    radial-gradient(circle at 94% 96%, rgb(143 85 206 / 18%), transparent 43%),
+    radial-gradient(circle at 8% 92%, rgb(48 155 187 / 12%), transparent 38%),
+    linear-gradient(145deg, rgb(26 31 49 / 92%), rgb(16 20 34 / 78%));
+  --landing-card-surface-north-east:
+    radial-gradient(circle at 92% 8%, rgb(80 100 158 / 20%), transparent 38%),
+    radial-gradient(circle at 6% 94%, rgb(143 85 206 / 18%), transparent 43%),
+    radial-gradient(circle at 94% 72%, rgb(48 155 187 / 12%), transparent 38%),
+    linear-gradient(215deg, rgb(26 31 49 / 92%), rgb(16 20 34 / 78%));
+  --landing-card-surface-cyan-left:
+    radial-gradient(circle at 48% -8%, rgb(80 100 158 / 20%), transparent 40%),
+    radial-gradient(circle at 4% 70%, rgb(48 155 187 / 15%), transparent 42%),
+    radial-gradient(circle at 94% 18%, rgb(143 85 206 / 16%), transparent 40%),
+    linear-gradient(125deg, rgb(17 22 37 / 80%), rgb(27 32 50 / 92%));
+  --landing-card-surface-violet-top:
+    radial-gradient(circle at 16% 18%, rgb(80 100 158 / 19%), transparent 36%),
+    radial-gradient(circle at 72% -10%, rgb(143 85 206 / 20%), transparent 42%),
+    radial-gradient(circle at 88% 98%, rgb(48 155 187 / 12%), transparent 39%),
+    linear-gradient(165deg, rgb(26 31 49 / 90%), rgb(16 20 34 / 78%));
+  --landing-card-surface-diagonal:
+    radial-gradient(circle at 84% 20%, rgb(80 100 158 / 20%), transparent 38%),
+    radial-gradient(circle at 12% 32%, rgb(143 85 206 / 17%), transparent 42%),
+    radial-gradient(circle at 54% 110%, rgb(48 155 187 / 14%), transparent 40%),
+    linear-gradient(35deg, rgb(16 21 35 / 80%), rgb(27 32 50 / 92%));
+  --landing-card-border: rgb(255 255 255 / 12%);
+  --landing-card-shadow:
+    0 34px 92px -54px rgb(0 0 0 / 86%),
+    inset 0 1px 0 rgb(255 255 255 / 10%);
+  --navbg: rgb(10 12 20 / 72%);
+  background:
+    radial-gradient(1050px 780px at 86% 3%, rgb(82 119 222 / 24%), transparent 70%),
+    radial-gradient(920px 720px at 5% 19%, rgb(147 79 199 / 20%), transparent 72%),
+    radial-gradient(1100px 820px at 96% 37%, rgb(37 142 172 / 15%), transparent 72%),
+    radial-gradient(980px 780px at 4% 57%, rgb(89 70 187 / 18%), transparent 72%),
+    radial-gradient(1040px 820px at 92% 78%, rgb(136 70 177 / 18%), transparent 72%),
+    radial-gradient(980px 760px at 16% 96%, rgb(34 128 157 / 14%), transparent 72%),
+    linear-gradient(180deg, #0d1019 0%, #11152a 24%, #151224 48%, #0c171f 71%, #151021 100%);
+}
+
+.vz-min .vz-marquee,
+.vz-min .vz-clients,
+.vz-min .vz-cases,
+.vz-min .vz-footer {
+  background: transparent;
+}
+
+.vz-min .vz-marquee,
+.vz-min .vz-stack,
+.vz-min .vz-services,
+.vz-min .vz-clients,
+.vz-min .vz-cases,
+.vz-min .vz-contacts,
+.vz-min .vz-footer {
+  border-color: color-mix(in srgb, var(--ink) 10%, transparent);
+}
+
+.vz-min .vz-about .vz-about__flow {
+  border: 1px solid var(--landing-card-border);
+  border-radius: 30px;
+  background: var(--landing-card-surface-diagonal);
+  box-shadow: var(--landing-card-shadow);
+  backdrop-filter: blur(18px) saturate(1.12);
+}
+
+.vz-min .vz-contacts__inner {
+  padding: clamp(56px, 7vw, 96px) clamp(26px, 6vw, 80px);
+  border: 1px solid var(--landing-card-border);
+  border-radius: 36px;
+  background: var(--landing-card-surface-violet-top);
+  box-shadow: var(--landing-card-shadow);
+  backdrop-filter: blur(20px) saturate(1.12);
+}
+
+.vz-min .vz-contacts .vz-section-label {
+  color: var(--muted);
+}
+
+.vz-min .vz-contacts .vz-section-label i {
+  color: var(--hair);
+}
+
+.vz-min .vz-contacts h2 {
+  color: var(--ink);
+}
+
+.vz-min .vz-contacts .vz-button--dark {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.vz-min .vz-contacts .vz-button--light {
+  border-color: var(--landing-glass-border);
+  background: color-mix(in srgb, var(--bg) 58%, transparent);
+  color: var(--ink);
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 900px) {
+  .vz-min .vz-about .vz-about__flow {
+    border-radius: 22px;
+  }
+
+  .vz-min .vz-contacts__inner {
+    padding: 46px 18px;
+    border-radius: 26px;
+  }
+}
+
+/* Motion direction: one atmospheric system, purposeful section entrances, fast feedback. */
+.vz-min {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --motion-fast: 160ms;
+  --motion-state: 250ms;
+  --motion-enter: 720ms;
+  position: relative;
+  isolation: isolate;
+}
+
+.vz-motion-atmosphere {
+  position: fixed;
+  inset: -18vmax;
+  z-index: 0;
+  overflow: hidden;
+  opacity: 0.48;
+  contain: strict;
+  pointer-events: none;
+}
+
+.vz-min > .vz-hero,
+.vz-min > .vz-about,
+.vz-min > .vz-stack,
+.vz-min > .vz-services,
+.vz-min > .vz-clients,
+.vz-min > .vz-cases,
+.vz-min > .vz-contacts,
+.vz-min > .vz-footer {
+  position: relative;
+  z-index: 1;
+}
+
+.vz-motion-atmosphere__orb {
+  position: absolute;
+  display: block;
+  width: min(58vw, 920px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  filter: blur(88px);
+  mix-blend-mode: multiply;
+  opacity: 0.28;
+  will-change: transform;
+}
+
+.vz-motion-atmosphere__orb--a {
+  top: 4%;
+  right: 5%;
+  background: rgb(92 145 255 / 44%);
+  animation: vz-atmosphere-drift-a 48s var(--ease-in-out) infinite alternate;
+}
+
+.vz-motion-atmosphere__orb--b {
+  top: 38%;
+  left: 0;
+  background: rgb(188 112 255 / 36%);
+  animation: vz-atmosphere-drift-b 48s var(--ease-in-out) -16s infinite alternate;
+}
+
+.vz-motion-atmosphere__orb--c {
+  right: 12%;
+  bottom: 0;
+  width: min(50vw, 760px);
+  background: rgb(59 208 231 / 32%);
+  animation: vz-atmosphere-drift-c 48s var(--ease-in-out) -32s infinite alternate;
+}
+
+.vz-min[data-theme="dark"] .vz-motion-atmosphere {
+  opacity: 0.56;
+}
+
+.vz-min[data-theme="dark"] .vz-motion-atmosphere__orb {
+  mix-blend-mode: screen;
+  opacity: 0.2;
+}
+
+@keyframes vz-atmosphere-drift-a {
+  from { transform: translate3d(-4%, -2%, 0) scale(0.96); }
+  to { transform: translate3d(9%, 8%, 0) scale(1.06); }
+}
+
+@keyframes vz-atmosphere-drift-b {
+  from { transform: translate3d(5%, -6%, 0) scale(1.04); }
+  to { transform: translate3d(-8%, 10%, 0) scale(0.96); }
+}
+
+@keyframes vz-atmosphere-drift-c {
+  from { transform: translate3d(-5%, 7%, 0) scale(0.98); }
+  to { transform: translate3d(8%, -8%, 0) scale(1.05); }
+}
+
+@keyframes vz-motion-rise-soft {
+  from { opacity: 0; transform: translate3d(0, 22px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes vz-motion-slide-x {
+  from { opacity: 0; transform: translate3d(-18px, 0, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes vz-motion-device-enter {
+  from { opacity: 0; transform: translate3d(0, 24px, 0) scale(0.96); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes vz-motion-card-enter {
+  from { opacity: 0; transform: translate3d(18px, 12px, 0) scale(0.97); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes vz-motion-card-reveal {
+  from { opacity: 0; clip-path: inset(0 0 12% 0 round 30px); }
+  to { opacity: 1; clip-path: inset(0 0 0 0 round 30px); }
+}
+
+@keyframes vz-motion-cases-enter {
+  from {
+    opacity: 0;
+    clip-path: inset(0 0 10% 0);
+    transform: translate3d(0, 18px, 0) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes vz-motion-line-reveal {
+  from { opacity: 0; transform: scaleX(0); }
+  to { opacity: 1; transform: scaleX(1); }
+}
+
+@keyframes vz-motion-nav-enter {
+  from { opacity: 0; transform: translate3d(0, -12px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+@keyframes vz-motion-orbit-enter {
+  from { opacity: 0; transform: translate3d(20px, 0, 0) scale(0.94); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes vz-motion-contact-aura {
+  from { transform: translate(-50%, -50%) scale(0.96); opacity: 0.72; }
+  to { transform: translate(-48%, -52%) scale(1.04); opacity: 1; }
+}
+
+@keyframes vz-motion-callout-enter {
+  from { opacity: 0; transform: translate3d(0, 8px, 0) scale(0.97); }
+  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+
+.vz-min.vz-motion-ready .vz-nav {
+  animation: vz-motion-nav-enter 600ms var(--ease-out) both;
+}
+
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__art {
+  animation: vz-motion-orbit-enter 820ms var(--ease-out) 180ms both;
+}
+
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__meta,
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__kicker,
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__grid,
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__stats,
+.vz-min.vz-motion-ready #hero.is-motion-visible > .vz-marquee {
+  animation: vz-motion-rise-soft var(--motion-enter) var(--ease-out) both;
+}
+
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__meta { animation-delay: 0ms; }
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__kicker { animation-delay: 70ms; }
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__grid { animation-delay: 280ms; }
+.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__stats { animation-delay: 350ms; }
+.vz-min.vz-motion-ready #hero.is-motion-visible > .vz-marquee { animation-delay: 420ms; }
+
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-section-label,
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-about__head h2,
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-about__intro,
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-about__proof {
+  animation: vz-motion-rise-soft var(--motion-enter) var(--ease-out) both;
+}
+
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-about__head h2 { animation-delay: 70ms; }
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-about__intro { animation-delay: 140ms; }
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-about__proof { animation-delay: 280ms; }
+
+.vz-min.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__flow {
+  opacity: 0;
+  transform: translate3d(0, 18px, 0) scale(0.97);
+}
+
+.vz-min.vz-motion-ready .vz-about.is-motion-visible .vz-about__flow {
+  animation: vz-motion-device-enter 820ms var(--ease-out) 210ms both;
+}
+
+.vz-min.vz-motion-ready .vz-stack:not(.is-motion-visible) .vz-sec-head,
+.vz-min.vz-motion-ready .vz-stack:not(.is-motion-visible) .vz-stack-item,
+.vz-min.vz-motion-ready .vz-stack:not(.is-motion-visible) .vz-stack__sphere {
+  opacity: 0;
+}
+
+.vz-min.vz-motion-ready .vz-stack:not(.is-motion-visible) .vz-sec-head,
+.vz-min.vz-motion-ready .vz-stack:not(.is-motion-visible) .vz-stack-item {
+  transform: translate3d(0, 22px, 0);
+}
+
+.vz-min.vz-motion-ready .vz-stack:not(.is-motion-visible) .vz-stack__sphere {
+  transform: scale(0.94);
+}
+
+.vz-min.vz-motion-ready .vz-stack.is-motion-visible .vz-sec-head,
+.vz-min.vz-motion-ready .vz-stack.is-motion-visible .vz-stack-item {
+  animation: vz-motion-rise-soft var(--motion-enter) var(--ease-out) both;
+}
+
+.vz-min.vz-motion-ready .vz-stack.is-motion-visible .vz-stack__sphere {
+  animation: vz-motion-device-enter 820ms var(--ease-out) 210ms both;
+}
+
+.vz-min.vz-motion-ready .vz-stack.is-motion-visible .vz-stack-item:nth-of-type(1) { animation-delay: 70ms; }
+.vz-min.vz-motion-ready .vz-stack.is-motion-visible .vz-stack-item:nth-of-type(2) { animation-delay: 120ms; }
+.vz-min.vz-motion-ready .vz-stack.is-motion-visible .vz-stack-item:nth-of-type(3) { animation-delay: 170ms; }
+.vz-min.vz-motion-ready .vz-stack.is-motion-visible .vz-stack-item:nth-of-type(4) { animation-delay: 220ms; }
+
+.vz-min .vz-services__callouts > span {
+  animation: vz-motion-callout-enter var(--motion-state) var(--ease-out) both;
+}
+
+.vz-min .vz-services__callouts > span:nth-child(2) { animation-delay: 50ms; }
+.vz-min .vz-services__callouts > span:nth-child(3) { animation-delay: 100ms; }
+.vz-min .vz-services__callouts > span:nth-child(4) { animation-delay: 150ms; }
+
+.vz-min .vz-service-panel h3,
+.vz-min .vz-service-panel p,
+.vz-min .vz-service-panel [data-serv-metawrap],
+.vz-min .vz-service-panel [data-serv-metawrap] span,
+.vz-min .vz-screen {
+  transition:
+    opacity var(--motion-state) var(--ease-out),
+    transform var(--motion-state) var(--ease-in-out);
+}
+
+.vz-min .vz-services__nav-highlight {
+  will-change: transform;
+}
+
+.vz-min.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-cube-field {
+  opacity: 0;
+  transform: translate3d(18px, 16px, 0) scale(0.94);
+}
+
+.vz-min.vz-motion-ready .vz-clients.is-motion-visible .vz-client-cube-field {
+  animation: vz-motion-card-enter 820ms var(--ease-out) 280ms both;
+}
+
+.vz-min.vz-motion-ready .vz-cases:not(.is-motion-visible) .vz-section-label,
+.vz-min.vz-motion-ready .vz-cases:not(.is-motion-visible) .vz-cases__heading > p,
+.vz-min.vz-motion-ready .vz-cases:not(.is-motion-visible) .vz-cases__shell {
+  opacity: 0;
+}
+
+.vz-min.vz-motion-ready .vz-cases:not(.is-motion-visible) .vz-section-label,
+.vz-min.vz-motion-ready .vz-cases:not(.is-motion-visible) .vz-cases__heading > p {
+  transform: translate3d(0, 22px, 0);
+}
+
+.vz-min.vz-motion-ready .vz-cases:not(.is-motion-visible) .vz-cases__shell {
+  clip-path: inset(0 0 10% 0);
+  transform: translate3d(0, 18px, 0) scale(0.98);
+}
+
+.vz-min.vz-motion-ready .vz-cases.is-motion-visible .vz-section-label,
+.vz-min.vz-motion-ready .vz-cases.is-motion-visible .vz-cases__heading > p {
+  animation: vz-motion-rise-soft var(--motion-enter) var(--ease-out) both;
+}
+
+.vz-min.vz-motion-ready .vz-cases.is-motion-visible .vz-cases__heading > p { animation-delay: 140ms; }
+
+.vz-min.vz-motion-ready .vz-cases.is-motion-visible .vz-cases__shell {
+  animation: vz-motion-cases-enter 820ms var(--ease-out) 210ms both;
+}
+
+.vz-min.vz-motion-ready .vz-contacts:not(.is-motion-visible) .vz-contacts__inner {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0) scale(0.97);
+}
+
+.vz-min.vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__inner {
+  animation: vz-motion-device-enter 820ms var(--ease-out) both;
+}
+
+.vz-min.vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__art > div {
+  animation: vz-motion-contact-aura 6s var(--ease-in-out) infinite alternate;
+}
+
+.vz-min.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__top,
+.vz-min.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div,
+.vz-min.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign > div,
+.vz-min.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign strong,
+.vz-min.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal,
+.vz-min.vz-motion-ready .vz-footer.is-motion-visible .vz-footer-game {
+  animation: vz-motion-rise-soft var(--motion-enter) var(--ease-out) both;
+}
+
+.vz-button,
+.vz-nav__cta,
+.vz-icon-button,
+.vz-menu-button,
+.vz-client-capsules button,
+.vz-cases__tabs button {
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+
+.vz-button:active,
+.vz-nav__cta:active,
+.vz-icon-button:active,
+.vz-menu-button:active,
+.vz-client-capsules button:active,
+.vz-cases__tabs button:active {
+  transform: scale(0.97);
+}
+
+.vz-nav__links a {
+  position: relative;
+}
+
+.vz-nav__links a::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -7px;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+
+.vz-button-link span,
+.vz-service-panel__cta svg,
+.vz-services__aside-cta strong b,
+.vz-cases__link svg {
+  transition: transform var(--motion-fast) var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vz-nav__links a:hover::after { transform: scaleX(1); }
+  .vz-button-link:hover span { transform: translate3d(0, 4px, 0); }
+  .vz-service-panel__cta:hover svg,
+  .vz-services__aside-cta:hover strong b,
+  .vz-cases__link:hover svg { transform: translate3d(4px, 0, 0); }
+}
+
+@media (max-width: 900px) {
+  .vz-motion-atmosphere {
+    inset: -28vmax;
+    opacity: 0.38;
+  }
+
+  .vz-motion-atmosphere__orb {
+    width: 88vw;
+    filter: blur(64px);
+  }
+
+  .vz-motion-ready .vz-services:not(.is-motion-visible) .vz-service-caption {
+    clip-path: inset(0 0 10% 0 round 24px);
+  }
+
+  .vz-motion-ready .vz-services.is-motion-visible .vz-service-caption {
+    animation-name: vz-motion-card-reveal;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vz-motion-atmosphere {
+    display: none;
+  }
+
+  .vz-min.vz-motion-ready #hero .vz-hero__meta,
+  .vz-min.vz-motion-ready #hero .vz-hero__kicker,
+  .vz-min.vz-motion-ready #hero .vz-hero__grid,
+  .vz-min.vz-motion-ready #hero .vz-hero__stats,
+  .vz-min.vz-motion-ready #hero > .vz-marquee,
+  .vz-min.vz-motion-ready .vz-about .vz-section-label,
+  .vz-min.vz-motion-ready .vz-about .vz-about__head h2,
+  .vz-min.vz-motion-ready .vz-about .vz-about__intro,
+  .vz-min.vz-motion-ready .vz-about .vz-about__flow,
+  .vz-min.vz-motion-ready .vz-about .vz-about__proof,
+  .vz-min.vz-motion-ready .vz-stack .vz-sec-head,
+  .vz-min.vz-motion-ready .vz-stack .vz-stack-item,
+  .vz-min.vz-motion-ready .vz-stack .vz-stack__sphere,
+  .vz-min.vz-motion-ready .vz-services .vz-sec-head,
+  .vz-min.vz-motion-ready .vz-services .vz-services__nav button,
+  .vz-min.vz-motion-ready .vz-services .vz-services__stage,
+  .vz-min.vz-motion-ready .vz-clients .vz-section-label,
+  .vz-min.vz-motion-ready .vz-clients .vz-client-capsules button,
+  .vz-min.vz-motion-ready .vz-clients .vz-client-copy > *,
+  .vz-min.vz-motion-ready .vz-clients .vz-client-connector,
+  .vz-min.vz-motion-ready .vz-clients .vz-client-connector span,
+  .vz-min.vz-motion-ready .vz-clients .vz-client-cube-field,
+  .vz-min.vz-motion-ready .vz-cases .vz-section-label,
+  .vz-min.vz-motion-ready .vz-cases .vz-cases__heading > p,
+  .vz-min.vz-motion-ready .vz-cases .vz-cases__shell,
+  .vz-min.vz-motion-ready .vz-contacts .vz-section-label,
+  .vz-min.vz-motion-ready .vz-contacts .vz-contacts__inner,
+  .vz-min.vz-motion-ready .vz-contacts .vz-contacts__buttons,
+  .vz-min.vz-motion-ready .vz-footer .vz-footer__top,
+  .vz-min.vz-motion-ready .vz-footer .vz-footer__cols > div,
+  .vz-min.vz-motion-ready .vz-footer .vz-footer__sign,
+  .vz-min.vz-motion-ready .vz-footer .vz-footer__sign > div,
+  .vz-min.vz-motion-ready .vz-footer .vz-footer__sign strong,
+  .vz-min.vz-motion-ready .vz-footer .vz-footer__legal,
+  .vz-min.vz-motion-ready .vz-footer .vz-footer-game {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+
+  .vz-min .vz-nav,
+  .vz-min .vz-hero__art,
+  .vz-min .vz-about__flow,
+  .vz-min .vz-stack__sphere,
+  .vz-min .vz-services__stage,
+  .vz-min .vz-services__devices,
+  .vz-min .vz-services__callouts > span,
+  .vz-min .vz-client-cube-field,
+  .vz-min .vz-cases__shell,
+  .vz-min .vz-contacts__inner,
+  .vz-min .vz-contacts__art > div {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .vz-min .vz-contacts__art > div {
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .vz-min .vz-service-caption {
+    animation: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+  }
+
+  .vz-min .vz-button,
+  .vz-min .vz-nav__cta,
+  .vz-min .vz-icon-button,
+  .vz-min .vz-menu-button,
+  .vz-min .vz-client-capsules button,
+  .vz-min .vz-cases__tabs button,
+  .vz-min .vz-nav__links a::after,
+  .vz-min .vz-button-link span,
+  .vz-min .vz-service-panel__cta svg,
+  .vz-min .vz-services__aside-cta strong b,
+  .vz-min .vz-cases__link svg {
+    transition: none !important;
+  }
+
+  .vz-min .vz-macbook__tilt {
+    transition: none !important;
+  }
+}
+
+/* Final service-nav polish: readable rows on desktop, tactile cards on mobile. */
+.vz-services__nav button,
+.vz-services__nav button [data-serv-nav-label] {
+  overflow: visible;
+}
+
+.vz-services__nav button [data-serv-nav-label] {
+  padding-block: 0.08em;
+  line-height: 1.22;
+  text-overflow: clip;
+}
+
+@media (max-width: 900px) {
+  .vz-services__nav {
+    display: grid;
+    width: calc(100% + 40px);
+    max-width: none;
+    margin-inline: -20px;
+    padding: 8px 20px 16px;
+    align-items: center;
+    grid-template-columns: 1.2fr 0.75fr 1.15fr 1.2fr 0.48fr 1fr 0.9fr;
+    gap: 2px;
+    overflow-x: hidden;
+    overflow-y: visible;
+    scroll-snap-type: none;
+  }
+
+  .vz-services__nav button,
+  .vz-services__nav button[data-active="true"] {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 34px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 3px;
+    overflow: hidden;
+    border: 1px solid var(--landing-card-border);
+    border-radius: 12px;
+    background: var(--service-nav-card-surface, var(--landing-card-surface));
+    box-shadow: 0 18px 44px -34px color-mix(in srgb, var(--ink) 34%, transparent);
+    text-align: center;
+    scroll-snap-align: none;
+    transition:
+      transform var(--motion-fast) var(--ease-out),
+      border-color var(--motion-fast) var(--ease-out),
+      background var(--motion-state) var(--ease-out),
+      box-shadow var(--motion-state) var(--ease-out);
+    backdrop-filter: blur(14px) saturate(1.08);
+  }
+
+  .vz-services__nav button:nth-of-type(4n + 1) {
+    --service-nav-card-surface: var(--landing-card-surface-north-east);
+  }
+
+  .vz-services__nav button:nth-of-type(4n + 2) {
+    --service-nav-card-surface: var(--landing-card-surface-cyan-left);
+  }
+
+  .vz-services__nav button:nth-of-type(4n + 3) {
+    --service-nav-card-surface: var(--landing-card-surface-violet-top);
+  }
+
+  .vz-services__nav button:nth-of-type(4n + 4) {
+    --service-nav-card-surface: var(--landing-card-surface-diagonal);
+  }
+
+  .vz-services__nav button[data-active="true"] {
+    border-color: color-mix(in srgb, var(--ink) 88%, transparent);
+    background: var(--ink);
+    box-shadow: 0 20px 42px -28px color-mix(in srgb, var(--ink) 62%, transparent);
+  }
+
+  .vz-services__nav button [data-serv-nav-label],
+  .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
+    max-width: 100%;
+    padding-block: 0.08em;
+    color: var(--text2);
+    font-size: clamp(7.5px, 2.35vw, 9.5px);
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
+    color: var(--bg);
+    font-size: clamp(9px, 3vw, 12px);
+  }
+
+  .vz-service-panel {
+    padding-bottom: 82px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) and (max-width: 900px) {
+  .vz-services__nav button:hover {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+/* Shared card feedback: a fast surface glint without moving readable content. */
+:is(
+  .vz-about__intro,
+  .vz-about__flow,
+  .vz-about__proof dl > div,
+  .vz-service-caption,
+  .vz-client-copy p,
+  .vz-contacts__inner,
+  .vz-cases__caption > *,
+  .vz-cases__empty
+) {
+  position: relative;
+  isolation: isolate;
+}
+
+:is(
+  .vz-about__intro,
+  .vz-about__flow,
+  .vz-about__proof dl > div,
+  .vz-service-caption,
+  .vz-client-copy p,
+  .vz-contacts__inner,
+  .vz-cases__caption > *,
+  .vz-cases__empty
+)::before {
+  position: absolute;
+  z-index: 8;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 74%),
+    inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent),
+    0 24px 52px -38px color-mix(in srgb, var(--ink) 54%, transparent);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--motion-fast, 160ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+@media (max-width: 900px) {
+  .vz-services__nav button::before {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 74%),
+      inset 0 0 0 1px color-mix(in srgb, var(--ink) 10%, transparent);
+    content: "";
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion-fast, 160ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(
+    .vz-about__intro,
+    .vz-about__flow,
+    .vz-about__proof dl > div,
+    .vz-service-caption,
+    .vz-client-copy p,
+    .vz-contacts__inner,
+    .vz-cases__caption > *,
+    .vz-cases__empty
+  ):hover::before,
+  .vz-services__nav button:hover::before {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(
+    .vz-about__intro,
+    .vz-about__flow,
+    .vz-about__proof dl > div,
+    .vz-service-caption,
+    .vz-client-copy p,
+    .vz-contacts__inner,
+    .vz-cases__caption > *,
+    .vz-cases__empty
+  )::before,
+  .vz-services__nav button::before {
+    transition-duration: 125ms;
   }
 }

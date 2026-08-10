@@ -1,5 +1,5 @@
 <template>
-  <div ref="rootRef" class="vz-min" :data-theme="theme">
+  <div ref="rootRef" class="vz-min vz-motion-ready" :data-theme="theme">
     <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
       <div class="vz-preloader__top">
         <span>{{ copy.preloader.loading }}</span>
@@ -13,6 +13,12 @@
           </template>
         </div>
       </div>
+    </div>
+
+    <div class="vz-motion-atmosphere" aria-hidden="true">
+      <span class="vz-motion-atmosphere__orb vz-motion-atmosphere__orb--a"></span>
+      <span class="vz-motion-atmosphere__orb vz-motion-atmosphere__orb--b"></span>
+      <span class="vz-motion-atmosphere__orb vz-motion-atmosphere__orb--c"></span>
     </div>
 
     <nav class="vz-nav" :aria-label="copy.nav.aria">
@@ -85,14 +91,18 @@
       :copy="copy.about"
       :flow-phase="aboutFlowPhase"
       :flow-cycle-key="aboutFlowCycleKey"
+      :resume-key="aboutFlowResumeKey"
+      :resume-elapsed-ms="aboutFlowResumeElapsedMs"
       :target-step-index="aboutFlowTargetStepIndex"
       :navigation-key="aboutFlowNavigationKey"
       :active-step-index="aboutFlowStepIndex"
       :display-step-index="aboutFlowDisplayStepIndex"
+      :can-continue-animation="canContinueAboutFlow"
       :snake-segments="aboutFlowSnakeSegments"
       :active-business="activeAboutBusiness"
       :active-product="activeAboutProduct"
       @replay="replayAboutFlow"
+      @continue-animation="continueAboutFlow"
       @select-step="selectAboutFlowStep"
       @stage-reached="setAboutFlowReachedStep"
       @flow-ready="setAboutFlowHost"
@@ -249,6 +259,7 @@ type LandingCopy = {
     metrics: [string, string, string];
     flowAria: string;
     replay: string;
+    continueAnimation: string;
     zones: [string, string, string];
     brief: string;
     support: string;
@@ -405,6 +416,12 @@ const sectionLiquidState = {
   currentX: 0,
   currentY: 0,
   initialized: false,
+  journeyActive: false,
+  journeyBulgeX: 0,
+  journeyDuration: 1100,
+  journeyStartTime: 0,
+  journeyStartX: 0,
+  journeyStartY: 0,
   lastTargetKey: "",
   lastX: 0,
   lastY: 0,
@@ -449,15 +466,19 @@ const caseFallbacks = computed(() => getCaseFallbacks(currentLocale.value));
 const casesCopy = computed(() => currentLocale.value === "ru" ? {
   label: "Избранные кейсы",
   title: "Галерея проектов",
-  intro: "Показываем задачу, логику решения и то, как продукт работает в реальном сценарии.",
+  intro: "Показываем задачу, ход решения и продукт в реальном сценарии.",
   tabAria: "Выберите кейс",
   open: "Открыть кейс",
+  proof: "Сценарий",
+  empty: "Опубликованные кейсы скоро появятся здесь.",
 } : {
   label: "Selected cases",
   title: "Project gallery",
-  intro: "The task, the reasoning and the way each product works in a real scenario.",
+  intro: "The task, the decisions and the product working in a real scenario.",
   tabAria: "Select a case",
   open: "Open case",
+  proof: "Journey",
+  empty: "Published case studies will appear here soon.",
 });
 
 const aboutBusinessIcons = [
@@ -509,10 +530,16 @@ const aboutFlowDisplayStepIndex = ref(0);
 const activeAboutProduct = ref<AboutFlowItem | null>(null);
 const aboutFlowPhase = ref<"signal" | "result">("result");
 const aboutFlowCycleKey = ref(0);
+const aboutFlowResumeKey = ref(0);
+const aboutFlowResumeElapsedMs = ref(0);
 const aboutFlowTargetStepIndex = ref<number | null>(null);
 const aboutFlowNavigationKey = ref(0);
 const activeAboutBusiness = computed<AboutFlowItem>(() => (
   aboutBusinessItems.value[aboutFlowBusinessIndex.value] || aboutBusinessItems.value[0]!
+));
+const canContinueAboutFlow = computed(() => (
+  aboutFlowTargetStepIndex.value !== null
+  && aboutFlowTargetStepIndex.value < aboutSupportStepIndex
 ));
 
 const clientSegments = computed(() => copy.value.clients.segments);
@@ -625,8 +652,8 @@ function runAboutFlowCycle(advanceBusiness = true) {
   }
 
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    aboutFlowStepIndex.value = 5;
-    aboutFlowDisplayStepIndex.value = 5;
+    aboutFlowStepIndex.value = aboutSupportStepIndex;
+    aboutFlowDisplayStepIndex.value = aboutSupportStepIndex;
     activeAboutProduct.value = pickNextAboutProduct();
     aboutFlowPhase.value = "result";
     return;
@@ -642,6 +669,8 @@ function runAboutFlowCycle(advanceBusiness = true) {
     aboutFlowDisplayStepIndex.value = index + 1;
   }, delay));
   aboutFlowResultTimer = setTimeout(() => {
+    aboutFlowStepIndex.value = aboutSupportStepIndex;
+    aboutFlowDisplayStepIndex.value = aboutSupportStepIndex;
     activeAboutProduct.value = pickNextAboutProduct();
     aboutFlowPhase.value = "result";
     aboutFlowResultTimer = null;
@@ -650,6 +679,39 @@ function runAboutFlowCycle(advanceBusiness = true) {
 
 function replayAboutFlow() {
   runAboutFlowCycle(true);
+}
+
+function continueAboutFlow() {
+  const currentStep = Math.max(
+    0,
+    Math.min(aboutSupportStepIndex - 1, aboutFlowTargetStepIndex.value ?? aboutFlowStepIndex.value),
+  );
+  const resumeElapsedMs = Number.parseFloat(aboutFlowSnakeSegments[currentStep]?.begin || "0") * 1000;
+
+  clearAboutFlowResultTimer();
+  clearAboutFlowStepTimers();
+  aboutFlowTargetStepIndex.value = null;
+  activeAboutProduct.value = null;
+  aboutFlowPhase.value = "signal";
+  aboutFlowResumeElapsedMs.value = resumeElapsedMs;
+  aboutFlowResumeKey.value += 1;
+
+  aboutFlowStepTimers = aboutFlowStepDelaysMs.flatMap((delay, index) => {
+    const nextStep = index + 1;
+    if (nextStep <= currentStep) return [];
+    return [setTimeout(() => {
+      aboutFlowStepIndex.value = nextStep;
+      aboutFlowDisplayStepIndex.value = nextStep;
+    }, Math.max(0, delay - resumeElapsedMs))];
+  });
+
+  aboutFlowResultTimer = setTimeout(() => {
+    aboutFlowStepIndex.value = aboutSupportStepIndex;
+    aboutFlowDisplayStepIndex.value = aboutSupportStepIndex;
+    activeAboutProduct.value = pickNextAboutProduct();
+    aboutFlowPhase.value = "result";
+    aboutFlowResultTimer = null;
+  }, Math.max(0, aboutFlowResultDelayMs - resumeElapsedMs));
 }
 
 function selectAboutFlowStep(index: number) {
@@ -730,14 +792,20 @@ function normalizeStackCategory(value?: string) {
 
 function mergeStackItems(primary: string[], fallback: string[]) {
   const seen = new Set<string>();
-
-  return [...primary, ...fallback].filter((item) => {
+  const preferredOrder = new Map(fallback.map((item, index) => [normalizeTechName(item), index]));
+  const items = [...primary, ...fallback].filter((item) => {
     const key = normalizeTechName(item);
     if (replacedBackendTechNames.has(key)) return false;
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, 5);
+  });
+
+  return items
+    .map((item, index) => ({ item, index, order: preferredOrder.get(normalizeTechName(item)) ?? Number.MAX_SAFE_INTEGER }))
+    .sort((a, b) => a.order - b.order || a.index - b.index)
+    .slice(0, 5)
+    .map(({ item }) => item);
 }
 
 function toggleTheme() {
@@ -1444,6 +1512,7 @@ async function setupClientCubeScene() {
 
   try {
     const THREE = await import("three");
+    const { RoundedBoxGeometry } = await import("three/addons/geometries/RoundedBoxGeometry.js");
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
       antialias: true,
@@ -1453,7 +1522,9 @@ async function setupClientCubeScene() {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 0.98;
+    renderer.toneMappingExposure = 1.06;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.domElement.setAttribute("aria-hidden", "true");
     host.replaceChildren(renderer.domElement);
 
@@ -1469,22 +1540,83 @@ async function setupClientCubeScene() {
     const envMap = envTarget?.texture || null;
     if (envMap) scene.environment = envMap;
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.42);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.34);
     scene.add(ambient);
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.7);
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.4);
     keyLight.position.set(3.8, 4.4, 5.2);
+    keyLight.castShadow = true;
+    keyLight.shadow.mapSize.set(1024, 1024);
+    keyLight.shadow.camera.left = -3.6;
+    keyLight.shadow.camera.right = 3.6;
+    keyLight.shadow.camera.top = 3.6;
+    keyLight.shadow.camera.bottom = -3.6;
+    keyLight.shadow.camera.near = 0.1;
+    keyLight.shadow.camera.far = 18;
+    keyLight.shadow.bias = -0.00045;
+    keyLight.shadow.normalBias = 0.024;
+    keyLight.shadow.radius = 4;
     scene.add(keyLight);
-    const rimLight = new THREE.DirectionalLight(0xe9f4f8, 1.15);
+    const rimLight = new THREE.DirectionalLight(0xe9f7ff, 2.05);
     rimLight.position.set(-4.4, 2.4, -3.2);
     scene.add(rimLight);
+    const fillLight = new THREE.DirectionalLight(0xaedfff, 0.82);
+    fillLight.position.set(-2.6, -1.2, 4.6);
+    scene.add(fillLight);
+    const glintLight = new THREE.PointLight(0xf7fbff, 11.5, 11, 2.1);
+    glintLight.position.set(4.8, 5.4, 4.6);
+    scene.add(glintLight);
 
     const rootGroup = new THREE.Group();
     rootGroup.position.set(1.32, 0, 0);
     rootGroup.rotation.set(0, 0, 0);
     scene.add(rootGroup);
+    keyLight.target = rootGroup;
+    rimLight.target = rootGroup;
+    fillLight.target = rootGroup;
 
-    const cubeGeometry = new THREE.BoxGeometry(0.54, 0.54, 0.54);
-    const edgeGeometry = new THREE.EdgesGeometry(cubeGeometry, 18);
+    const contactShadowCanvas = document.createElement("canvas");
+    contactShadowCanvas.width = 384;
+    contactShadowCanvas.height = 384;
+    const contactShadowContext = contactShadowCanvas.getContext("2d");
+    if (contactShadowContext) {
+      const contactGradient = contactShadowContext.createRadialGradient(192, 192, 10, 192, 192, 178);
+      contactGradient.addColorStop(0, "rgba(28, 39, 48, 0.3)");
+      contactGradient.addColorStop(0.36, "rgba(39, 53, 64, 0.19)");
+      contactGradient.addColorStop(0.72, "rgba(56, 72, 84, 0.07)");
+      contactGradient.addColorStop(1, "rgba(56, 72, 84, 0)");
+      contactShadowContext.fillStyle = contactGradient;
+      contactShadowContext.fillRect(0, 0, 384, 384);
+    }
+    const contactShadowTexture = new THREE.CanvasTexture(contactShadowCanvas);
+    contactShadowTexture.colorSpace = THREE.SRGBColorSpace;
+    const contactShadowGeometry = new THREE.PlaneGeometry(3.2, 2.8);
+    const contactShadowMaterial = new THREE.MeshBasicMaterial({
+      depthWrite: false,
+      map: contactShadowTexture,
+      opacity: 0.78,
+      transparent: true,
+    });
+    const contactShadow = new THREE.Mesh(contactShadowGeometry, contactShadowMaterial);
+    contactShadow.position.set(-0.26, -0.965, -0.1);
+    contactShadow.rotation.x = -Math.PI / 2;
+    contactShadow.renderOrder = -1;
+    rootGroup.add(contactShadow);
+
+    const shadowCatcherGeometry = new THREE.PlaneGeometry(4.2, 4.2);
+    const shadowCatcherMaterial = new THREE.ShadowMaterial({
+      color: 0x273743,
+      opacity: 0.16,
+      transparent: true,
+    });
+    const shadowCatcher = new THREE.Mesh(shadowCatcherGeometry, shadowCatcherMaterial);
+    shadowCatcher.position.set(0, -0.975, 0);
+    shadowCatcher.rotation.x = -Math.PI / 2;
+    shadowCatcher.receiveShadow = true;
+    shadowCatcher.renderOrder = -2;
+    rootGroup.add(shadowCatcher);
+
+    const cubeGeometry = new RoundedBoxGeometry(0.54, 0.54, 0.54, 5, 0.052);
+    const edgeGeometry = new THREE.EdgesGeometry(cubeGeometry, 32);
     const cubeRecords: Array<{
       edgeMaterial: import("three").LineBasicMaterial;
       fly: import("three").Vector3;
@@ -1496,7 +1628,7 @@ async function setupClientCubeScene() {
       visibleStage: number;
     }> = [];
     const spacing = 0.66;
-    const faceColors = [0xffffff, 0xffffff, 0x9ca0a6, 0xffffff, 0xffffff, 0xffffff];
+    const faceColors = [0xcbd0d5, 0xb8bec5, 0xe6e9ec, 0x9299a1, 0xd6dade, 0xbfc5cb];
     const mediumBusinessCubeMask = [
       [
         [true, true, true],
@@ -1520,21 +1652,22 @@ async function setupClientCubeScene() {
         for (let column = 0; column < 3; column += 1) {
           const visibleStage = layer === 0 ? 0 : mediumBusinessCubeMask[layer]?.[row]?.[column] ? 1 : 2;
           const materials = faceColors.map((color, faceIndex) => new THREE.MeshPhysicalMaterial({
-            clearcoat: 0.92,
-            clearcoatRoughness: faceIndex === 2 ? 0.08 : 0.045,
+            clearcoat: 1,
+            clearcoatRoughness: faceIndex === 2 ? 0.035 : 0.055,
             color,
+            dithering: true,
             envMap,
-            envMapIntensity: faceIndex === 2 ? 1.35 : 1.7,
-            metalness: 0.08,
+            envMapIntensity: faceIndex === 2 ? 3.1 : 2.65,
+            metalness: 0.96,
             opacity: 0,
-            reflectivity: 0.55,
-            roughness: faceIndex === 2 ? 0.42 : 0.24,
-            specularIntensity: faceIndex === 2 ? 0.72 : 0.95,
+            reflectivity: 1,
+            roughness: faceIndex === 2 ? 0.1 : faceIndex === 3 ? 0.22 : 0.145,
+            specularIntensity: 1,
             transparent: true,
           }));
           const mesh = new THREE.Mesh(cubeGeometry, materials);
           const edgeMaterial = new THREE.LineBasicMaterial({
-            color: 0x8c949d,
+            color: 0x343a41,
             opacity: 0,
             transparent: true,
           });
@@ -1556,6 +1689,8 @@ async function setupClientCubeScene() {
 
           mesh.position.copy(fly);
           mesh.scale.setScalar(0.18);
+          mesh.castShadow = true;
+          mesh.receiveShadow = true;
           mesh.visible = false;
           rootGroup.add(mesh);
           cubeRecords.push({ edgeMaterial, fly, home, materials, mesh, order, scale: 0.18, visibleStage });
@@ -1570,6 +1705,39 @@ async function setupClientCubeScene() {
     let currentStage = clampValue(activeClientSegment.value, 0, clientSegments.value.length - 1);
     let transitionFromStage = currentStage;
     let stageChangedAt = performance.now();
+    const stageKeyPositions = [
+      new THREE.Vector3(4.8, 5.2, 5.6),
+      new THREE.Vector3(-2.6, 7.8, 1.8),
+      new THREE.Vector3(4.1, 5.5, -4.8),
+    ];
+    const stageGlintPositions = [
+      new THREE.Vector3(5.2, 5.7, 4.2),
+      new THREE.Vector3(-4.4, 6.2, 3.6),
+      new THREE.Vector3(4.7, 5.9, -4.1),
+    ];
+    const stageRimPositions = [
+      new THREE.Vector3(-4.4, 2.4, -3.2),
+      new THREE.Vector3(4.2, 2.7, -3.5),
+      new THREE.Vector3(-4.1, 2.9, 4.4),
+    ];
+    const stageEnvironmentAngles = [-0.28, 0.16, 0.52];
+    const stageShadowPositions = [
+      new THREE.Vector3(-0.26, -0.965, -0.1),
+      new THREE.Vector3(0.1, -0.965, -0.08),
+      new THREE.Vector3(-0.18, -0.965, 0.18),
+    ];
+    const initialVisualStage = Math.round(currentStage);
+    const targetKeyPosition = stageKeyPositions[initialVisualStage]!.clone();
+    const targetGlintPosition = stageGlintPositions[initialVisualStage]!.clone();
+    const targetRimPosition = stageRimPositions[initialVisualStage]!.clone();
+    const targetShadowPosition = stageShadowPositions[initialVisualStage]!.clone();
+    let targetEnvironmentAngle = stageEnvironmentAngles[initialVisualStage] ?? 0;
+    let currentEnvironmentAngle = targetEnvironmentAngle;
+    keyLight.position.copy(targetKeyPosition);
+    glintLight.position.copy(targetGlintPosition);
+    rimLight.position.copy(targetRimPosition);
+    contactShadow.position.copy(targetShadowPosition);
+    scene.environmentRotation.y = currentEnvironmentAngle;
 
     const render = () => renderer.render(scene, camera);
     const setStage = (index: number, immediate = false) => {
@@ -1577,6 +1745,20 @@ async function setupClientCubeScene() {
       transitionFromStage = immediate ? nextStage : currentStage;
       currentStage = nextStage;
       stageChangedAt = performance.now();
+      const visualStage = Math.round(nextStage);
+      targetKeyPosition.copy(stageKeyPositions[visualStage] ?? stageKeyPositions[0]!);
+      targetGlintPosition.copy(stageGlintPositions[visualStage] ?? stageGlintPositions[0]!);
+      targetRimPosition.copy(stageRimPositions[visualStage] ?? stageRimPositions[0]!);
+      targetShadowPosition.copy(stageShadowPositions[visualStage] ?? stageShadowPositions[0]!);
+      targetEnvironmentAngle = stageEnvironmentAngles[visualStage] ?? stageEnvironmentAngles[0]!;
+      if (immediate || reduceMotion) {
+        keyLight.position.copy(targetKeyPosition);
+        glintLight.position.copy(targetGlintPosition);
+        rimLight.position.copy(targetRimPosition);
+        contactShadow.position.copy(targetShadowPosition);
+        currentEnvironmentAngle = targetEnvironmentAngle;
+        scene.environmentRotation.y = currentEnvironmentAngle;
+      }
       cubeRecords.forEach((record) => {
         const shouldShow = record.visibleStage <= currentStage;
         if (immediate || reduceMotion) {
@@ -1584,7 +1766,7 @@ async function setupClientCubeScene() {
           record.scale = shouldShow ? 1 : 0.18;
           record.mesh.scale.setScalar(record.scale);
           record.materials.forEach((material) => { material.opacity = shouldShow ? 1 : 0; });
-          record.edgeMaterial.opacity = shouldShow ? 0.36 : 0;
+          record.edgeMaterial.opacity = shouldShow ? 0.46 : 0;
           record.mesh.visible = shouldShow;
         } else if (shouldShow) {
           record.mesh.visible = true;
@@ -1599,8 +1781,9 @@ async function setupClientCubeScene() {
       const height = Math.max(1, host.clientHeight);
       renderer.setSize(width, height, false);
       const aspect = width / height;
-      camera.left = -(cameraViewHeight * aspect) / 2;
-      camera.right = (cameraViewHeight * aspect) / 2;
+      const baseAspect = 1.08;
+      camera.left = -(cameraViewHeight * baseAspect) / 2;
+      camera.right = camera.left + cameraViewHeight * aspect;
       camera.top = cameraViewHeight / 2;
       camera.bottom = -cameraViewHeight / 2;
       camera.updateProjectionMatrix();
@@ -1612,6 +1795,14 @@ async function setupClientCubeScene() {
       lastFrame = now;
 
       if (isVisible) {
+        const lightEase = 1 - Math.pow(0.944, frame);
+        const glintEase = 1 - Math.pow(0.936, frame);
+        keyLight.position.lerp(targetKeyPosition, lightEase);
+        glintLight.position.lerp(targetGlintPosition, glintEase);
+        rimLight.position.lerp(targetRimPosition, lightEase);
+        contactShadow.position.lerp(targetShadowPosition, lightEase);
+        currentEnvironmentAngle += (targetEnvironmentAngle - currentEnvironmentAngle) * lightEase;
+        scene.environmentRotation.y = currentEnvironmentAngle;
         cubeRecords.forEach((record) => {
           const delay = record.order * 34;
           let shouldShow = record.visibleStage <= currentStage;
@@ -1629,7 +1820,7 @@ async function setupClientCubeScene() {
           record.materials.forEach((material) => {
             material.opacity += ((shouldShow ? 1 : 0) - material.opacity) * 0.12 * frame;
           });
-          record.edgeMaterial.opacity += ((shouldShow ? 0.36 : 0) - record.edgeMaterial.opacity) * 0.12 * frame;
+          record.edgeMaterial.opacity += ((shouldShow ? 0.46 : 0) - record.edgeMaterial.opacity) * 0.12 * frame;
           record.mesh.visible = shouldShow || record.materials[0].opacity > 0.02;
         });
 
@@ -1656,6 +1847,11 @@ async function setupClientCubeScene() {
       if (updateClientCubeStage === setStage) updateClientCubeStage = null;
       cubeGeometry.dispose();
       edgeGeometry.dispose();
+      contactShadowGeometry.dispose();
+      contactShadowMaterial.dispose();
+      contactShadowTexture.dispose();
+      shadowCatcherGeometry.dispose();
+      shadowCatcherMaterial.dispose();
       cubeRecords.forEach(({ edgeMaterial, materials }) => {
         edgeMaterial.dispose();
         materials.forEach((material) => material.dispose());
@@ -1733,7 +1929,8 @@ function updateClientCubePosition() {
   const lowerLineY = sectionRect.bottom;
   const targetViewportY = (upperLineY + lowerLineY) / 2;
   const cubeVisualCenterRatio = 0.62;
-  const nextLeft = `${Math.round(gridRect.width - cubeWidth)}px`;
+  const rightSceneRoom = Math.max(0, cubeWidth - cubeHeight * 1.08);
+  const nextLeft = `${Math.round(gridRect.width - cubeWidth + rightSceneRoom * 0.5)}px`;
   const nextTop = `${Math.round(targetViewportY - gridRect.top - cubeHeight * cubeVisualCenterRatio)}px`;
 
   if (host.style.getPropertyValue("--client-cube-left") !== nextLeft) {
@@ -2087,6 +2284,10 @@ function syncCurrentSectionLiquidTarget(targets: SectionLiquidTarget[]) {
   sectionLiquidState.currentY += deltaY;
   sectionLiquidState.lastX += deltaX;
   sectionLiquidState.lastY += deltaY;
+  if (sectionLiquidState.journeyActive) {
+    sectionLiquidState.journeyStartX += deltaX;
+    sectionLiquidState.journeyStartY += deltaY;
+  }
   sectionLiquidState.targetX = nextTargetX;
   sectionLiquidState.targetY = nextTargetY;
   sectionLiquidState.targetRadius = getSectionLiquidRadius(currentTarget);
@@ -2160,21 +2361,40 @@ function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
     sectionLiquidState.speed = 0;
     sectionLiquidState.velocityX = 0;
     sectionLiquidState.velocityY = 0;
+    sectionLiquidState.journeyActive = false;
+    sectionLiquidState.journeyBulgeX = 0;
+    sectionLiquidState.journeyStartTime = 0;
+    sectionLiquidState.journeyStartX = targetX;
+    sectionLiquidState.journeyStartY = targetY;
     sectionLiquidState.initialized = true;
   } else {
     const dx = targetX - sectionLiquidState.currentX;
     const dy = targetY - sectionLiquidState.currentY;
     const distance = Math.max(1, Math.hypot(dx, dy));
-    const direction = targetY >= sectionLiquidState.currentY ? 1 : -1;
-    const normalX = -dy / distance;
-    const normalY = dx / distance;
-    const arc = clampValue(distance * 0.14, 34, 112) * direction;
-    const impulse = clampValue(distance * 0.0038, 1.2, 5.8);
+    const isMobile = window.innerWidth <= 900;
+    const widestRadius = Math.max(sectionLiquidState.radius, targetRadius);
+    const offscreenClearance = isMobile
+      ? Math.max(28, window.innerWidth * 0.065)
+      : Math.max(120, window.innerWidth * 0.085);
+    const apexX = -(widestRadius + offscreenClearance);
+    const midpointX = (sectionLiquidState.currentX + targetX) / 2;
 
-    sectionLiquidState.arcX = normalX * arc;
-    sectionLiquidState.arcY = normalY * arc * 0.38;
-    sectionLiquidState.velocityX += normalX * impulse * direction;
-    sectionLiquidState.velocityY += normalY * impulse * 0.38 * direction;
+    // A true sideways parabola: its midpoint sits fully beyond the left edge,
+    // then the mark returns to the next heading without crossing the content.
+    sectionLiquidState.journeyActive = true;
+    sectionLiquidState.journeyBulgeX = Math.max(0, midpointX - apexX);
+    sectionLiquidState.journeyDuration = clampValue(
+      980 + distance * (isMobile ? 0.82 : 0.72),
+      isMobile ? 1200 : 1300,
+      isMobile ? 1550 : 1650,
+    );
+    sectionLiquidState.journeyStartTime = performance.now();
+    sectionLiquidState.journeyStartX = sectionLiquidState.currentX;
+    sectionLiquidState.journeyStartY = sectionLiquidState.currentY;
+    sectionLiquidState.arcX = 0;
+    sectionLiquidState.arcY = 0;
+    sectionLiquidState.velocityX = 0;
+    sectionLiquidState.velocityY = 0;
   }
 
   sectionLiquidState.lastTargetKey = target.key;
@@ -2261,23 +2481,53 @@ function animateSectionLiquid(now: number) {
   const targetX = sectionLiquidState.targetX;
   const targetY = sectionLiquidState.targetY;
   const targetRadius = sectionLiquidState.targetRadius;
-  const directDistance = Math.hypot(targetX - sectionLiquidState.currentX, targetY - sectionLiquidState.currentY);
-  const landing = clampValue(1 - directDistance / 180, 0, 1);
-  const steerX = targetX + sectionLiquidState.arcX * (1 - landing * 0.72) - sectionLiquidState.currentX;
-  const steerY = targetY + sectionLiquidState.arcY * (1 - landing * 0.86) - sectionLiquidState.currentY;
-  const horizontalDamping = 0.82 - landing * 0.08;
-  const verticalDamping = 0.76 - landing * 0.1;
+  if (sectionLiquidState.journeyActive) {
+    const progress = clampValue(
+      (now - sectionLiquidState.journeyStartTime) / sectionLiquidState.journeyDuration,
+      0,
+      1,
+    );
+    const travelProgress = progress * progress * progress * (progress * (progress * 6 - 15) + 10);
+    const parabolicEnvelope = 4 * travelProgress * (1 - travelProgress);
+    const nextX = sectionLiquidState.journeyStartX
+      + (targetX - sectionLiquidState.journeyStartX) * travelProgress
+      - sectionLiquidState.journeyBulgeX * parabolicEnvelope;
+    const nextY = sectionLiquidState.journeyStartY
+      + (targetY - sectionLiquidState.journeyStartY) * travelProgress;
 
-  sectionLiquidState.velocityX += steerX * (0.012 + (1 - landing) * 0.002) * frame;
-  sectionLiquidState.velocityY += steerY * (0.009 + (1 - landing) * 0.002) * frame;
-  sectionLiquidState.velocityX *= Math.pow(horizontalDamping, frame);
-  sectionLiquidState.velocityY *= Math.pow(verticalDamping, frame);
-  sectionLiquidState.velocityY = clampValue(sectionLiquidState.velocityY, -18, 18);
-  sectionLiquidState.currentX += sectionLiquidState.velocityX * frame;
-  sectionLiquidState.currentY += sectionLiquidState.velocityY * frame;
-  sectionLiquidState.arcX *= Math.pow(0.9, frame);
-  sectionLiquidState.arcY *= Math.pow(0.82, frame);
+    sectionLiquidState.velocityX = nextX - sectionLiquidState.currentX;
+    sectionLiquidState.velocityY = nextY - sectionLiquidState.currentY;
+    sectionLiquidState.currentX = nextX;
+    sectionLiquidState.currentY = nextY;
+
+    if (progress >= 1) {
+      sectionLiquidState.journeyActive = false;
+      sectionLiquidState.currentX = targetX;
+      sectionLiquidState.currentY = targetY;
+      sectionLiquidState.velocityX = 0;
+      sectionLiquidState.velocityY = 0;
+    }
+  } else {
+    const directDistance = Math.hypot(targetX - sectionLiquidState.currentX, targetY - sectionLiquidState.currentY);
+    const landing = clampValue(1 - directDistance / 180, 0, 1);
+    const steerX = targetX + sectionLiquidState.arcX * (1 - landing * 0.72) - sectionLiquidState.currentX;
+    const steerY = targetY + sectionLiquidState.arcY * (1 - landing * 0.86) - sectionLiquidState.currentY;
+    const horizontalDamping = 0.82 - landing * 0.08;
+    const verticalDamping = 0.76 - landing * 0.1;
+
+    sectionLiquidState.velocityX += steerX * (0.012 + (1 - landing) * 0.002) * frame;
+    sectionLiquidState.velocityY += steerY * (0.009 + (1 - landing) * 0.002) * frame;
+    sectionLiquidState.velocityX *= Math.pow(horizontalDamping, frame);
+    sectionLiquidState.velocityY *= Math.pow(verticalDamping, frame);
+    sectionLiquidState.velocityY = clampValue(sectionLiquidState.velocityY, -18, 18);
+    sectionLiquidState.currentX += sectionLiquidState.velocityX * frame;
+    sectionLiquidState.currentY += sectionLiquidState.velocityY * frame;
+    sectionLiquidState.arcX *= Math.pow(0.9, frame);
+    sectionLiquidState.arcY *= Math.pow(0.82, frame);
+  }
   sectionLiquidState.radius += (targetRadius - sectionLiquidState.radius) * 0.08 * frame;
+
+  const directDistance = Math.hypot(targetX - sectionLiquidState.currentX, targetY - sectionLiquidState.currentY);
 
   const lockDistance = Math.hypot(
     sectionLiquidState.targetX - sectionLiquidState.currentX,
@@ -2556,6 +2806,13 @@ function formatPathNumber(value: number) {
 }
 
 function runPreloader() {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduceMotion) {
+    sessionStorage.setItem("vz_loaded", "1");
+    showPreloader.value = false;
+    return;
+  }
+
   const seen = sessionStorage.getItem("vz_loaded") === "1";
   if (seen) {
     showPreloader.value = false;
@@ -2581,10 +2838,27 @@ function runPreloader() {
     }
     window.setTimeout(() => {
       showPreloader.value = false;
+      void nextTick(() => {
+        setupReveals();
+        updateScrollEffects();
+      });
     }, 900);
   };
 
   requestAnimationFrame(step);
+}
+
+function restoreInitialHashPosition() {
+  const targetId = window.location.hash.slice(1);
+  if (!targetId) return;
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      window.scrollTo(0, target.getBoundingClientRect().top + window.scrollY);
+    });
+  });
 }
 
 function setupReveals() {
@@ -2599,7 +2873,7 @@ function setupReveals() {
     element.style.transform = "translateY(110%)";
     element.style.opacity = "0";
     element.style.filter = "";
-    element.style.willChange = "transform";
+    element.style.willChange = "transform, opacity";
   });
 
   root.querySelectorAll<HTMLElement>("[data-clip-reveal]").forEach((element) => {
@@ -2615,6 +2889,7 @@ function scanReveals() {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   root.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
+    if (showPreloader.value && element.closest("#hero")) return;
     const wrap = element.parentElement || element;
     const rect = wrap.getBoundingClientRect();
     const inView = rect.top < vh * 0.92 && rect.bottom > -40;
@@ -2622,7 +2897,9 @@ function scanReveals() {
     if (reduceMotion || inView) {
       if (!element.dataset.revealed) {
         element.dataset.revealed = "1";
-        element.style.transition = "transform 1s cubic-bezier(.16,1,.3,1), opacity .9s ease";
+        const order = Math.max(0, Number(element.dataset.revealOrder) || 0);
+        const delay = Math.min(order * 70, 210);
+        element.style.transition = `transform 720ms cubic-bezier(0.23, 1, 0.32, 1) ${delay}ms, opacity 600ms cubic-bezier(0.23, 1, 0.32, 1) ${delay}ms`;
       }
       element.style.transform = "translateY(0)";
       element.style.opacity = "1";
@@ -2636,7 +2913,7 @@ function scanReveals() {
     if (reduceMotion || inView) {
       if (!element.dataset.clipped) {
         element.dataset.clipped = "1";
-        element.style.transition = "clip-path 1.5s cubic-bezier(.16,1,.3,1)";
+        element.style.transition = "clip-path 800ms cubic-bezier(0.77, 0, 0.175, 1)";
       }
       element.style.clipPath = "inset(0 0% 0 0)";
     }
@@ -2647,7 +2924,7 @@ function scanSectionEntrances() {
   const root = rootRef.value;
   if (!root) return;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const sections = root.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #contacts, .vz-footer");
+  const sections = root.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #cases, #contacts, .vz-footer");
 
   sections.forEach((section) => {
     if (section.classList.contains("is-motion-visible")) return;
@@ -2655,6 +2932,8 @@ function scanSectionEntrances() {
       section.classList.add("is-motion-visible");
       return;
     }
+
+    if (showPreloader.value && section.id === "hero") return;
 
     const rect = section.getBoundingClientRect();
     const triggerTop = window.innerHeight * 0.84;
@@ -2712,7 +2991,7 @@ function cleanupNegativeClone(clone: HTMLElement) {
     section.dataset.negativeSection = section.id || (section.classList.contains("vz-footer") ? "footer" : "");
     section.classList.add("is-motion-visible");
   });
-  clone.querySelectorAll<HTMLElement>(".vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu").forEach((element) => element.remove());
+  clone.querySelectorAll<HTMLElement>(".vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu, .vz-motion-atmosphere").forEach((element) => element.remove());
   clone.querySelectorAll<HTMLElement>("[id]").forEach((element) => element.removeAttribute("id"));
   clone.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
     element.style.opacity = "1";
@@ -2907,6 +3186,7 @@ onMounted(async () => {
   window.addEventListener("resize", scheduleUpdate);
   await loadPublicData();
   await nextTick();
+  restoreInitialHashPosition();
   setupReveals();
   updateScrollEffects();
   updateStackSpherePosition();
@@ -4655,23 +4935,32 @@ useHead(() => ({
 }
 
 .vz-client-copy p {
+  position: relative;
+  width: 100%;
   max-width: 62ch;
-  height: 10.4em;
-  min-height: 0;
+  height: auto;
+  min-height: 190px;
   margin: 18px 0 0;
+  padding: 22px 24px;
+  border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+  border-radius: 24px;
+  background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
+  box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
   color: var(--text2);
   font-size: 17px;
   line-height: 1.65;
+  backdrop-filter: blur(18px) saturate(1.08);
 }
 
 .vz-client-cube-field {
   --client-cube-size: clamp(390px, 36vw, 540px);
+  --client-cube-right-room: clamp(72px, 7vw, 96px);
   position: absolute;
   top: var(--client-cube-top, 50%);
   left: var(--client-cube-left, calc(100% - var(--client-cube-size)));
   z-index: 1;
-  width: var(--client-cube-size);
-  aspect-ratio: 1.08;
+  width: calc(var(--client-cube-size) + var(--client-cube-right-room));
+  height: calc(var(--client-cube-size) / 1.08);
   opacity: 0.96;
   pointer-events: none;
 }
@@ -5231,7 +5520,7 @@ useHead(() => ({
   }
 
   .vz-stack {
-    padding: var(--section-space) 0;
+    padding: var(--section-space) 0 0;
   }
 
   .vz-stack__sphere-window {
@@ -5243,6 +5532,10 @@ useHead(() => ({
     margin: 18px -20px calc(var(--section-space) * -1);
   }
 
+  .vz-stack__sphere-window::before {
+    content: none;
+  }
+
   .vz-stack__sphere {
     --stack-sphere-size: min(108vw, 430px);
     position: absolute;
@@ -5250,7 +5543,7 @@ useHead(() => ({
     left: 50%;
     display: block;
     width: var(--stack-sphere-size);
-    transform: translateX(-50%);
+    translate: -50% 0;
   }
 
   .vz-stack__sphere[data-layer="mobile"] {
@@ -5354,17 +5647,18 @@ useHead(() => ({
   .vz-stack__mobile-details > div {
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
+    gap: 6px 5px;
   }
 
   .vz-stack__mobile-details span {
-    padding: 5px 10px;
+    padding: 5px 7px;
     border: 1px solid var(--chipbd);
     border-radius: 999px;
     color: var(--chipink);
     font-family: "JetBrains Mono", monospace;
     font-size: 11px;
     letter-spacing: 0.03em;
+    white-space: nowrap;
   }
 
   [data-stack-hint] {
@@ -5392,18 +5686,25 @@ useHead(() => ({
   }
 
   .vz-clients__grid {
-    gap: 26px;
+    gap: 0;
     height: auto;
     min-height: 0;
   }
 
+  .vz-clients__head {
+    order: 0;
+    margin-bottom: 26px;
+  }
+
   .vz-client-interactive {
+    display: contents;
     width: 100%;
     height: auto;
     min-height: 0;
   }
 
   .vz-client-capsules {
+    order: 1;
     gap: 8px;
   }
 
@@ -5415,6 +5716,7 @@ useHead(() => ({
   }
 
   .vz-client-connector {
+    order: 2;
     height: 36px;
   }
 
@@ -5423,31 +5725,55 @@ useHead(() => ({
   }
 
   .vz-client-copy {
+    display: contents;
     height: auto;
     min-height: 0;
     padding-top: 22px;
   }
 
+  .vz-client-copy > span {
+    order: 3;
+    padding-top: 22px;
+  }
+
   .vz-client-cube-field {
-    top: 322px;
-    left: 66.6667%;
+    --client-cube-size: min(72vw, 278px);
+    --client-cube-right-room: 0px;
+    position: relative;
+    top: auto;
+    left: auto;
     right: auto;
     bottom: auto;
-    width: 210px;
-    opacity: 0.72;
-    transform: translateX(-50%);
+    order: 5;
+    width: var(--client-cube-size);
+    height: calc(var(--client-cube-size) / 1.08);
+    margin: 10px auto -6px;
+    opacity: 0.9;
+    transform: none;
+    justify-self: center;
   }
 
   .vz-client-copy h3 {
-    height: 4.7em;
+    height: auto;
     max-width: none;
+    order: 4;
     font-size: 25px;
   }
 
   .vz-client-copy p {
+    position: relative;
     height: auto;
     min-height: 0;
-    margin-top: 122px;
+    width: 100%;
+    max-width: none;
+    margin-top: 16px;
+    padding: 18px;
+    border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+    border-radius: 20px;
+    background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
+    box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
+    backdrop-filter: blur(18px) saturate(1.08);
+    order: 6;
     font-size: 15px;
     line-height: 1.55;
   }

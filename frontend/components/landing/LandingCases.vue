@@ -3,54 +3,209 @@
     <header class="vz-cases__heading">
       <div class="vz-cases__title-block">
         <div class="vz-section-label"><span>{{ copy.label }}</span><i>/</i><span>04</span></div>
-        <h2 id="cases-title">{{ copy.title }}</h2>
+        <h2 id="cases-title"><span><span data-reveal>{{ copy.title }}</span></span></h2>
       </div>
       <p>{{ copy.intro }}</p>
     </header>
 
-    <div class="vz-cases__shell">
-      <div class="vz-cases__tabs" role="tablist" :aria-label="copy.tabAria" @keydown.left.prevent="move(-1)" @keydown.right.prevent="move(1)">
-        <button v-for="(item, index) in cases" :id="`case-tab-${index}`" :key="item.slug || item.id" type="button" role="tab"
-          :aria-selected="index === activeIndex" :tabindex="index === activeIndex ? 0 : -1" @click="activeIndex = index">
-          <span>{{ two(index + 1) }}</span><b>{{ item.name }}</b><small>{{ item.type }}</small>
+    <div v-if="cases.length" class="vz-cases__shell">
+      <div
+        class="vz-cases__tabs"
+        role="tablist"
+        :aria-label="copy.tabAria"
+        :aria-orientation="tabOrientation"
+        @keydown="onTabsKeydown"
+      >
+        <button
+          v-for="(item, index) in cases"
+          :id="`case-tab-${index}`"
+          :key="item.slug || item.id"
+          type="button"
+          role="tab"
+          :aria-controls="`case-panel-${index}`"
+          :aria-label="`${two(index + 1)}. ${item.name}. ${item.type}`"
+          :aria-selected="index === activeIndex"
+          :tabindex="index === activeIndex ? 0 : -1"
+          @click="selectCase(index)"
+        >
+          <span>{{ two(index + 1) }}</span>
+          <b>{{ caseLabel(item) }}</b>
+          <i aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <div
+        class="vz-cases__mobile-controls"
+        :aria-label="currentLocale === 'ru' ? 'Навигация по кейсам' : 'Case navigation'"
+      >
+        <button
+          type="button"
+          :aria-label="currentLocale === 'ru' ? 'Предыдущий кейс' : 'Previous case'"
+          @click="move(-1, false)"
+        >
+          <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
+        </button>
+        <button
+          type="button"
+          :aria-label="currentLocale === 'ru' ? 'Следующий кейс' : 'Next case'"
+          @click="move(1, false)"
+        >
+          <svg aria-hidden="true" viewBox="0 0 20 20"><path d="m11 5 5 5-5 5M4 10h12" /></svg>
         </button>
       </div>
 
       <Transition name="case-switch" mode="out-in">
-        <article v-if="activeCase" :key="activeCase.id" class="vz-cases__active" role="tabpanel" :aria-labelledby="`case-tab-${activeIndex}`">
-          <div class="vz-cases__story">
-            <div class="vz-cases__story-copy">
-              <div class="vz-cases__meta"><span>{{ activeCase.industry }}</span><span>{{ activeCase.type }}</span></div>
+        <article
+          v-if="activeCase"
+          :id="`case-panel-${activeIndex}`"
+          :key="activeCase.id"
+          class="vz-cases__active"
+          role="tabpanel"
+          :aria-labelledby="`case-tab-${activeIndex}`"
+        >
+          <CaseArtifactVisual
+            :project="activeCase"
+            :index-label="two(activeIndex + 1)"
+            :locale="currentLocale"
+          />
+
+          <footer class="vz-cases__caption">
+            <div class="vz-cases__identity">
               <h3>{{ activeCase.name }}</h3>
-              <p>{{ activeCase.description }}</p>
             </div>
-            <CaseMetricGrid :metrics="activeCase.metrics.slice(0, 3)" />
-            <NuxtLink class="vz-cases__link" :to="`/cases/${activeCase.slug}`">{{ copy.open }} <span>↗</span></NuxtLink>
-          </div>
-          <CaseVisual :project="activeCase" :index-label="two(activeIndex + 1)" :locale="currentLocale" />
+            <p>{{ activeCase.description }}</p>
+            <div class="vz-cases__proof">
+              <span>{{ copy.proof }}</span>
+              <strong>{{ caseProof(activeCase) }}</strong>
+            </div>
+            <NuxtLink class="vz-cases__link" :to="`/cases/${activeCase.slug}`">
+              {{ copy.open }}
+              <svg aria-hidden="true" viewBox="0 0 20 20">
+                <path d="M4 10h11M11 6l4 4-4 4" />
+              </svg>
+            </NuxtLink>
+          </footer>
         </article>
       </Transition>
+    </div>
+
+    <div v-else class="vz-cases__empty" role="status">
+      <span>00</span>
+      <p>{{ copy.empty }}</p>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import CaseMetricGrid from "~/components/cases/CaseMetricGrid.vue";
-import CaseVisual from "~/components/cases/CaseVisual.vue";
+import CaseArtifactVisual from "~/components/cases/CaseArtifactVisual.vue";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 import { mergeFeaturedProjects, moveCaseIndex } from "~/utils/landingCases";
 
-const props = defineProps<{ projects: IProjects[]; fallback: IProjects[]; copy: { label: string; title: string; intro: string; tabAria: string; open: string } }>();
+const props = defineProps<{
+  projects: IProjects[];
+  fallback: IProjects[];
+  copy: {
+    label: string;
+    title: string;
+    intro: string;
+    tabAria: string;
+    open: string;
+    proof: string;
+    empty: string;
+  };
+}>();
+
 const { locale } = useI18n();
 const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const activeIndex = ref(0);
+const isNarrow = ref(false);
+let narrowQuery: MediaQueryList | undefined;
+
 const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback));
 const activeCase = computed(() => cases.value[activeIndex.value]);
+const tabOrientation = computed(() => isNarrow.value ? "horizontal" : "vertical");
 const two = (value: number) => value.toString().padStart(2, "0");
-function move(direction: 1 | -1) {
-  activeIndex.value = moveCaseIndex(activeIndex.value, direction, cases.value.length);
-  nextTick(() => document.getElementById(`case-tab-${activeIndex.value}`)?.focus());
+
+const labelsBySlug: Record<string, { ru: string; en: string }> = {
+  "wellness-app": { ru: "Wellness App", en: "Wellness App" },
+  "restaurant-menu": { ru: "Заказ в Telegram", en: "Telegram ordering" },
+  "ai-support": { ru: "AI-поддержка", en: "AI support" },
+  "crm-workspace": { ru: "CRM", en: "CRM" },
+};
+
+const proofBySlug: Record<string, { ru: string; en: string }> = {
+  "wellness-app": { ru: "План → занятие → восстановление", en: "Plan → session → recovery" },
+  "restaurant-menu": { ru: "Каталог → корзина → заказ", en: "Menu → cart → order" },
+  "ai-support": { ru: "Вопрос → источники → ответ", en: "Question → sources → answer" },
+  "crm-workspace": { ru: "Риск → контекст → действие", en: "Risk → context → action" },
+};
+
+function caseLabel(project: IProjects) {
+  const slug = project.slug || "";
+  return labelsBySlug[slug]?.[currentLocale.value] || project.name;
 }
+
+function caseProof(project: IProjects) {
+  const slug = project.slug || "";
+  const authored = proofBySlug[slug]?.[currentLocale.value];
+  if (authored) return authored;
+  const metric = project.metrics?.find((item) => !item.is_demo);
+  return metric ? `${metric.value} · ${metric.label}` : project.type;
+}
+
+function centerActiveTab(index: number) {
+  if (!isNarrow.value) return;
+  const tab = document.getElementById(`case-tab-${index}`);
+  const tabList = tab?.closest<HTMLElement>(".vz-cases__tabs");
+  if (!tab || !tabList) return;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const tabRect = tab.getBoundingClientRect();
+  const listRect = tabList.getBoundingClientRect();
+  const centeredLeft = tabList.scrollLeft + tabRect.left - listRect.left - (tabList.clientWidth - tabRect.width) / 2;
+  tabList.scrollTo({ left: Math.max(0, centeredLeft), behavior: reduceMotion ? "auto" : "smooth" });
+}
+
+function selectCase(index: number, focus = false) {
+  activeIndex.value = index;
+  nextTick(() => {
+    const tab = document.getElementById(`case-tab-${index}`);
+    if (focus) tab?.focus();
+    centerActiveTab(index);
+  });
+}
+
+function move(direction: 1 | -1, focus = true) {
+  selectCase(moveCaseIndex(activeIndex.value, direction, cases.value.length), focus);
+}
+
+function onTabsKeydown(event: KeyboardEvent) {
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+    event.preventDefault();
+    move(1);
+  } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+    event.preventDefault();
+    move(-1);
+  } else if (event.key === "Home") {
+    event.preventDefault();
+    selectCase(0, true);
+  } else if (event.key === "End") {
+    event.preventDefault();
+    selectCase(Math.max(cases.value.length - 1, 0), true);
+  }
+}
+
+function syncNarrowState() {
+  isNarrow.value = narrowQuery?.matches ?? false;
+}
+
+onMounted(() => {
+  narrowQuery = window.matchMedia("(max-width: 900px)");
+  syncNarrowState();
+  narrowQuery.addEventListener("change", syncNarrowState);
+});
+
+onBeforeUnmount(() => narrowQuery?.removeEventListener("change", syncNarrowState));
 watch(cases, () => { if (activeIndex.value >= cases.value.length) activeIndex.value = 0; });
 </script>
 

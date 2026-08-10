@@ -37,14 +37,27 @@
         :aria-label="copy.flowAria"
         role="group"
       >
-        <button
-          class="vz-about__flow-replay"
-          type="button"
-          :aria-label="copy.replay"
-          @click="$emit('replay')"
-        >
-          {{ copy.replay }} <span aria-hidden="true">↻</span>
-        </button>
+        <div class="vz-about__flow-controls">
+          <Transition name="vz-flow-control">
+            <button
+              v-if="canContinueAnimation"
+              class="vz-about__flow-control vz-about__flow-continue"
+              type="button"
+              :aria-label="copy.continueAnimation"
+              @click="$emit('continue-animation')"
+            >
+              {{ copy.continueAnimation }} <span aria-hidden="true">→</span>
+            </button>
+          </Transition>
+          <button
+            class="vz-about__flow-control vz-about__flow-replay"
+            type="button"
+            :aria-label="copy.replay"
+            @click="$emit('replay')"
+          >
+            {{ copy.replay }} <span aria-hidden="true">↻</span>
+          </button>
+        </div>
 
         <div class="vz-about__flow-canvas">
           <div class="vz-about__flow-zones" aria-hidden="true">
@@ -56,6 +69,8 @@
           <LandingAboutGoo
             :flow-phase="flowPhase"
             :flow-cycle-key="flowCycleKey"
+            :resume-key="resumeKey"
+            :resume-elapsed-ms="resumeElapsedMs"
             :target-step-index="targetStepIndex"
             :navigation-key="navigationKey"
             :snake-segments="snakeSegments"
@@ -194,6 +209,7 @@ type AboutCopy = {
   metrics: [string, string, string];
   flowAria: string;
   replay: string;
+  continueAnimation: string;
   zones: [string, string, string];
   brief: string;
   support: string;
@@ -205,6 +221,8 @@ const props = defineProps<{
   copy: AboutCopy;
   flowPhase: "signal" | "result";
   flowCycleKey: number;
+  resumeKey: number;
+  resumeElapsedMs: number;
   targetStepIndex: number | null;
   navigationKey: number;
   activeStepIndex: number;
@@ -212,10 +230,12 @@ const props = defineProps<{
   snakeSegments: Array<{ key: string; path: string; begin: string }>;
   activeBusiness: AboutFlowItem;
   activeProduct: AboutFlowItem | null;
+  canContinueAnimation: boolean;
 }>();
 
 const emit = defineEmits<{
   replay: [];
+  "continue-animation": [];
   "select-step": [index: number];
   "stage-reached": [index: number];
   "flow-ready": [element: HTMLElement | null];
@@ -259,7 +279,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 .vz-about__head {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: clamp(48px, 8vw, 120px);
   margin-bottom: clamp(32px, 4vw, 48px);
@@ -281,18 +301,25 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 .vz-about__intro {
-  width: min(100%, 560px);
+  width: min(100%, 600px);
   flex: 0 0 auto;
+  margin-top: 12px;
+  padding: 20px;
+  border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+  border-radius: 20px;
+  background: var(--landing-card-surface-north-east, var(--landing-card-surface, var(--bg)));
+  box-shadow: var(--landing-card-shadow, 0 24px 54px -38px color-mix(in srgb, var(--ink) 38%, transparent));
+  backdrop-filter: blur(18px) saturate(1.08);
 }
 
 .vz-about__step-copy {
   display: grid;
   min-height: 154px;
-  grid-template-columns: minmax(150px, 0.72fr) minmax(240px, 1.28fr);
+  grid-template-columns: minmax(150px, 0.62fr) minmax(0, 1.38fr);
   align-items: start;
-  gap: clamp(24px, 3vw, 46px);
-  padding-top: 18px;
-  border-top: 1px solid var(--border);
+  gap: clamp(24px, 2.4vw, 34px);
+  padding-top: 0;
+  border-top: 0;
 }
 
 .vz-about__step-meta {
@@ -344,16 +371,13 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 .vz-about__step-deliverables {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 7px;
   margin: 16px 0 0;
   padding: 0;
-  overflow-x: auto;
+  overflow: visible;
   list-style: none;
-  scrollbar-width: none;
 }
-
-.vz-about__step-deliverables::-webkit-scrollbar { display: none; }
 
 .vz-about__step-deliverables li {
   display: inline-flex;
@@ -397,11 +421,20 @@ onBeforeUnmount(() => emit("flow-ready", null));
   min-height: clamp(390px, 42vw, 500px);
 }
 
-.vz-about__flow-replay {
+.vz-about__flow-controls {
   position: absolute;
   z-index: 5;
   top: 18px;
-  right: 0;
+  right: 18px;
+  display: flex;
+  max-width: calc(100% - 36px);
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.vz-about__flow-control {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -412,11 +445,12 @@ onBeforeUnmount(() => emit("flow-ready", null));
   font: 500 9px/1 "JetBrains Mono", monospace;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  white-space: nowrap;
   cursor: pointer;
   transition: color 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
-.vz-about__flow-replay span {
+.vz-about__flow-control span {
   display: grid;
   width: 22px;
   height: 22px;
@@ -428,7 +462,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   transition: transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
-.vz-about__flow-replay:focus-visible {
+.vz-about__flow-control:focus-visible {
   color: var(--ink);
   outline: 1px solid var(--flow-blue);
   outline-offset: 4px;
@@ -779,42 +813,57 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 .vz-about__proof dl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 18px;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   margin: 0;
 }
 
 .vz-about__proof dl div {
   position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+  border-radius: 16px;
+  background: var(--about-proof-surface, var(--landing-card-surface, var(--bg)));
+  box-shadow: var(--landing-card-shadow, 0 20px 46px -36px color-mix(in srgb, var(--ink) 34%, transparent));
+  backdrop-filter: blur(16px) saturate(1.08);
+}
+
+.vz-about__proof dl div:nth-child(1) {
+  --about-proof-surface: var(--landing-card-surface-cyan-left, var(--landing-card-surface));
+}
+
+.vz-about__proof dl div:nth-child(2) {
+  --about-proof-surface: var(--landing-card-surface-violet-top, var(--landing-card-surface));
+}
+
+.vz-about__proof dl div:nth-child(3) {
+  --about-proof-surface: var(--landing-card-surface-diagonal, var(--landing-card-surface));
 }
 
 .vz-about__proof dl div:not(:last-child)::after {
-  width: 3px;
-  height: 3px;
-  margin-left: 13px;
-  border-radius: 50%;
-  background: var(--muted2);
-  content: "";
+  display: none;
 }
 
 .vz-about__proof dt {
   color: var(--ink);
-  font-size: 14px;
+  font-size: clamp(28px, 2.6vw, 38px);
   font-weight: 600;
-  line-height: 1.4;
+  letter-spacing: -0.045em;
+  line-height: 1;
 }
 
 .vz-about__proof dd {
   margin: 0;
   color: var(--text2);
-  font-size: 14px;
-  line-height: 1.4;
+  font-size: 15px;
+  line-height: 1.35;
 }
 
 .vz-flow-icon-enter-active,
@@ -834,24 +883,33 @@ onBeforeUnmount(() => emit("flow-ready", null));
 @media (hover: hover) and (pointer: fine) {
   .vz-about__flow-replay:hover { color: var(--ink); }
   .vz-about__flow-replay:hover span { transform: rotate(-90deg); }
+  .vz-about__flow-continue:hover { color: var(--ink); }
+  .vz-about__flow-continue:hover span { transform: translateX(2px); }
 }
 
 @media (max-width: 900px) {
   .vz-about { padding: var(--section-space) 20px 0; }
   .vz-about__head { align-items: flex-start; flex-direction: column; gap: 30px; margin-bottom: 48px; }
   .vz-about__head h2 { max-width: 14ch; font-size: clamp(30px, 8.8vw, 46px); }
-  .vz-about__intro { width: min(100%, 520px); }
+  .vz-about__intro { width: min(100%, 520px); margin-top: 0; }
   .vz-about__step-copy p { max-width: 44ch; }
   .vz-about__proof { grid-template-columns: 1fr; gap: 24px; }
   .vz-about__proof > p { max-width: 58ch; }
 }
 
 @media (max-width: 720px) {
-  .vz-about__head { margin-bottom: 0; }
-  .vz-about__intro { height: clamp(138px, 35vw, 144px); }
+  .vz-about__head { margin-bottom: 14px; }
+  .vz-about__intro { height: 186px; min-height: 186px; }
   .vz-about__flow { overflow: visible; }
-  .vz-about__flow-canvas { width: 100%; min-height: clamp(460px, 125vw, 500px); }
-  .vz-about__flow-replay { position: absolute; right: 0; left: auto; width: max-content; }
+  .vz-about__flow-canvas { width: 100%; height: 488px; min-height: 488px; }
+  .vz-about__intro { padding: 18px; border-radius: 18px; }
+  .vz-about__flow-controls {
+    right: 14px;
+    max-width: calc(100% - 28px);
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 0;
+  }
   .vz-about__flow-zones { grid-template-columns: 1fr; grid-template-rows: 30fr 40fr 30fr; }
   .vz-about__flow-zone:not(:last-child) { border-right: 0; border-bottom: 1px solid var(--border); }
   .vz-about__flow-zone span {
@@ -898,12 +956,14 @@ onBeforeUnmount(() => emit("flow-ready", null));
     transform: translateY(-50%) translateX(3px);
   }
   .vz-about__flow-stage--design .vz-about__flow-stage-label {
-    right: calc(50% + 15px);
-    left: auto;
-    transform: translateY(-50%);
+    top: calc(50% + 15px);
+    right: auto;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
   .vz-about__flow-stage--design.is-active .vz-about__flow-stage-label {
-    transform: translateY(-50%) translateX(-3px);
+    transform: translateX(-50%) translateY(3px);
   }
   .vz-about__flow-stage--development .vz-about__flow-stage-label {
     top: calc(50% + 15px);
@@ -942,15 +1002,21 @@ onBeforeUnmount(() => emit("flow-ready", null));
     max-width: none;
     text-align: center;
   }
-  .vz-about__proof dl { gap: 10px 14px; }
-  .vz-about__proof dl div:not(:last-child)::after { margin-left: 9px; }
-  .vz-about__proof dt,
-  .vz-about__proof dd { font-size: 12px; }
-  .vz-about__step-copy {
-    height: 100%;
-    min-height: 0;
-    grid-template-columns: minmax(106px, 0.72fr) minmax(0, 1.28fr);
+  .vz-about__proof dl { grid-template-columns: 1fr; gap: 10px; }
+  .vz-about__proof dl div {
+    min-height: 82px;
+    flex-direction: row;
+    align-items: center;
     gap: 18px;
+    padding: 16px 18px;
+  }
+  .vz-about__proof dt { font-size: 28px; }
+  .vz-about__proof dd { max-width: 24ch; font-size: 14px; text-align: right; }
+  .vz-about__step-copy {
+    height: auto;
+    min-height: 0;
+    grid-template-columns: minmax(92px, 0.58fr) minmax(0, 1.42fr);
+    gap: 14px;
     padding-top: 16px;
   }
   .vz-about__step-meta > span { font-size: 40px; }
@@ -963,20 +1029,25 @@ onBeforeUnmount(() => emit("flow-ready", null));
     font-size: 13px;
     line-height: 1.4;
   }
-  .vz-about__step-deliverables { gap: 6px; margin-top: 12px; }
+  .vz-about__step-deliverables { gap: 5px; margin-top: 12px; }
   .vz-about__step-deliverables li {
-    padding: 5px 10px;
+    padding: 5px 7px;
     font-size: 11px;
+    white-space: nowrap;
   }
   .vz-about__step-deliverables li:nth-child(n + 3) { display: none; }
 }
 
 @media (max-width: 390px) {
-  .vz-about__step-copy { grid-template-columns: 96px minmax(0, 1fr); gap: 14px; }
+  .vz-about__step-copy { grid-template-columns: 88px minmax(0, 1fr); gap: 12px; }
   .vz-about__step-meta > span { font-size: 36px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .vz-about__flow-continue {
+    display: none;
+  }
+
   .vz-about__flow-node--business.is-sending .vz-about__endpoint-frame,
   .vz-about__flow-node--business.is-sending .vz-about__endpoint-frame::after,
   .vz-about__flow-node--product.is-arrived .vz-about__endpoint-frame,
@@ -984,6 +1055,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
     animation: none;
   }
   .vz-about__flow-replay span,
+  .vz-about__flow-continue span,
   .vz-about__flow-stage-anchor,
   .vz-about__flow-stage-anchor i,
   .vz-about__flow-stage-label,
@@ -999,5 +1071,18 @@ onBeforeUnmount(() => emit("flow-ready", null));
     transform: none;
     transition: opacity 180ms ease;
   }
+}
+
+.vz-flow-control-enter-active,
+.vz-flow-control-leave-active {
+  transition:
+    opacity 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-flow-control-enter-from,
+.vz-flow-control-leave-to {
+  opacity: 0;
+  transform: translate3d(6px, 0, 0);
 }
 </style>
