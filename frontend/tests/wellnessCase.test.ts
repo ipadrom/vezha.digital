@@ -16,7 +16,11 @@ for (const locale of ["ru", "en"] as const) {
     assert.equal(wellness.blocks.length, 13);
     assert.equal(wellness.blocks[0].content.logo_url, "/cases/wellness-app/wellness-mark.svg");
     assert.equal(wellness.blocks.filter((block) => block.type === "gallery").length, 2);
-    assert.equal(wellness.blocks.filter((block) => block.type === "video").length, 1);
+    assert.equal(wellness.blocks.filter((block) => block.type === "media_hero").length, 1);
+    assert.equal(wellness.blocks.filter((block) => block.type === "video").length, 0);
+    const mediaHero = wellness.blocks.find((block) => block.type === "media_hero");
+    assert.equal(mediaHero?.content.video_url, "/cases/wellness-app/wellness-promo.mp4");
+    assert.equal(mediaHero?.settings.layout, "media-16x9");
     assert.notEqual(wellness.name, "Training");
     assert.doesNotMatch(JSON.stringify(wellness), /artas|recipes-tab/i);
   });
@@ -51,6 +55,50 @@ test("case header hides an open mobile menu outside the mobile breakpoint", () =
 
   assert.match(css, /\.case-header__mobile-nav\s*\{[^}]*display:\s*none;/s);
   assert.match(css, /@media\s*\(max-width:\s*900px\)\s*\{[\s\S]*\.case-header__mobile-nav\s*\{[^}]*display:\s*grid;/s);
+});
+
+test("case sections and the compact landing header share the 1240px container", () => {
+  const builderCss = readFileSync("assets/css/case-builder-public.css", "utf8");
+  const landing = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(builderCss, /\.builder-block--wide\s+\.builder-block__inner\s*\{[^}]*width:\s*min\(100%,\s*1240px\);/s);
+  assert.match(builderCss, /\.builder-block--full\s+\.builder-block__inner\s*\{[^}]*width:\s*min\(100%,\s*1240px\);/s);
+  assert.match(landing, /calc\(\(100% - 1240px\)\s*\/\s*2\)/);
+  assert.match(landing, /border-radius:\s*999px/);
+});
+
+test("service inclusions stay in a two-column grid", () => {
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+
+  assert.match(css, /\.vz-service-panel \.vz-service-commercial__included \[data-serv-metawrap\]\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\);/s);
+  assert.match(css, /\.vz-service-panel \.vz-service-commercial__included \[data-serv-metawrap\] span\s*\{[^}]*min-width:\s*0;[^}]*white-space:\s*nowrap;/s);
+});
+
+test("desktop pages use Lenis while mobile keeps native scrolling", () => {
+  const composable = readFileSync("composables/useDesktopSmoothScroll.ts", "utf8");
+  const landing = readFileSync("pages/index.vue", "utf8");
+  const casePage = readFileSync("pages/cases/[slug].vue", "utf8");
+
+  assert.match(composable, /min-width:\s*901px/);
+  assert.match(composable, /pointer:\s*fine/);
+  assert.match(composable, /prefers-reduced-motion:\s*reduce/);
+  assert.match(composable, /import\(["']lenis["']\)/);
+  assert.match(landing, /useDesktopSmoothScroll\(\)/);
+  assert.match(casePage, /useDesktopSmoothScroll\(\)/);
+});
+
+test("media hero is editable and rendered with reduced-motion controls", () => {
+  const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
+  const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
+  const library = readFileSync("utils/caseBuilder.ts", "utf8");
+
+  assert.match(library, /type:\s*["']media_hero["']/);
+  assert.match(inspector, /media_hero:\s*\[/);
+  assert.match(inspector, /key:\s*'video_url'/);
+  assert.match(renderer, /block\.type === 'media_hero'/);
+  assert.match(renderer, /allowAutoplay/);
+  assert.match(renderer, /video\.play\(\)/);
+  assert.match(renderer, /prefers-reduced-motion:\s*reduce/);
 });
 
 test("wellness evidence disclosure follows the metric demo state", () => {

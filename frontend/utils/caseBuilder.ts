@@ -2,6 +2,7 @@ export type CaseLocale = 'ru' | 'en'
 export type CaseStatus = 'draft' | 'published' | 'hidden'
 export type CaseBlockType =
   | 'hero'
+  | 'media_hero'
   | 'text'
   | 'challenge_solution'
   | 'image'
@@ -189,6 +190,7 @@ export const blockLibrary: Array<{
   mark: string
 }> = [
   { type: 'hero', label: 'Обложка', description: 'Первый экран и ключевая метрика', mark: 'H' },
+  { type: 'media_hero', label: 'Медиа-хиро', description: 'Фото или видео на всю ширину', mark: '◫' },
   { type: 'text', label: 'Текст', description: 'Заголовок и повествование', mark: 'T' },
   { type: 'challenge_solution', label: 'Задача и решение', description: 'Две связанные главы', mark: '2' },
   { type: 'image', label: 'Изображение', description: 'Один крупный визуал', mark: '□' },
@@ -209,6 +211,10 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
   hero: [
     { logo_url: '', eyebrow: 'Кейс', title: 'Название проекта', subtitle: '', type_label: '', industry: '', timeline: '', year: '', image_url: '', image_alt: '', device_screen_url: '', metric_value: '', metric_label: '' },
     { logo_url: '', eyebrow: 'Case', title: 'Project name', subtitle: '', type_label: '', industry: '', timeline: '', year: '', image_url: '', image_alt: '', device_screen_url: '', metric_value: '', metric_label: '' },
+  ],
+  media_hero: [
+    { image_url: '', video_url: '', poster_url: '', alt: '', caption: '', autoplay: true, loop: true, muted: true, controls: false },
+    { image_url: '', video_url: '', poster_url: '', alt: '', caption: '', autoplay: true, loop: true, muted: true, controls: false },
   ],
   text: [
     { eyebrow: 'Контекст', title: 'Заголовок раздела', body: '' },
@@ -371,7 +377,7 @@ export const convertBlockToFreeform = (block: CaseBlock): CaseBlock => {
   for (const key of ['subtitle', 'body', 'summary', 'challenge', 'solution', 'quote']) addText('text', key)
 
   const imagePairs = [
-    ['image_url', 'image_alt'],
+    ['image_url', block.type === 'media_hero' ? 'alt' : 'image_alt'],
     ['before_url', 'before_alt'],
     ['after_url', 'after_alt'],
   ]
@@ -421,10 +427,10 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
     content_ru: structuredClone(defaults[0]),
     content_en: structuredClone(defaults[1]),
     settings: {
-      theme: ['metrics', 'technologies'].includes(type) ? 'ink' : type === 'next_case' ? 'signal' : 'paper',
-      width: ['hero', 'gallery', 'metrics', 'technologies', 'next_case'].includes(type) ? 'wide' : 'standard',
-      spacing: ['hero', 'next_case'].includes(type) ? 'large' : type === 'technologies' ? 'compact' : 'normal',
-      layout: type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : 'default',
+      theme: ['metrics', 'technologies', 'media_hero'].includes(type) ? 'ink' : type === 'next_case' ? 'signal' : 'paper',
+      width: ['hero', 'media_hero', 'gallery', 'metrics', 'technologies', 'next_case'].includes(type) ? 'wide' : 'standard',
+      spacing: ['hero', 'next_case'].includes(type) ? 'large' : ['technologies', 'media_hero'].includes(type) ? 'compact' : 'normal',
+      layout: type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : type === 'media_hero' ? 'media-16x9' : 'default',
       alignment: 'left',
       desktop_span: 12,
       desktop_start: 0,
@@ -452,7 +458,7 @@ export const blockLabel = (type: CaseBlockType) => blockLibrary.find(item => ite
 
 export const blockTitle = (block: CaseBlock, locale: CaseLocale) => {
   const content = locale === 'ru' ? block.content_ru : block.content_en
-  return content.title || content.eyebrow || blockLabel(block.type)
+  return content.title || content.eyebrow || content.caption || blockLabel(block.type)
 }
 
 export const localizedBlocks = (blocks: CaseBlock[], locale: CaseLocale): PublicBuilderBlock[] => blocks

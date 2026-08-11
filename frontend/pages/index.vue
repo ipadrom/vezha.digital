@@ -165,6 +165,7 @@ import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality";
 definePageMeta({
   layout: false,
 });
+useDesktopSmoothScroll();
 
 type StackGroup = {
   title: string;
@@ -3733,19 +3734,22 @@ useHead(() => ({
 
 .vz-nav {
   position: fixed;
-  top: 0;
-  right: 0;
-  left: 0;
+  top: 12px;
+  right: max(40px, calc((100% - 1240px) / 2));
+  left: max(40px, calc((100% - 1240px) / 2));
   z-index: 210;
-  display: flex;
-  height: 68px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  height: 58px;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 40px;
-  border-bottom: 1px solid var(--border);
-  background: var(--navbg);
-  backdrop-filter: saturate(1.4) blur(14px);
-  -webkit-backdrop-filter: saturate(1.4) blur(14px);
+  padding: 0 12px 0 20px;
+  border: 1px solid color-mix(in srgb, var(--border) 68%, white);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--navbg) 82%, transparent);
+  box-shadow: 0 14px 42px rgb(34 38 54 / 10%);
+  backdrop-filter: saturate(1.18) blur(18px);
+  -webkit-backdrop-filter: saturate(1.18) blur(18px);
+  box-sizing: border-box;
 }
 
 .vz-logo {
@@ -3773,6 +3777,7 @@ useHead(() => ({
 .vz-nav__links {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 30px;
 }
 
@@ -3789,6 +3794,7 @@ useHead(() => ({
 .vz-nav__actions {
   display: flex;
   align-items: center;
+  justify-self: end;
   gap: 12px;
 }
 
@@ -3800,8 +3806,8 @@ useHead(() => ({
   justify-content: center;
   padding: 0;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
   color: var(--ink);
   cursor: pointer;
 }
@@ -3821,6 +3827,7 @@ useHead(() => ({
 
 .vz-nav__cta {
   padding: 11px 20px;
+  border-radius: 999px;
   background: var(--ink);
   color: var(--bg);
   font-size: 14px;
@@ -5535,7 +5542,11 @@ useHead(() => ({
   }
 
   .vz-nav {
-    padding: 0 20px;
+    top: 10px;
+    right: 20px;
+    left: 20px;
+    height: 54px;
+    padding: 0 8px 0 16px;
   }
 
   .vz-nav__links,

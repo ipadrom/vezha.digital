@@ -1,5 +1,5 @@
 <template>
-  <div class="builder-case" :data-locale="locale">
+  <div ref="builderRoot" class="builder-case" :data-locale="locale">
     <section
       v-for="block in orderedBlocks"
       :key="block.id"
@@ -32,6 +32,27 @@
             <div v-else class="builder-placeholder"><span>VEZHA / CASE</span><i /><i /><i /></div>
             <span v-if="block.content.device_screen_url" class="builder-hero__device-screen" aria-hidden="true"><img :src="block.content.device_screen_url" alt="" /></span>
             <figcaption v-if="block.content.metric_value"><b>{{ block.content.metric_value }}</b><span>{{ block.content.metric_label }}</span></figcaption>
+          </figure>
+        </template>
+
+        <template v-else-if="block.type === 'media_hero'">
+          <figure class="builder-media-hero">
+            <video
+              v-if="block.content.video_url"
+              :autoplay="allowAutoplay && block.content.autoplay !== false"
+              :loop="block.content.loop !== false"
+              :muted="block.content.muted !== false"
+              :controls="Boolean(block.content.controls) || reduceMotion"
+              :poster="block.content.poster_url || undefined"
+              :aria-label="block.content.alt || block.content.caption || undefined"
+              playsinline
+              preload="metadata"
+            >
+              <source :src="block.content.video_url" />
+            </video>
+            <img v-else-if="block.content.image_url" :src="block.content.image_url" :alt="block.content.alt || ''" decoding="async" />
+            <div v-else class="builder-placeholder">MEDIA HERO</div>
+            <figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption>
           </figure>
         </template>
 
@@ -111,6 +132,10 @@ import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
 import CaseFreeformBlock from '~/components/case-builder/CaseFreeformBlock.vue'
 import type { CaseLocale, PublicBuilderBlock } from '~/utils/caseBuilder'
 const props = defineProps<{ blocks: PublicBuilderBlock[]; locale: CaseLocale }>()
+const builderRoot = ref<HTMLElement | null>(null)
+const reduceMotion = ref(true)
+const allowAutoplay = ref(false)
+let motionQuery: MediaQueryList | null = null
 const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => a.sort_order - b.sort_order))
 const heroHasMedia = (block: PublicBuilderBlock) => Boolean(block.content.image_url || block.content.device_screen_url || block.content.metric_value)
 const blockClasses = (block: PublicBuilderBlock) => [
@@ -133,6 +158,22 @@ const blockGridStyle = (block: PublicBuilderBlock): Record<string, string> => {
   }
   return style
 }
+const syncMediaMotion = async () => {
+  const shouldReduce = Boolean(motionQuery?.matches)
+  reduceMotion.value = shouldReduce
+  allowAutoplay.value = !shouldReduce
+  await nextTick()
+  builderRoot.value?.querySelectorAll<HTMLVideoElement>('.builder-media-hero video').forEach((video) => {
+    if (shouldReduce) video.pause()
+    else if (video.autoplay) void video.play().catch(() => undefined)
+  })
+}
+onMounted(() => {
+  motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+  motionQuery.addEventListener('change', syncMediaMotion)
+  void syncMediaMotion()
+})
+onBeforeUnmount(() => motionQuery?.removeEventListener('change', syncMediaMotion))
 </script>
 
 <style src="~/assets/css/case-builder-public.css"></style>

@@ -18,6 +18,7 @@
       <label v-for="field in fields" :key="field.key">
         <span>{{ field.label }}</span>
         <AdminMediaInput v-if="field.media" :model-value="content[field.key] || ''" :accept="field.accept" @update:model-value="setContent(field.key, $event)" />
+        <input v-else-if="field.kind === 'checkbox'" type="checkbox" :checked="Boolean(content[field.key])" @change="setContentBoolean(field.key, $event)" />
         <textarea v-else-if="field.kind === 'textarea'" :value="content[field.key] || ''" :rows="field.rows || 4" @input="setContent(field.key, valueOf($event))" />
         <input v-else :value="content[field.key] || ''" :type="field.kind || 'text'" @input="setContent(field.key, valueOf($event))" />
       </label>
@@ -135,6 +136,7 @@ const mapAccentPresets = [
 
 const fieldMap: Record<string, Field[]> = {
   hero: [{ key: 'logo_url', label: 'Логотип проекта', media: true }, { key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'subtitle', label: 'Подзаголовок', kind: 'textarea', rows: 3 }, { key: 'type_label', label: 'Тип' }, { key: 'industry', label: 'Сфера' }, { key: 'timeline', label: 'Срок' }, { key: 'year', label: 'Год' }, { key: 'image_url', label: 'Главное изображение', media: true }, { key: 'image_alt', label: 'Alt изображения' }, { key: 'device_screen_url', label: 'Экран внутри устройства', media: true }, { key: 'metric_value', label: 'Значение метрики' }, { key: 'metric_label', label: 'Подпись метрики' }],
+  media_hero: [{ key: 'image_url', label: 'Изображение', media: true, accept: 'image/*' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'alt', label: 'Описание медиа' }, { key: 'caption', label: 'Подпись', kind: 'textarea', rows: 3 }, { key: 'autoplay', label: 'Автозапуск без звука', kind: 'checkbox' }, { key: 'loop', label: 'Зациклить видео', kind: 'checkbox' }, { key: 'muted', label: 'Без звука', kind: 'checkbox' }, { key: 'controls', label: 'Показывать управление', kind: 'checkbox' }],
   text: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'body', label: 'Текст', kind: 'textarea', rows: 8 }],
   challenge_solution: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'challenge_label', label: 'Подпись задачи' }, { key: 'challenge', label: 'Задача', kind: 'textarea', rows: 6 }, { key: 'solution_label', label: 'Подпись решения' }, { key: 'solution', label: 'Решение', kind: 'textarea', rows: 6 }],
   image: [{ key: 'image_url', label: 'Изображение', media: true }, { key: 'alt', label: 'Alt' }, { key: 'caption', label: 'Подпись', kind: 'textarea' }],
@@ -162,6 +164,7 @@ const fields = computed(() => isFreeform.value ? [] : fieldMap[props.block.type]
 const itemFields = computed(() => isFreeform.value ? [] : itemFieldMap[props.block.type] || [])
 const itemName = computed(() => itemNames[props.block.type] || 'Элемент')
 const layouts = computed(() => isFreeform.value ? [{ value: 'freeform', label: 'Свободная композиция' }] : ({
+  media_hero: [{ value: 'media-16x9', label: 'Кино / 16:9' }, { value: 'media-3x2', label: 'Фото / 3:2' }, { value: 'media-natural', label: 'Исходные пропорции' }],
   gallery: [{ value: 'mosaic', label: 'Мозаика' }, { value: 'grid', label: 'Сетка' }, { value: 'strip', label: 'Лента' }, { value: 'phones', label: 'Экраны устройства' }],
   image_text: [{ value: 'image-right', label: 'Изображение справа' }, { value: 'image-left', label: 'Изображение слева' }],
   metrics: [{ value: 'grid', label: 'Сетка' }, { value: 'strip', label: 'Лента' }],
@@ -170,7 +173,8 @@ const layouts = computed(() => isFreeform.value ? [{ value: 'freeform', label: '
 }[props.block.type] || [{ value: 'default', label: 'Стандартная' }]))
 
 function update(mutator: (copy: CaseBlock) => void) { const copy = deepClone(props.block); mutator(copy); emit('change', copy) }
-function setContent(field: string, value: string) { update(copy => { copy[key.value][field] = value }) }
+function setContent(field: string, value: unknown) { update(copy => { copy[key.value][field] = value }) }
+function setContentBoolean(field: string, event: Event) { setContent(field, (event.target as HTMLInputElement).checked) }
 const freeformElementLabel = (type: CaseElementType) => ({ eyebrow: 'Метка', heading: 'Заголовок', text: 'Текст', image: 'Изображение', video: 'Видео', button: 'Кнопка', metric: 'Метрика' }[type] || type)
 function setFreeformElement(index: number, field: string, value: string) { update(copy => { if (copy[key.value].elements?.[index]) copy[key.value].elements[index][field] = value }) }
 function removeFreeformElement(index: number) {

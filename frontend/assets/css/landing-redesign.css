@@ -2068,8 +2068,11 @@
 }
 
 .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] {
-  display: flex;
+  display: grid;
+  width: 100%;
   min-height: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-flow: row;
   margin: 9px 0 0;
   padding: 0;
   border-top: 0;
@@ -2077,10 +2080,21 @@
 }
 
 .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: 0;
+  display: flex;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: center;
   padding: 7px 13px;
   font-size: 12px;
   line-height: 1.6;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 @media (max-width: 900px) {
@@ -3312,7 +3326,7 @@
   .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
     padding: 6px 10px;
     font-size: 10px;
-    white-space: normal;
+    white-space: nowrap;
   }
 
   .vz-service-panel__cta {

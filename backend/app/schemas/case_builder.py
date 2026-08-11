@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 CaseStatus = Literal["draft", "published", "hidden"]
 BlockType = Literal[
     "hero",
+    "media_hero",
     "text",
     "challenge_solution",
     "image",
@@ -41,6 +42,18 @@ class HeroContent(FlexibleContent):
     device_screen_url: str = ""
     metric_value: str = ""
     metric_label: str = ""
+
+
+class MediaHeroContent(FlexibleContent):
+    image_url: str = ""
+    video_url: str = ""
+    poster_url: str = ""
+    alt: str = ""
+    caption: str = ""
+    autoplay: bool = True
+    loop: bool = True
+    muted: bool = True
+    controls: bool = False
 
 
 class TextContent(FlexibleContent):
@@ -165,6 +178,7 @@ class CustomContent(FlexibleContent):
 
 BLOCK_CONTENT_MODELS: dict[str, type[BaseModel]] = {
     "hero": HeroContent,
+    "media_hero": MediaHeroContent,
     "text": TextContent,
     "challenge_solution": ChallengeSolutionContent,
     "image": ImageContent,

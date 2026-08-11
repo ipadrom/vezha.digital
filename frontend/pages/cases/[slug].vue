@@ -69,6 +69,7 @@ const project = ref<IProjectDetail | null>(null);
 const caseIndex = computed(() => Math.max(0, fallbacks.value.findIndex((item) => item.slug === project.value?.slug)));
 const nextProject = computed(() => project.value ? getNextProject(fallbacks.value, project.value.slug || "") : undefined);
 const two = (value: number) => String(value).padStart(2, "0");
+useDesktopSmoothScroll();
 
 async function loadProject() {
   const fallback = fallbacks.value.find((item) => item.slug === slug.value) || null;

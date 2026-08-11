@@ -21,7 +21,7 @@
   grid-auto-flow: row;
   align-items: stretch;
   gap: 18px;
-  padding: 18px;
+  padding: 18px 40px;
   color: var(--case-ink);
   background:
     radial-gradient(1050px 780px at 86% 3%, rgb(107 148 255 / 28%), transparent 70%),
@@ -112,11 +112,11 @@
 }
 
 .builder-block--wide .builder-block__inner {
-  width: min(100%, 1320px);
+  width: min(100%, 1240px);
 }
 
 .builder-block--full .builder-block__inner {
-  width: min(100%, 1480px);
+  width: min(100%, 1240px);
 }
 
 .builder-block--space-compact .builder-block__inner {
@@ -343,6 +343,61 @@
 
 .builder-block--hero-text-only .builder-hero__copy {
   max-width: 880px;
+}
+
+.builder-block--media_hero .builder-block__inner {
+  padding: 0;
+  background: #10131a;
+}
+
+.builder-media-hero {
+  position: relative;
+  min-height: 280px;
+  margin: 0;
+  overflow: hidden;
+  background: #10131a;
+}
+
+.builder-media-hero > img,
+.builder-media-hero > video {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  background: #10131a;
+}
+
+.builder-block--layout-media-16x9 .builder-media-hero > img,
+.builder-block--layout-media-16x9 .builder-media-hero > video,
+.builder-block--layout-media-16x9 .builder-media-hero > .builder-placeholder {
+  aspect-ratio: 16 / 9;
+}
+
+.builder-block--layout-media-3x2 .builder-media-hero > img,
+.builder-block--layout-media-3x2 .builder-media-hero > video,
+.builder-block--layout-media-3x2 .builder-media-hero > .builder-placeholder {
+  aspect-ratio: 3 / 2;
+}
+
+.builder-media-hero > .builder-placeholder {
+  min-height: 0;
+  border-radius: 0;
+}
+
+.builder-media-hero figcaption {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  left: 18px;
+  width: fit-content;
+  max-width: min(520px, calc(100% - 36px));
+  padding: 10px 13px;
+  border-radius: 12px;
+  color: #fff;
+  background: rgb(10 12 18 / 72%);
+  backdrop-filter: blur(14px);
+  font: 500 9px/1.45 var(--font-mono);
+  letter-spacing: .04em;
 }
 
 .builder-placeholder {
@@ -855,7 +910,7 @@
 @media (max-width: 760px) {
   .builder-case {
     gap: 12px;
-    padding: 10px;
+    padding: 10px 20px;
   }
 
   .builder-block__inner {

@@ -12,7 +12,7 @@
       </div>
     </header>
 
-    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--hero-text-only': block.type === 'hero' && block.settings.layout !== 'freeform' && !heroHasMedia, 'canvas-block__preview--freeform': block.settings.layout === 'freeform' }">
+    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--hero-text-only': block.type === 'hero' && block.settings.layout !== 'freeform' && !heroHasMedia, 'canvas-block__preview--media-hero': block.type === 'media_hero', 'canvas-block__preview--freeform': block.settings.layout === 'freeform' }">
       <CaseFreeformCanvas
         v-if="block.settings.layout === 'freeform'"
         :elements="content.elements || []"
@@ -44,6 +44,14 @@
           <i v-if="content.device_screen_url" class="preview-device-screen"><img :src="content.device_screen_url" alt="" /></i>
           <figcaption v-if="content.metric_value"><b><CaseInlineEdit :model-value="content.metric_value" placeholder="0" label="Значение метрики" @focus="$emit('select')" @update:model-value="edit(['metric_value'], $event)" /></b><CaseInlineEdit :model-value="content.metric_label" placeholder="Метрика" label="Подпись метрики" @focus="$emit('select')" @update:model-value="edit(['metric_label'], $event)" /></figcaption>
         </figure>
+      </template>
+      <template v-else-if="block.type === 'media_hero'">
+        <div class="preview-media preview-media--wide preview-media--hero-block">
+          <img v-if="content.poster_url || content.image_url" :src="content.poster_url || content.image_url" alt="" />
+          <b v-if="content.video_url">▶</b>
+          <span>{{ content.video_url ? 'FULL-WIDTH VIDEO' : content.image_url ? 'FULL-WIDTH IMAGE' : 'ADD IMAGE OR VIDEO' }}</span>
+        </div>
+        <CaseInlineEdit class="preview-caption" :model-value="content.caption" placeholder="Добавить подпись" label="Подпись медиа-хиро" @focus="$emit('select')" @update:model-value="edit(['caption'], $event)" />
       </template>
       <template v-else-if="block.type === 'image'">
         <div class="preview-media preview-media--wide"><img v-if="content.image_url" :src="content.image_url" alt="" /><span v-else>IMAGE</span></div><CaseInlineEdit class="preview-caption" :model-value="content.caption" placeholder="Добавить подпись" label="Подпись изображения" @focus="$emit('select')" @update:model-value="edit(['caption'], $event)" />
@@ -223,6 +231,7 @@ function resizeWithKeyboard(direction: number) {
 .canvas-block__preview--hero { min-height: 0; padding: clamp(32px, 7cqw, 68px) clamp(18px, 4cqw, 42px); grid-template-columns: minmax(0, .92fr) minmax(280px, 1.08fr); gap: clamp(24px, 5cqw, 54px); }
 .canvas-block__preview--hero-text-only { grid-template-columns: minmax(0, 1fr); }
 .canvas-block__preview--hero-text-only .preview-hero-copy { max-width: 680px; }
+.canvas-block__preview--media-hero { min-height: 0; padding: 12px; grid-template-columns: minmax(0, 1fr); }
 .canvas-block__preview--freeform { min-height: 0; padding: 0; display: block; }
 .theme-soft .canvas-block__preview { background: radial-gradient(circle at 92% 8%, #fff 0, transparent 39%), radial-gradient(circle at 10% 88%, rgb(174 155 255 / 25%), transparent 45%), radial-gradient(circle at 92% 86%, rgb(88 214 255 / 16%), transparent 42%), #f4f5ff; }
 .theme-ink .canvas-block__preview { color: #f8f8ff; border-color: rgb(255 255 255 / 9%); background: radial-gradient(circle at 18% 14%, rgb(151 129 255 / 24%), transparent 42%), radial-gradient(circle at 90% 86%, rgb(62 200 220 / 14%), transparent 42%), #171925; }
@@ -250,6 +259,7 @@ function resizeWithKeyboard(direction: number) {
 .preview-caption { color: #778294; font: 8px var(--font-mono); }
 .preview-media { position: relative; min-height: 120px; display: grid; place-items: center; overflow: hidden; border-radius: 16px; color: #8c96a6; background: linear-gradient(145deg, #edf0f8, #e5f3f6); font: 600 9px var(--font-mono); }
 .preview-hero-media { min-height: clamp(360px, 70cqw, 620px); margin: 0; box-shadow: 0 24px 60px rgb(40 43 62 / 14%); }
+.preview-media--hero-block { min-height: clamp(240px, 52cqw, 440px); }
 .preview-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .preview-media .preview-device-screen { position: absolute; top: 9.7%; left: calc(50% + 3px); z-index: 2; height: 75.7%; aspect-ratio: .477; overflow: hidden; border-radius: 4.6% / 2.4%; transform: translateX(-50%); }
 .preview-media .preview-device-screen img { width: 100%; height: 100%; object-fit: fill; }

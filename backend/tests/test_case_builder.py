@@ -11,7 +11,7 @@ from app.services.projects import serialize_project_detail, serialize_project_su
 
 
 def load_wellness_migration():
-    path = Path(__file__).parents[1] / "alembic/versions/k1f2a3b4c5d6_refresh_wellness_case.py"
+    path = Path(__file__).parents[1] / "alembic/versions/l2a3b4c5d6e7_refresh_wellness_editorial_story.py"
     spec = spec_from_file_location("wellness_case_migration", path)
     assert spec and spec.loader
     module = module_from_spec(spec)
@@ -133,6 +133,32 @@ def test_technology_map_validates_node_positions() -> None:
         )
 
 
+def test_media_hero_validates_full_width_image_or_video_content() -> None:
+    block = CaseBlockInput(
+        type="media_hero",
+        content_ru={
+            "video_url": "/case/story.mp4",
+            "poster_url": "/case/poster.webp",
+            "caption": "История продукта",
+            "autoplay": True,
+            "loop": True,
+            "muted": True,
+            "controls": False,
+        },
+        content_en={
+            "video_url": "/case/story.mp4",
+            "poster_url": "/case/poster.webp",
+            "caption": "Product story",
+        },
+        settings={"width": "full", "layout": "media-16x9"},
+    )
+
+    assert block.content_ru["video_url"] == "/case/story.mp4"
+    assert block.content_ru["controls"] is False
+    assert block.content_en["autoplay"] is True
+    assert block.settings.width == "full"
+
+
 def test_custom_block_preserves_freeform_elements_and_responsive_geometry() -> None:
     element = {
         "id": "heading-1",
@@ -169,7 +195,11 @@ def test_wellness_import_is_a_complete_bilingual_builder_document() -> None:
     assert document.blocks[0].content_ru["logo_url"].endswith("wellness-mark.svg")
     assert document.blocks[0].content_ru["metric_value"] == "2×1"
     assert [block.type for block in document.blocks].count("gallery") == 2
-    assert [block.type for block in document.blocks].count("video") == 1
+    assert [block.type for block in document.blocks].count("media_hero") == 1
+    assert [block.type for block in document.blocks].count("video") == 0
+    assert document.blocks[2].content_ru["video_url"].endswith("wellness-promo.mp4")
+    assert document.blocks[2].settings.layout == "media-16x9"
+    assert "О проекте" == document.blocks[1].content_ru["eyebrow"]
     assert all(block.content_ru != block.content_en for block in document.blocks[1:10])
     assert document.blocks[1].settings.anchor == "story"
     assert document.blocks[3].settings.anchor == "evidence"
