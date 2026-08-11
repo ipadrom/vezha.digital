@@ -56,7 +56,7 @@ export function getCaseFallbacks(locale: LocaleCode): IProjectDetail[] {
     },
     {
       id: "concept-ai", slug: "ai-support", sort_order: 2, is_featured: true,
-      type: "AI / AUTOMATION", name: ru ? "Поддержка, которая помнит контекст" : "Support that remembers context",
+      type: "AI / AUTOMATION", name: ru ? "Поддержка с контекстом" : "Context-aware support",
       subtitle: ru ? "AI-помощник для первой линии и внутренней базы знаний." : "An AI copilot for frontline support and internal knowledge.",
       industry: ru ? "Сервисы" : "Services", description: ru ? "Единое окно для вопросов клиентов, поиска по базе и передачи сложных диалогов оператору." : "One workspace for customer questions, knowledge retrieval and human handoff.",
       image_url: null, cover_image_url: null, project_url: null, hero_metric_value: "AI", hero_metric_label: ru ? "в рабочем контуре" : "in the workflow",

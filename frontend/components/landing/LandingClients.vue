@@ -40,9 +40,19 @@
           class="vz-client-copy"
           role="tabpanel"
         >
-          <span :key="`${activeClient.key}-eyebrow`">{{ activeClient.eyebrow }}</span>
-          <h3 :key="`${activeClient.key}-title`">{{ activeClient.title }}</h3>
-          <p :key="`${activeClient.key}-text`">{{ activeClient.text }}</p>
+          <span>{{ activeClient.eyebrow }}</span>
+          <h3>{{ activeClient.title }}</h3>
+          <div class="vz-client-card-slot">
+            <p>{{ activeClient.text }}</p>
+            <p
+              v-for="segment in segments"
+              :key="`client-card-size-${segment.key}`"
+              class="vz-client-card-sizer"
+              aria-hidden="true"
+            >
+              {{ segment.text }}
+            </p>
+          </div>
         </article>
       </div>
       <div

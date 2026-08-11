@@ -14,6 +14,7 @@ export function useLandingServices(
   let raf = 0;
   let highlightAnimation: Animation | null = null;
   let highlightTargetIndex = -1;
+  let layoutResizeObserver: ResizeObserver | null = null;
   let pendingActiveNotification = false;
 
   function getRelativeHighlightBounds(element: HTMLElement, navList: HTMLElement): ServiceHighlightBounds {
@@ -296,6 +297,11 @@ export function useLandingServices(
   onMounted(() => {
     window.addEventListener("scroll", scheduleRender, { passive: true });
     window.addEventListener("resize", handleResize, { passive: true });
+    if (rootRef.value && "ResizeObserver" in window) {
+      layoutResizeObserver = new ResizeObserver(scheduleRender);
+      layoutResizeObserver.observe(rootRef.value);
+    }
+    void document.fonts?.ready.then(scheduleRender);
     nextTick(scheduleRender);
   });
 
@@ -304,6 +310,7 @@ export function useLandingServices(
     window.removeEventListener("resize", handleResize);
     if (raf) cancelAnimationFrame(raf);
     highlightAnimation?.cancel();
+    layoutResizeObserver?.disconnect();
   });
 
   watch(serviceCount, () => {

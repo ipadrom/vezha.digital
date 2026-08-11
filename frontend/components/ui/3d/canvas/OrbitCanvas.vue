@@ -20,6 +20,7 @@ import * as THREE from "three"
 import type { ITechStack } from "~/utils/interfaces/ITechStack"
 import type { IPlanet } from "~/utils/interfaces/IPlanet"
 import parseOBJ from "~/composables/useOBJParser"
+import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality"
 
 const props = defineProps<{
   techs: ITechStack[],
@@ -52,7 +53,7 @@ function initThree() {
 
   const canvas = threeCanvas.value
   const r = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
-  r.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  syncThreeRendererPixelRatio(r)
   r.setClearColor(0x000000, 0)
   renderer.value = r
 
@@ -214,6 +215,7 @@ function onResize() {
   if (!containerRef.value || !renderer.value || !camera.value) return
   const W = containerRef.value.clientWidth
   const H = containerRef.value.clientHeight
+  syncThreeRendererPixelRatio(renderer.value)
   renderer.value.setSize(W, H, false)
   camera.value.aspect = W / H
   camera.value.updateProjectionMatrix()
@@ -224,6 +226,7 @@ onMounted(() => {
   initThree()
   initLabels()
   window.addEventListener('resize', onResize)
+  window.visualViewport?.addEventListener('resize', onResize, { passive: true })
   onResize()
   animate()
 })
@@ -231,6 +234,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cancelAnimationFrame(rafId)
   window.removeEventListener('resize', onResize)
+  window.visualViewport?.removeEventListener('resize', onResize)
   renderer.value?.dispose()
 })
 </script>

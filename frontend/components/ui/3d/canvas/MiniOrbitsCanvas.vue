@@ -6,6 +6,7 @@
 import * as THREE from 'three'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import parseOBJ from "~/composables/useOBJParser";
+import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality";
 
 const props = defineProps<{
   techs: { color: number; path: string; orbit: number }[]
@@ -23,16 +24,19 @@ function initMiniOrbit(
     reverse: boolean
 ): MiniCleanup {
   const SIZE = 120
-  const dpr  = Math.min(window.devicePixelRatio, 2)
-  canvas.width  = SIZE * dpr
-  canvas.height = SIZE * dpr
   canvas.style.width  = SIZE + 'px'
   canvas.style.height = SIZE + 'px'
 
   const miniRenderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
-  miniRenderer.setPixelRatio(dpr)
-  miniRenderer.setSize(SIZE, SIZE, false)
+  const syncResolution = () => {
+    syncThreeRendererPixelRatio(miniRenderer)
+    miniRenderer.setSize(SIZE, SIZE, false)
+  }
+  syncResolution()
   miniRenderer.setClearColor(0x000000, 0)
+  const viewport = window.visualViewport
+  window.addEventListener('resize', syncResolution, { passive: true })
+  viewport?.addEventListener('resize', syncResolution, { passive: true })
 
   const miniScene = new THREE.Scene()
 
@@ -146,6 +150,8 @@ function initMiniOrbit(
     cancel:  () => cancelAnimationFrame(raf),
     dispose: () => {
       cancelAnimationFrame(raf)
+      window.removeEventListener('resize', syncResolution)
+      viewport?.removeEventListener('resize', syncResolution)
       miniRenderer.dispose()
     },
   }

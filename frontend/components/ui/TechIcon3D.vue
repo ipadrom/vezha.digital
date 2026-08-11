@@ -6,6 +6,7 @@
 import * as THREE from 'three'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 import { onMounted, onBeforeUnmount, ref } from 'vue'
+import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality"
 
 const props = defineProps<{
   modelUrl: string
@@ -32,7 +33,7 @@ const init = () => {
     camera.lookAt(0, 0, 0)
 
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true })
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    syncThreeRendererPixelRatio(renderer)
 
     containerRef.value?.appendChild(renderer.domElement)
 
@@ -89,6 +90,7 @@ const adaptiveRenderer = () => {
 
   const width = containerRef.value.clientWidth
   const height = containerRef.value.clientHeight
+  syncThreeRendererPixelRatio(renderer)
   renderer.setSize(width, height)
   camera.aspect = width / height
   camera.updateProjectionMatrix()
@@ -127,12 +129,16 @@ onMounted(() => {
 
     resizeObserver = new ResizeObserver(adaptiveRenderer)
     resizeObserver.observe(containerRef.value!)
+    window.addEventListener('resize', adaptiveRenderer, { passive: true })
+    window.visualViewport?.addEventListener('resize', adaptiveRenderer, { passive: true })
 
 })
 
 onBeforeUnmount(() => {
     cancelAnimationFrame(animationFrameId)
     resizeObserver?.disconnect()
+    window.removeEventListener('resize', adaptiveRenderer)
+    window.visualViewport?.removeEventListener('resize', adaptiveRenderer)
     renderer.dispose()
     scene.clear()
 })

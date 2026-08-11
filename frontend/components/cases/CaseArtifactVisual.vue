@@ -236,7 +236,7 @@ const labels = computed(() => props.locale === "ru" ? {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  min-height: 520px;
+  min-height: var(--cases-stage-height, 488px);
   margin: 0;
   overflow: hidden;
   border-radius: 24px;
@@ -396,6 +396,28 @@ const labels = computed(() => props.locale === "ru" ? {
 .case-artifact__fallback { position: absolute; inset: 12%; display: flex; flex-direction: column; justify-content: center; }.case-artifact__fallback small { color: var(--artifact-accent); font: 500 9px var(--font-mono); letter-spacing: .16em; }.case-artifact__fallback strong { max-width: 780px; margin-top: 24px; font-size: clamp(38px, 6vw, 86px); line-height: .94; letter-spacing: -.04em; }.case-artifact__fallback div { display: grid; gap: 11px; width: 52%; margin-top: 60px; }.case-artifact__fallback i { height: 1px; background: rgba(255, 255, 255, .2); }.case-artifact__fallback i:nth-child(2) { width: 72%; }.case-artifact__fallback i:nth-child(3) { width: 43%; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (min-width: 901px) {
+  .case-artifact {
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: auto;
+  }
+
+  .case-artifact__wellness-video,
+  .case-artifact__cover {
+    object-fit: contain;
+  }
+
+  .artifact-menu-phone {
+    width: min(28%, calc(var(--cases-stage-height, 488px) * 0.41));
+  }
+
+  .artifact-menu-phone--catalog,
+  .artifact-menu-phone--status {
+    bottom: 3.5%;
+  }
+}
 
 @media (max-width: 900px) {
   .case-artifact { min-height: 0; aspect-ratio: 4 / 5; border-radius: 18px; }

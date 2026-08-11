@@ -160,6 +160,7 @@ import type { ITechStack } from "~/utils/interfaces/ITechStack";
 import enMessagesRaw from "~/locales/en.json?raw";
 import ruMessagesRaw from "~/locales/ru.json?raw";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
+import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality";
 
 definePageMeta({
   layout: false,
@@ -940,7 +941,7 @@ async function setupAboutLiquidScene() {
       powerPreference: "high-performance",
     });
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    syncThreeRendererPixelRatio(renderer);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.94;
@@ -983,6 +984,7 @@ async function setupAboutLiquidScene() {
     const resize = () => {
       const width = Math.max(1, host.clientWidth);
       const height = Math.max(1, host.clientHeight);
+      syncThreeRendererPixelRatio(renderer);
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -1001,6 +1003,9 @@ async function setupAboutLiquidScene() {
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(host);
+    const viewport = window.visualViewport;
+    window.addEventListener("resize", resize, { passive: true });
+    viewport?.addEventListener("resize", resize, { passive: true });
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       isVisible = Boolean(entry?.isIntersecting);
     });
@@ -1011,6 +1016,8 @@ async function setupAboutLiquidScene() {
     aboutLiquidCleanup = () => {
       if (frameId) cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
+      window.removeEventListener("resize", resize);
+      viewport?.removeEventListener("resize", resize);
       intersectionObserver.disconnect();
       geometry.dispose();
       material.dispose();
@@ -1119,7 +1126,7 @@ async function setupStackSphereScene() {
       powerPreference: "high-performance",
     });
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    syncThreeRendererPixelRatio(renderer);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.setAttribute("aria-hidden", "true");
     const labelLayer = document.createElement("div");
@@ -1352,6 +1359,7 @@ async function setupStackSphereScene() {
       updateStackSpherePosition();
       const width = Math.max(1, host.clientWidth);
       const height = Math.max(1, host.clientHeight);
+      syncThreeRendererPixelRatio(renderer);
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -1407,7 +1415,8 @@ async function setupStackSphereScene() {
     if (inner) layoutObserver.observe(inner);
     if (timeline) layoutObserver.observe(timeline);
     const viewport = window.visualViewport;
-    viewport?.addEventListener("resize", updateStackSpherePosition, { passive: true });
+    window.addEventListener("resize", resize, { passive: true });
+    viewport?.addEventListener("resize", resize, { passive: true });
     viewport?.addEventListener("scroll", updateStackSpherePosition, { passive: true });
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       isVisible = Boolean(entry?.isIntersecting);
@@ -1421,7 +1430,8 @@ async function setupStackSphereScene() {
       window.clearInterval(positionInterval);
       resizeObserver.disconnect();
       layoutObserver.disconnect();
-      viewport?.removeEventListener("resize", updateStackSpherePosition);
+      window.removeEventListener("resize", resize);
+      viewport?.removeEventListener("resize", resize);
       viewport?.removeEventListener("scroll", updateStackSpherePosition);
       intersectionObserver.disconnect();
       geometries.forEach((geometry) => geometry.dispose());
@@ -1519,7 +1529,7 @@ async function setupClientCubeScene() {
       powerPreference: "high-performance",
     });
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    syncThreeRendererPixelRatio(renderer);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.06;
@@ -1659,16 +1669,15 @@ async function setupClientCubeScene() {
             envMap,
             envMapIntensity: faceIndex === 2 ? 3.1 : 2.65,
             metalness: 0.96,
-            opacity: 0,
             reflectivity: 1,
             roughness: faceIndex === 2 ? 0.1 : faceIndex === 3 ? 0.22 : 0.145,
             specularIntensity: 1,
-            transparent: true,
+            transparent: false,
           }));
           const mesh = new THREE.Mesh(cubeGeometry, materials);
           const edgeMaterial = new THREE.LineBasicMaterial({
             color: 0x343a41,
-            opacity: 0,
+            opacity: 0.46,
             transparent: true,
           });
           const edges = new THREE.LineSegments(edgeGeometry, edgeMaterial);
@@ -1705,39 +1714,11 @@ async function setupClientCubeScene() {
     let currentStage = clampValue(activeClientSegment.value, 0, clientSegments.value.length - 1);
     let transitionFromStage = currentStage;
     let stageChangedAt = performance.now();
-    const stageKeyPositions = [
-      new THREE.Vector3(4.8, 5.2, 5.6),
-      new THREE.Vector3(-2.6, 7.8, 1.8),
-      new THREE.Vector3(4.1, 5.5, -4.8),
-    ];
-    const stageGlintPositions = [
-      new THREE.Vector3(5.2, 5.7, 4.2),
-      new THREE.Vector3(-4.4, 6.2, 3.6),
-      new THREE.Vector3(4.7, 5.9, -4.1),
-    ];
-    const stageRimPositions = [
-      new THREE.Vector3(-4.4, 2.4, -3.2),
-      new THREE.Vector3(4.2, 2.7, -3.5),
-      new THREE.Vector3(-4.1, 2.9, 4.4),
-    ];
-    const stageEnvironmentAngles = [-0.28, 0.16, 0.52];
-    const stageShadowPositions = [
-      new THREE.Vector3(-0.26, -0.965, -0.1),
-      new THREE.Vector3(0.1, -0.965, -0.08),
-      new THREE.Vector3(-0.18, -0.965, 0.18),
-    ];
-    const initialVisualStage = Math.round(currentStage);
-    const targetKeyPosition = stageKeyPositions[initialVisualStage]!.clone();
-    const targetGlintPosition = stageGlintPositions[initialVisualStage]!.clone();
-    const targetRimPosition = stageRimPositions[initialVisualStage]!.clone();
-    const targetShadowPosition = stageShadowPositions[initialVisualStage]!.clone();
-    let targetEnvironmentAngle = stageEnvironmentAngles[initialVisualStage] ?? 0;
-    let currentEnvironmentAngle = targetEnvironmentAngle;
-    keyLight.position.copy(targetKeyPosition);
-    glintLight.position.copy(targetGlintPosition);
-    rimLight.position.copy(targetRimPosition);
-    contactShadow.position.copy(targetShadowPosition);
-    scene.environmentRotation.y = currentEnvironmentAngle;
+    keyLight.position.set(4.8, 5.2, 5.6);
+    glintLight.position.set(5.2, 5.7, 4.2);
+    rimLight.position.set(-4.4, 2.4, -3.2);
+    contactShadow.position.set(-0.26, -0.965, -0.1);
+    scene.environmentRotation.y = -0.28;
 
     const render = () => renderer.render(scene, camera);
     const setStage = (index: number, immediate = false) => {
@@ -1745,31 +1726,13 @@ async function setupClientCubeScene() {
       transitionFromStage = immediate ? nextStage : currentStage;
       currentStage = nextStage;
       stageChangedAt = performance.now();
-      const visualStage = Math.round(nextStage);
-      targetKeyPosition.copy(stageKeyPositions[visualStage] ?? stageKeyPositions[0]!);
-      targetGlintPosition.copy(stageGlintPositions[visualStage] ?? stageGlintPositions[0]!);
-      targetRimPosition.copy(stageRimPositions[visualStage] ?? stageRimPositions[0]!);
-      targetShadowPosition.copy(stageShadowPositions[visualStage] ?? stageShadowPositions[0]!);
-      targetEnvironmentAngle = stageEnvironmentAngles[visualStage] ?? stageEnvironmentAngles[0]!;
-      if (immediate || reduceMotion) {
-        keyLight.position.copy(targetKeyPosition);
-        glintLight.position.copy(targetGlintPosition);
-        rimLight.position.copy(targetRimPosition);
-        contactShadow.position.copy(targetShadowPosition);
-        currentEnvironmentAngle = targetEnvironmentAngle;
-        scene.environmentRotation.y = currentEnvironmentAngle;
-      }
       cubeRecords.forEach((record) => {
         const shouldShow = record.visibleStage <= currentStage;
         if (immediate || reduceMotion) {
           record.mesh.position.copy(shouldShow ? record.home : record.fly);
           record.scale = shouldShow ? 1 : 0.18;
           record.mesh.scale.setScalar(record.scale);
-          record.materials.forEach((material) => { material.opacity = shouldShow ? 1 : 0; });
-          record.edgeMaterial.opacity = shouldShow ? 0.46 : 0;
           record.mesh.visible = shouldShow;
-        } else if (shouldShow) {
-          record.mesh.visible = true;
         }
       });
       if (immediate || reduceMotion) render();
@@ -1779,6 +1742,7 @@ async function setupClientCubeScene() {
     const resize = () => {
       const width = Math.max(1, host.clientWidth);
       const height = Math.max(1, host.clientHeight);
+      syncThreeRendererPixelRatio(renderer);
       renderer.setSize(width, height, false);
       const aspect = width / height;
       const baseAspect = 1.08;
@@ -1795,14 +1759,6 @@ async function setupClientCubeScene() {
       lastFrame = now;
 
       if (isVisible) {
-        const lightEase = 1 - Math.pow(0.944, frame);
-        const glintEase = 1 - Math.pow(0.936, frame);
-        keyLight.position.lerp(targetKeyPosition, lightEase);
-        glintLight.position.lerp(targetGlintPosition, glintEase);
-        rimLight.position.lerp(targetRimPosition, lightEase);
-        contactShadow.position.lerp(targetShadowPosition, lightEase);
-        currentEnvironmentAngle += (targetEnvironmentAngle - currentEnvironmentAngle) * lightEase;
-        scene.environmentRotation.y = currentEnvironmentAngle;
         cubeRecords.forEach((record) => {
           const delay = record.order * 34;
           let shouldShow = record.visibleStage <= currentStage;
@@ -1817,11 +1773,9 @@ async function setupClientCubeScene() {
           record.mesh.position.lerp(target, moveEase);
           record.scale += ((shouldShow ? 1 : 0.18) - record.scale) * 0.1 * frame;
           record.mesh.scale.setScalar(record.scale);
-          record.materials.forEach((material) => {
-            material.opacity += ((shouldShow ? 1 : 0) - material.opacity) * 0.12 * frame;
-          });
-          record.edgeMaterial.opacity += ((shouldShow ? 0.46 : 0) - record.edgeMaterial.opacity) * 0.12 * frame;
-          record.mesh.visible = shouldShow || record.materials[0].opacity > 0.02;
+          const isAtHiddenRest = record.scale <= 0.205
+            && record.mesh.position.distanceToSquared(record.fly) <= 0.0025;
+          record.mesh.visible = shouldShow || !isAtHiddenRest;
         });
 
         render();
@@ -1832,6 +1786,9 @@ async function setupClientCubeScene() {
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(host);
+    const viewport = window.visualViewport;
+    window.addEventListener("resize", resize, { passive: true });
+    viewport?.addEventListener("resize", resize, { passive: true });
     const intersectionObserver = new IntersectionObserver(([entry]) => {
       isVisible = Boolean(entry?.isIntersecting);
     });
@@ -1843,6 +1800,8 @@ async function setupClientCubeScene() {
     clientCubeCleanup = () => {
       if (frameId) cancelAnimationFrame(frameId);
       resizeObserver.disconnect();
+      window.removeEventListener("resize", resize);
+      viewport?.removeEventListener("resize", resize);
       intersectionObserver.disconnect();
       if (updateClientCubeStage === setStage) updateClientCubeStage = null;
       cubeGeometry.dispose();
@@ -1917,9 +1876,11 @@ function updateClientCubePosition() {
 
   const section = grid.closest<HTMLElement>("#clients");
   const connector = grid.querySelector<HTMLElement>(".vz-client-connector");
+  const capsules = grid.querySelector<HTMLElement>(".vz-client-capsules");
   const gridRect = grid.getBoundingClientRect();
   const sectionRect = section?.getBoundingClientRect() || gridRect;
   const connectorRect = connector?.getBoundingClientRect();
+  const capsulesRect = capsules?.getBoundingClientRect();
   const cubeRect = host.getBoundingClientRect();
   const cubeWidth = cubeRect.width || host.offsetWidth;
   const cubeHeight = cubeRect.height || host.offsetHeight;
@@ -1930,7 +1891,9 @@ function updateClientCubePosition() {
   const targetViewportY = (upperLineY + lowerLineY) / 2;
   const cubeVisualCenterRatio = 0.62;
   const rightSceneRoom = Math.max(0, cubeWidth - cubeHeight * 1.08);
-  const nextLeft = `${Math.round(gridRect.width - cubeWidth + rightSceneRoom * 0.5)}px`;
+  const targetRightWithinGrid = (capsulesRect?.right ?? gridRect.right) - gridRect.left;
+  // The canvas reserves transparent space on the right, so align the visible cube edge.
+  const nextLeft = `${Math.round(targetRightWithinGrid - cubeWidth + rightSceneRoom)}px`;
   const nextTop = `${Math.round(targetViewportY - gridRect.top - cubeHeight * cubeVisualCenterRatio)}px`;
 
   if (host.style.getPropertyValue("--client-cube-left") !== nextLeft) {
@@ -2118,6 +2081,7 @@ function getSectionLiquidTargets() {
     { key: "stack", selector: "#stack .vz-sec-head h2", section: "#stack" },
     { key: "services", selector: "#services .vz-sec-head h2", section: "#services" },
     { key: "clients", selector: "#clients h2", section: "#clients" },
+    { key: "cases", selector: "#cases .vz-cases__heading h2", section: "#cases" },
     { key: "contacts", selector: "#contacts h2", section: "#contacts" },
     { key: "footer", selector: ".vz-footer__sign strong", section: ".vz-footer" },
   ];
@@ -2326,6 +2290,7 @@ function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
     stack: "[data-negative-section='stack'] .vz-sec-head h2",
     services: "[data-negative-section='services'] .vz-sec-head h2",
     clients: "[data-negative-section='clients'] h2",
+    cases: "[data-negative-section='cases'] .vz-cases__heading h2",
     contacts: "[data-negative-section='contacts'] h2",
     footer: "[data-negative-section='footer'] .vz-footer__sign strong",
   };
@@ -2982,16 +2947,36 @@ function getNegativeWorldSignature(scope: "hero" | "page") {
   ].join(":");
 }
 
+const negativeCloneSurfaceTokens = [
+  ["--landing-glass", "transparent"],
+  ["--landing-glass-strong", "transparent"],
+  ["--landing-glass-border", "transparent"],
+  ["--landing-glass-shadow", "none"],
+  ["--landing-card-surface", "transparent"],
+  ["--landing-card-surface-north-east", "transparent"],
+  ["--landing-card-surface-cyan-left", "transparent"],
+  ["--landing-card-surface-violet-top", "transparent"],
+  ["--landing-card-surface-diagonal", "transparent"],
+  ["--landing-card-border", "transparent"],
+  ["--landing-card-shadow", "none"],
+  ["--services-card-gradient", "transparent"],
+  ["--services-card-border", "transparent"],
+  ["--services-card-shadow", "none"],
+] as const;
+
 function cleanupNegativeClone(clone: HTMLElement) {
   clone.dataset.negativeClone = "true";
   clone.setAttribute("aria-hidden", "true");
   clone.removeAttribute("id");
   clone.classList.remove("vz-motion-ready");
-  clone.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #contacts, .vz-footer").forEach((section) => {
+  negativeCloneSurfaceTokens.forEach(([property, value]) => {
+    clone.style.setProperty(property, value, "important");
+  });
+  clone.querySelectorAll<HTMLElement>("#hero, #about, [data-stack-section], [data-services-pin], #clients, #cases, #contacts, .vz-footer").forEach((section) => {
     section.dataset.negativeSection = section.id || (section.classList.contains("vz-footer") ? "footer" : "");
     section.classList.add("is-motion-visible");
   });
-  clone.querySelectorAll<HTMLElement>(".vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu, .vz-motion-atmosphere").forEach((element) => element.remove());
+  clone.querySelectorAll<HTMLElement>(".vz-nav, .vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu, .vz-motion-atmosphere").forEach((element) => element.remove());
   clone.querySelectorAll<HTMLElement>("[id]").forEach((element) => element.removeAttribute("id"));
   clone.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
     element.style.opacity = "1";
@@ -3608,7 +3593,7 @@ useHead(() => ({
   top: 0;
   right: 0;
   left: 0;
-  z-index: 100;
+  z-index: 210;
   display: flex;
   height: 68px;
   align-items: center;
@@ -3617,6 +3602,7 @@ useHead(() => ({
   border-bottom: 1px solid var(--border);
   background: var(--navbg);
   backdrop-filter: saturate(1.4) blur(14px);
+  -webkit-backdrop-filter: saturate(1.4) blur(14px);
 }
 
 .vz-logo {
@@ -3713,7 +3699,7 @@ useHead(() => ({
 .vz-mobile-menu {
   position: fixed;
   inset: 0;
-  z-index: 150;
+  z-index: 220;
   display: flex;
   flex-direction: column;
   padding: 22px 24px 40px;
@@ -3983,15 +3969,13 @@ useHead(() => ({
   z-index: 0;
   background:
     radial-gradient(circle at 44% 36%, rgba(92, 216, 255, 0.16), transparent 38%),
-    rgba(18, 19, 24, 0.9);
-  backdrop-filter: invert(1) hue-rotate(172deg) saturate(1.22) contrast(1.08);
-  -webkit-backdrop-filter: invert(1) hue-rotate(172deg) saturate(1.22) contrast(1.08);
+    rgb(18 19 24);
 }
 
 .vz-section-liquid[data-theme="dark"]::before {
   background:
     radial-gradient(circle at 44% 36%, rgba(173, 156, 255, 0.14), transparent 38%),
-    rgba(242, 243, 245, 0.94);
+    rgb(242 243 245);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
@@ -4073,6 +4057,24 @@ useHead(() => ({
   --navbg: transparent;
   --aura: rgba(142, 223, 255, 0.12);
   --halo: rgba(173, 156, 255, 0.18);
+}
+
+.vz-negative-world [data-negative-clone="true"] :where(
+  .vz-about__intro,
+  .vz-about__flow,
+  .vz-about__proof dl > div,
+  .vz-stack__active-card,
+  .vz-stack__mobile-details,
+  .vz-service-caption,
+  .vz-client-copy p,
+  .vz-cases__caption > *,
+  .vz-contacts__inner
+) {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .vz-negative-world--hero {
@@ -4934,6 +4936,14 @@ useHead(() => ({
   text-transform: uppercase;
 }
 
+.vz-client-card-slot {
+  display: contents;
+}
+
+.vz-client-card-sizer {
+  display: none;
+}
+
 .vz-client-copy p {
   position: relative;
   width: 100%;
@@ -5739,6 +5749,7 @@ useHead(() => ({
   .vz-client-cube-field {
     --client-cube-size: min(72vw, 278px);
     --client-cube-right-room: 0px;
+    --client-cube-mobile-lift: min(18vw, 70px);
     position: relative;
     top: auto;
     left: auto;
@@ -5747,10 +5758,10 @@ useHead(() => ({
     order: 5;
     width: var(--client-cube-size);
     height: calc(var(--client-cube-size) / 1.08);
-    margin: 10px auto -6px;
+    margin: calc(10px - var(--client-cube-mobile-lift)) 0 -6px auto;
     opacity: 0.9;
     transform: none;
-    justify-self: center;
+    justify-self: end;
   }
 
   .vz-client-copy h3 {
@@ -5760,20 +5771,36 @@ useHead(() => ({
     font-size: 25px;
   }
 
+  .vz-client-card-slot {
+    display: grid;
+    order: 6;
+    margin-top: 16px;
+  }
+
+  .vz-client-card-slot > p {
+    grid-area: 1 / 1;
+    align-self: end;
+  }
+
+  .vz-client-card-slot > .vz-client-card-sizer {
+    display: block;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
   .vz-client-copy p {
     position: relative;
     height: auto;
     min-height: 0;
     width: 100%;
     max-width: none;
-    margin-top: 16px;
+    margin-top: 0;
     padding: 18px;
     border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
     border-radius: 20px;
     background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
     box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
     backdrop-filter: blur(18px) saturate(1.08);
-    order: 6;
     font-size: 15px;
     line-height: 1.55;
   }

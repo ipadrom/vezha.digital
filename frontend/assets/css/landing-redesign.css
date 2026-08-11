@@ -3779,7 +3779,6 @@
   --motion-state: 250ms;
   --motion-enter: 720ms;
   position: relative;
-  isolation: isolate;
 }
 
 .vz-motion-atmosphere {
@@ -4420,5 +4419,77 @@
   )::before,
   .vz-services__nav button::before {
     transition-duration: 125ms;
+  }
+}
+
+/* Mobile services: one active capsule, compact device rhythm and a stable 2x2 inclusion grid. */
+@media (max-width: 900px) {
+  .vz-services__nav {
+    padding: 4px 20px 6px;
+  }
+
+  .vz-services__nav button,
+  .vz-services__nav button[data-active="true"] {
+    min-height: 34px;
+    border-radius: 999px;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .vz-services__nav button:not([data-active="true"]) {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .vz-services__nav button:not([data-active="true"])::before {
+    content: none;
+  }
+
+  .vz-services__nav button[data-active="true"] {
+    border-color: var(--ink);
+    background: var(--ink);
+    box-shadow: 0 14px 30px -24px color-mix(in srgb, var(--ink) 58%, transparent);
+  }
+
+  .vz-services__stage,
+  .vz-services__devices {
+    height: clamp(264px, 78vw, 308px);
+    min-height: clamp(264px, 78vw, 308px);
+  }
+
+  .vz-services__stage {
+    margin-top: 0;
+  }
+
+  .vz-services[data-active-service-device="phone"] .vz-device-mac {
+    top: calc(50% + 20px);
+  }
+
+  .vz-service-caption {
+    margin-top: 4px;
+  }
+
+  .vz-service-commercial__included {
+    min-height: 0;
+    padding-top: 10px;
+  }
+
+  .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 7px;
+  }
+
+  .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    font-size: clamp(8px, 2.3vw, 9px);
+    line-height: 1.35;
+    text-align: center;
+    white-space: nowrap;
   }
 }

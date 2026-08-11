@@ -10,23 +10,29 @@
         </div>
 
         <div class="vz-about__intro" aria-live="polite" aria-atomic="true">
-          <Transition name="vz-flow-copy" mode="out-in">
-            <div :key="activeFlowStep.number" class="vz-about__step-copy">
+          <div class="vz-about__step-stack">
+            <div
+              v-for="step in allFlowSteps"
+              :key="step.number"
+              class="vz-about__step-copy"
+              :class="{ 'is-active': step.number === activeFlowStep.number }"
+              :aria-hidden="step.number === activeFlowStep.number ? undefined : 'true'"
+            >
               <div class="vz-about__step-meta">
-                <span>{{ activeFlowStep.number }}</span>
+                <span>{{ step.number }}</span>
                 <div>
-                  <strong>{{ activeFlowStep.title }}</strong>
-                  <small>{{ activeFlowStep.duration }}</small>
+                  <strong>{{ step.title }}</strong>
+                  <small>{{ step.duration }}</small>
                 </div>
               </div>
               <div class="vz-about__step-detail">
-                <p>{{ activeFlowStep.description }}</p>
+                <p>{{ step.description }}</p>
                 <ul class="vz-about__step-deliverables">
-                  <li v-for="item in activeFlowStep.deliverables" :key="item">{{ item }}</li>
+                  <li v-for="item in step.deliverables" :key="item">{{ item }}</li>
                 </ul>
               </div>
             </div>
-          </Transition>
+          </div>
         </div>
       </header>
 
@@ -46,7 +52,12 @@
               :aria-label="copy.continueAnimation"
               @click="$emit('continue-animation')"
             >
-              {{ copy.continueAnimation }} <span aria-hidden="true">→</span>
+              {{ copy.continueAnimation }}
+              <span aria-hidden="true">
+                <svg viewBox="0 0 20 20">
+                  <path d="M4.5 10h10M11 6.5 14.5 10 11 13.5" />
+                </svg>
+              </span>
             </button>
           </Transition>
           <button
@@ -244,8 +255,7 @@ const emit = defineEmits<{
 const flowRef = ref<HTMLElement | null>(null);
 const stageKeys = ["design", "ux", "development", "testing", "launch"] as const;
 const supportStepIndex = stageKeys.length + 1;
-const activeFlowStep = computed(() => {
-  const index = Math.max(0, Math.min(supportStepIndex, props.displayStepIndex));
+const allFlowSteps = computed(() => Array.from({ length: supportStepIndex + 1 }, (_, index) => {
   const details = props.copy.stepDetails[index] || { duration: "", description: "", deliverables: [] };
   return {
     number: String(index).padStart(2, "0"),
@@ -256,6 +266,10 @@ const activeFlowStep = computed(() => {
         : props.copy.stages[index - 1] || "",
     ...details,
   };
+}));
+const activeFlowStep = computed(() => {
+  const index = Math.max(0, Math.min(supportStepIndex, props.displayStepIndex));
+  return allFlowSteps.value[index];
 });
 onMounted(() => {
   emit("flow-ready", flowRef.value);
@@ -312,14 +326,35 @@ onBeforeUnmount(() => emit("flow-ready", null));
   backdrop-filter: blur(18px) saturate(1.08);
 }
 
+.vz-about__step-stack {
+  display: grid;
+}
+
 .vz-about__step-copy {
   display: grid;
+  grid-area: 1 / 1;
   min-height: 154px;
   grid-template-columns: minmax(150px, 0.62fr) minmax(0, 1.38fr);
   align-items: start;
   gap: clamp(24px, 2.4vw, 34px);
   padding-top: 0;
   border-top: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition:
+    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s linear 220ms;
+}
+
+.vz-about__step-copy.is-active {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+  transition-delay: 0s;
 }
 
 .vz-about__step-meta {
@@ -395,16 +430,6 @@ onBeforeUnmount(() => emit("flow-ready", null));
   white-space: nowrap;
 }
 
-.vz-flow-copy-enter-active,
-.vz-flow-copy-leave-active {
-  transition:
-    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
-    transform 220ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.vz-flow-copy-enter-from { opacity: 0; transform: translateY(8px); }
-.vz-flow-copy-leave-to { opacity: 0; transform: translateY(-8px); }
-
 .vz-about__flow {
   position: relative;
   width: 100%;
@@ -460,6 +485,17 @@ onBeforeUnmount(() => emit("flow-ready", null));
   color: var(--ink);
   font-size: 12px;
   transition: transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-about__flow-continue svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+  transform: translateY(-0.75px);
 }
 
 .vz-about__flow-control:focus-visible {
@@ -899,10 +935,10 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 @media (max-width: 720px) {
   .vz-about__head { margin-bottom: 14px; }
-  .vz-about__intro { height: 186px; min-height: 186px; }
+  .vz-about__intro { height: auto; min-height: 0; }
   .vz-about__flow { overflow: visible; }
   .vz-about__flow-canvas { width: 100%; height: 488px; min-height: 488px; }
-  .vz-about__intro { padding: 18px; border-radius: 18px; }
+  .vz-about__intro { padding: 14px 16px; border-radius: 18px; }
   .vz-about__flow-controls {
     right: 14px;
     max-width: calc(100% - 28px);
@@ -1017,11 +1053,11 @@ onBeforeUnmount(() => emit("flow-ready", null));
     min-height: 0;
     grid-template-columns: minmax(92px, 0.58fr) minmax(0, 1.42fr);
     gap: 14px;
-    padding-top: 16px;
+    padding-top: 0;
   }
   .vz-about__step-meta > span { font-size: 40px; }
-  .vz-about__step-meta strong { margin-top: 16px; font-size: 11px; }
-  .vz-about__step-meta small { margin-top: 7px; font-size: 8px; }
+  .vz-about__step-meta strong { margin-top: 12px; font-size: 11px; }
+  .vz-about__step-meta small { margin-top: 5px; font-size: 8px; }
   .vz-about__step-copy p {
     max-width: none;
     margin: 0;
@@ -1029,7 +1065,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
     font-size: 13px;
     line-height: 1.4;
   }
-  .vz-about__step-deliverables { gap: 5px; margin-top: 12px; }
+  .vz-about__step-deliverables { gap: 5px; margin-top: 8px; }
   .vz-about__step-deliverables li {
     padding: 5px 7px;
     font-size: 11px;
@@ -1063,8 +1099,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   .vz-flow-icon-leave-active,
   .vz-flow-label-enter-active,
   .vz-flow-label-leave-active,
-  .vz-flow-copy-enter-active,
-  .vz-flow-copy-leave-active { transition-duration: 1ms; }
+  .vz-about__step-copy { transition-duration: 1ms; }
 
   .vz-about__flow-stage-label::before,
   .vz-about__flow-stage.is-active .vz-about__flow-stage-label::before {

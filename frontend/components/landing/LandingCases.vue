@@ -2,81 +2,94 @@
   <section id="cases" class="vz-cases" aria-labelledby="cases-title">
     <header class="vz-cases__heading">
       <div class="vz-cases__title-block">
-        <div class="vz-section-label"><span>{{ copy.label }}</span><i>/</i><span>04</span></div>
+        <div class="vz-section-label"><span>{{ copy.label }}</span><i>/</i><span>05</span></div>
         <h2 id="cases-title"><span><span data-reveal>{{ copy.title }}</span></span></h2>
       </div>
       <p>{{ copy.intro }}</p>
     </header>
 
     <div v-if="cases.length" class="vz-cases__shell">
-      <div
-        class="vz-cases__tabs"
-        role="tablist"
-        :aria-label="copy.tabAria"
-        :aria-orientation="tabOrientation"
-        @keydown="onTabsKeydown"
-      >
-        <button
-          v-for="(item, index) in cases"
-          :id="`case-tab-${index}`"
-          :key="item.slug || item.id"
-          type="button"
-          role="tab"
-          :aria-controls="`case-panel-${index}`"
-          :aria-label="`${two(index + 1)}. ${item.name}. ${item.type}`"
-          :aria-selected="index === activeIndex"
-          :tabindex="index === activeIndex ? 0 : -1"
-          @click="selectCase(index)"
+      <div class="vz-cases__case-nav">
+        <div
+          class="vz-cases__tabs"
+          role="tablist"
+          :aria-label="copy.tabAria"
+          aria-orientation="horizontal"
+          @keydown="onTabsKeydown"
         >
-          <span>{{ two(index + 1) }}</span>
-          <b>{{ caseLabel(item) }}</b>
-          <i aria-hidden="true"></i>
-        </button>
-      </div>
+          <button
+            v-for="(item, index) in cases"
+            :id="`case-tab-${index}`"
+            :key="item.slug || item.id"
+            type="button"
+            role="tab"
+            :aria-controls="`case-panel-${index}`"
+            :aria-label="`${two(index + 1)}. ${item.name}. ${item.type}`"
+            :aria-selected="index === activeIndex"
+            :tabindex="index === activeIndex ? 0 : -1"
+            @click="selectCase(index)"
+          >
+            <span>{{ two(index + 1) }}</span>
+            <b>{{ caseLabel(item) }}</b>
+            <i aria-hidden="true"></i>
+          </button>
+        </div>
 
-      <div
-        class="vz-cases__mobile-controls"
-        :aria-label="currentLocale === 'ru' ? 'Навигация по кейсам' : 'Case navigation'"
-      >
-        <button
-          type="button"
-          :aria-label="currentLocale === 'ru' ? 'Предыдущий кейс' : 'Previous case'"
-          @click="move(-1, false)"
+        <div
+          class="vz-cases__mobile-controls"
+          :aria-label="currentLocale === 'ru' ? 'Навигация по кейсам' : 'Case navigation'"
         >
-          <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
-        </button>
-        <button
-          type="button"
-          :aria-label="currentLocale === 'ru' ? 'Следующий кейс' : 'Next case'"
-          @click="move(1, false)"
-        >
-          <svg aria-hidden="true" viewBox="0 0 20 20"><path d="m11 5 5 5-5 5M4 10h12" /></svg>
-        </button>
+          <button
+            type="button"
+            :aria-label="currentLocale === 'ru' ? 'Предыдущий кейс' : 'Previous case'"
+            @click="move(-1, false)"
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
+          </button>
+          <button
+            type="button"
+            :aria-label="currentLocale === 'ru' ? 'Следующий кейс' : 'Next case'"
+            @click="move(1, false)"
+          >
+            <svg aria-hidden="true" viewBox="0 0 20 20"><path d="m11 5 5 5-5 5M4 10h12" /></svg>
+          </button>
+        </div>
       </div>
 
       <Transition name="case-switch" mode="out-in">
         <article
           v-if="activeCase"
           :id="`case-panel-${activeIndex}`"
-          :key="activeCase.id"
+          :key="casePanelKey"
           class="vz-cases__active"
           role="tabpanel"
           :aria-labelledby="`case-tab-${activeIndex}`"
         >
-          <CaseArtifactVisual
-            :project="activeCase"
-            :index-label="two(activeIndex + 1)"
-            :locale="currentLocale"
-          />
+          <Transition name="case-switch" mode="out-in">
+            <CaseArtifactVisual
+              :key="activeCase.id"
+              :project="activeCase"
+              :index-label="two(activeIndex + 1)"
+              :locale="currentLocale"
+            />
+          </Transition>
 
           <footer class="vz-cases__caption">
             <div class="vz-cases__identity">
-              <h3>{{ activeCase.name }}</h3>
+              <Transition name="case-copy" mode="out-in">
+                <h3 :key="`case-title-${activeCase.id}`">{{ activeCase.name }}</h3>
+              </Transition>
             </div>
-            <p>{{ activeCase.description }}</p>
+            <p>
+              <Transition name="case-copy" mode="out-in">
+                <span :key="`case-description-${activeCase.id}`">{{ activeCase.description }}</span>
+              </Transition>
+            </p>
             <div class="vz-cases__proof">
               <span>{{ copy.proof }}</span>
-              <strong>{{ caseProof(activeCase) }}</strong>
+              <Transition name="case-copy" mode="out-in">
+                <strong :key="`case-proof-${activeCase.id}`">{{ caseProof(activeCase) }}</strong>
+              </Transition>
             </div>
             <NuxtLink class="vz-cases__link" :to="`/cases/${activeCase.slug}`">
               {{ copy.open }}
@@ -118,13 +131,31 @@ const props = defineProps<{
 const { locale } = useI18n();
 const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const activeIndex = ref(0);
-const isNarrow = ref(false);
-let narrowQuery: MediaQueryList | undefined;
 
 const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback));
 const activeCase = computed(() => cases.value[activeIndex.value]);
-const tabOrientation = computed(() => isNarrow.value ? "horizontal" : "vertical");
+const desktopMediaQuery = "(min-width: 901px)";
+const isDesktop = ref(import.meta.client ? window.matchMedia(desktopMediaQuery).matches : true);
+const casePanelKey = computed(() => isDesktop.value
+  ? "desktop-case-panel"
+  : `case-panel-${activeCase.value?.id ?? activeIndex.value}`);
 const two = (value: number) => value.toString().padStart(2, "0");
+
+let desktopMedia: MediaQueryList | undefined;
+
+function onDesktopMediaChange(event: MediaQueryListEvent) {
+  isDesktop.value = event.matches;
+}
+
+onMounted(() => {
+  desktopMedia = window.matchMedia(desktopMediaQuery);
+  isDesktop.value = desktopMedia.matches;
+  desktopMedia.addEventListener("change", onDesktopMediaChange);
+});
+
+onBeforeUnmount(() => {
+  desktopMedia?.removeEventListener("change", onDesktopMediaChange);
+});
 
 const labelsBySlug: Record<string, { ru: string; en: string }> = {
   "wellness-app": { ru: "Wellness App", en: "Wellness App" },
@@ -154,7 +185,6 @@ function caseProof(project: IProjects) {
 }
 
 function centerActiveTab(index: number) {
-  if (!isNarrow.value) return;
   const tab = document.getElementById(`case-tab-${index}`);
   const tabList = tab?.closest<HTMLElement>(".vz-cases__tabs");
   if (!tab || !tabList) return;
@@ -195,17 +225,6 @@ function onTabsKeydown(event: KeyboardEvent) {
   }
 }
 
-function syncNarrowState() {
-  isNarrow.value = narrowQuery?.matches ?? false;
-}
-
-onMounted(() => {
-  narrowQuery = window.matchMedia("(max-width: 900px)");
-  syncNarrowState();
-  narrowQuery.addEventListener("change", syncNarrowState);
-});
-
-onBeforeUnmount(() => narrowQuery?.removeEventListener("change", syncNarrowState));
 watch(cases, () => { if (activeIndex.value >= cases.value.length) activeIndex.value = 0; });
 </script>
 

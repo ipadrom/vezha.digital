@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import {useTypeWriterAnimation} from "~/composables/useTypeWriterAnimation";
 import type {ISettings} from "~/utils/interfaces/ISettings";
+import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality";
 
 const props = defineProps<{
   settings: ISettings | null
@@ -71,6 +72,7 @@ function init3DScene() {
       alpha: true,
       antialias: true
     })
+    syncThreeRendererPixelRatio(renderer)
 
     const container = canvas.parentElement as HTMLElement
     const width = container.clientWidth
@@ -194,6 +196,7 @@ function init3DScene() {
 
     window.addEventListener('resize', () => {
       const newWidth = window.innerWidth / 2
+      syncThreeRendererPixelRatio(renderer)
       camera.aspect = newWidth / window.innerHeight
       camera.updateProjectionMatrix()
       renderer.setSize(newWidth, window.innerHeight)
