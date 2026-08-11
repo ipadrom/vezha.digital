@@ -13,24 +13,82 @@
 
         <div class="vz-services__grid" data-serv-grid>
           <div class="vz-services__rail">
-            <div class="vz-services__nav" data-serv-list>
+            <div
+              class="vz-services__nav vz-services__nav--desktop"
+              data-serv-list
+              role="tablist"
+              :aria-label="copy.navAria"
+              aria-orientation="horizontal"
+              @keydown="onNavKeydown"
+            >
               <span class="vz-services__nav-highlight" data-serv-nav-highlight aria-hidden="true"></span>
               <button
                 v-for="(service, index) in services"
+                :id="`service-tab-${index}`"
                 :key="`${service.n}-${service.title}`"
                 data-serv-nav
                 type="button"
-                @click="select(index)"
+                role="tab"
+                :aria-controls="`service-panel-${index}`"
+                :aria-label="`${service.n}. ${copy.navLabels[index] ?? service.title}`"
+                :aria-selected="index === activeIndex"
+                :tabindex="index === activeIndex ? 0 : -1"
+                @click="selectService(index)"
               >
                 <span data-serv-nav-num>{{ service.n }}</span>
                 <span data-serv-nav-label class="vz-services__nav-label-full">{{ service.title }}</span>
                 <span data-serv-nav-label class="vz-services__nav-label-compact">{{ copy.navLabels[index] ?? service.title }}</span>
               </button>
             </div>
+
+            <div class="vz-cases__case-nav vz-services__case-nav">
+              <div
+                class="vz-cases__tabs vz-services__mobile-tabs"
+                role="tablist"
+                :aria-label="copy.navAria"
+                aria-orientation="horizontal"
+                @keydown="onNavKeydown"
+              >
+                <button
+                  v-for="(service, index) in services"
+                  :id="`service-mobile-tab-${index}`"
+                  :key="`mobile-${service.n}-${service.title}`"
+                  data-serv-mobile-nav
+                  type="button"
+                  role="tab"
+                  :aria-controls="`service-panel-${index}`"
+                  :aria-label="`${service.n}. ${copy.navLabels[index] ?? service.title}`"
+                  :aria-selected="index === activeIndex"
+                  :tabindex="index === activeIndex ? 0 : -1"
+                  @click="selectService(index)"
+                >
+                  <span>{{ service.n }}</span>
+                  <b>{{ copy.navLabels[index] ?? service.title }}</b>
+                  <i aria-hidden="true"></i>
+                </button>
+              </div>
+
+              <div class="vz-cases__mobile-controls" :aria-label="copy.navAria">
+                <button type="button" :aria-label="copy.previousAria" @click="move(-1)">
+                  <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
+                </button>
+                <button type="button" :aria-label="copy.nextAria" @click="move(1)">
+                  <svg aria-hidden="true" viewBox="0 0 20 20"><path d="m11 5 5 5-5 5M4 10h12" /></svg>
+                </button>
+              </div>
+            </div>
           </div>
 
           <div class="vz-service-caption" data-serv-caption aria-live="polite">
-            <article v-for="(service, index) in services" :key="service.n" data-serv-panel class="vz-service-panel">
+            <article
+              v-for="(service, index) in services"
+              :id="`service-panel-${index}`"
+              :key="service.n"
+              data-serv-panel
+              class="vz-service-panel"
+              role="tabpanel"
+              :aria-labelledby="`service-tab-${index}`"
+            >
               <div class="vz-service-panel__title"><span>{{ service.n }}</span><h3>{{ service.title }}</h3></div>
               <p>{{ service.desc }}</p>
               <div class="vz-service-commercial">
@@ -220,6 +278,9 @@ type LandingServicesCopy = {
   title: string;
   hint: [string, string];
   navLabels: [string, string, string, string, string, string, string];
+  navAria: string;
+  previousAria: string;
+  nextAria: string;
   screens: Record<string, Record<string, string>>;
   commercialLabels: {
     price: string;
@@ -245,6 +306,57 @@ const serviceScreens = ["miniapp", "bot", "site", "shop", "ai", "corp", "mobile"
 const serviceCount = computed(() => props.services.length);
 const { activeIndex, select } = useLandingServices(rootRef, serviceCount, (index) => emit("activeChange", index));
 const activeServiceCallouts = computed(() => props.copy.commercial[activeIndex.value]?.included ?? []);
+
+function alignActiveServiceToStart(index: number) {
+  if (!window.matchMedia("(max-width: 900px)").matches) return;
+
+  const nav = rootRef.value?.querySelector<HTMLElement>(".vz-services__mobile-tabs");
+  const tab = rootRef.value?.querySelectorAll<HTMLElement>("[data-serv-mobile-nav]")[index];
+  if (!nav || !tab) return;
+
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const tabRect = tab.getBoundingClientRect();
+  const navRect = nav.getBoundingClientRect();
+  const gap = Number.parseFloat(window.getComputedStyle(nav).columnGap) || 0;
+  const trailingSpace = Math.max(0, nav.clientWidth - tabRect.width - gap);
+  const startLeft = nav.scrollLeft + tabRect.left - navRect.left;
+
+  nav.style.setProperty("--vz-tabs-trailing-space", `${trailingSpace}px`);
+  nav.scrollTo({ left: Math.max(0, startLeft), behavior: reduceMotion ? "auto" : "smooth" });
+}
+
+function selectService(index: number, focus = false) {
+  select(index);
+  nextTick(() => {
+    const selector = window.matchMedia("(max-width: 900px)").matches
+      ? "[data-serv-mobile-nav]"
+      : "[data-serv-nav]";
+    const tab = rootRef.value?.querySelectorAll<HTMLElement>(selector)[activeIndex.value];
+    if (focus) tab?.focus();
+    alignActiveServiceToStart(activeIndex.value);
+  });
+}
+
+function move(direction: 1 | -1, focus = false) {
+  if (!serviceCount.value) return;
+  selectService(activeIndex.value + direction, focus);
+}
+
+function onNavKeydown(event: KeyboardEvent) {
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+    event.preventDefault();
+    move(1, true);
+  } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+    event.preventDefault();
+    move(-1, true);
+  } else if (event.key === "Home") {
+    event.preventDefault();
+    selectService(0, true);
+  } else if (event.key === "End") {
+    event.preventDefault();
+    selectService(Math.max(serviceCount.value - 1, 0), true);
+  }
+}
 </script>
 
 <style src="~/assets/css/landing-redesign.css"></style>

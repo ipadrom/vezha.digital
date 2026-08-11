@@ -259,7 +259,7 @@ export function useLandingServices(
 
     navs.forEach((nav, index) => {
       nav.dataset.active = index === active ? "true" : "false";
-      nav.setAttribute("aria-pressed", index === active ? "true" : "false");
+      nav.setAttribute("aria-selected", index === active ? "true" : "false");
     });
     syncServiceHighlight(root, navs, active);
 

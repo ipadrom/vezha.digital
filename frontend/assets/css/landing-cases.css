@@ -268,13 +268,18 @@
     overscroll-behavior-inline: contain;
   }
   .vz-cases__tabs::-webkit-scrollbar { display: none; }
+  .vz-cases__tabs::after {
+    content: "";
+    flex: 0 0 var(--vz-tabs-trailing-space, 0px);
+    pointer-events: none;
+  }
   .vz-cases__tabs button {
     flex: 0 0 auto;
     grid-template-columns: 24px minmax(110px, auto) 8px;
     gap: 9px;
     min-height: 46px;
     padding: 8px 0 6px;
-    scroll-snap-align: center;
+    scroll-snap-align: start;
   }
   .vz-cases__tabs button b { max-width: 190px; font-size: 12px; }
   .vz-cases__mobile-controls {

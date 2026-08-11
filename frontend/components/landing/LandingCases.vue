@@ -184,7 +184,9 @@ function caseProof(project: IProjects) {
   return metric ? `${metric.value} · ${metric.label}` : project.type;
 }
 
-function centerActiveTab(index: number) {
+function alignActiveTabToStart(index: number) {
+  if (!window.matchMedia("(max-width: 900px)").matches) return;
+
   const tab = document.getElementById(`case-tab-${index}`);
   const tabList = tab?.closest<HTMLElement>(".vz-cases__tabs");
   if (!tab || !tabList) return;
@@ -192,8 +194,12 @@ function centerActiveTab(index: number) {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tabRect = tab.getBoundingClientRect();
   const listRect = tabList.getBoundingClientRect();
-  const centeredLeft = tabList.scrollLeft + tabRect.left - listRect.left - (tabList.clientWidth - tabRect.width) / 2;
-  tabList.scrollTo({ left: Math.max(0, centeredLeft), behavior: reduceMotion ? "auto" : "smooth" });
+  const gap = Number.parseFloat(window.getComputedStyle(tabList).columnGap) || 0;
+  const trailingSpace = Math.max(0, tabList.clientWidth - tabRect.width - gap);
+  const startLeft = tabList.scrollLeft + tabRect.left - listRect.left;
+
+  tabList.style.setProperty("--vz-tabs-trailing-space", `${trailingSpace}px`);
+  tabList.scrollTo({ left: Math.max(0, startLeft), behavior: reduceMotion ? "auto" : "smooth" });
 }
 
 function selectCase(index: number, focus = false) {
@@ -201,7 +207,7 @@ function selectCase(index: number, focus = false) {
   nextTick(() => {
     const tab = document.getElementById(`case-tab-${index}`);
     if (focus) tab?.focus();
-    centerActiveTab(index);
+    alignActiveTabToStart(index);
   });
 }
 

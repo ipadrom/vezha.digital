@@ -281,6 +281,9 @@ type LandingCopy = {
     title: string;
     hint: [string, string];
     navLabels: [string, string, string, string, string, string, string];
+    navAria: string;
+    previousAria: string;
+    nextAria: string;
     screens: Record<string, Record<string, string>>;
     commercialLabels: {
       price: string;
@@ -2272,10 +2275,73 @@ function clearSectionLiquidTextAlignment() {
     });
 }
 
+function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
+  const overlay = sectionLiquidRef.value;
+  const targetHost = overlay?.querySelector<HTMLElement>("[data-section-liquid-target]");
+  const target = targets.find(({ key }) => key === sectionLiquidState.lastTargetKey);
+  if (!overlay || !targetHost || !target || target.key === "hero") return;
+
+  const sourceText = target.element.querySelector<HTMLElement>("[data-reveal]")
+    ?? target.element;
+  const sourceRect = sourceText.getBoundingClientRect();
+  const overlayRect = overlay.getBoundingClientRect();
+  const sourceStyle = window.getComputedStyle(sourceText);
+  const text = sourceText.textContent?.replace(/\s+/g, " ").trim() ?? "";
+  if (!text) return;
+
+  const styleSignature = [
+    target.key,
+    text,
+    sourceRect.width.toFixed(2),
+    sourceStyle.fontFamily,
+    sourceStyle.fontSize,
+    sourceStyle.fontStyle,
+    sourceStyle.fontWeight,
+    sourceStyle.lineHeight,
+    sourceStyle.letterSpacing,
+    sourceStyle.textAlign,
+    sourceStyle.textTransform,
+    sourceStyle.whiteSpace,
+    sourceStyle.wordBreak,
+    sourceStyle.getPropertyValue("text-wrap"),
+  ].join("|");
+
+  if (targetHost.dataset.mobileLiquidSignature !== styleSignature) {
+    targetHost.textContent = text;
+    targetHost.style.fontFamily = sourceStyle.fontFamily;
+    targetHost.style.fontSize = sourceStyle.fontSize;
+    targetHost.style.fontStyle = sourceStyle.fontStyle;
+    targetHost.style.fontWeight = sourceStyle.fontWeight;
+    targetHost.style.lineHeight = sourceStyle.lineHeight;
+    targetHost.style.letterSpacing = sourceStyle.letterSpacing;
+    targetHost.style.textAlign = sourceStyle.textAlign;
+    targetHost.style.textTransform = sourceStyle.textTransform;
+    targetHost.style.whiteSpace = sourceStyle.whiteSpace;
+    targetHost.style.wordBreak = sourceStyle.wordBreak;
+    targetHost.style.overflowWrap = sourceStyle.overflowWrap;
+    targetHost.style.setProperty("text-wrap", sourceStyle.getPropertyValue("text-wrap"));
+    targetHost.style.setProperty("font-kerning", sourceStyle.getPropertyValue("font-kerning"));
+    targetHost.style.setProperty("font-feature-settings", sourceStyle.getPropertyValue("font-feature-settings"));
+    targetHost.style.setProperty("font-variation-settings", sourceStyle.getPropertyValue("font-variation-settings"));
+    targetHost.dataset.mobileLiquidSignature = styleSignature;
+  }
+
+  targetHost.hidden = false;
+  targetHost.style.left = "0px";
+  targetHost.style.top = "0px";
+  targetHost.style.width = formatStablePx(sourceRect.width);
+  targetHost.style.height = formatStablePx(sourceRect.height);
+  targetHost.style.transform = `translate3d(${formatStablePx(sourceRect.left - overlayRect.left)}, ${formatStablePx(sourceRect.top - overlayRect.top)}, 0)`;
+}
+
 function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
   clearSectionLiquidTextAlignment();
   hideSectionLiquidTargetOverlay();
   if (!sectionLiquidState.lastTargetKey) return;
+  if (window.innerWidth <= 900) {
+    syncMobileSectionLiquidTargetOverlay(targets);
+    return;
+  }
   if (window.innerWidth > 900 && sectionLiquidState.lastTargetKey === "stack") return;
 
   const target = targets.find(({ key }) => key === sectionLiquidState.lastTargetKey);
@@ -2297,17 +2363,23 @@ function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
   const cloneTarget = cloneRoot.querySelector<HTMLElement>(
     cloneSelectors[target.key] ?? "",
   );
-  if (!cloneTarget) return;
+  const cloneSection = cloneTarget?.closest<HTMLElement>("[data-negative-section]");
+  if (!cloneTarget || !cloneSection) return;
 
   const sourceText = target.element.querySelector<HTMLElement>("[data-reveal]")
     ?? target.element;
   const cloneText = cloneTarget.querySelector<HTMLElement>("span span")
     ?? cloneTarget;
+  const cloneSectionRect = cloneSection.getBoundingClientRect();
+
+  cloneSection.style.translate = `${formatStablePx(target.sectionRect.left - cloneSectionRect.left)} ${formatStablePx(target.sectionRect.top - cloneSectionRect.top)}`;
+  cloneSection.dataset.liquidCloneAligned = "true";
+
   const sourceRect = sourceText.getBoundingClientRect();
   const cloneRect = cloneText.getBoundingClientRect();
 
   cloneTarget.style.translate = `${formatStablePx(sourceRect.left - cloneRect.left)} ${formatStablePx(sourceRect.top - cloneRect.top)}`;
-  cloneTarget.dataset.liquidCloneAligned = "true";
+  cloneTarget.dataset.liquidTextAligned = "true";
 }
 
 function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
@@ -2546,6 +2618,27 @@ function animateSectionLiquid(now: number) {
   overlay.classList.toggle("is-active", Boolean(activeKey) && activeKey !== "hero");
   overlay.dataset.activeKey = activeKey;
   applyHeroClip(overlay, path);
+
+  const mobileCanRest = window.innerWidth <= 900
+    && !sectionLiquidState.journeyActive
+    && directDistance < 0.5
+    && lockVelocity < 0.05
+    && Math.abs(targetRadius - sectionLiquidState.radius) < 0.1
+    && Math.abs(sectionLiquidState.arcX) + Math.abs(sectionLiquidState.arcY) < 0.2;
+  if (mobileCanRest) {
+    sectionLiquidState.currentX = targetX;
+    sectionLiquidState.currentY = targetY;
+    sectionLiquidState.lastX = targetX;
+    sectionLiquidState.lastY = targetY;
+    sectionLiquidState.radius = targetRadius;
+    sectionLiquidState.speed = 0;
+    sectionLiquidState.velocityX = 0;
+    sectionLiquidState.velocityY = 0;
+    sectionLiquidState.arcX = 0;
+    sectionLiquidState.arcY = 0;
+    return;
+  }
+
   sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
 }
 
@@ -2587,16 +2680,24 @@ function resetHeroNegative() {
 }
 
 function startHeroNegative() {
+  if (window.innerWidth <= 900) {
+    heroRef.value?.classList.remove("is-hero-fx-active");
+    return;
+  }
   if (heroFxRaf) return;
   heroFxLastFrame = performance.now();
   heroFxRaf = requestAnimationFrame(animateHeroNegative);
 }
 
 function animateHeroNegative(now: number) {
+  heroFxRaf = 0;
   const hero = heroRef.value;
   const mask = heroNegativeRef.value;
+  if (window.innerWidth <= 900) {
+    hero?.classList.remove("is-hero-fx-active");
+    return;
+  }
   if (!hero || !mask) {
-    heroFxRaf = 0;
     return;
   }
 
@@ -3060,20 +3161,37 @@ function syncNegativeWorlds(force = false) {
   const hero = heroRef.value;
   const pageHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-negative-world='page']");
   const heroHost = heroNegativeRef.value?.querySelector<HTMLElement>("[data-negative-world='hero']");
+  const useLightMobileLiquid = window.innerWidth <= 900;
+  const mobileSignature = "mobile-light";
 
   if (root && pageHost) {
-    const signature = getNegativeWorldSignature("page");
-    if (force || pageHost.dataset.signature !== signature) {
-      mountNegativeClone(pageHost, root);
-      pageHost.dataset.signature = signature;
+    if (useLightMobileLiquid) {
+      if (pageHost.dataset.signature !== mobileSignature || pageHost.childElementCount) {
+        pageHost.textContent = "";
+        pageHost.dataset.signature = mobileSignature;
+      }
+    } else {
+      const signature = getNegativeWorldSignature("page");
+      if (force || pageHost.dataset.signature !== signature) {
+        mountNegativeClone(pageHost, root);
+        pageHost.dataset.signature = signature;
+      }
     }
   }
 
   if (hero && heroHost) {
-    const signature = getNegativeWorldSignature("hero");
-    if (force || heroHost.dataset.signature !== signature) {
-      mountNegativeClone(heroHost, hero);
-      heroHost.dataset.signature = signature;
+    if (useLightMobileLiquid) {
+      hero.classList.remove("is-hero-fx-active");
+      if (heroHost.dataset.signature !== mobileSignature || heroHost.childElementCount) {
+        heroHost.textContent = "";
+        heroHost.dataset.signature = mobileSignature;
+      }
+    } else {
+      const signature = getNegativeWorldSignature("hero");
+      if (force || heroHost.dataset.signature !== signature) {
+        mountNegativeClone(heroHost, hero);
+        heroHost.dataset.signature = signature;
+      }
     }
   }
 
@@ -3085,6 +3203,11 @@ function updateNegativeWorldPositions() {
   const overlay = sectionLiquidRef.value;
   const pageHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-negative-world='page']");
   if (root && overlay && pageHost) {
+    if (window.innerWidth <= 900) overlay.classList.remove("is-stack-active");
+    overlay.style.position = "";
+    overlay.style.right = "";
+    overlay.style.bottom = "";
+    overlay.style.minHeight = "";
     const rect = root.getBoundingClientRect();
     const height = Math.max(root.scrollHeight, root.offsetHeight, window.innerHeight);
     const cloneStackSticky = pageHost.querySelector<HTMLElement>(
@@ -3141,6 +3264,10 @@ function updateNegativeWorldPositions() {
 
 let raf = 0;
 function scheduleUpdate() {
+  // Wake the liquid layer directly from the scroll event so its fixed mobile
+  // overlay is updated in the very next paint, not one animation frame later.
+  startSectionLiquid();
+  startHeroNegative();
   if (raf) return;
   raf = requestAnimationFrame(() => {
     raf = 0;
@@ -4016,6 +4143,21 @@ useHead(() => ({
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   transform: translateZ(0);
+}
+
+@media (max-width: 900px) {
+  .vz-section-liquid {
+    contain: layout paint style;
+  }
+
+  .vz-section-liquid .vz-negative-world--page,
+  .vz-hero__negative {
+    display: none;
+  }
+
+  .vz-section-liquid__target {
+    contain: layout paint style;
+  }
 }
 
 .vz-section-liquid__target[hidden] {

@@ -289,6 +289,9 @@
         "Systems",
         "Mobile"
       ],
+      "navAria": "Service navigation",
+      "previousAria": "Previous service",
+      "nextAria": "Next service",
       "screens": {
         "miniapp": {
           "app": "Mini app",

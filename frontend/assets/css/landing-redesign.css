@@ -2121,6 +2121,38 @@
   }
 }
 
+
+/* The mobile services navigator is the cases navigator, reused without restyling. */
+.vz-services .vz-services__case-nav {
+  display: none;
+  --cases-accent: #30c8f2;
+}
+
+@media (max-width: 900px) {
+  .vz-services .vz-services__rail {
+    order: 2;
+    display: block;
+    width: 100%;
+    min-width: 0;
+    margin: 0 0 12px;
+  }
+
+  .vz-services .vz-services__nav--desktop {
+    display: none;
+  }
+
+  .vz-services .vz-services__case-nav {
+    display: grid;
+    width: 100%;
+  }
+
+  .vz-services .vz-services__stage {
+    z-index: 180;
+    overflow: visible;
+    margin-bottom: 32px;
+  }
+}
+
 /* Services editorial device scene */
 .vz-services [data-sec-head] {
   margin-bottom: clamp(30px, 4vw, 54px);
@@ -2564,11 +2596,11 @@
   }
 
   .vz-services__nav {
-    order: 1;
+    order: 2;
   }
 
   .vz-services__stage {
-    order: 2;
+    order: 1;
     min-height: 340px;
     display: block;
   }
@@ -4423,6 +4455,10 @@
 
 /* Mobile services: one active capsule, compact device rhythm and a stable 2x2 inclusion grid. */
 @media (max-width: 900px) {
+  .vz-min > .vz-services {
+    z-index: auto;
+  }
+
   .vz-services__nav {
     padding: 4px 20px 6px;
   }
