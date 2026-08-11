@@ -74,6 +74,13 @@ test("service inclusions stay in a two-column grid", () => {
   assert.match(css, /\.vz-service-panel \.vz-service-commercial__included \[data-serv-metawrap\] span\s*\{[^}]*min-width:\s*0;[^}]*white-space:\s*nowrap;/s);
 });
 
+test("desktop case preview stays inside its stage above the navigation", () => {
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(css, /@media\s*\(min-width:\s*901px\)\s*\{[\s\S]*\.vz-cases__active\s*\{[^}]*grid-template-rows:\s*minmax\(0,\s*1fr\);/s);
+  assert.match(css, /\.vz-cases__active\s*>\s*\.case-artifact\s*\{[^}]*height:\s*100%;[^}]*min-height:\s*0;[^}]*align-self:\s*stretch;/s);
+});
+
 test("desktop pages use Lenis while mobile keeps native scrolling", () => {
   const composable = readFileSync("composables/useDesktopSmoothScroll.ts", "utf8");
   const landing = readFileSync("pages/index.vue", "utf8");
