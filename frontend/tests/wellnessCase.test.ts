@@ -12,7 +12,11 @@ for (const locale of ["ru", "en"] as const) {
     assert.equal(wellness.name, "WELLNESS APP");
     assert.equal(wellness.sort_order, 0);
     assert.equal(wellness.metrics.length, 4);
-    assert.ok(wellness.metrics.every((metric) => metric.is_demo));
+    assert.ok(wellness.metrics.every((metric) => !metric.is_demo));
+    assert.equal(wellness.blocks.length, 13);
+    assert.equal(wellness.blocks[0].content.logo_url, "/cases/wellness-app/wellness-mark.svg");
+    assert.equal(wellness.blocks.filter((block) => block.type === "gallery").length, 2);
+    assert.equal(wellness.blocks.filter((block) => block.type === "video").length, 1);
     assert.notEqual(wellness.name, "Training");
     assert.doesNotMatch(JSON.stringify(wellness), /artas|recipes-tab/i);
   });
@@ -22,6 +26,7 @@ test("landing wellness visual uses a branded splash while the case hero keeps th
   const visual = readFileSync("components/cases/WellnessPhoneVisual.vue", "utf8");
 
   assert.match(visual, /wellness-phone__brand/);
+  assert.match(visual, /wellness-mark\.svg/);
   assert.match(visual, /variant === ['"]default['"]/);
   assert.match(visual, /screen-timer\.png/);
   assert.match(visual, /wellness-phone--default \.wellness-phone__screen/);
@@ -37,8 +42,8 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.match(header, /class="case-header__mobile-nav"/);
   assert.match(css, /\.case-header__inner\s*\{[^}]*max-width:\s*1240px;/s);
   assert.match(css, /\.case-header__menu\s*\{[^}]*display:\s*none;/s);
-  assert.match(css, /\.case-header\s*\{[^}]*background:\s*var\(--bg\);/s);
-  assert.doesNotMatch(css, /\.case-header\s*\{[^}]*backdrop-filter:/s);
+  assert.match(css, /\.case-header__inner\s*\{[^}]*border-radius:\s*999px;/s);
+  assert.match(css, /\.case-header__inner\s*\{[^}]*backdrop-filter:\s*blur\(18px\)/s);
 });
 
 test("case header hides an open mobile menu outside the mobile breakpoint", () => {
@@ -68,15 +73,19 @@ test("builder headings use the same UI typography as the standard case pages", (
   const canvas = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
   const globalCss = readFileSync("assets/css/main.css", "utf8");
 
-  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
-  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*clamp\(54px,6cqw,82px\)/s);
-  assert.match(css, /\.builder-heading h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
-  assert.match(css, /\.builder-image-text__copy h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
-  assert.match(css, /\.builder-block--next_case h2\s*\{[^}]*font:500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*clamp\(58px,\s*7cqw,\s*96px\)/s);
+  assert.match(css, /\.builder-heading h2\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-image-text__copy h2\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-block--next_case h2\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
   assert.match(canvas, /\.preview-hero-copy h3\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
   assert.match(canvas, /class="preview-hero-facts"/);
   assert.match(canvas, /class="preview-media preview-hero-media"/);
-  assert.match(canvas, /\.canvas-block__preview--hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*\.9fr\)\s+minmax\(300px,\s*1\.1fr\)/s);
+  assert.match(canvas, /class="preview-hero-brand"/);
+  assert.match(canvas, /content\.items\?\.slice\(0, 5\)/);
+  assert.match(canvas, /\.canvas-block__preview--hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*\.92fr\)\s+minmax\(280px,\s*1\.08fr\)/s);
+  assert.match(canvas, /linear-gradient\(135deg,\s*#c4b6ff,\s*#8dc8ff 55%,\s*#73dfd8\)/);
+  assert.match(css, /\.builder-block__inner\s*\{[^}]*border-radius:\s*28px;/s);
   assert.doesNotMatch(css, /\.builder-(?:hero__copy h1|heading h2|image-text__copy h2|block--next_case h2)\s*\{[^}]*var\(--font-epilepsy\)/s);
   assert.doesNotMatch(globalCss, /Epilepsy Sans|--font-epilepsy/);
 });

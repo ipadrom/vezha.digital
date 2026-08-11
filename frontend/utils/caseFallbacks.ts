@@ -1,4 +1,5 @@
 import type { IProjectDetail } from "./interfaces/IProjects";
+import { getWellnessCaseBlocks } from "./wellnessCaseBuilder";
 
 type LocaleCode = "ru" | "en";
 
@@ -10,19 +11,19 @@ export function getCaseFallbacks(locale: LocaleCode): IProjectDetail[] {
     {
       id: "wellness-app", slug: "wellness-app", sort_order: 0, is_featured: true,
       type: "PRODUCT / PWA / VUE", name: "WELLNESS APP",
-      subtitle: ru ? "От персонального трекера к единой системе тренировок и питания." : "From a personal tracker to one training and nutrition system.",
+      subtitle: ru ? "Ежедневный ритм, в котором тренировка, прогресс и питание работают как одна система." : "A daily rhythm where workouts, progress and nutrition work as one system.",
       industry: "Wellness", description: ru ? "Мобильный продукт объединяет тренировки, прогрессию нагрузки, питание, рецепты и КБЖУ." : "A mobile product combining workouts, load progression, nutrition, recipes and macros.",
-      image_url: null, cover_image_url: null, project_url: null, hero_metric_value: "3,2×", hero_metric_label: ru ? "демо: регулярность" : "demo: consistency",
+      image_url: "/cases/wellness-app/hero-hand-device-v2.png", cover_image_url: "/cases/wellness-app/hero-hand-device-v2.png", project_url: null, hero_metric_value: "2×1", hero_metric_label: ru ? "тренировки + питание" : "workouts + nutrition",
       year: "2026", timeline: ru ? "PWA → Vue-продукт" : "PWA → Vue product",
       challenge: ru ? "Объединить тренировки, прогресс и питание в одном простом мобильном ритме." : "Unite workouts, progress and nutrition in one simple mobile rhythm.",
       solution: ru ? "Компактная PWA выросла в Vue-приложение с двумя связанными зонами: тренировками и питанием." : "The compact PWA grew into a Vue application with connected workout and food areas.",
       result_summary: ru ? "Набор персональных инструментов стал цельным ежедневным wellness-продуктом." : "A set of personal tools became one coherent daily wellness product.",
       testimonial: null, testimonial_author: null,
       metrics: [
-        { value: "78%", label: ru ? "завершённых тренировок" : "workouts completed", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 0, is_demo: true },
-        { value: "3,2×", label: ru ? "регулярность занятий" : "training consistency", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 1, is_demo: true },
-        { value: "−42%", label: ru ? "времени на планирование" : "planning time", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 2, is_demo: true },
-        { value: ru ? "18 дней" : "18 days", label: ru ? "активность в месяц" : "monthly activity", context: ru ? "Демонстрационные данные" : "Demonstration data", sort_order: 3, is_demo: true },
+        { value: "02", label: ru ? "связанных контура" : "connected flows", context: ru ? "Тренировки и питание" : "Workouts and nutrition", sort_order: 0 },
+        { value: "06", label: ru ? "ключевых экранов" : "core screens", context: ru ? "Показаны в кейсе" : "Shown in the case", sort_order: 1 },
+        { value: "PWA", label: ru ? "мобильный формат" : "mobile format", context: ru ? "Установка из браузера" : "Installable from the browser", sort_order: 2 },
+        { value: "LOCAL", label: ru ? "данные под рукой" : "data close at hand", context: ru ? "Local-first состояние" : "Local-first state", sort_order: 3 },
       ],
       gallery: [], technologies: [
         { label: "Vue 3 + Vite", category: "CLIENT", sort_order: 0 },
@@ -32,6 +33,8 @@ export function getCaseFallbacks(locale: LocaleCode): IProjectDetail[] {
         { label: "Open Food Facts", category: "DATA", sort_order: 4 },
         { label: "Docker", category: "DELIVERY", sort_order: 5 },
       ],
+      blocks: getWellnessCaseBlocks(locale),
+      seo_noindex: true,
     },
     {
       id: "concept-menu", slug: "restaurant-menu", sort_order: 1, is_featured: true,

@@ -14,7 +14,10 @@
 
         <template v-else-if="block.type === 'hero'">
           <div class="builder-hero__copy">
-            <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
+            <div class="builder-hero__brand">
+              <img v-if="block.content.logo_url" :src="block.content.logo_url" alt="" />
+              <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
+            </div>
             <h1>{{ block.content.title }}</h1>
             <p>{{ block.content.subtitle }}</p>
             <dl>
@@ -25,7 +28,7 @@
             </dl>
           </div>
           <figure v-if="heroHasMedia(block)" class="builder-hero__media">
-            <img v-if="block.content.image_url" :src="block.content.image_url" :alt="block.content.image_alt || ''" />
+            <img v-if="block.content.image_url" :src="block.content.image_url" :alt="block.content.image_alt || ''" decoding="async" />
             <div v-else class="builder-placeholder"><span>VEZHA / CASE</span><i /><i /><i /></div>
             <span v-if="block.content.device_screen_url" class="builder-hero__device-screen" aria-hidden="true"><img :src="block.content.device_screen_url" alt="" /></span>
             <figcaption v-if="block.content.metric_value"><b>{{ block.content.metric_value }}</b><span>{{ block.content.metric_label }}</span></figcaption>
@@ -56,12 +59,12 @@
 
         <template v-else-if="block.type === 'gallery'">
           <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <div class="builder-gallery" :class="`builder-gallery--${block.settings.layout}`"><figure v-for="(item, index) in block.content.items" :key="`${item.image_url}-${index}`"><img :src="item.image_url" :alt="item.alt || ''" /><figcaption v-if="item.caption">{{ item.caption }}</figcaption></figure></div>
+          <div class="builder-gallery" :class="`builder-gallery--${block.settings.layout}`"><figure v-for="(item, index) in block.content.items" :key="`${item.image_url}-${index}`"><img :src="item.image_url" :alt="item.alt || ''" loading="lazy" decoding="async" /><figcaption v-if="item.caption"><span>{{ String(index + 1).padStart(2, '0') }}</span>{{ item.caption }}</figcaption></figure></div>
         </template>
 
         <template v-else-if="block.type === 'metrics'">
           <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2><p v-if="block.content.summary">{{ block.content.summary }}</p></header>
-          <div class="builder-metrics"><article v-for="(item, index) in block.content.items" :key="index"><b>{{ item.value }}</b><span>{{ item.label }}</span><small v-if="item.context">{{ item.context }}</small></article></div>
+          <div class="builder-metrics"><article v-for="(item, index) in block.content.items" :key="index" :data-demo="item.is_demo ? 'true' : undefined"><b>{{ item.value }}</b><span>{{ item.label }}</span><small v-if="item.context">{{ item.context }}</small></article></div>
         </template>
 
         <template v-else-if="block.type === 'process'">
@@ -83,7 +86,7 @@
 
         <template v-else-if="block.type === 'video'">
           <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <figure class="builder-video"><video v-if="block.content.video_url" controls playsinline :poster="block.content.poster_url || undefined"><source :src="block.content.video_url" /></video><div v-else class="builder-placeholder">VIDEO</div><figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption></figure>
+          <figure class="builder-video"><video v-if="block.content.video_url" controls playsinline preload="metadata" :poster="block.content.poster_url || undefined"><source :src="block.content.video_url" /></video><div v-else class="builder-placeholder">VIDEO</div><figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption></figure>
         </template>
 
         <template v-else-if="block.type === 'comparison'">

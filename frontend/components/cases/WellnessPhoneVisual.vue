@@ -8,7 +8,7 @@
     />
     <div class="wellness-phone__screen" aria-hidden="true">
       <div v-if="variant === 'default'" class="wellness-phone__brand">
-        <div class="wellness-phone__brand-mark">W</div>
+        <img class="wellness-phone__brand-mark" src="/cases/wellness-app/wellness-mark.svg" alt="" />
         <strong>WELLNESS</strong>
         <small>APP</small>
       </div>
@@ -110,34 +110,12 @@ withDefaults(defineProps<{
 }
 
 .wellness-phone__brand-mark {
-  position: relative;
-  display: grid;
-  place-items: center;
   width: clamp(72px, 34%, 116px);
   aspect-ratio: 1;
   margin-bottom: 24px;
-  border-radius: 50%;
-  color: #f7f9fc;
-  font: 500 clamp(34px, 8vh, 68px)/1 var(--font-ui);
-  letter-spacing: -.12em;
-  text-indent: -.08em;
-  background:
-    linear-gradient(#020407, #020407) padding-box,
-    conic-gradient(from 205deg, #8c6cff, #39c8e8 58%, transparent 58% 68%, #8c6cff 68%) border-box;
-  border: clamp(2px, .6vh, 5px) solid transparent;
-  box-shadow: 0 0 42px rgba(57, 200, 232, .14);
-}
-
-.wellness-phone__brand-mark::after {
-  content: "";
-  position: absolute;
-  right: -3%;
-  top: 27%;
-  width: 8%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #45d2ed;
-  box-shadow: 0 0 18px #45d2ed;
+  border-radius: 24%;
+  object-fit: contain;
+  box-shadow: 0 20px 44px rgba(92, 185, 234, .18);
 }
 
 .wellness-phone__brand strong {

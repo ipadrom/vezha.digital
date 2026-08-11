@@ -104,7 +104,7 @@
                 </div>
                 <div class="vz-service-commercial__included" data-serv-included>
                   <small>{{ copy.commercialLabels.included }}</small>
-                  <div data-serv-metawrap>
+                  <div class="vz-service-commercial__chips" data-serv-metawrap>
                     <span v-for="item in copy.commercial[index]?.included ?? []" :key="item">{{ item }}</span>
                   </div>
                 </div>

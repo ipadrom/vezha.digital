@@ -84,7 +84,7 @@
 
     <details open>
       <summary>Оформление</summary>
-      <label><span>Фон</span><select :value="block.settings.theme" @change="setSetting('theme', valueOf($event))"><option value="paper">Белый</option><option value="soft">Серый</option><option value="ink">Графитовый</option><option value="signal">Кобальтовый</option></select></label>
+      <label><span>Фон</span><select :value="block.settings.theme" @change="setSetting('theme', valueOf($event))"><option value="paper">Светлая карточка</option><option value="soft">Мягкий градиент</option><option value="ink">Графитовый</option><option value="signal">Акцентный градиент</option></select></label>
       <div class="inspector-pair">
         <label><span>Контент внутри</span><select :value="block.settings.width" @change="setSetting('width', valueOf($event))"><option value="standard">Обычный</option><option value="wide">Широкий</option><option value="full">Без полей</option></select></label>
         <label><span>Отступ</span><select :value="block.settings.spacing" @change="setSetting('spacing', valueOf($event))"><option value="compact">Компактный</option><option value="normal">Обычный</option><option value="large">Большой</option></select></label>
@@ -134,7 +134,7 @@ const mapAccentPresets = [
 ]
 
 const fieldMap: Record<string, Field[]> = {
-  hero: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'subtitle', label: 'Подзаголовок', kind: 'textarea', rows: 3 }, { key: 'type_label', label: 'Тип' }, { key: 'industry', label: 'Сфера' }, { key: 'timeline', label: 'Срок' }, { key: 'year', label: 'Год' }, { key: 'image_url', label: 'Главное изображение', media: true }, { key: 'image_alt', label: 'Alt изображения' }, { key: 'device_screen_url', label: 'Экран внутри устройства', media: true }, { key: 'metric_value', label: 'Значение метрики' }, { key: 'metric_label', label: 'Подпись метрики' }],
+  hero: [{ key: 'logo_url', label: 'Логотип проекта', media: true }, { key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'subtitle', label: 'Подзаголовок', kind: 'textarea', rows: 3 }, { key: 'type_label', label: 'Тип' }, { key: 'industry', label: 'Сфера' }, { key: 'timeline', label: 'Срок' }, { key: 'year', label: 'Год' }, { key: 'image_url', label: 'Главное изображение', media: true }, { key: 'image_alt', label: 'Alt изображения' }, { key: 'device_screen_url', label: 'Экран внутри устройства', media: true }, { key: 'metric_value', label: 'Значение метрики' }, { key: 'metric_label', label: 'Подпись метрики' }],
   text: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'body', label: 'Текст', kind: 'textarea', rows: 8 }],
   challenge_solution: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'challenge_label', label: 'Подпись задачи' }, { key: 'challenge', label: 'Задача', kind: 'textarea', rows: 6 }, { key: 'solution_label', label: 'Подпись решения' }, { key: 'solution', label: 'Решение', kind: 'textarea', rows: 6 }],
   image: [{ key: 'image_url', label: 'Изображение', media: true }, { key: 'alt', label: 'Alt' }, { key: 'caption', label: 'Подпись', kind: 'textarea' }],

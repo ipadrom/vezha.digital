@@ -207,8 +207,8 @@ export const blockLibrary: Array<{
 
 const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<string, any>]> = {
   hero: [
-    { eyebrow: 'Кейс', title: 'Название проекта', subtitle: '', type_label: '', industry: '', timeline: '', year: '', image_url: '', image_alt: '', device_screen_url: '', metric_value: '', metric_label: '' },
-    { eyebrow: 'Case', title: 'Project name', subtitle: '', type_label: '', industry: '', timeline: '', year: '', image_url: '', image_alt: '', device_screen_url: '', metric_value: '', metric_label: '' },
+    { logo_url: '', eyebrow: 'Кейс', title: 'Название проекта', subtitle: '', type_label: '', industry: '', timeline: '', year: '', image_url: '', image_alt: '', device_screen_url: '', metric_value: '', metric_label: '' },
+    { logo_url: '', eyebrow: 'Case', title: 'Project name', subtitle: '', type_label: '', industry: '', timeline: '', year: '', image_url: '', image_alt: '', device_screen_url: '', metric_value: '', metric_label: '' },
   ],
   text: [
     { eyebrow: 'Контекст', title: 'Заголовок раздела', body: '' },

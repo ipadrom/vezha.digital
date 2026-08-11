@@ -372,6 +372,7 @@ let heroFxRaf = 0;
 let heroFxLastFrame = 0;
 let sectionLiquidRaf = 0;
 let sectionLiquidLastFrame = 0;
+let sectionLiquidIdleTimer = 0;
 let sectionLiquidLastScrollY = 0;
 let sectionLiquidScrollDirection = 0;
 let sectionLiquidStackLock: {
@@ -2441,7 +2442,12 @@ function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
 }
 
 function startSectionLiquid() {
-  if (!enableSectionLiquid || sectionLiquidRaf) return;
+  if (!enableSectionLiquid) return;
+  if (sectionLiquidIdleTimer) {
+    window.clearTimeout(sectionLiquidIdleTimer);
+    sectionLiquidIdleTimer = 0;
+  }
+  if (sectionLiquidRaf) return;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduceMotion) return;
 
@@ -2636,6 +2642,15 @@ function animateSectionLiquid(now: number) {
     sectionLiquidState.velocityY = 0;
     sectionLiquidState.arcX = 0;
     sectionLiquidState.arcY = 0;
+    if (activeKey && activeKey !== "hero") {
+      sectionLiquidIdleTimer = window.setTimeout(() => {
+        sectionLiquidIdleTimer = 0;
+        if (!sectionLiquidRaf) {
+          sectionLiquidLastFrame = performance.now();
+          sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
+        }
+      }, 34);
+    }
     return;
   }
 
@@ -3320,6 +3335,7 @@ onBeforeUnmount(() => {
   if (raf) cancelAnimationFrame(raf);
   if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
   if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
+  if (sectionLiquidIdleTimer) window.clearTimeout(sectionLiquidIdleTimer);
   stopAboutFlow();
   stackSphereCleanup?.();
   clientCubeCleanup?.();

@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">WELLNESS APP</title>
+  <desc id="desc">Гантель и лист объединены в знак тренировки и питания.</desc>
+  <defs>
+    <linearGradient id="wellness-gradient" x1="32" y1="28" x2="224" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B6A6FF"/>
+      <stop offset="0.5" stop-color="#83C9FF"/>
+      <stop offset="1" stop-color="#5DE1DC"/>
+    </linearGradient>
+    <linearGradient id="wellness-shine" x1="62" y1="40" x2="186" y2="208" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.36"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="64" fill="url(#wellness-gradient)"/>
+  <path d="M38 76C76 38 144 34 210 62C186 44 160 34 128 34C78 34 42 58 38 76Z" fill="url(#wellness-shine)"/>
+  <path d="M62 134H194" stroke="#171A22" stroke-width="16" stroke-linecap="round"/>
+  <rect x="38" y="93" width="28" height="82" rx="14" fill="#171A22"/>
+  <rect x="64" y="105" width="22" height="58" rx="11" fill="#171A22"/>
+  <rect x="170" y="105" width="22" height="58" rx="11" fill="#171A22"/>
+  <rect x="190" y="93" width="28" height="82" rx="14" fill="#171A22"/>
+  <path d="M128 135C128 98 146 73 181 61C181 96 163 123 128 135Z" fill="#F8FAFF"/>
+  <path d="M128 135C117 111 100 92 76 84C78 111 96 131 128 135Z" fill="#F8FAFF" fill-opacity="0.88"/>
+  <path d="M128 136C136 111 151 91 170 75M128 136C116 114 99 99 83 92" stroke="#171A22" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="128" cy="136" r="8" fill="#171A22"/>
+</svg>
