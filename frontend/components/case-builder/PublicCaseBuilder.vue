@@ -120,7 +120,48 @@
         </template>
 
         <template v-else-if="block.type === 'next_case'">
-          <span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2><NuxtLink class="builder-next-link" :to="block.content.case_slug ? `/cases/${block.content.case_slug}` : '/#cases'">{{ block.content.cta_label || (locale === 'ru' ? 'Открыть' : 'Open') }} <b>↗</b></NuxtLink>
+          <div class="builder-next-shell">
+            <header class="builder-next-header">
+              <div>
+                <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
+                <h2>{{ block.content.title }}</h2>
+              </div>
+              <NuxtLink class="builder-next-link" :to="block.content.case_slug ? `/cases/${block.content.case_slug}` : '/#cases'">
+                {{ block.content.cta_label || (locale === 'ru' ? 'Открыть' : 'Open') }} <b>↗</b>
+              </NuxtLink>
+            </header>
+
+            <div v-if="relatedCases.length" class="builder-related-cases">
+              <NuxtLink
+                v-for="(project, index) in relatedCases"
+                :key="project.slug || project.id"
+                class="builder-related-card"
+                :to="`/cases/${project.slug}`"
+              >
+                <div class="builder-related-card__visual" :data-project="project.slug">
+                  <img
+                    v-if="project.cover_image_url || project.image_url"
+                    :src="project.cover_image_url || project.image_url || ''"
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <div v-else class="builder-related-card__mock" aria-hidden="true">
+                    <span>VEZHA / CASE {{ two(index + 1) }}</span>
+                    <div><i /><i /><i /><i /></div>
+                    <strong>{{ project.hero_metric_value || two(index + 1) }}</strong>
+                    <small>{{ project.hero_metric_label || project.industry }}</small>
+                  </div>
+                </div>
+                <div class="builder-related-card__copy">
+                  <div><span>{{ two(index + 1) }}</span><small>{{ project.type }}</small></div>
+                  <h3>{{ project.name }}</h3>
+                  <p>{{ project.description || project.subtitle }}</p>
+                  <b aria-hidden="true">↗</b>
+                </div>
+              </NuxtLink>
+            </div>
+          </div>
         </template>
       </div>
     </section>
@@ -131,12 +172,15 @@
 import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
 import CaseFreeformBlock from '~/components/case-builder/CaseFreeformBlock.vue'
 import type { CaseLocale, PublicBuilderBlock } from '~/utils/caseBuilder'
-const props = defineProps<{ blocks: PublicBuilderBlock[]; locale: CaseLocale }>()
+import type { IProjects } from '~/utils/interfaces/IProjects'
+const props = defineProps<{ blocks: PublicBuilderBlock[]; locale: CaseLocale; relatedProjects?: IProjects[] }>()
 const builderRoot = ref<HTMLElement | null>(null)
 const reduceMotion = ref(true)
 const allowAutoplay = ref(false)
 let motionQuery: MediaQueryList | null = null
 const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => a.sort_order - b.sort_order))
+const relatedCases = computed(() => (props.relatedProjects || []).filter((project) => project.slug).slice(0, 3))
+const two = (value: number) => String(value).padStart(2, '0')
 const heroHasMedia = (block: PublicBuilderBlock) => Boolean(block.content.image_url || block.content.device_screen_url || block.content.metric_value)
 const blockClasses = (block: PublicBuilderBlock) => [
   `builder-block--${block.type}`,

@@ -3,7 +3,12 @@
     <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-locale="toggleLocale" @toggle-theme="toggleTheme" />
 
     <main v-if="project">
-      <PublicCaseBuilder v-if="project.blocks?.length" :blocks="project.blocks" :locale="currentLocale" />
+      <PublicCaseBuilder
+        v-if="project.blocks?.length"
+        :blocks="project.blocks"
+        :locale="currentLocale"
+        :related-projects="relatedProjects"
+      />
       <template v-else>
       <section class="case-hero">
         <div class="case-hero__index"><span>CASE / {{ two(caseIndex + 1) }}</span><span>{{ project.year || "2026" }}</span></div>
@@ -53,28 +58,45 @@ import CaseTechnicalModule from "~/components/cases/CaseTechnicalModule.vue";
 import CaseVisual from "~/components/cases/CaseVisual.vue";
 import WellnessCaseStudy from "~/components/cases/WellnessCaseStudy.vue";
 import PublicCaseBuilder from "~/components/case-builder/PublicCaseBuilder.vue";
-import type { IProjectDetail } from "~/utils/interfaces/IProjects";
+import type { IProjectDetail, IProjects } from "~/utils/interfaces/IProjects";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
 import { getNextProject } from "~/utils/landingCases";
 
 definePageMeta({ layout: false });
 const route = useRoute();
 const { locale } = useI18n();
-const { getProjectBySlug } = useApi();
+const { getProjectBySlug, getProjects } = useApi();
 const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const theme = ref<"light" | "dark">("light");
 const slug = computed(() => String(route.params.slug));
 const fallbacks = computed(() => getCaseFallbacks(currentLocale.value));
 const project = ref<IProjectDetail | null>(null);
+const publicProjects = ref<IProjects[]>([]);
 const caseIndex = computed(() => Math.max(0, fallbacks.value.findIndex((item) => item.slug === project.value?.slug)));
 const nextProject = computed(() => project.value ? getNextProject(fallbacks.value, project.value.slug || "") : undefined);
+const relatedProjects = computed(() => {
+  const seen = new Set<string>();
+  return [...publicProjects.value, ...fallbacks.value]
+    .filter((item) => {
+      const itemSlug = item.slug || "";
+      if (!itemSlug || itemSlug === project.value?.slug || seen.has(itemSlug)) return false;
+      seen.add(itemSlug);
+      return true;
+    })
+    .sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.sort_order - b.sort_order)
+    .slice(0, 3);
+});
 const two = (value: number) => String(value).padStart(2, "0");
 useDesktopSmoothScroll();
 
 async function loadProject() {
   const fallback = fallbacks.value.find((item) => item.slug === slug.value) || null;
-  try { project.value = await getProjectBySlug(slug.value, currentLocale.value); }
-  catch { project.value = fallback; }
+  const [projectResult, projectsResult] = await Promise.allSettled([
+    getProjectBySlug(slug.value, currentLocale.value),
+    getProjects(currentLocale.value),
+  ]);
+  project.value = projectResult.status === "fulfilled" ? projectResult.value : fallback;
+  publicProjects.value = projectsResult.status === "fulfilled" ? projectsResult.value : [];
   if (!project.value) throw createError({ statusCode: 404, statusMessage: "Case not found" });
   applySeo();
 }
