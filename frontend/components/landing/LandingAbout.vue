@@ -936,15 +936,20 @@ onBeforeUnmount(() => emit("flow-ready", null));
 @media (max-width: 720px) {
   .vz-about__head { margin-bottom: 14px; }
   .vz-about__intro { height: auto; min-height: 0; }
-  .vz-about__flow { overflow: visible; }
+  .vz-about__flow {
+    --mobile-business-center-y: 15%;
+    overflow: visible;
+  }
   .vz-about__flow-canvas { width: 100%; height: 488px; min-height: 488px; }
   .vz-about__intro { padding: 14px 16px; border-radius: 18px; }
   .vz-about__flow-controls {
+    top: var(--mobile-business-center-y);
     right: 14px;
     max-width: calc(100% - 28px);
     flex-direction: column-reverse;
     align-items: flex-end;
     gap: 0;
+    transform: translateY(-50%);
   }
   .vz-about__flow-zones { grid-template-columns: 1fr; grid-template-rows: 30fr 40fr 30fr; }
   .vz-about__flow-zone:not(:last-child) { border-right: 0; border-bottom: 1px solid var(--border); }
@@ -959,7 +964,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   }
   .vz-about__flow-node--business,
   .vz-about__flow-node--product { width: 100%; --x: 0%; }
-  .vz-about__flow-node--business { --y: 15%; }
+  .vz-about__flow-node--business { --y: var(--mobile-business-center-y); }
   .vz-about__flow-node--product { --y: 85%; }
   .vz-about__flow-stage--brief { --x: 50%; --y: 30%; }
   .vz-about__flow-stage--design { --x: 25%; --y: 38%; }

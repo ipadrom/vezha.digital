@@ -4321,7 +4321,6 @@
 
   .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
     color: var(--bg);
-    font-size: clamp(9px, 3vw, 12px);
   }
 
   .vz-service-panel {
