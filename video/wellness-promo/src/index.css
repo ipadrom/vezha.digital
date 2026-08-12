@@ -1,0 +1,14 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  background: #05070a;
+}
+
+body {
+  font-family: "Onest", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

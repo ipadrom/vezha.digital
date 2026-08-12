@@ -30,10 +30,10 @@
         <div class="outline-heading"><span>Структура</span><small>{{ document.blocks.length }}</small></div>
         <nav class="outline-list">
           <button v-for="(block, index) in document.blocks" :key="block.id" type="button" :class="{ active: selectedId === block.id, muted: !block.is_visible }" @click="selectedId = block.id">
-            <span>{{ String(index + 1).padStart(2, '0') }}</span><div><b>{{ blockLabel(block.type) }}</b><small>{{ blockTitle(block, locale) }}</small></div><i>⠿</i>
+            <span>{{ String(index + 1).padStart(2, '0') }}</span><div><b>{{ blockLabel(block.type) }}</b><small>{{ blockTitle(block, locale) }}</small></div><i>{{ block.type === 'hero' ? '●' : '⠿' }}</i>
           </button>
         </nav>
-        <div class="block-library"><div class="outline-heading"><span>Добавить блок</span></div><button v-for="item in blockLibrary" :key="item.type" type="button" @click="addBlock(item.type)"><span>{{ item.mark }}</span><div><b>{{ item.label }}</b><small>{{ item.description }}</small></div></button></div>
+        <div class="block-library"><div class="outline-heading"><span>Добавить блок</span></div><button v-for="item in blockLibrary" :key="item.type" type="button" :disabled="item.type === 'hero' && document.blocks.some(block => block.type === 'hero')" @click="addBlock(item.type)"><span>{{ item.mark }}</span><div><b>{{ item.label }}</b><small>{{ item.type === 'hero' && document.blocks.some(block => block.type === 'hero') ? 'Обязательная шапка уже добавлена' : item.description }}</small></div></button></div>
       </aside>
 
       <main class="editor-canvas">
@@ -48,7 +48,7 @@
             :index="index"
             :selected="selectedId === block.id"
             :viewport="canvasWidth"
-            :draggable="block.settings.layout !== 'freeform'"
+            :draggable="block.type !== 'hero' && block.settings.layout !== 'freeform'"
             @dragstart="dragIndex = index"
             @dragover.prevent
             @drop="dropAt(index)"
@@ -94,7 +94,7 @@ import CaseBlockCanvasCard from '~/components/admin/cases/CaseBlockCanvasCard.vu
 import CaseBlockInspector from '~/components/admin/cases/CaseBlockInspector.vue'
 import CaseMetaInspector from '~/components/admin/cases/CaseMetaInspector.vue'
 import type { CaseBlock, CaseBlockType, CaseContentEdit, CaseDocument, CaseElementBox, CaseElementType, CaseLocale, CaseRevision, CaseViewport } from '~/utils/caseBuilder'
-import { blockLabel, blockLibrary, blockTitle, convertBlockToFreeform, createCaseBlock, createCaseElement, deepClone } from '~/utils/caseBuilder'
+import { blockLabel, blockLibrary, blockTitle, caseHeroColorDefaults, convertBlockToFreeform, createCaseBlock, createCaseElement, deepClone } from '~/utils/caseBuilder'
 
 definePageMeta({ layout: 'admin-layout' })
 const route = useRoute()
@@ -133,13 +133,21 @@ watch(document, () => {
 }, { deep: true })
 
 onMounted(async () => {
+  let addedMandatoryHero = false
   try {
     document.value = await getCase(String(route.params.id))
+    addedMandatoryHero = enforceMandatoryHero()
     selectedId.value = document.value.blocks[0]?.id || null
     captureHistory()
     useHead({ title: `${document.value.meta.name_ru || 'Новый кейс'} — VEZHA Studio` })
   } catch (cause) { loadError.value = cause instanceof Error ? cause.message : 'Кейс не найден' }
-  finally { loading.value = false }
+  finally {
+    loading.value = false
+    if (addedMandatoryHero) {
+      dirty.value = true
+      saveTimer = setTimeout(saveNow, 400)
+    }
+  }
 })
 
 onBeforeUnmount(() => { clearTimeout(saveTimer); clearTimeout(historyTimer) })
@@ -219,6 +227,10 @@ async function hide() {
 
 function addBlock(type: CaseBlockType) {
   if (!document.value) return
+  if (type === 'hero' && document.value.blocks.some(block => block.type === 'hero')) {
+    showNotice('error', 'В кейсе уже есть обязательная шапка')
+    return
+  }
   const block = createCaseBlock(type)
   const selectedIndex = document.value.blocks.findIndex(item => item.id === selectedId.value)
   const insertAt = selectedIndex >= 0 ? selectedIndex + 1 : document.value.blocks.length
@@ -229,6 +241,7 @@ function addBlock(type: CaseBlockType) {
 
 function duplicateBlock(index: number) {
   if (!document.value) return
+  if (document.value.blocks[index]?.type === 'hero') return
   const block = deepClone(document.value.blocks[index])
   block.id = createCaseBlock(block.type).id
   document.value.blocks.splice(index + 1, 0, block)
@@ -258,7 +271,7 @@ function toggleBlock(index: number) {
 }
 function convertBlock(index: number) {
   const block = document.value?.blocks[index]
-  if (!block) return
+  if (!block || block.type === 'hero') return
   document.value!.blocks[index] = convertBlockToFreeform(block)
   selectedId.value = block.id
   showNotice('success', 'Блок разобран: элементы можно двигать и менять по отдельности')
@@ -337,7 +350,48 @@ function resizeBlock(index: number, span: number) {
   if (start && start + nextSpan > 13) block.settings[startKey] = Math.max(1, 13 - nextSpan)
 }
 function dropAt(index: number) { if (!document.value || dragIndex.value === null || dragIndex.value === index) return; const [block] = document.value.blocks.splice(dragIndex.value, 1); document.value.blocks.splice(index, 0, block); dragIndex.value = null; normalizeOrder() }
-function normalizeOrder() { document.value?.blocks.forEach((block, index) => { block.sort_order = index }) }
+function enforceMandatoryHero() {
+  if (!document.value) return false
+  const blocks = document.value.blocks
+  let heroIndex = blocks.findIndex(block => block.type === 'hero')
+  let changed = false
+  if (heroIndex < 0) {
+    const hero = createCaseBlock('hero')
+    hero.content_ru.title = document.value.meta.name_ru || hero.content_ru.title
+    hero.content_en.title = document.value.meta.name_en || hero.content_en.title
+    hero.content_ru.subtitle = document.value.meta.subtitle_ru || document.value.meta.description_ru || ''
+    hero.content_en.subtitle = document.value.meta.subtitle_en || document.value.meta.description_en || ''
+    hero.content_ru.industry = document.value.meta.industry_ru || document.value.meta.type_ru || ''
+    hero.content_en.industry = document.value.meta.industry_en || document.value.meta.type_en || ''
+    hero.content_ru.year = document.value.meta.year || ''
+    hero.content_en.year = document.value.meta.year || ''
+    blocks.unshift(hero)
+    heroIndex = 0
+    changed = true
+  }
+  if (heroIndex > 0) {
+    blocks.unshift(blocks.splice(heroIndex, 1)[0])
+    changed = true
+  }
+  const hero = blocks[0]
+  const previousSettings = JSON.stringify(hero.settings)
+  if (!hero.is_visible) changed = true
+  hero.is_visible = true
+  Object.assign(hero.settings, {
+    width: 'full',
+    layout: 'case-header',
+    desktop_span: 12,
+    desktop_start: 0,
+    tablet_span: 12,
+    tablet_start: 0,
+    mobile_span: 12,
+    mobile_start: 0,
+    hero_background: hero.settings.hero_background || caseHeroColorDefaults.background,
+    hero_text: hero.settings.hero_text || caseHeroColorDefaults.text,
+  })
+  return changed || previousSettings !== JSON.stringify(hero.settings)
+}
+function normalizeOrder() { enforceMandatoryHero(); document.value?.blocks.forEach((block, index) => { block.sort_order = index }) }
 function showNotice(type: 'success' | 'error', text: string) { notice.value = { type, text }; setTimeout(() => { if (notice.value?.text === text) notice.value = null }, 5000) }
 async function openVersions() { if (!document.value) return; versionsOpen.value = true; versionsLoading.value = true; try { revisions.value = await listRevisions(document.value.id) } catch (cause) { showNotice('error', cause instanceof Error ? cause.message : 'Не удалось загрузить версии') } finally { versionsLoading.value = false } }
 async function restoreVersion(revisionId: string) { if (!document.value || !confirm('Вернуть эту версию в черновик? Текущий черновик будет заменён.')) return; try { applying.value = true; document.value = await restoreRevision(document.value.id, revisionId); selectedId.value = document.value.blocks[0]?.id || null; dirty.value = false; versionsOpen.value = false; showNotice('success', 'Версия восстановлена в черновик') } catch (cause) { showNotice('error', cause instanceof Error ? cause.message : 'Не удалось восстановить версию') } finally { nextTick(() => { applying.value = false; captureHistory() }) } }
@@ -355,9 +409,9 @@ const formatVersionDate = (value: string) => new Intl.DateTimeFormat('ru-RU', { 
 .outline-meta { width: calc(100% - 20px); margin: 12px 10px 7px; padding: 10px; display: grid; grid-template-columns: 28px 1fr; align-items: center; gap: 8px; border: 1px solid var(--studio-line); border-radius: 7px; background: #f7f8fa; text-align: left; cursor: pointer; }.outline-meta > span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 5px; color: white; background: var(--studio-ink); }.outline-meta div, .outline-list div, .block-library div { min-width: 0; display: grid; }.outline-meta b, .outline-list b, .block-library b { font-size: 10px; }.outline-meta small, .outline-list small, .block-library small { overflow: hidden; color: var(--studio-muted); font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }.outline-meta.active { border-color: var(--studio-blue); background: var(--studio-blue-soft); }
 .outline-heading { padding: 10px 14px 6px; display: flex; justify-content: space-between; color: var(--studio-muted); font: 600 8px var(--font-mono); letter-spacing: .09em; text-transform: uppercase; }
 .outline-list { display: grid; padding: 0 8px; }.outline-list button { min-height: 43px; padding: 7px; display: grid; grid-template-columns: 25px 1fr auto; align-items: center; gap: 5px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }.outline-list button > span { color: #8a95a5; font: 8px var(--font-mono); }.outline-list button > i { color: #a3acb9; font-style: normal; }.outline-list button:hover { background: #f3f5f7; }.outline-list button.active { background: var(--studio-blue-soft); }.outline-list button.active > span { color: var(--studio-blue); }.outline-list button.muted { opacity: .45; }
-.block-library { margin-top: 12px; padding: 5px 8px 24px; border-top: 1px solid var(--studio-line); }.block-library > button { width: 100%; min-height: 46px; padding: 7px; display: grid; grid-template-columns: 29px 1fr; align-items: center; gap: 8px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }.block-library > button:hover { background: #f1f4f7; }.block-library > button > span { width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid #d5dbe4; border-radius: 5px; color: var(--studio-blue); font: 600 10px var(--font-mono); }
+.block-library { margin-top: 12px; padding: 5px 8px 24px; border-top: 1px solid var(--studio-line); }.block-library > button { width: 100%; min-height: 46px; padding: 7px; display: grid; grid-template-columns: 29px 1fr; align-items: center; gap: 8px; border: 0; border-radius: 6px; background: transparent; text-align: left; cursor: pointer; }.block-library > button:hover { background: #f1f4f7; }.block-library > button:disabled { opacity: .45; cursor: default; }.block-library > button:disabled:hover { background: transparent; }.block-library > button > span { width: 29px; height: 29px; display: grid; place-items: center; border: 1px solid #d5dbe4; border-radius: 5px; color: var(--studio-blue); font: 600 10px var(--font-mono); }
 .editor-canvas { min-width: 0; min-height: 0; overflow: auto; background-color: #e8ebf0; background-image: radial-gradient(#c4cad3 0.75px, transparent .75px); background-size: 14px 14px; }.canvas-toolbar { position: sticky; top: 0; z-index: 10; height: 42px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #d3d8e0; background: rgba(244,246,248,.9); backdrop-filter: blur(8px); }.canvas-toolbar > span { display: flex; align-items: center; gap: 10px; color: #788396; }.canvas-toolbar > span b { font: 600 8px var(--font-mono); letter-spacing: .1em; }.canvas-toolbar > span small { font-size: 8px; }.canvas-toolbar > div { display: flex; }.canvas-toolbar button { height: 26px; padding: 0 9px; border: 0; border-radius: 4px; color: #788396; background: transparent; font-size: 9px; cursor: pointer; }.canvas-toolbar button.active { color: var(--studio-ink); background: white; box-shadow: 0 1px 4px rgba(18,23,34,.12); }
-.canvas-sheet { width: min(100% - 46px, 920px); min-height: calc(100% - 90px); margin: 22px auto 48px; padding: 18px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row; align-content: start; gap: 10px; border: 1px solid #cbd1da; background-color: #f7f8fa; background-image: linear-gradient(90deg, rgba(40,100,240,.045) 1px, transparent 1px); background-size: calc(100% / 12) 100%; box-shadow: 0 20px 50px rgba(25,33,45,.12); transition: width .2s ease; }.canvas-sheet--tablet { width: min(720px, calc(100% - 34px)); }.canvas-sheet--mobile { width: min(390px, calc(100% - 28px)); }.canvas-add, .canvas-empty { grid-column: 1 / -1; }.canvas-add { min-height: 40px; border: 1px dashed #b9c1cd; border-radius: 5px; color: #7a8698; background: rgba(247,248,250,.9); cursor: pointer; }.canvas-add:hover { color: var(--studio-blue); border-color: var(--studio-blue); }.canvas-empty { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 5px; color: var(--studio-muted); }.canvas-empty b { color: var(--studio-ink); }
+.canvas-sheet { width: min(100% - 46px, 920px); min-height: calc(100% - 90px); margin: 22px auto 48px; padding: 18px; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-auto-flow: row; align-content: start; gap: 10px; border: 1px solid #cbd1da; background-color: #f7f8fa; background-image: linear-gradient(90deg, rgba(40,100,240,.045) 1px, transparent 1px); background-size: calc(100% / 12) 100%; box-shadow: 0 20px 50px rgba(25,33,45,.12); }.canvas-sheet--tablet { width: min(720px, calc(100% - 34px)); }.canvas-sheet--mobile { width: min(390px, calc(100% - 28px)); }.canvas-add, .canvas-empty { grid-column: 1 / -1; }.canvas-add { min-height: 40px; border: 1px dashed #b9c1cd; border-radius: 5px; color: #7a8698; background: rgba(247,248,250,.9); cursor: pointer; }.canvas-add:hover { color: var(--studio-blue); border-color: var(--studio-blue); }.canvas-empty { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 5px; color: var(--studio-muted); }.canvas-empty b { color: var(--studio-ink); }
 .editor-loading { grid-column: 1 / -1; display: grid; place-items: center; align-content: center; gap: 15px; background: var(--studio-paper); }.editor-loading > span { width: 32px; height: 32px; border: 2px solid #d6dce5; border-top-color: var(--studio-blue); border-radius: 50%; animation: spin .8s linear infinite; }.editor-loading--error b { color: var(--studio-danger); }.editor-loading a { color: var(--studio-blue); }
 .editor-notice { position: fixed; right: 20px; bottom: 20px; z-index: 120; min-width: 260px; padding: 13px 42px 13px 14px; border-radius: 7px; color: white; box-shadow: 0 14px 35px rgba(18,23,34,.24); }.editor-notice--success { background: var(--studio-green); }.editor-notice--error { background: var(--studio-danger); }.editor-notice button { position: absolute; right: 10px; border: 0; color: inherit; background: none; cursor: pointer; }
 .version-backdrop { position: fixed; inset: 0; z-index: 130; display: grid; place-items: center; padding: 20px; background: rgba(10,14,20,.58); backdrop-filter: blur(4px); }.version-panel { width: min(100%,520px); max-height: min(680px,85vh); padding: 22px; overflow: auto; border-radius: 12px; color: var(--studio-ink); background: white; box-shadow: 0 30px 80px rgba(0,0,0,.3); }.version-panel > header { display: flex; align-items: start; justify-content: space-between; margin-bottom: 20px; }.version-panel header span { color: var(--studio-blue); font: 600 9px var(--font-mono); letter-spacing: .12em; }.version-panel h2 { margin: 5px 0 0; font-size: 23px; }.version-panel header button { width: 30px; height: 30px; border: 0; border-radius: 50%; background: #eef1f5; cursor: pointer; }.version-panel > p { padding: 30px 0; color: var(--studio-muted); text-align: center; }.version-panel article { padding: 13px 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; border-top: 1px solid var(--studio-line); }.version-panel article div { display: grid; }.version-panel article small { color: var(--studio-muted); }.version-panel article button { padding: 8px 10px; border: 1px solid var(--studio-line); border-radius: 6px; color: var(--studio-blue); background: white; font-size: 10px; cursor: pointer; }

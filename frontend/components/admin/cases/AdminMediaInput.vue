@@ -20,7 +20,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 const { uploadMedia } = useCaseAdmin()
 const uploading = ref(false)
 const error = ref('')
-const isVideo = computed(() => /\.(mp4|webm)(?:$|\?)/i.test(props.modelValue))
+const isVideo = computed(() => props.accept.includes('video/') || /\.(mp4|webm)(?:$|\?)/i.test(props.modelValue))
 
 async function upload(event: Event) {
   const input = event.target as HTMLInputElement
@@ -36,8 +36,8 @@ async function upload(event: Event) {
 
 <style scoped>
 .media-input { display: grid; grid-template-columns: 1fr auto; gap: 7px; }
-.media-input__preview { position: relative; grid-column: 1 / -1; aspect-ratio: 16/7; overflow: hidden; border: 1px solid var(--studio-line); border-radius: 7px; background: #e9edf2; }
-.media-input__preview img, .media-input__preview video { width: 100%; height: 100%; object-fit: cover; }
+.media-input__preview { position: relative; grid-column: 1 / -1; min-height: 140px; max-height: 220px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--studio-line); border-radius: 7px; background: #e9edf2; }
+.media-input__preview img, .media-input__preview video { width: auto; max-width: 100%; height: auto; max-height: 220px; display: block; object-fit: contain; }
 .media-input__preview button { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border: 0; border-radius: 50%; color: white; background: rgba(18,23,34,.78); cursor: pointer; }
 .media-input > input { min-width: 0; height: 36px; padding: 0 9px; border: 1px solid var(--studio-line); border-radius: 6px; color: var(--studio-ink); background: white; font-size: 11px; }
 .media-input > label { height: 36px; padding: 0 10px; display: grid; place-items: center; border: 1px solid var(--studio-line); border-radius: 6px; color: var(--studio-blue); background: white; font-size: 11px; cursor: pointer; }

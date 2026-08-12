@@ -55,3 +55,9 @@ backend/uploads/*
 
 # Local feature worktrees
 .worktrees/
+
+# Local visual QA and scratch output
+.impeccable/
+frontend/.impeccable/
+frontend/.tmp-case/
+frontend/.tmp-test/

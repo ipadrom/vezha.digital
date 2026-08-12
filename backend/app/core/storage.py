@@ -1,6 +1,8 @@
 import io
+import json
 import logging
 from typing import BinaryIO
+from urllib.parse import urlsplit
 
 from minio import Minio
 from minio.error import S3Error
@@ -24,26 +26,28 @@ class MinIOStorage:
         self._ensure_bucket_exists()
 
     def _ensure_bucket_exists(self):
-        """Create bucket if it doesn't exist."""
+        """Create the bucket if needed and keep uploaded media publicly readable."""
         try:
             if not self.client.bucket_exists(self.bucket_name):
                 self.client.make_bucket(self.bucket_name)
-                # Set public read policy for the bucket
-                policy = {
-                    "Version": "2012-10-17",
-                    "Statement": [
-                        {
-                            "Effect": "Allow",
-                            "Principal": {"AWS": ["*"]},
-                            "Action": ["s3:GetObject"],
-                            "Resource": [f"arn:aws:s3:::{self.bucket_name}/*"],
-                        }
-                    ],
-                }
-                import json
-
-                self.client.set_bucket_policy(self.bucket_name, json.dumps(policy))
                 logger.info(f"Created bucket: {self.bucket_name}")
+
+            # Existing buckets can come from an older installation where the
+            # public policy was never applied. Uploaded case media is rendered
+            # directly by public pages, so the policy must be idempotently
+            # enforced on every application start.
+            policy = {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Effect": "Allow",
+                        "Principal": {"AWS": ["*"]},
+                        "Action": ["s3:GetObject"],
+                        "Resource": [f"arn:aws:s3:::{self.bucket_name}/*"],
+                    }
+                ],
+            }
+            self.client.set_bucket_policy(self.bucket_name, json.dumps(policy))
         except S3Error as e:
             logger.error(f"Error ensuring bucket exists: {e}")
             raise
@@ -112,10 +116,14 @@ class MinIOStorage:
 
     def _public_object_url(self, filename: str) -> str:
         """Build either a direct MinIO URL or the production nginx proxy URL."""
+        return f"{self._public_base_url()}/{filename}"
+
+    def _public_base_url(self) -> str:
+        """Resolve a direct bucket URL while preserving an explicit proxy path."""
         base_url = settings.MINIO_PUBLIC_URL.rstrip("/")
-        if base_url.endswith(f"/{self.bucket_name}"):
-            return f"{base_url}/{filename}"
-        return f"{base_url}/uploads/{filename}"
+        if urlsplit(base_url).path.rstrip("/"):
+            return base_url
+        return f"{base_url}/{self.bucket_name}"
 
     def extract_filename_from_url(self, url: str) -> str | None:
         """Extract the object name (with prefix) from a full URL."""
@@ -123,7 +131,8 @@ class MinIOStorage:
             return None
         base_url = settings.MINIO_PUBLIC_URL.rstrip("/")
         prefixes = (
-            f"{base_url}/" if base_url.endswith(f"/{self.bucket_name}") else "",
+            f"{self._public_base_url()}/",
+            # Keep deletion compatible with URLs emitted by older local builds.
             f"{base_url}/uploads/",
         )
         for prefix in prefixes:

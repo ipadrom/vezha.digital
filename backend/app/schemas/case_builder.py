@@ -111,6 +111,12 @@ class MetricsContent(FlexibleContent):
 class ProcessItem(FlexibleContent):
     title: str = ""
     description: str = ""
+    image_url: str = ""
+    image_alt: str = ""
+    video_url: str = ""
+    poster_url: str = ""
+    media_size: Literal["compact", "medium", "full"] = "medium"
+    tags: list[str] = Field(default_factory=list)
 
 
 class ProcessContent(FlexibleContent):
@@ -200,6 +206,7 @@ class BlockSettings(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     theme: Literal["paper", "soft", "ink", "signal"] = "paper"
+    surface: Literal["card", "plain"] = "card"
     width: Literal["standard", "wide", "full"] = "standard"
     spacing: Literal["compact", "normal", "large"] = "normal"
     layout: str = "default"

@@ -2,7 +2,7 @@ import type { IProjectBlock } from "./interfaces/IProjects";
 
 type WellnessLocale = "ru" | "en";
 
-const screens = "/cases/wellness-app";
+const assets = "/cases/wellness-app";
 
 const settings = (
   theme: "paper" | "soft" | "ink" | "signal" = "paper",
@@ -13,6 +13,7 @@ const settings = (
   spacing: "normal" as const,
   layout: "default",
   alignment: "left" as const,
+  surface: "card" as const,
   desktop_span: 12,
   desktop_start: 0,
   tablet_span: 12,
@@ -24,6 +25,7 @@ const settings = (
 
 export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
   const ru = locale === "ru";
+  const pick = (ruValue: string, enValue: string) => ru ? ruValue : enValue;
   const block = (
     id: string,
     type: IProjectBlock["type"],
@@ -40,192 +42,317 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
 
   return [
     block("hero", "hero", {
-      logo_url: `${screens}/wellness-mark.svg`,
-      eyebrow: ru ? "VEZHA / ПРОДУКТОВЫЙ КЕЙС" : "VEZHA / PRODUCT CASE",
+      logo_url: `${assets}/training-mark.svg`,
+      eyebrow: pick("VEZHA / ПРОДУКТОВЫЙ КЕЙС", "VEZHA / PRODUCT CASE"),
       title: "WELLNESS APP",
-      subtitle: ru
-        ? "Превращаем персональный трекер тренировок в цельный ежедневный опыт — от первого подхода до собранного рациона."
-        : "Turning a personal workout tracker into a connected daily experience — from the first set to a complete meal plan.",
-      type_label: ru ? "PRODUCT DESIGN / FRONTEND" : "PRODUCT DESIGN / FRONTEND",
-      industry: "WELLNESS & SPORTS",
-      timeline: ru ? "PWA → VUE 3" : "PWA → VUE 3",
+      subtitle: pick(
+        "Тренировка, прогрессия и питание — в одном локальном PWA.",
+        "Workout, progression and nutrition in one local-first PWA.",
+      ),
+      type_label: "PRODUCT DESIGN / PWA",
+      industry: "FITNESS & NUTRITION",
+      timeline: "VUE 3 / LOCAL-FIRST",
       year: "2026",
-      image_url: `${screens}/hero-hand-device-v2.png`,
-      image_alt: ru
-        ? "Wellness-приложение на экране смартфона"
-        : "Wellness application shown on a smartphone",
-      device_screen_url: `${screens}/screen-timer.png`,
+      image_url: `${assets}/wellness-promo-poster.jpg`,
+      image_alt: pick("Мобильное приложение для тренировок и питания", "Mobile workout and nutrition application"),
       metric_value: "2×1",
-      metric_label: ru ? "связанных контура" : "connected flows",
-    }, 0, settings("paper", { spacing: "large" })),
-
-    block("context", "text", {
-      eyebrow: ru ? "О проекте" : "About the project",
-      title: ru
-        ? "Один продукт для той части дня, которая раньше жила в разных инструментах."
-        : "One product for the part of the day that used to live across different tools.",
-      body: ru
-        ? "WELLNESS APP начинался как компактный инструмент для прохождения тренировки: программа держала порядок упражнений, таймер — ритм отдыха, а прогрессия — историю нагрузки. По мере использования стало ясно, что полезный сценарий обрывается слишком рано: после последнего подхода питание, рецепты и план дня снова расходятся по заметкам и другим сервисам.\n\nМы расширили продукт вокруг реального пользовательского дня. Тренировочный контур и сценарии питания получили общую логику, единый визуальный язык и понятные переходы, сохранив компактность первоначальной PWA."
-        : "WELLNESS APP began as a compact workout companion: the program held the exercise order, the timer kept the pace of recovery, and progression stored the history of each load. With regular use, it became clear that the useful journey ended too early. After the final set, nutrition, recipes and the plan for the day scattered across notes and other services.\n\nWe expanded the product around the user’s real day. Workout and nutrition flows gained shared logic, one visual language and clear transitions while preserving the focus of the original PWA.",
-    }, 1, settings("soft", { spacing: "large", anchor: "story" })),
+      metric_label: pick("единый ежедневный сценарий", "one daily system"),
+    }, 0, settings("paper", {
+      spacing: "compact",
+      hero_background: "#f1f0eb",
+      hero_text: "#080808",
+    })),
 
     block("video", "media_hero", {
-      video_url: `${screens}/wellness-promo.mp4`,
-      poster_url: `${screens}/wellness-promo-poster.jpg`,
+      video_url: `${assets}/wellness-promo.mp4`,
+      poster_url: `${assets}/wellness-promo-poster.jpg`,
       image_url: "",
-      alt: ru ? "WELLNESS APP: тренировки, прогрессия и питание" : "WELLNESS APP: workouts, progression and nutrition",
-      caption: ru
-        ? "Как тренировка продолжается в прогрессии и питании"
-        : "How a workout continues through progression and nutrition",
+      alt: pick(
+        "WELLNESS APP: тренировка, восстановление и питание",
+        "WELLNESS APP: workout, recovery and nutrition",
+      ),
+      caption: pick(
+        "От первого действия — к собранному дню",
+        "From the first action to a coherent day",
+      ),
       autoplay: true,
       loop: true,
       muted: true,
       controls: false,
-    }, 2, settings("ink", { width: "full", spacing: "compact", layout: "media-16x9" })),
-
-    block("facts", "metrics", {
-      eyebrow: ru ? "В основе решения" : "At the core",
-      title: ru
-        ? "Компактный продукт, собранный вокруг ежедневных действий."
-        : "A focused product built around everyday actions.",
-      summary: ru
-        ? "Вместо разрозненных инструментов — два связанных пользовательских контура и шесть ключевых экранов."
-        : "Instead of disconnected tools, the product brings together two user flows and six core screens.",
-      items: [
-        { value: "02", label: ru ? "основных сценария" : "core flows", context: ru ? "Тренировка + питание" : "Workout + nutrition" },
-        { value: "06", label: ru ? "ключевых экранов" : "core screens", context: ru ? "От программы до меню" : "From program to meal plan" },
-        { value: "PWA", label: ru ? "установка без стора" : "store-free install", context: ru ? "Запуск из браузера" : "Launched from the browser" },
-        { value: "LOCAL", label: ru ? "состояние на устройстве" : "on-device state", context: ru ? "Быстрый повторный доступ" : "Fast return access" },
-      ],
-    }, 3, settings("paper", { anchor: "evidence" })),
-
-    block("challenge", "challenge_solution", {
-      eyebrow: ru ? "Задача" : "Challenge",
-      title: ru
-        ? "Расширить продукт, не превратив его в тяжёлый wellness-комбайн."
-        : "Expand the product without turning it into an overloaded wellness suite.",
-      challenge_label: ru ? "Что мешало" : "What stood in the way",
-      challenge: ru
-        ? "Первая версия уверенно вела только по тренировке. Прогрессия не складывалась в непрерывный путь, питание оставалось за пределами приложения, а каждый новый модуль мог сделать навигацию тяжелее."
-        : "The first version confidently guided only the workout itself. Progression did not form a continuous journey, nutrition stayed outside the app, and every new module risked making navigation heavier.",
-      solution_label: ru ? "Что сделали" : "What we did",
-      solution: ru
-        ? "Мы построили систему вокруг повторяемого дневного цикла: выбрать программу, пройти занятие, сохранить нагрузку, собрать блюда и увидеть итог дня. Все сценарии работают на одной компонентной основе и говорят одним визуальным языком."
-        : "We shaped the system around a repeatable daily loop: choose a program, complete the session, save the load, assemble meals and see the day as a whole. Every flow runs on one component foundation and speaks the same visual language.",
-    }, 4, settings("soft", { spacing: "large" })),
-
-    block("process", "process", {
-      eyebrow: ru ? "Наш процесс" : "Our process",
-      title: ru ? "От карты дня — к целостному мобильному продукту." : "From mapping the day to a coherent mobile product.",
-      items: [
-        {
-          title: ru ? "Разобрали ядро продукта" : "Mapped the product core",
-          description: ru
-            ? "Зафиксировали действия, которые уже приносили пользу, и нашли разрывы между программой, таймером, прогрессией и питанием."
-            : "We identified the actions that already delivered value and found the gaps between the program, timer, progression and nutrition.",
-        },
-        {
-          title: ru ? "Перестроили UX вокруг дня" : "Reframed the UX around the day",
-          description: ru
-            ? "Собрали последовательность экранов так, чтобы каждое состояние подсказывало один следующий шаг и не требовало возвращаться к дашборду."
-            : "We arranged the screens so every state suggests one next action without sending the user back to a dashboard.",
-        },
-        {
-          title: ru ? "Создали единую UI-систему" : "Created one UI system",
-          description: ru
-            ? "Перенесли тренировку и питание на общие компоненты, правила типографики и мобильную иерархию."
-            : "We brought workout and nutrition flows onto shared components, typography rules and a common mobile hierarchy.",
-        },
-        {
-          title: ru ? "Подготовили к реальному использованию" : "Prepared it for everyday use",
-          description: ru
-            ? "Сохранили local-first модель, добавили wake lock, звук и вибрацию и упаковали продукт в устанавливаемую PWA."
-            : "We kept the local-first model, added wake lock, sound and vibration, and packaged the product as an installable PWA.",
-        },
-      ],
-    }, 5, settings("paper", { spacing: "large" })),
-
-    block("workout-copy", "text", {
-      eyebrow: ru ? "Тренировочный опыт" : "Workout experience",
-      title: ru
-        ? "Интерфейс остаётся в фоне, пока пользователь движется."
-        : "The interface stays in the background while the user moves.",
-      body: ru
-        ? "Во время тренировки внимание должно быть на движении, а не на навигации. Поэтому активный сценарий показывает только текущий блок, упражнение и ближайшее действие. Таймер встроен в паузу между подходами, а звук и вибрация позволяют не следить за экраном каждую секунду.\n\nПосле занятия веса и повторения остаются в истории прогрессии. Следующая тренировка начинается уже с контекста, а не с пустой формы."
-        : "During a workout, attention belongs on movement rather than navigation. The active flow therefore shows only the current block, the exercise and the nearest action. The timer lives inside the pause between sets, while sound and vibration remove the need to watch the screen every second.\n\nWhen the session ends, weights and reps remain in progression history. The next workout begins with context instead of an empty form.",
-    }, 6, settings("paper", { spacing: "large" })),
-
-    block("workout-screens", "gallery", {
-      eyebrow: ru ? "Ключевые экраны" : "Key screens",
-      title: ru ? "Весь тренировочный путь без лишних переходов." : "The complete workout journey without unnecessary steps.",
-      items: [
-        { image_url: `${screens}/screen-workout-home.png`, alt: ru ? "Программа тренировки" : "Workout program", caption: ru ? "Программа и порядок блоков" : "Program and block order" },
-        { image_url: `${screens}/screen-progression.png`, alt: ru ? "Прогрессия нагрузки" : "Load progression", caption: ru ? "История нагрузки" : "Load history" },
-        { image_url: `${screens}/screen-timer.png`, alt: ru ? "Таймер отдыха" : "Rest timer", caption: ru ? "Отдых между подходами" : "Recovery between sets" },
-      ],
-    }, 7, settings("ink", { width: "full", spacing: "normal", layout: "phones" })),
-
-    block("nutrition-copy", "text", {
-      eyebrow: ru ? "Питание" : "Nutrition",
-      title: ru
-        ? "Рацион становится продолжением плана, а не отдельной задачей."
-        : "Nutrition becomes a continuation of the plan, not a separate task.",
-      body: ru
-        ? "Мы не строили ещё один сложный счётчик калорий. Вместо этого организовали рецепты по роли в рационе, связали размер порции с КБЖУ и дали возможность собрать меню на день из уже понятных блюд.\n\nПользователь двигается от выбора рецепта к конкретной порции и видит итог дня в том же продукте, где только что закончил тренировку."
-        : "We did not build another complicated calorie counter. Instead, recipes are organized by their role in the diet, serving size is connected to macros, and a daily menu can be assembled from familiar dishes.\n\nThe user moves from choosing a recipe to a specific serving and sees the whole day inside the same product where the workout just ended.",
-    }, 8, settings("soft", { spacing: "large" })),
-
-    block("nutrition-screens", "gallery", {
-      eyebrow: ru ? "Ключевые экраны" : "Key screens",
-      title: ru ? "От идеи блюда — к собранному меню дня." : "From a meal idea to a complete daily menu.",
-      items: [
-        { image_url: `${screens}/screen-food-home.png`, alt: ru ? "Библиотека рецептов" : "Recipe library", caption: ru ? "Рецепты по категориям" : "Recipes by category" },
-        { image_url: `${screens}/screen-recipe.png`, alt: ru ? "Рецепт и пищевая ценность" : "Recipe and nutrition values", caption: ru ? "Порция и КБЖУ" : "Serving and macros" },
-        { image_url: `${screens}/screen-daily-menu.png`, alt: ru ? "Дневное меню" : "Daily menu", caption: ru ? "Собранное меню дня" : "Complete daily menu" },
-      ],
-    }, 9, settings("ink", { width: "full", spacing: "normal", layout: "phones" })),
-
-    block("technologies", "technologies", {
-      eyebrow: ru ? "Технологии" : "Technologies",
-      title: ru ? "Лёгкая PWA-основа с возможностями нативного устройства." : "A lightweight PWA foundation with native device capabilities.",
-      summary: ru
-        ? "Vue 3 и Vite держат компонентный интерфейс, local-first состояние ускоряет ежедневный доступ, а системные API поддерживают активный режим тренировки."
-        : "Vue 3 and Vite power the component interface, local-first state keeps daily access fast, and device APIs support the active workout mode.",
-      items: [
-        { label: "Vue 3 + Vite", category: "CLIENT", x: 18, y: 20 },
-        { label: "PWA / Local-first", category: "CLIENT", x: 30, y: 78 },
-        { label: "Sound + Vibration", category: "DEVICE", x: 82, y: 20 },
-        { label: "Wake Lock", category: "DEVICE", x: 70, y: 78 },
-        { label: "Open Food Facts", category: "DATA", x: 25, y: 48 },
-        { label: "Docker", category: "DELIVERY", x: 78, y: 48 },
-      ],
-    }, 10, settings("ink", {
+    }, 1, settings("ink", {
       width: "full",
       spacing: "compact",
+      layout: "media-16x9",
+    })),
+
+    block("context", "text", {
+      eyebrow: pick("О проекте", "About the project"),
+      title: pick(
+        "Один инструмент для той части дня, которая раньше распадалась на таймеры, заметки и таблицы.",
+        "One tool for the part of the day that used to fragment across timers, notes and spreadsheets.",
+      ),
+      body: pick(
+        "WELLNESS APP начинался как компактный трекер домашней круговой тренировки. Он держал порядок упражнений, считал отдых по реальному времени и сохранял нагрузку между занятиями. По мере развития продукта к тренировочному сценарию добавились прогрессия, техника упражнений, рецепты и меню на день.\n\nВместо набора независимых функций получилась одна последовательность: открыть план, пройти только доступный сейчас шаг, восстановиться, сохранить новую нагрузку и собрать питание без перехода в другой сервис.",
+        "WELLNESS APP began as a compact home circuit workout tracker. It kept the exercise order, measured rest against wall-clock time and preserved load between sessions. As the product evolved, progression, exercise guidance, recipes and daily meal planning joined the workout flow.\n\nRather than a set of isolated features, the product became one sequence: open the plan, complete the one available step, recover, preserve the new load and plan nutrition without switching tools.",
+      ),
+    }, 2, settings("soft", {
+      spacing: "large",
+      anchor: "story",
+      desktop_span: 6,
+    })),
+
+    block("facts", "metrics", {
+      eyebrow: pick("Продукт в цифрах", "Product facts"),
+      title: pick(
+        "Компактная система, построенная вокруг повторяемого действия.",
+        "A focused system built around a repeatable action.",
+      ),
+      summary: pick(
+        "Без выдуманных KPI: только параметры, которые зафиксированы в работающем продукте.",
+        "No invented KPIs — only parameters present in the working product.",
+      ),
+      items: [
+        { value: "04", label: pick("последовательных блока", "gated workout blocks"), context: pick("Пресс → сила → удары → растяжка", "Abs → strength → strikes → stretch") },
+        { value: "5×7", label: pick("силовой цикл", "strength sequence"), context: pick("Пять кругов по семь упражнений", "Five rounds of seven exercises") },
+        { value: "03", label: pick("занятия до шага прогрессии", "sessions per progression step"), context: pick("Новая ступень нагрузки", "A new load step") },
+        { value: "LOCAL", label: pick("состояние на устройстве", "on-device state"), context: pick("Быстрый возврат к сценарию", "Immediate return to the flow") },
+      ],
+    }, 3, settings("paper", {
+      anchor: "evidence",
+      surface: "plain",
+      desktop_span: 6,
+    })),
+
+    block("challenge", "challenge_solution", {
+      eyebrow: pick("Задача", "Challenge"),
+      title: pick(
+        "Расширить личный тренировочный инструмент, не превратив его в тяжёлый wellness-комбайн.",
+        "Expand a personal workout tool without turning it into a heavy wellness suite.",
+      ),
+      challenge_label: pick("Что мешало", "What stood in the way"),
+      challenge: pick(
+        "Во время занятия нельзя требовать постоянной навигации и контроля экрана. При этом нагрузка должна расти последовательно, таймер — переживать уход приложения в фон, а питание — оставаться достаточно простым для ежедневного использования.",
+        "A workout cannot demand constant navigation or screen attention. At the same time, load must progress coherently, timers must survive backgrounding, and nutrition must remain simple enough for daily use.",
+      ),
+      solution_label: pick("Что сделали", "What we did"),
+      solution: pick(
+        "Мы выстроили продукт как управляемую последовательность состояний. Интерфейс открывает только следующий доступный шаг, автоматизирует отдых и прогрессию, а после тренировки продолжает тот же ритм в меню, рецептах и расчёте КБЖУ.",
+        "We shaped the product as a controlled sequence of states. The interface exposes only the next available action, automates recovery and progression, then carries the same rhythm into menus, recipes and macro calculations.",
+      ),
+    }, 4, settings("soft", {
+      spacing: "large",
+      surface: "plain",
+    })),
+
+    block("process", "process", {
+      eyebrow: pick("Логика решения", "Solution logic"),
+      title: pick(
+        "Собрали интерфейс вокруг реального порядка действий — от первого блока до рациона.",
+        "The interface follows the real order of actions — from the first block to the daily plan.",
+      ),
+      items: [
+        {
+          title: pick("Собрали день в одну систему", "Connected the day into one system"),
+          description: pick(
+            "Тренировка, таймер, прогрессия и питание получили общий ритм и одинаковую логику переходов. Пользователь всегда понимает текущее состояние и ближайшее действие.",
+            "Workout, timer, progression and nutrition share one rhythm and the same transition logic. The current state and nearest action always stay clear.",
+          ),
+          image_url: `${assets}/system-flow.gif`,
+          image_alt: pick("Тренировка и питание соединяются в единый сценарий WELLNESS APP", "Workout and nutrition connect into one WELLNESS APP flow"),
+          media_size: "full",
+          tags: [pick("Два контура", "Two flows"), pick("Один ритм", "One rhythm"), "LOCAL-FIRST"],
+        },
+        {
+          title: pick("Открывали только следующий шаг", "Revealed only the next available step"),
+          description: pick(
+            "Пресс, силовая часть, удары и растяжка идут в фиксированном порядке. Неактивные блоки приглушены, а после выполнения интерфейс сам переводит фокус на ближайшее действие.",
+            "Abs, strength, strikes and stretching follow a fixed order. Inactive blocks recede, and completing one step moves the interface focus to the next available action.",
+          ),
+          image_url: `${assets}/sequence-flow.gif`,
+          image_alt: pick("Последовательное открытие доступных блоков тренировки", "Workout blocks unlocking in sequence"),
+          media_size: "full",
+          tags: [pick("Пошаговый сценарий", "Gated flow"), pick("Один фокус", "Single focus"), pick("Без дашборда", "No dashboard detour")],
+        },
+        {
+          title: pick("Оставили подсказку внутри действия", "Kept guidance inside the action"),
+          description: pick(
+            "Техника упражнения открывается нижним листом поверх текущего контекста. Схема движения и короткая инструкция доступны именно в тот момент, когда они нужны, без выхода из тренировки.",
+            "Exercise technique opens in a bottom sheet over the current context. The movement diagram and concise guidance appear exactly when needed without leaving the workout.",
+          ),
+          image_url: `${assets}/technique-flow.gif`,
+          image_alt: pick("Открытие подсказки по технике поверх текущего упражнения", "Technique guidance opening over the current exercise"),
+          media_size: "full",
+          tags: ["BOTTOM SHEET", pick("Техника движения", "Movement guidance"), pick("Контекст сохранён", "Context preserved")],
+        },
+        {
+          title: pick("Сделали восстановление частью потока", "Made recovery part of the flow"),
+          description: pick(
+            "Полноэкранный таймер считает отдых по реальному времени, поддерживает паузу и пропуск, а звук и вибрация сообщают о возврате к нагрузке.",
+            "The full-screen wall-clock timer supports pause and skip, while sound and vibration signal the return to movement without constant screen checks.",
+          ),
+          image_url: `${assets}/recovery-flow.gif`,
+          image_alt: pick("Таймер отдыха с паузой и возвращением к нагрузке", "Recovery timer with pause and return to movement"),
+          media_size: "full",
+          tags: ["WALL-CLOCK", "WAKE LOCK", pick("Звук + вибрация", "Sound + haptics")],
+        },
+        {
+          title: pick("Связали повторения, вес и следующий цикл", "Connected reps, weight and the next cycle"),
+          description: pick(
+            "Каждые три завершённые тренировки продукт переводит программу на следующую ступень. После потолка повторений добавляется вес, а ручная корректировка оставляет пользователю контроль над фактической нагрузкой.",
+            "Every three completed sessions move the program to the next step. Reaching the rep ceiling adds weight, while manual adjustment keeps the actual load under the user’s control.",
+          ),
+          image_url: `${assets}/progression-flow.gif`,
+          image_alt: pick("Прогрессия повторений, веса и следующего тренировочного цикла", "Progression across reps, weight and the next workout cycle"),
+          media_size: "full",
+          tags: ["DOUBLE PROGRESSION", pick("Повторы + вес", "Reps + weight"), pick("Ручная настройка", "Manual tuning")],
+        },
+        {
+          title: pick("Продлили сценарий до питания", "Extended the flow into nutrition"),
+          description: pick(
+            "Дневные меню собирают блюда и итоговые КБЖУ, рецепты рассчитывают порции, а поиск ингредиентов через серверный прокси Open Food Facts ускоряет наполнение без хранения внешних учётных данных в клиенте.",
+            "Daily menus combine meals and macro totals, recipes calculate servings, and ingredient search through a server-side Open Food Facts proxy speeds up entry without exposing external credentials in the client.",
+          ),
+          image_url: `${assets}/nutrition-process-flow.gif`,
+          image_alt: pick("Переход от дневного меню к рецепту, ингредиентам и КБЖУ", "Flow from daily menu to recipe, ingredients and macros"),
+          media_size: "full",
+          tags: [pick("Меню на день", "Daily menus"), pick("Порции и КБЖУ", "Servings and macros"), "OPEN FOOD FACTS"],
+        },
+      ],
+    }, 5, settings("paper", {
+      spacing: "large",
+      surface: "plain",
+      desktop_span: 12,
+    })),
+
+    block("workout-copy", "text", {
+      eyebrow: pick("Тренировочный опыт", "Workout experience"),
+      title: pick(
+        "Интерфейс остаётся в фоне, пока пользователь движется.",
+        "The interface stays in the background while the user moves.",
+      ),
+      body: pick(
+        "Сценарий последовательно открывает пресс, силовой блок, удары и растяжку. Внутри силового круга активным остаётся одно упражнение, а ближайшая кнопка продолжает поток вместо того, чтобы возвращать к дашборду.\n\nПолноэкранный wall-clock таймер, Wake Lock, звук и вибрация позволяют положить телефон рядом и не следить за каждой секундой.",
+        "The flow progressively unlocks abs, strength, strikes and stretching. Inside the strength circuit, one exercise remains active and the nearest action advances the flow instead of returning to a dashboard.\n\nA full-screen wall-clock timer, Wake Lock, sound and vibration let the phone stay nearby without demanding attention every second.",
+      ),
+    }, 6, settings("paper", {
+      spacing: "large",
+      surface: "plain",
+      desktop_span: 6,
+    })),
+
+    block("workout-visual", "image", {
+      image_url: `${assets}/workout-flow.gif`,
+      alt: pick("Переход от плана тренировки к активному упражнению", "Transition from workout plan to the active exercise"),
+      caption: "",
+    }, 7, settings("paper", {
+      spacing: "compact",
+      desktop_span: 6,
+      image_bleed: true,
+    })),
+
+    block("workout-screens", "gallery", {
+      eyebrow: pick("Тренировка", "Workout"),
+      title: pick(
+        "План, активное действие и восстановление — без разрыва контекста.",
+        "Plan, active movement and recovery without breaking context.",
+      ),
+      items: [
+        { image_url: `${assets}/training-plan.jpg`, alt: pick("План тренировки", "Workout plan"), caption: pick("Последовательность блоков", "Gated block sequence") },
+        { image_url: `${assets}/training-active.jpg`, alt: pick("Активный силовой круг", "Active strength round"), caption: pick("Одно текущее упражнение", "One current exercise") },
+        { image_url: `${assets}/training-rest.jpg`, alt: pick("Таймер отдыха", "Rest timer"), caption: pick("Восстановление по реальному времени", "Wall-clock recovery") },
+      ],
+    }, 8, settings("ink", { width: "full", spacing: "large", layout: "phones" })),
+
+    block("nutrition-copy", "text", {
+      eyebrow: pick("Питание", "Nutrition"),
+      title: pick(
+        "Тренировка заканчивается. Дневной сценарий — нет.",
+        "The workout ends. The daily flow does not.",
+      ),
+      body: pick(
+        "Вторая вкладка продолжает продукт через понятные сущности: меню на день, приём пищи, рецепт и ингредиент. Пользователь видит КБЖУ на каждом уровне, меняет количество порций и собирает рацион из уже сохранённых блюд.\n\nДанные рецептов и меню остаются локальными, поэтому ежедневная работа не зависит от отдельного аккаунта или облачного кабинета.",
+        "The second tab continues the product through clear objects: daily menu, meal, recipe and ingredient. Macros remain visible at every level, serving counts stay adjustable, and a day can be assembled from saved dishes.\n\nRecipe and menu data stay local, so everyday use does not depend on a separate account or cloud dashboard.",
+      ),
+    }, 9, settings("soft", {
+      spacing: "large",
+      surface: "plain",
+      desktop_span: 6,
+    })),
+
+    block("nutrition-visual", "image", {
+      image_url: `${assets}/nutrition-flow.gif`,
+      alt: pick("Переход от дневного меню к рецепту и ингредиентам", "Transition from daily menu to recipe and ingredients"),
+      caption: "",
+    }, 10, settings("soft", {
+      spacing: "compact",
+      desktop_span: 6,
+      image_bleed: true,
+    })),
+
+    block("nutrition-screens", "gallery", {
+      eyebrow: pick("Питание", "Nutrition"),
+      title: pick(
+        "От общего плана дня — к конкретной порции.",
+        "From the complete day to a specific serving.",
+      ),
+      items: [
+        { image_url: `${assets}/food-daily-menu.jpg`, alt: pick("Меню на день", "Daily menu"), caption: pick("Итог дня и каждого приёма пищи", "Daily and meal-level totals") },
+        { image_url: `${assets}/food-recipes.jpg`, alt: pick("Библиотека рецептов", "Recipe library"), caption: pick("Рецепты по роли в рационе", "Recipes by role in the diet") },
+        { image_url: `${assets}/food-recipe-detail.jpg`, alt: pick("Страница рецепта", "Recipe page"), caption: pick("Порции, ингредиенты и КБЖУ", "Servings, ingredients and macros") },
+      ],
+    }, 11, settings("ink", { width: "full", spacing: "large", layout: "phones" })),
+
+    block("technologies", "technologies", {
+      eyebrow: pick("Технологический контур", "Technology"),
+      title: pick(
+        "Лёгкая клиентская архитектура с точечным серверным слоем.",
+        "A lightweight client architecture with a focused server layer.",
+      ),
+      summary: pick(
+        "Состояние остаётся на устройстве. Сервер подключается только для внешнего поиска продуктов.",
+        "State stays on device. The server is introduced only for external product search.",
+      ),
+      items: [
+        { label: "Vue 3 + Vite", category: "CLIENT", x: 17, y: 20 },
+        { label: "LocalStorage", category: "STATE", x: 27, y: 84 },
+        { label: "Wake Lock + WebAudio", category: "DEVICE", x: 82, y: 20 },
+        { label: "Node 22 Proxy", category: "SERVER", x: 73, y: 84 },
+        { label: "Open Food Facts", category: "DATA", x: 14, y: 49 },
+        { label: "Docker", category: "DELIVERY", x: 86, y: 49 },
+      ],
+    }, 12, settings("soft", {
+      width: "wide",
+      spacing: "compact",
       layout: "map",
+      desktop_span: 7,
       anchor: "technical",
-      map_accent: "#ad9cff",
-      map_background: "#151826",
-      map_text: "#f7f8ff",
+      map_accent: "#8170f5",
+      map_background: "#f5f6fb",
+      map_text: "#17191f",
     })),
 
     block("result", "results", {
-      eyebrow: ru ? "Результат" : "Results",
-      title: ru
-        ? "WELLNESS APP превратился из одного полезного сценария в связанный продукт на каждый день."
-        : "WELLNESS APP grew from one useful flow into a connected product for every day.",
-      body: ru
-        ? "Теперь пользователь может выбрать тренировку, пройти её с таймером, сохранить прогрессию и собрать питание на день, не меняя инструменты. Новая структура оставляет продукт быстрым и сфокусированным, но даёт ему пространство для развития — новых программ, рецептов и персональных сценариев."
-        : "A user can now choose a workout, complete it with the timer, preserve progression and assemble the day’s nutrition without changing tools. The new structure keeps the product fast and focused while leaving room for new programs, recipes and personal flows.",
+      eyebrow: pick("Результат", "Outcome"),
+      title: pick(
+        "Личный трекер вырос в цельную систему ежедневного использования.",
+        "A personal tracker grew into one coherent system for daily use.",
+      ),
+      body: pick(
+        "Продукт ведёт пользователя через тренировку, сохраняет контекст нагрузки и продолжает тот же сценарий в питании. При этом он остаётся компактным: данные хранятся на устройстве, навигация ограничена двумя основными разделами, а сервер используется только там, где действительно нужен внешний источник.",
+        "The product guides the workout, preserves load context and continues the same flow into nutrition. It remains focused: data stays on device, navigation is limited to two primary sections, and the server is used only where an external source is genuinely required.",
+      ),
       link_url: "",
       link_label: "",
-    }, 11, settings("signal", { spacing: "large" })),
+    }, 13, settings("signal", {
+      spacing: "large",
+      desktop_span: 5,
+    })),
 
     block("next", "next_case", {
-      eyebrow: ru ? "Другие проекты" : "More work",
-      title: ru ? "Продолжить знакомство с работами VEZHA" : "Continue exploring the work of VEZHA",
+      eyebrow: pick("Другие проекты", "More work"),
+      title: pick("Продолжить знакомство с работами VEZHA", "Continue exploring the work of VEZHA"),
       case_slug: "",
-      cta_label: ru ? "Смотреть все кейсы" : "View all cases",
-    }, 12, settings("soft", { spacing: "large" })),
+      cta_label: pick("Смотреть все кейсы", "View all cases"),
+    }, 14, settings("soft", { spacing: "large" })),
   ];
 }

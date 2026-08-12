@@ -11,7 +11,10 @@
         <h2>Вход в студию</h2>
         <p>Используйте Telegram-аккаунт администратора.</p>
         <div ref="telegramContainer" class="telegram-slot">
-          <template v-if="!config.public.telegramBotUsername">
+          <template v-if="isLocalhost">
+            <b>Локальный режим</b><small>Telegram не требуется — используйте кнопку ниже.</small>
+          </template>
+          <template v-else-if="!config.public.telegramBotUsername">
             <b>Telegram Login не настроен</b><small>Добавьте NUXT_PUBLIC_TELEGRAM_BOT_USERNAME в окружение.</small>
           </template>
         </div>
@@ -37,6 +40,7 @@ const isLocalhost = ref(false)
 
 onMounted(() => {
   isLocalhost.value = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+  if (isLocalhost.value) return
   if (!config.public.telegramBotUsername) return
   ;(window as any).onTelegramAuth = async (user: unknown) => {
     error.value = ''

@@ -1,0 +1,40 @@
+{
+  "name": "wellness-promo",
+  "version": "1.0.0",
+  "description": "Wellness App lifestyle promo loop for VEZHA Digital",
+  "repository": {},
+  "license": "UNLICENSED",
+  "private": true,
+  "dependencies": {
+    "@remotion/cli": "4.0.507",
+    "@remotion/google-fonts": "4.0.507",
+    "@remotion/media": "4.0.507",
+    "@remotion/tailwind-v4": "4.0.507",
+    "@remotion/transitions": "4.0.507",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.507",
+    "tailwindcss": "4.0.0"
+  },
+  "devDependencies": {
+    "@remotion/eslint-config-flat": "4.0.507",
+    "@types/react": "19.2.7",
+    "@types/web": "0.0.166",
+    "eslint": "9.19.0",
+    "prettier": "3.8.1",
+    "typescript": "5.9.3"
+  },
+  "scripts": {
+    "dev": "remotion studio",
+    "build": "remotion bundle",
+    "upgrade": "remotion upgrade",
+    "lint": "eslint src && tsc",
+    "render": "npm run render:storyboard",
+    "render:storyboard": "remotion render WellnessPromoStoryboard out/wellness-promo-storyboard.mp4 --codec=h264 --crf=23",
+    "render:final": "remotion render WellnessPromoFinal out/wellness-promo-final.mp4 --codec=h264 --crf=23",
+    "still": "remotion still WellnessPromoFinal out/wellness-promo-poster.jpg --frame=320"
+  },
+  "sideEffects": [
+    "*.css"
+  ]
+}

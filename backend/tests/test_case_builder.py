@@ -89,6 +89,7 @@ def test_block_document_validates_nested_builder_content() -> None:
 
     assert document.blocks[0].content_ru["items"][0]["caption"] == ""
     assert document.blocks[0].settings.theme == "paper"
+    assert document.blocks[0].settings.surface == "card"
     assert document.blocks[0].settings.desktop_span == 12
     assert document.blocks[0].settings.mobile_start == 0
 
@@ -157,6 +158,41 @@ def test_media_hero_validates_full_width_image_or_video_content() -> None:
     assert block.content_ru["controls"] is False
     assert block.content_en["autoplay"] is True
     assert block.settings.width == "full"
+
+
+def test_process_preserves_disclosure_media_tags_and_plain_surface() -> None:
+    block = CaseBlockInput(
+        type="process",
+        content_ru={"items": [{"title": "Исследование", "description": "Текст", "image_url": "/process.gif", "image_alt": "Команда", "video_url": "/process.mp4", "poster_url": "/poster.webp", "media_size": "compact", "tags": ["UX", "Strategy"]}]},
+        content_en={"items": [{"title": "Research", "description": "Copy", "image_url": "/process.gif", "image_alt": "Team", "video_url": "/process.webm", "poster_url": "/poster.webp", "media_size": "full", "tags": ["UX", "Strategy"]}]},
+        settings={"surface": "plain"},
+    )
+
+    assert block.content_ru["items"][0]["tags"] == ["UX", "Strategy"]
+    assert block.content_en["items"][0]["image_url"] == "/process.gif"
+    assert block.content_ru["items"][0]["video_url"] == "/process.mp4"
+    assert block.content_en["items"][0]["poster_url"] == "/poster.webp"
+    assert block.content_ru["items"][0]["media_size"] == "compact"
+    assert block.content_en["items"][0]["media_size"] == "full"
+    assert block.settings.surface == "plain"
+
+
+def test_process_media_size_defaults_and_rejects_unknown_values() -> None:
+    block = CaseBlockInput(
+        type="process",
+        content_ru={"items": [{"title": "Этап"}]},
+        content_en={"items": [{"title": "Stage"}]},
+    )
+
+    assert block.content_ru["items"][0]["media_size"] == "medium"
+    assert block.content_en["items"][0]["media_size"] == "medium"
+
+    with pytest.raises(ValidationError):
+        CaseBlockInput(
+            type="process",
+            content_ru={"items": [{"media_size": "giant"}]},
+            content_en={"items": []},
+        )
 
 
 def test_custom_block_preserves_freeform_elements_and_responsive_geometry() -> None:

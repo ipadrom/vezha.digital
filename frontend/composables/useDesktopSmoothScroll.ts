@@ -27,6 +27,11 @@ export const useDesktopSmoothScroll = () => {
 
     lenis = new LenisConstructor({
       autoRaf: true,
+      lerp: 0.16,
+      smoothWheel: true,
+      wheelMultiplier: 0.9,
+      allowNestedScroll: true,
+      stopInertiaOnNavigate: true,
       anchors: { offset: -86 },
     })
     document.documentElement.setAttribute('data-smooth-scroll', 'true')

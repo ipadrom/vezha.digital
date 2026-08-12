@@ -1,20 +1,21 @@
 <template>
-  <article ref="cardElement" class="canvas-block" :class="[{ selected, hidden: !block.is_visible, resizing: liveSpan !== null }, `theme-${block.settings.theme}`]" :style="gridStyle" tabindex="0" @click="$emit('select')" @keydown.enter.self="$emit('select')">
+  <article ref="cardElement" class="canvas-block" :class="[{ selected, hidden: !block.is_visible, resizing: liveSpan !== null, 'surface-plain': block.settings.surface === 'plain' }, `theme-${block.settings.theme}`]" :style="gridStyle" tabindex="0" @click="$emit('select')" @keydown.enter.self="$emit('select')">
     <div class="canvas-block__rail"><span>{{ String(index + 1).padStart(2, '0') }}</span><i /></div>
     <header class="canvas-block__header">
       <div><small>{{ blockLabel(block.type) }}</small><b>{{ blockTitle(block, locale) }}</b></div>
       <div class="canvas-block__tools">
-        <button v-if="block.settings.layout !== 'freeform'" type="button" title="Разобрать в свободную композицию" @click.stop="$emit('convert')">✦</button>
-        <button type="button" :title="block.is_visible ? 'Скрыть' : 'Показать'" @click.stop="$emit('toggle')">{{ block.is_visible ? '◉' : '○' }}</button>
-        <button type="button" title="Дублировать" @click.stop="$emit('duplicate')">⧉</button>
-        <button type="button" title="Удалить" @click.stop="$emit('remove')">×</button>
-        <span title="Перетащить">⠿</span>
+        <button v-if="block.type !== 'hero' && block.settings.layout !== 'freeform'" type="button" title="Разобрать в свободную композицию" @click.stop="$emit('convert')">✦</button>
+        <button v-if="block.type !== 'hero'" type="button" :title="block.is_visible ? 'Скрыть' : 'Показать'" @click.stop="$emit('toggle')">{{ block.is_visible ? '◉' : '○' }}</button>
+        <button v-if="block.type !== 'hero'" type="button" title="Дублировать" @click.stop="$emit('duplicate')">⧉</button>
+        <button v-if="block.type !== 'hero'" type="button" title="Удалить" @click.stop="$emit('remove')">×</button>
+        <span v-if="block.type !== 'hero'" title="Перетащить">⠿</span>
+        <em v-else>ВСЕГДА СВЕРХУ</em>
       </div>
     </header>
 
-    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--hero-text-only': block.type === 'hero' && block.settings.layout !== 'freeform' && !heroHasMedia, 'canvas-block__preview--media-hero': block.type === 'media_hero', 'canvas-block__preview--freeform': block.settings.layout === 'freeform' }">
+    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--media-hero': block.type === 'media_hero', 'canvas-block__preview--freeform': block.settings.layout === 'freeform' && block.type !== 'hero', 'canvas-block__preview--image-bleed': block.type === 'image' && block.settings.image_bleed }">
       <CaseFreeformCanvas
-        v-if="block.settings.layout === 'freeform'"
+        v-if="block.settings.layout === 'freeform' && block.type !== 'hero'"
         :elements="content.elements || []"
         :viewport="viewport"
         :height="Number(block.settings[`freeform_height_${viewport}`]) || 620"
@@ -24,26 +25,26 @@
         @geometry="$emit('element-geometry', $event)"
       />
       <template v-else-if="block.type === 'hero'">
-        <div class="preview-hero-copy">
-          <div class="preview-hero-brand">
-            <img v-if="content.logo_url" :src="content.logo_url" alt="" />
-            <CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Метка" label="Метка блока" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" />
+        <div class="preview-hero-layout">
+          <div class="preview-hero-copy">
+            <CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Мини-текст" label="Мини-текст шапки" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" />
+            <div>
+              <h3><CaseInlineEdit :model-value="content.title" placeholder="Название проекта" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></h3>
+              <p><CaseInlineEdit :model-value="content.subtitle" placeholder="Краткое описание кейса" label="Краткое описание" multiline @focus="$emit('select')" @update:model-value="edit(['subtitle'], $event)" /></p>
+            </div>
           </div>
-          <h3><CaseInlineEdit :model-value="content.title" placeholder="Название проекта" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></h3>
-          <p><CaseInlineEdit :model-value="content.subtitle" placeholder="Добавьте подзаголовок кейса" label="Подзаголовок" multiline @focus="$emit('select')" @update:model-value="edit(['subtitle'], $event)" /></p>
-          <dl class="preview-hero-facts">
-            <div v-if="content.type_label"><dt>{{ locale === 'ru' ? 'Формат' : 'Format' }}</dt><dd><CaseInlineEdit :model-value="content.type_label" placeholder="Формат" label="Формат" @focus="$emit('select')" @update:model-value="edit(['type_label'], $event)" /></dd></div>
-            <div v-if="content.industry"><dt>{{ locale === 'ru' ? 'Сфера' : 'Industry' }}</dt><dd><CaseInlineEdit :model-value="content.industry" placeholder="Сфера" label="Сфера" @focus="$emit('select')" @update:model-value="edit(['industry'], $event)" /></dd></div>
-            <div v-if="content.timeline"><dt>{{ locale === 'ru' ? 'Срок' : 'Timeline' }}</dt><dd><CaseInlineEdit :model-value="content.timeline" placeholder="Срок" label="Срок" @focus="$emit('select')" @update:model-value="edit(['timeline'], $event)" /></dd></div>
-            <div v-if="content.year"><dt>{{ locale === 'ru' ? 'Год' : 'Year' }}</dt><dd><CaseInlineEdit :model-value="content.year" placeholder="Год" label="Год" @focus="$emit('select')" @update:model-value="edit(['year'], $event)" /></dd></div>
-          </dl>
+          <aside class="preview-hero-identity">
+            <div class="preview-hero-logo-stage">
+              <img v-if="content.logo_url" class="preview-hero-logo" :src="content.logo_url" alt="" />
+              <span v-else>LOGO 1:1</span>
+            </div>
+            <div class="preview-hero-meta">
+              <CaseInlineEdit :model-value="content.industry" placeholder="Категория" label="Категория" @focus="$emit('select')" @update:model-value="edit(['industry'], $event)" />
+              <i aria-hidden="true" />
+              <CaseInlineEdit :model-value="content.year" placeholder="Дата / год" label="Дата или год" @focus="$emit('select')" @update:model-value="edit(['year'], $event)" />
+            </div>
+          </aside>
         </div>
-        <figure v-if="heroHasMedia" class="preview-media preview-hero-media">
-          <img v-if="content.image_url" :src="content.image_url" alt="" />
-          <span v-else>HERO VISUAL</span>
-          <i v-if="content.device_screen_url" class="preview-device-screen"><img :src="content.device_screen_url" alt="" /></i>
-          <figcaption v-if="content.metric_value"><b><CaseInlineEdit :model-value="content.metric_value" placeholder="0" label="Значение метрики" @focus="$emit('select')" @update:model-value="edit(['metric_value'], $event)" /></b><CaseInlineEdit :model-value="content.metric_label" placeholder="Метрика" label="Подпись метрики" @focus="$emit('select')" @update:model-value="edit(['metric_label'], $event)" /></figcaption>
-        </figure>
       </template>
       <template v-else-if="block.type === 'media_hero'">
         <div class="preview-media preview-media--wide preview-media--hero-block">
@@ -76,7 +77,7 @@
       </template>
       <template v-else-if="block.type === 'process'">
         <div class="preview-section-copy"><CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Метка" label="Метка блока" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" /><CaseInlineEdit class="inline-section-title" :model-value="content.title" placeholder="Заголовок этапов" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></div>
-        <ol class="preview-process"><li v-for="(item, stepIndex) in content.items?.slice(0, 4)" :key="stepIndex"><span class="process-index">{{ String(stepIndex + 1).padStart(2, '0') }}</span><CaseInlineEdit :model-value="item.title" placeholder="Этап" label="Название этапа" @focus="$emit('select')" @update:model-value="edit(['items', stepIndex, 'title'], $event)" /></li><li v-if="!content.items?.length"><span class="process-index">01</span>Добавьте этапы справа</li></ol>
+        <ol class="preview-process"><li v-for="(item, stepIndex) in content.items?.slice(0, 6)" :key="stepIndex"><span class="process-index">{{ String(stepIndex + 1).padStart(2, '0') }}</span><CaseInlineEdit :model-value="item.title" placeholder="Этап" label="Название этапа" @focus="$emit('select')" @update:model-value="edit(['items', stepIndex, 'title'], $event)" /></li><li v-if="!content.items?.length"><span class="process-index">01</span>Добавьте этапы справа</li></ol>
       </template>
       <template v-else-if="block.type === 'quote'">
         <blockquote><CaseInlineEdit :model-value="content.quote" placeholder="Цитата клиента появится здесь" label="Цитата" multiline @focus="$emit('select')" @update:model-value="edit(['quote'], $event)" /><small><CaseInlineEdit :model-value="content.author" placeholder="Имя автора" label="Автор цитаты" @focus="$emit('select')" @update:model-value="edit(['author'], $event)" /></small></blockquote>
@@ -108,7 +109,7 @@
       </template>
     </div>
 
-    <button class="canvas-block__resize" type="button" :aria-label="resizeLabel" :title="resizeLabel" @click.stop @pointerdown.stop.prevent="startResize" @pointermove.stop.prevent="moveResize" @pointerup.stop.prevent="finishResize" @pointercancel.stop.prevent="finishResize" @keydown.left.prevent="resizeWithKeyboard(-1)" @keydown.right.prevent="resizeWithKeyboard(1)"><span>{{ displaySpan }} / 12</span><i aria-hidden="true" /></button>
+    <button v-if="block.type !== 'hero'" class="canvas-block__resize" type="button" :aria-label="resizeLabel" :title="resizeLabel" @click.stop @pointerdown.stop.prevent="startResize" @pointermove.stop.prevent="moveResize" @pointerup.stop.prevent="finishResize" @pointercancel.stop.prevent="finishResize" @keydown.left.prevent="resizeWithKeyboard(-1)" @keydown.right.prevent="resizeWithKeyboard(1)"><span>{{ displaySpan }} / 12</span><i aria-hidden="true" /></button>
   </article>
 </template>
 
@@ -117,7 +118,7 @@ import CaseInlineEdit from '~/components/admin/cases/CaseInlineEdit.vue'
 import CaseTechnologyMapEditor from '~/components/admin/cases/CaseTechnologyMapEditor.vue'
 import CaseFreeformCanvas from '~/components/admin/cases/CaseFreeformCanvas.vue'
 import type { CaseBlock, CaseContentEdit, CaseElementBox, CaseElementType, CaseLocale, CaseViewport } from '~/utils/caseBuilder'
-import { blockLabel, blockTitle } from '~/utils/caseBuilder'
+import { blockLabel, blockTitle, caseHeroColorDefaults, normalizeHexColor } from '~/utils/caseBuilder'
 const props = defineProps<{ block: CaseBlock; locale: CaseLocale; index: number; selected: boolean; viewport: 'desktop' | 'tablet' | 'mobile' }>()
 const emit = defineEmits<{
   select: []
@@ -135,15 +136,19 @@ const emit = defineEmits<{
 }>()
 const cardElement = ref<HTMLElement | null>(null)
 const content = computed(() => props.locale === 'ru' ? props.block.content_ru : props.block.content_en)
-const heroHasMedia = computed(() => Boolean(content.value.image_url || content.value.device_screen_url || content.value.metric_value))
 const liveSpan = ref<number | null>(null)
 const currentSpan = computed(() => Math.max(1, Math.min(12, Number(props.block.settings[`${props.viewport}_span`]) || 12)))
 const displaySpan = computed(() => liveSpan.value ?? currentSpan.value)
 const gridStyle = computed(() => {
-  const span = displaySpan.value
+  const span = props.block.type === 'hero' ? 12 : displaySpan.value
   const rawStart = Math.max(0, Number(props.block.settings[`${props.viewport}_start`]) || 0)
-  const start = rawStart && rawStart + span <= 13 ? String(rawStart) : 'auto'
-  return { gridColumn: `${start} / span ${span}` }
+  const start = props.block.type === 'hero' ? '1' : rawStart && rawStart + span <= 13 ? String(rawStart) : 'auto'
+  const style: Record<string, string> = { gridColumn: `${start} / span ${span}` }
+  if (props.block.type === 'hero') {
+    style['--preview-hero-background'] = normalizeHexColor(props.block.settings.hero_background, caseHeroColorDefaults.background)
+    style['--preview-hero-text'] = normalizeHexColor(props.block.settings.hero_text, caseHeroColorDefaults.text)
+  }
+  return style
 })
 const resizeLabel = computed(() => `Изменить ширину блока. Сейчас ${displaySpan.value} из 12 колонок`)
 
@@ -227,32 +232,39 @@ function resizeWithKeyboard(direction: number) {
 .canvas-block__tools button { width: 26px; height: 26px; border: 0; border-radius: 9px; color: #788396; background: transparent; cursor: pointer; }
 .canvas-block__tools button:hover { color: #1c1d21; background: rgb(141 126 239 / 10%); }
 .canvas-block__tools > span { padding-left: 4px; color: #8b95a5; cursor: grab; }
+.canvas-block__tools > em { color: #7a8494; font: 600 7px var(--font-mono); letter-spacing: .06em; font-style: normal; }
 .canvas-block__preview { min-height: 138px; margin: 10px; padding: clamp(18px, 3.2vw, 38px); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: clamp(16px, 3cqw, 28px); overflow: hidden; border: 1px solid rgb(255 255 255 / 70%); border-radius: 18px; background: radial-gradient(circle at 95% 5%, #fff 0, transparent 38%), radial-gradient(circle at 8% 92%, rgb(178 157 255 / 18%), transparent 44%), linear-gradient(145deg, #fff, #f6fbfd); }
-.canvas-block__preview--hero { min-height: 0; padding: clamp(32px, 7cqw, 68px) clamp(18px, 4cqw, 42px); grid-template-columns: minmax(0, .92fr) minmax(280px, 1.08fr); gap: clamp(24px, 5cqw, 54px); }
-.canvas-block__preview--hero-text-only { grid-template-columns: minmax(0, 1fr); }
-.canvas-block__preview--hero-text-only .preview-hero-copy { max-width: 680px; }
+.canvas-block__preview--hero { min-height: 0; padding: clamp(28px, 4cqw, 46px); display: block; border: 0; border-radius: 0; color: var(--preview-hero-text); background: var(--preview-hero-background); }
 .canvas-block__preview--media-hero { min-height: 0; padding: 12px; grid-template-columns: minmax(0, 1fr); }
 .canvas-block__preview--freeform { min-height: 0; padding: 0; display: block; }
 .theme-soft .canvas-block__preview { background: radial-gradient(circle at 92% 8%, #fff 0, transparent 39%), radial-gradient(circle at 10% 88%, rgb(174 155 255 / 25%), transparent 45%), radial-gradient(circle at 92% 86%, rgb(88 214 255 / 16%), transparent 42%), #f4f5ff; }
 .theme-ink .canvas-block__preview { color: #f8f8ff; border-color: rgb(255 255 255 / 9%); background: radial-gradient(circle at 18% 14%, rgb(151 129 255 / 24%), transparent 42%), radial-gradient(circle at 90% 86%, rgb(62 200 220 / 14%), transparent 42%), #171925; }
 .theme-signal .canvas-block__preview { color: #171822; background: radial-gradient(circle at 12% 8%, rgb(255 255 255 / 48%), transparent 40%), radial-gradient(circle at 92% 88%, rgb(80 223 226 / 65%), transparent 44%), linear-gradient(135deg, #c4b6ff, #8dc8ff 55%, #73dfd8); }
+.surface-plain .canvas-block__preview { color: #1c1d21; border-color: transparent; background: transparent; box-shadow: none; }
+.surface-plain .canvas-block__preview p { color: #656b77; }
+.canvas-block .canvas-block__preview--hero { color: var(--preview-hero-text); background: var(--preview-hero-background); }
+.canvas-block .canvas-block__preview--hero p { color: color-mix(in srgb, var(--preview-hero-text) 68%, transparent); }
+.canvas-block__preview--image-bleed { min-height: 260px; padding: 0; }
+.canvas-block__preview--image-bleed .preview-media { width: 100%; height: 100%; min-height: 260px; border-radius: inherit; }
 .inline-eyebrow { color: #7865ed; font: 600 7px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .theme-ink .inline-eyebrow { color: #b9abff; }
 .theme-signal .inline-eyebrow { color: #34304a; }
-.preview-hero-copy { min-width: 0; }
-.preview-hero-brand { display: flex; align-items: center; gap: 10px; }
-.preview-hero-brand > img { width: 34px; height: 34px; border-radius: 10px; box-shadow: 0 10px 24px rgb(45 39 77 / 17%); }
-.preview-hero-copy h3 { margin: 16px 0 18px; font: 500 clamp(36px, 6.5cqw, 62px)/.9 var(--font-ui); letter-spacing: -.065em; overflow-wrap: normal; word-break: normal; }
+.canvas-block__preview--hero .inline-eyebrow { color: color-mix(in srgb, var(--preview-hero-text) 72%, transparent); }
+.preview-hero-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(150px, .7fr); align-items: start; gap: clamp(30px, 6cqw, 68px); }
+.preview-hero-copy { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; align-self: stretch; gap: clamp(54px, 8cqw, 90px); }
+.preview-hero-copy h3 { max-width: 680px; margin: 0; font: 500 clamp(32px, 5.5cqw, 54px)/.97 var(--font-ui); letter-spacing: -.05em; overflow-wrap: normal; word-break: normal; }
 .preview-copy { min-width: 0; padding: clamp(13px, 2.3cqw, 22px); border: 1px solid rgb(42 48 61 / 9%); border-radius: 16px; background: rgb(255 255 255 / 52%); }
 .theme-ink .preview-copy { border-color: rgb(255 255 255 / 10%); background: rgb(255 255 255 / 4%); }
 .preview-copy h3 { margin: 5px 0; font-size: clamp(16px, 2.5vw, 26px); font-weight: 500; line-height: 1; letter-spacing: -.04em; }
-.preview-hero-copy p { margin: 0 0 clamp(24px, 5cqw, 46px); color: #656b77; font-size: clamp(11px, 1.7cqw, 15px); line-height: 1.48; white-space: pre-line; }
+.preview-hero-copy p { max-width: 50ch; margin: 16px 0 0; color: color-mix(in srgb, var(--preview-hero-text) 68%, transparent); font-size: clamp(10px, 1.5cqw, 14px); line-height: 1.48; white-space: pre-line; }
 .preview-copy p { max-height: 68px; margin: 10px 0 0; overflow: hidden; color: #656b77; font-size: 9px; line-height: 1.55; white-space: pre-line; }
 .theme-ink p { color: #c7cada; }
-.preview-hero-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; margin: 0; }
-.preview-hero-facts div { min-width: 0; padding: 11px; border: 1px solid rgb(42 48 61 / 9%); border-radius: 12px; background: rgb(255 255 255 / 45%); }
-.preview-hero-facts dt { opacity: .55; font: 7px var(--font-mono); text-transform: uppercase; }
-.preview-hero-facts dd { margin: 4px 0 0; overflow-wrap: anywhere; font-size: 10px; }
+.preview-hero-identity { min-width: 0; display: grid; grid-template-rows: auto auto; align-content: start; justify-items: end; gap: 14px; }
+.preview-hero-logo-stage { width: 90%; max-width: 230px; aspect-ratio: 1 / 1; align-self: start; display: grid; place-items: center; overflow: hidden; border: 1px dashed color-mix(in srgb, var(--preview-hero-text) 20%, transparent); border-radius: 18px; }
+.preview-hero-logo-stage > span { color: color-mix(in srgb, var(--preview-hero-text) 42%, transparent); font: 600 8px var(--font-mono); letter-spacing: .08em; }
+.preview-hero-logo { width: 100%; height: 100%; display: block; object-fit: contain; }
+.preview-hero-meta { width: fit-content; max-width: 90%; min-width: 0; justify-self: end; display: flex; align-items: center; justify-content: flex-end; gap: 9px; font: 600 8px var(--font-mono); letter-spacing: .035em; text-align: right; text-transform: uppercase; }
+.preview-hero-meta i { width: 3px; height: 3px; flex: 0 0 auto; border-radius: 50%; background: currentColor; opacity: .55; }
 .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption { grid-column: 1 / -1; }
 .preview-section-copy { display: grid; gap: 5px; }
 .inline-section-title { max-width: 92%; font: 500 clamp(17px, 3.2cqw, 30px)/1 var(--font-ui); letter-spacing: -.045em; }
@@ -277,8 +289,8 @@ function resizeWithKeyboard(direction: number) {
 .preview-metrics b { font: 650 23px var(--font-ui); }
 .preview-metrics > div > .inline-edit { font-size: 8px; opacity: .7; }
 .preview-process { grid-column: 1 / -1; margin: 0; padding: 0; display: grid; gap: 7px; list-style: none; }
-.preview-process li { padding: 11px 13px; display: grid; grid-template-columns: 32px 1fr; align-items: center; border: 1px solid rgb(42 48 61 / 9%); border-radius: 13px; background: rgb(255 255 255 / 44%); font-size: 10px; }
-.preview-process .process-index { color: #7865ed; font: 8px var(--font-mono); }
+.preview-process li { min-height: 42px; padding: 11px 16px; display: grid; grid-template-columns: 32px 1fr; align-items: center; border: 0; border-radius: 999px; color: #171822; background: linear-gradient(115deg, #c4b6ff, #8dc8ff 54%, #73dfd8); box-shadow: inset 0 1px rgb(255 255 255 / 45%); font-size: 10px; }
+.preview-process .process-index { color: #34304a; font: 8px var(--font-mono); }
 blockquote { grid-column: 1 / -1; margin: 0; font: 600 clamp(17px, 3vw, 30px)/1.2 var(--font-ui); }
 blockquote small { display: block; margin-top: 12px; color: #778294; font: 9px var(--font-mono); }
 .preview-tags { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; }
@@ -290,5 +302,5 @@ blockquote small { display: block; margin-top: 12px; color: #778294; font: 9px v
 .canvas-block__resize:hover span, .canvas-block__resize:focus-visible span, .canvas-block.resizing .canvas-block__resize span { opacity: 1; transform: translateX(0); }
 .canvas-block__resize:focus-visible { outline: 2px solid white; outline-offset: 2px; }
 @media (max-width: 640px) { .canvas-block__preview { grid-template-columns: 1fr; } .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; } }
-@container (max-width: 520px) { .canvas-block { grid-template-columns: 30px minmax(0,1fr); border-radius: 16px; } .canvas-block__rail { padding-top: 10px; border-radius: 15px 0 0 15px; } .canvas-block__header { padding: 7px 8px; } .canvas-block__tools button { width: 21px; } .canvas-block__preview { min-height: 110px; margin: 6px; padding: 16px; grid-template-columns: 1fr; gap: 14px; border-radius: 13px; } .canvas-block__preview--hero { padding: clamp(22px, 7cqw, 34px) 16px; } .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; } .preview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .preview-hero-copy h3 { font-size: clamp(34px, 12cqw, 54px); } .preview-hero-media { min-height: clamp(300px, 110cqw, 480px); } .canvas-block__resize span { display: none; } }
+@container (max-width: 520px) { .canvas-block { grid-template-columns: 30px minmax(0,1fr); border-radius: 16px; } .canvas-block__rail { padding-top: 10px; border-radius: 15px 0 0 15px; } .canvas-block__header { padding: 7px 8px; } .canvas-block__tools button { width: 21px; } .canvas-block__preview { min-height: 110px; margin: 6px; padding: 16px; grid-template-columns: 1fr; gap: 14px; border-radius: 13px; } .canvas-block__preview--hero { min-height: 0; padding: 26px 16px 30px; display: block; border-radius: 0; } .preview-hero-layout { grid-template-columns: 1fr; gap: 30px; } .preview-hero-copy { gap: 54px; } .preview-hero-identity { justify-items: end; } .preview-hero-logo-stage { width: min(82%, 220px); } .preview-hero-meta { width: fit-content; max-width: min(82%, 220px); justify-content: flex-end; } .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; } .preview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .preview-hero-copy h3 { font-size: clamp(32px, 10cqw, 46px); } .preview-hero-media { min-height: clamp(300px, 110cqw, 480px); } .canvas-block__resize span { display: none; } }
 </style>

@@ -51,6 +51,7 @@ export interface CaseMeta {
 
 export interface CaseBlockSettings {
   theme: 'paper' | 'soft' | 'ink' | 'signal'
+  surface: 'card' | 'plain'
   width: 'standard' | 'wide' | 'full'
   spacing: 'compact' | 'normal' | 'large'
   layout: string
@@ -106,9 +107,14 @@ export interface CaseFreeformElement {
 }
 
 export const technologyMapColorDefaults = {
-  accent: '#806eff',
-  background: '#121419',
-  text: '#f4f6fa',
+  accent: '#8170f5',
+  background: '#f5f6fb',
+  text: '#17191f',
+} as const
+
+export const caseHeroColorDefaults = {
+  background: '#1c1c1c',
+  text: '#f7f7f5',
 } as const
 
 export const normalizeHexColor = (value: unknown, fallback: string) => {
@@ -241,8 +247,8 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
     { eyebrow: 'Result', title: 'What changed', summary: '', items: [] },
   ],
   process: [
-    { eyebrow: 'Процесс', title: 'Как мы работали', items: [] },
-    { eyebrow: 'Process', title: 'How we worked', items: [] },
+    { eyebrow: 'Процесс', title: 'Как мы работали', items: [{ title: 'Первый этап', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }] },
+    { eyebrow: 'Process', title: 'How we worked', items: [{ title: 'First stage', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }] },
   ],
   quote: [
     { quote: '', author: '', role: '', logo_url: '' },
@@ -397,7 +403,8 @@ export const convertBlockToFreeform = (block: CaseBlock): CaseBlock => {
   const enItems = Array.isArray(en.items) ? en.items : []
   ruItems.forEach((item: Record<string, any>, index: number) => {
     const translated = enItems[index] || {}
-    if (item.image_url || translated.image_url) add('image', { url: item.image_url || '', alt: item.alt || '' }, { url: translated.image_url || '', alt: translated.alt || '' })
+    if (item.video_url || translated.video_url) add('video', { url: item.video_url || '', poster: item.poster_url || '' }, { url: translated.video_url || '', poster: translated.poster_url || '' })
+    else if (item.image_url || translated.image_url) add('image', { url: item.image_url || '', alt: item.image_alt || item.alt || '' }, { url: translated.image_url || '', alt: translated.image_alt || translated.alt || '' })
     else if (item.value || translated.value) add('metric', { value: item.value || '', label: item.label || '' }, { value: translated.value || '', label: translated.label || '' })
     else if (item.title || item.label || translated.title || translated.label) add('text', { text: item.title || item.label || '' }, { text: translated.title || translated.label || '' })
   })
@@ -427,10 +434,11 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
     content_ru: structuredClone(defaults[0]),
     content_en: structuredClone(defaults[1]),
     settings: {
-      theme: ['metrics', 'technologies', 'media_hero'].includes(type) ? 'ink' : type === 'next_case' ? 'signal' : 'paper',
-      width: ['hero', 'media_hero', 'gallery', 'metrics', 'technologies', 'next_case'].includes(type) ? 'wide' : 'standard',
+      theme: ['hero', 'metrics', 'media_hero'].includes(type) ? 'ink' : type === 'technologies' ? 'soft' : type === 'next_case' ? 'signal' : 'paper',
+      surface: 'card',
+      width: type === 'hero' ? 'full' : ['media_hero', 'gallery', 'metrics', 'technologies', 'next_case'].includes(type) ? 'wide' : 'standard',
       spacing: ['hero', 'next_case'].includes(type) ? 'large' : ['technologies', 'media_hero'].includes(type) ? 'compact' : 'normal',
-      layout: type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : type === 'media_hero' ? 'media-16x9' : 'default',
+      layout: type === 'hero' ? 'case-header' : type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : type === 'media_hero' ? 'media-16x9' : 'default',
       alignment: 'left',
       desktop_span: 12,
       desktop_start: 0,
@@ -438,6 +446,10 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
       tablet_start: 0,
       mobile_span: 12,
       mobile_start: 0,
+      ...(type === 'hero' ? {
+        hero_background: caseHeroColorDefaults.background,
+        hero_text: caseHeroColorDefaults.text,
+      } : {}),
       ...(type === 'custom' ? {
         freeform_height_desktop: 620,
         freeform_height_tablet: 560,
