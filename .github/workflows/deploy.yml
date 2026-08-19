@@ -67,4 +67,21 @@ jobs:
 
             docker compose --env-file .env.deploy -f docker-compose.prod.yml build
             docker compose --env-file .env.deploy -f docker-compose.prod.yml up -d --remove-orphans
-            docker compose --env-file .env.deploy -f docker-compose.prod.yml exec -T vezha-backend .venv/bin/alembic upgrade head
+
+            # The backend container applies Alembic migrations before starting Uvicorn.
+            # Wait for that single migration path to finish instead of racing it with
+            # a second `alembic upgrade head` process from the deploy workflow.
+            backend_ready=0
+            for attempt in $(seq 1 60); do
+              if docker compose --env-file .env.deploy -f docker-compose.prod.yml exec -T vezha-backend \
+                .venv/bin/python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"; then
+                backend_ready=1
+                break
+              fi
+              sleep 2
+            done
+
+            if [ "$backend_ready" -ne 1 ]; then
+              docker compose --env-file .env.deploy -f docker-compose.prod.yml logs --tail=200 vezha-backend
+              exit 1
+            fi
