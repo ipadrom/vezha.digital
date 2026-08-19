@@ -61,7 +61,7 @@
           <div v-if="activeGroup" class="vz-stack__mobile-details">
             <p>{{ activeGroup.description }}</p>
             <div>
-              <span v-for="item in activeGroup.items" :key="item">{{ item }}</span>
+              <span v-for="item in balancedMobileItems" :key="item">{{ item }}</span>
             </div>
           </div>
         </div>
@@ -107,6 +107,15 @@ const { activeIndex, progress, scrollToIndex } = useLandingStackScroll(
 );
 const counter = computed(() => String(activeIndex.value + 1).padStart(2, "0"));
 const activeGroup = computed(() => props.groups[activeIndex.value] || null);
+const balancedMobileItems = computed(() => {
+  const items = activeGroup.value?.items || [];
+  if (items.length !== 4) return items;
+
+  const [longest, secondLongest, secondShortest, shortest] = [...items]
+    .sort((left, right) => right.length - left.length);
+
+  return [longest, shortest, secondLongest, secondShortest];
+});
 const activeLayer = computed(() => (
   resolveStackVisualLayer(props.groups[activeIndex.value]?.title)
 ));
@@ -275,7 +284,7 @@ onBeforeUnmount(() => {
     max-width: 48ch;
     margin: 0 0 10px;
     color: var(--text2);
-    font-size: 15px;
+    font-size: var(--type-body);
     line-height: 1.45;
   }
 
@@ -286,12 +295,15 @@ onBeforeUnmount(() => {
   }
 
   .vz-stack__active-card span {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
     padding: 6px 11px;
     border: 1px solid var(--chipbd);
     border-radius: 999px;
     color: var(--chipink);
     font-family: "JetBrains Mono", monospace;
-    font-size: 11px;
+    font-size: var(--type-chip);
     letter-spacing: 0.03em;
     white-space: nowrap;
   }

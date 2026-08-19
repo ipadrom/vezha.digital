@@ -43,15 +43,17 @@
           <span>{{ activeClient.eyebrow }}</span>
           <h3>{{ activeClient.title }}</h3>
           <div class="vz-client-card-slot">
-            <p>{{ activeClient.text }}</p>
-            <p
-              v-for="segment in segments"
-              :key="`client-card-size-${segment.key}`"
-              class="vz-client-card-sizer"
-              aria-hidden="true"
-            >
-              {{ segment.text }}
-            </p>
+            <div class="vz-client-card-track">
+              <p>{{ activeClient.text }}</p>
+              <p
+                v-for="segment in segments"
+                :key="`client-card-size-${segment.key}`"
+                class="vz-client-card-sizer"
+                aria-hidden="true"
+              >
+                {{ segment.text }}
+              </p>
+            </div>
           </div>
         </article>
       </div>

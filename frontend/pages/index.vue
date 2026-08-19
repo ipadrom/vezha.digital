@@ -21,7 +21,24 @@
       <span class="vz-motion-atmosphere__orb vz-motion-atmosphere__orb--c"></span>
     </div>
 
-    <nav class="vz-nav" :aria-label="copy.nav.aria">
+    <div
+      class="vz-nav-hover-zone"
+      aria-hidden="true"
+      @pointerenter="handleHeaderZonePointerEnter"
+      @pointerleave="handleHeaderZonePointerLeave"
+    ></div>
+    <nav
+      class="vz-nav"
+      :data-nav-visible="isHeaderVisible || isMenuOpen ? 'true' : 'false'"
+      :aria-hidden="isHeaderVisible || isMenuOpen ? undefined : 'true'"
+      :inert="isHeaderVisible || isMenuOpen ? undefined : true"
+      :aria-label="copy.nav.aria"
+      data-od-id="global-header"
+      @pointerenter="handleHeaderPointerEnter"
+      @pointerleave="handleHeaderPointerLeave"
+      @focusin="handleHeaderFocusIn"
+      @focusout="handleHeaderFocusOut"
+    >
       <a class="vz-logo" href="#hero" aria-label="VEZHA Digital">
         <span>VEZHA</span>
         <small>Digital</small>
@@ -165,8 +182,6 @@ import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality";
 definePageMeta({
   layout: false,
 });
-useDesktopSmoothScroll();
-
 type StackGroup = {
   title: string;
   description: string;
@@ -364,6 +379,7 @@ const showPreloader = ref(true);
 const introProgress = ref(0);
 const theme = ref<ThemeMode>("light");
 const isMenuOpen = ref(false);
+const isHeaderVisible = ref(false);
 const activeStackIndex = ref(0);
 const activeClientSegment = ref(0);
 const enableMotionLayer = true;
@@ -397,6 +413,11 @@ let aboutFlowObserver: IntersectionObserver | null = null;
 let stackSphereCleanup: (() => void) | null = null;
 let clientCubeCleanup: (() => void) | null = null;
 let updateClientCubeStage: ((index: number) => void) | null = null;
+let clientLayoutResizeObserver: ResizeObserver | null = null;
+let isHeaderZoneHovered = false;
+let isHeaderHovered = false;
+let isHeaderFocused = false;
+let headerIdleTimer: ReturnType<typeof setTimeout> | null = null;
 
 const heroFxState = {
   active: false,
@@ -818,6 +839,79 @@ function toggleTheme() {
   theme.value = theme.value === "dark" ? "light" : "dark";
   localStorage.setItem("vz_theme", theme.value);
   requestAnimationFrame(() => syncNegativeWorlds(true));
+}
+
+function clearHeaderIdleTimer() {
+  if (!headerIdleTimer) return;
+  window.clearTimeout(headerIdleTimer);
+  headerIdleTimer = null;
+}
+
+function isHeaderAutoHideViewport() {
+  return window.matchMedia("(min-width: 901px)").matches;
+}
+
+function revealHeader() {
+  if (!isHeaderAutoHideViewport()) {
+    isHeaderVisible.value = true;
+    return;
+  }
+  clearHeaderIdleTimer();
+  isHeaderVisible.value = true;
+}
+
+function queueHeaderHide(delay = 820) {
+  if (!isHeaderAutoHideViewport()) return;
+  clearHeaderIdleTimer();
+  headerIdleTimer = window.setTimeout(() => {
+    headerIdleTimer = null;
+    if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused || isMenuOpen.value) return;
+    isHeaderVisible.value = false;
+  }, delay);
+}
+
+function handleHeaderScroll() {
+  if (!isHeaderAutoHideViewport()) return;
+  revealHeader();
+  queueHeaderHide();
+}
+
+function handleHeaderZonePointerEnter() {
+  isHeaderZoneHovered = true;
+  revealHeader();
+}
+
+function handleHeaderZonePointerLeave() {
+  isHeaderZoneHovered = false;
+  queueHeaderHide(220);
+}
+
+function handleHeaderPointerEnter() {
+  isHeaderHovered = true;
+  revealHeader();
+}
+
+function handleHeaderPointerLeave() {
+  isHeaderHovered = false;
+  queueHeaderHide(220);
+}
+
+function handleHeaderFocusIn() {
+  isHeaderFocused = true;
+  revealHeader();
+}
+
+function handleHeaderFocusOut(event: FocusEvent) {
+  const nav = event.currentTarget;
+  const next = event.relatedTarget;
+  if (nav instanceof HTMLElement && next instanceof Node && nav.contains(next)) return;
+  isHeaderFocused = false;
+  queueHeaderHide(220);
+}
+
+function handleHeaderResize() {
+  clearHeaderIdleTimer();
+  isHeaderVisible.value = !isHeaderAutoHideViewport();
 }
 
 let publicDataRequestId = 0;
@@ -1876,24 +1970,69 @@ function updateClientCubePosition() {
   if (window.innerWidth <= 900) {
     host.style.removeProperty("--client-cube-left");
     host.style.removeProperty("--client-cube-top");
+    grid.querySelector<HTMLElement>(".vz-clients__head")
+      ?.style.removeProperty("--client-head-y");
+    grid.querySelector<HTMLElement>(".vz-client-copy")
+      ?.style.removeProperty("--client-copy-y");
+    grid.querySelector<HTMLElement>(".vz-client-connector")
+      ?.style.removeProperty("--client-line-adjust");
     return;
   }
 
-  const section = grid.closest<HTMLElement>("#clients");
-  const connector = grid.querySelector<HTMLElement>(".vz-client-connector");
+  const headingGroup = grid.querySelector<HTMLElement>(".vz-clients__head");
+  const heading = headingGroup?.querySelector<HTMLElement>("h2");
+  const activeTitle = grid.querySelector<HTMLElement>(".vz-client-copy h3");
+  const activeCard = grid.querySelector<HTMLElement>(".vz-client-card-track > p:not(.vz-client-card-sizer)");
   const capsules = grid.querySelector<HTMLElement>(".vz-client-capsules");
+  const connector = grid.querySelector<HTMLElement>(".vz-client-connector");
+  const eyebrow = grid.querySelector<HTMLElement>(".vz-client-copy > span");
   const gridRect = grid.getBoundingClientRect();
-  const sectionRect = section?.getBoundingClientRect() || gridRect;
-  const connectorRect = connector?.getBoundingClientRect();
+  const headingRect = heading?.getBoundingClientRect();
+  const titleRect = activeTitle?.getBoundingClientRect();
+  const cardRect = activeCard?.getBoundingClientRect();
   const capsulesRect = capsules?.getBoundingClientRect();
   const cubeRect = host.getBoundingClientRect();
   const cubeWidth = cubeRect.width || host.offsetWidth;
   const cubeHeight = cubeRect.height || host.offsetHeight;
-  if (!cubeWidth || !cubeHeight) return;
+  if (!cubeWidth || !cubeHeight || !headingRect) return;
 
-  const upperLineY = connectorRect?.bottom || gridRect.top;
-  const lowerLineY = sectionRect.bottom;
-  const targetViewportY = (upperLineY + lowerLineY) / 2;
+  const targetViewportY = titleRect && cardRect
+    ? (titleRect.bottom + cardRect.top) / 2
+    : headingRect.top + headingRect.height / 2;
+
+  if (headingGroup) {
+    const renderedHeadOffset = Number.parseFloat(
+      getComputedStyle(headingGroup).getPropertyValue("--client-head-y"),
+    ) || 0;
+    const currentHeadingCenter = headingRect.top + headingRect.height / 2;
+    const nextHeadOffset = `${Math.round(renderedHeadOffset + targetViewportY - currentHeadingCenter)}px`;
+    if (headingGroup.style.getPropertyValue("--client-head-y") !== nextHeadOffset) {
+      headingGroup.style.setProperty("--client-head-y", nextHeadOffset);
+    }
+  }
+
+  if (connector && eyebrow && activeTitle) {
+    const connectorRect = connector.getBoundingClientRect();
+    const eyebrowRect = eyebrow.getBoundingClientRect();
+    const currentTitleRect = activeTitle.getBoundingClientRect();
+    const currentAdjust = Number.parseFloat(
+      getComputedStyle(connector).getPropertyValue("--client-line-adjust"),
+    ) || 0;
+    const upperGap = eyebrowRect.top - connectorRect.bottom;
+    const lowerGap = currentTitleRect.top - eyebrowRect.bottom;
+    const targetAdjust = Math.max(
+      0,
+      Math.min(
+        72,
+        currentAdjust + upperGap - lowerGap,
+      ),
+    );
+    const nextLineAdjust = `${Math.round(targetAdjust)}px`;
+    if (connector.style.getPropertyValue("--client-line-adjust") !== nextLineAdjust) {
+      connector.style.setProperty("--client-line-adjust", nextLineAdjust);
+    }
+  }
+
   const cubeVisualCenterRatio = 0.62;
   const rightSceneRoom = Math.max(0, cubeWidth - cubeHeight * 1.08);
   const targetRightWithinGrid = (capsulesRect?.right ?? gridRect.right) - gridRect.left;
@@ -2275,6 +2414,17 @@ function clearSectionLiquidTextAlignment() {
       element.removeAttribute("data-liquid-text-aligned");
       element.removeAttribute("data-liquid-clone-aligned");
     });
+}
+
+function setupClientLayoutObserver() {
+  if (clientLayoutResizeObserver || !("ResizeObserver" in window)) return;
+  const grid = rootRef.value?.querySelector<HTMLElement>("[data-clients-grid]");
+  const heading = grid?.querySelector<HTMLElement>(".vz-clients__head h2");
+  if (!grid || !heading) return;
+
+  clientLayoutResizeObserver = new ResizeObserver(updateClientCubePosition);
+  clientLayoutResizeObserver.observe(grid);
+  clientLayoutResizeObserver.observe(heading);
 }
 
 function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
@@ -3302,16 +3452,21 @@ onMounted(async () => {
   updateScrollEffects();
   sectionLiquidLastScrollY = window.scrollY;
   footerGameLastScrollY = window.scrollY;
+  handleHeaderResize();
   await nextTick();
+  setupClientLayoutObserver();
   syncNegativeWorlds(true);
   updateStackSpherePosition();
   updateClientCubePosition();
+  void document.fonts?.ready.then(updateClientCubePosition);
   startHeroNegative();
   startSectionLiquid();
   setupAboutFlowObserver();
   void setupClientCubeScene();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
+  window.addEventListener("scroll", handleHeaderScroll, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
+  window.addEventListener("resize", handleHeaderResize, { passive: true });
   await loadPublicData();
   await nextTick();
   restoreInitialHashPosition();
@@ -3332,7 +3487,11 @@ watch(activeClientSegment, async () => {
 
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scheduleUpdate);
+  window.removeEventListener("scroll", handleHeaderScroll);
   window.removeEventListener("resize", scheduleUpdate);
+  window.removeEventListener("resize", handleHeaderResize);
+  clearHeaderIdleTimer();
+  clientLayoutResizeObserver?.disconnect();
   if (raf) cancelAnimationFrame(raf);
   if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
   if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
@@ -3434,7 +3593,7 @@ useHead(() => ({
   min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
-  font-family: "Onest", system-ui, sans-serif;
+  font-family: var(--font-ui, "Onest", system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
   transition: background 0.4s ease, color 0.4s ease;
 }
@@ -3478,6 +3637,19 @@ useHead(() => ({
 .vz-min ::selection {
   background: var(--ink);
   color: var(--bg);
+}
+
+.vz-min :where(h1, h2, h3) {
+  text-wrap: balance;
+}
+
+.vz-min :where(p) {
+  text-wrap: pretty;
+}
+
+.vz-min :where(a, button, [tabindex]):focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
 }
 
 @keyframes vz-marquee {
@@ -3697,7 +3869,7 @@ useHead(() => ({
 .vz-preloader__top {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--muted);
@@ -3725,7 +3897,7 @@ useHead(() => ({
 
 .vz-preloader__meta {
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
   line-height: 1.7;
   text-align: right;
@@ -3740,7 +3912,7 @@ useHead(() => ({
   z-index: 210;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  height: 58px;
+  height: 64px;
   align-items: center;
   padding: 0 12px 0 20px;
   border: 1px solid color-mix(in srgb, var(--border) 68%, white);
@@ -3750,6 +3922,40 @@ useHead(() => ({
   backdrop-filter: saturate(1.18) blur(18px);
   -webkit-backdrop-filter: saturate(1.18) blur(18px);
   box-sizing: border-box;
+  transform-origin: top center;
+  transition:
+    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    transform 420ms cubic-bezier(0.23, 1, 0.32, 1),
+    visibility 0s linear;
+  will-change: opacity, transform;
+}
+
+.vz-nav[data-nav-visible="false"] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, calc(-100% - 24px), 0);
+  visibility: hidden;
+  transition:
+    opacity 180ms cubic-bezier(0.4, 0, 1, 1),
+    transform 360ms cubic-bezier(0.4, 0, 0.2, 1),
+    visibility 0s linear 360ms;
+}
+
+.vz-nav[data-nav-visible="true"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+}
+
+.vz-nav-hover-zone {
+  position: fixed;
+  top: 0;
+  right: max(24px, calc((100% - 1280px) / 2));
+  left: max(24px, calc((100% - 1280px) / 2));
+  z-index: 209;
+  height: 96px;
+  background: transparent;
 }
 
 .vz-logo {
@@ -3769,7 +3975,7 @@ useHead(() => ({
 .vz-logo small {
   color: var(--muted);
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
@@ -3788,7 +3994,7 @@ useHead(() => ({
 }
 
 .vz-nav__links a {
-  font-size: 14px;
+  font-size: var(--type-control);
 }
 
 .vz-nav__actions {
@@ -3801,7 +4007,7 @@ useHead(() => ({
 .vz-icon-button,
 .vz-menu-button {
   display: flex;
-  height: 38px;
+  height: 44px;
   align-items: center;
   justify-content: center;
   padding: 0;
@@ -3814,7 +4020,7 @@ useHead(() => ({
 
 .vz-icon-button,
 .vz-menu-button {
-  width: 38px;
+  width: 44px;
 }
 
 .vz-nav__cta,
@@ -3826,11 +4032,14 @@ useHead(() => ({
 }
 
 .vz-nav__cta {
-  padding: 11px 20px;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 20px;
   border-radius: 999px;
   background: var(--ink);
   color: var(--bg);
-  font-size: 14px;
+  font-size: var(--type-control);
 }
 
 .vz-menu-button {
@@ -3879,7 +4088,7 @@ useHead(() => ({
   padding: 14px 0;
   border-bottom: 1px solid var(--border);
   color: var(--ink);
-  font-size: 30px;
+  font-size: var(--type-feature);
   font-weight: 600;
   letter-spacing: -0.02em;
   text-decoration: none;
@@ -3887,11 +4096,15 @@ useHead(() => ({
 }
 
 .vz-mobile-menu__cta {
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
   margin-top: 30px;
-  padding: 17px;
+  padding: 12px 17px;
   background: var(--ink);
   color: var(--bg);
-  font-size: 16px;
+  font-size: var(--type-control);
   text-align: center;
 }
 
@@ -3900,7 +4113,7 @@ useHead(() => ({
   padding-top: 30px;
   color: var(--muted);
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -4000,7 +4213,7 @@ useHead(() => ({
   align-items: flex-start;
   justify-content: space-between;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -4011,14 +4224,14 @@ useHead(() => ({
   gap: 12px;
   margin-top: 10px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
 .vz-hero h1 {
   margin: 22px 0 0;
-  font-size: clamp(42px, 7vw, 104px);
+  font-size: var(--type-display);
   font-weight: 700;
   letter-spacing: -0.035em;
   line-height: 0.95;
@@ -4055,7 +4268,7 @@ useHead(() => ({
   max-width: 52ch;
   margin: 0;
   color: var(--text2);
-  font-size: 19px;
+  font-size: var(--type-lead);
   line-height: 1.55;
 }
 
@@ -4069,9 +4282,10 @@ useHead(() => ({
 
 .vz-button {
   display: inline-flex;
+  min-height: 48px;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: var(--type-control);
 }
 
 .vz-button--dark {
@@ -4091,7 +4305,7 @@ useHead(() => ({
   gap: 9px;
   padding-left: 4px;
   color: var(--ink);
-  font-size: 15px;
+  font-size: var(--type-control);
   font-weight: 500;
   text-decoration: none;
 }
@@ -4301,7 +4515,7 @@ useHead(() => ({
   padding-top: 0;
   padding-bottom: 4px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -4339,7 +4553,7 @@ useHead(() => ({
   align-items: center;
   padding: 0 24px;
   color: var(--ink);
-  font-size: clamp(20px, 2.4vw, 30px);
+  font-size: var(--type-lead);
   font-weight: 600;
   letter-spacing: -0.01em;
   text-transform: uppercase;
@@ -4371,7 +4585,7 @@ useHead(() => ({
   align-items: center;
   gap: 12px;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -4443,7 +4657,7 @@ useHead(() => ({
   bottom: 18px;
   color: var(--muted2);
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: var(--type-label);
   font-style: normal;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -4468,7 +4682,7 @@ useHead(() => ({
 .vz-about__roles span {
   color: var(--muted2);
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
 }
 
@@ -4483,7 +4697,7 @@ useHead(() => ({
   max-width: 32ch;
   margin: 28px 0 0;
   color: var(--text2);
-  font-size: 16px;
+  font-size: var(--type-body);
   line-height: 1.55;
 }
 
@@ -4502,7 +4716,7 @@ useHead(() => ({
   margin-bottom: 20px;
   color: var(--muted2);
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -4521,7 +4735,7 @@ useHead(() => ({
 .vz-about__lead {
   margin: 0;
   max-width: 13ch;
-  font-size: clamp(34px, 4vw, 56px);
+  font-size: var(--type-section);
   font-weight: 650;
   letter-spacing: -0.04em;
   line-height: 0.98;
@@ -4552,7 +4766,7 @@ useHead(() => ({
 .vz-about__principles span {
   color: var(--muted2);
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
 }
 
@@ -4564,7 +4778,7 @@ useHead(() => ({
 
 .vz-about__principles p {
   margin: 0;
-  font-size: 16px;
+  font-size: var(--type-body);
 }
 
 .vz-about__metrics {
@@ -4598,7 +4812,7 @@ useHead(() => ({
   max-width: 14ch;
   margin-top: 18px;
   color: var(--text2);
-  font-size: 14px;
+  font-size: var(--type-caption);
   line-height: 1.35;
 }
 
@@ -4651,7 +4865,7 @@ useHead(() => ({
 .vz-sec-head h2 {
   max-width: 640px;
   margin-top: 20px;
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: var(--type-section);
 }
 
 .vz-stack .vz-sec-head h2 {
@@ -4666,7 +4880,7 @@ useHead(() => ({
 .vz-sec-meta div {
   color: var(--ink);
   font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
+  font-size: var(--type-chip);
   letter-spacing: 0.06em;
 }
 
@@ -4683,7 +4897,7 @@ useHead(() => ({
 
 .vz-sec-meta p {
   margin: 12px 0 0;
-  font-size: 14px;
+  font-size: var(--type-caption);
 }
 
 .vz-stack__timeline {
@@ -4739,7 +4953,7 @@ useHead(() => ({
   justify-content: center;
   gap: 8px;
   min-width: 92px;
-  height: 34px;
+  height: 36px;
   padding: 0 12px 0 10px;
   border: 1px solid color-mix(in srgb, var(--ink) 10%, var(--border));
   border-radius: 9px;
@@ -4748,7 +4962,7 @@ useHead(() => ({
     0 8px 22px color-mix(in srgb, var(--ink) 8%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.78);
   color: var(--ink);
-  font-size: 12px;
+  font-size: var(--type-chip);
   font-weight: 600;
   line-height: 1;
   white-space: nowrap;
@@ -4772,20 +4986,20 @@ useHead(() => ({
 
 .vz-stack__sphere-label--core {
   min-width: 84px;
-  height: 32px;
+  height: 34px;
   padding-inline: 9px 11px;
 }
 
 .vz-stack__sphere-label--bridge {
   min-width: 82px;
-  height: 32px;
+  height: 34px;
   padding-inline: 9px 11px;
   border-radius: 7px;
 }
 
 .vz-stack__sphere-label--mobile {
   min-width: 88px;
-  height: 32px;
+  height: 34px;
   padding-inline: 9px 11px;
   border-radius: 999px;
   white-space: nowrap;
@@ -4797,7 +5011,7 @@ useHead(() => ({
   border-radius: 4px;
   background: var(--stack-tech-color);
   color: #fff;
-  font-size: 7px;
+  font-size: var(--type-micro);
   font-weight: 700;
   letter-spacing: -0.02em;
 }
@@ -4818,7 +5032,7 @@ useHead(() => ({
   left: 0;
   color: var(--ink);
   font-family: var(--font-mono, monospace);
-  font-size: 12px;
+  font-size: var(--type-chip);
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.04em;
@@ -4868,7 +5082,7 @@ useHead(() => ({
 .vz-stack-item > div:first-child {
   padding-right: 24px;
   color: var(--idle);
-  font-size: 30px;
+  font-size: var(--type-feature);
   font-weight: 600;
   letter-spacing: -0.02em;
   text-align: right;
@@ -4928,7 +5142,7 @@ useHead(() => ({
   max-width: 46ch;
   margin: 0 0 16px;
   color: var(--text2);
-  font-size: 16px;
+  font-size: var(--type-body);
   line-height: 1.55;
 }
 
@@ -4957,12 +5171,15 @@ useHead(() => ({
 
 .vz-stack-item span:not([data-dot], [data-halo]),
 .vz-hero__stats span {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
   padding: 7px 13px;
   border: 1px solid var(--chipbd);
   border-radius: 999px;
   color: var(--chipink);
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
+  font-size: var(--type-chip);
   letter-spacing: 0.03em;
   text-transform: none;
   white-space: nowrap;
@@ -4987,13 +5204,31 @@ useHead(() => ({
 
 @media (min-width: 901px) {
   .vz-clients {
+    --client-menu-reserve: clamp(40px, 4vw, 56px);
+    margin-top: calc(-1 * var(--client-menu-reserve));
+    padding-top: calc(var(--section-space) + var(--client-menu-reserve));
     padding-bottom: calc(var(--section-space) + 64px);
+  }
+
+  .vz-client-interactive {
+    --client-menu-lift: calc(clamp(48px, 4.3vw, 56px) + var(--client-menu-reserve));
+  }
+
+  .vz-client-capsules {
+    transform: translateY(calc(-1 * var(--client-menu-lift)));
+  }
+
+  .vz-client-connector {
+    --client-line-adjust: 0px;
+    height: calc(48px + var(--client-menu-lift) + var(--client-line-adjust));
+    margin-top: calc(-1 * var(--client-menu-lift));
+    margin-bottom: calc(-1 * var(--client-line-adjust));
   }
 }
 
 .vz-clients__grid {
   position: relative;
-  grid-template-columns: 360px 1fr;
+  grid-template-columns: 360px minmax(0, 1fr);
   gap: 80px;
   align-items: center;
   height: clamp(540px, 56vh, 620px);
@@ -5002,7 +5237,17 @@ useHead(() => ({
 
 .vz-clients h2 {
   margin-top: 22px;
-  font-size: clamp(30px, 3.6vw, 46px);
+  font-size: var(--type-section);
+}
+
+.vz-clients__head {
+  --client-head-y: 0px;
+}
+
+@media (min-width: 901px) {
+  .vz-clients__head {
+    transform: translateY(var(--client-head-y));
+  }
 }
 
 .vz-client-interactive {
@@ -5035,7 +5280,7 @@ useHead(() => ({
   color: var(--ink);
   cursor: pointer;
   font: inherit;
-  font-size: 16px;
+  font-size: var(--type-control);
   line-height: 1.2;
   transition:
     background 0.26s ease,
@@ -5072,6 +5317,7 @@ useHead(() => ({
 }
 
 .vz-client-copy {
+  --client-copy-y: 0px;
   position: relative;
   z-index: 2;
   height: 392px;
@@ -5080,24 +5326,39 @@ useHead(() => ({
   padding-top: 28px;
 }
 
+@media (min-width: 901px) {
+  .vz-client-copy {
+    --client-copy-y: 24px;
+    transform: translateY(var(--client-copy-y));
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vz-client-copy { transition: none; }
+  }
+}
+
 .vz-client-copy > span {
   display: block;
   color: var(--muted2);
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .vz-client-copy h3 {
-  max-width: 13ch;
-  height: 6.45em;
+  max-width: 100%;
+  height: auto;
+  min-height: 5.25em;
   margin: 14px 0 0;
   color: var(--ink);
-  font-size: clamp(28px, 3vw, 42px);
+  font-size: clamp(1.25rem, 1.0625rem + 0.7vw, 2rem);
   font-weight: 600;
   letter-spacing: -0.025em;
   line-height: 1.05;
+  text-wrap: balance;
   text-transform: uppercase;
 }
 
@@ -5105,8 +5366,19 @@ useHead(() => ({
   display: contents;
 }
 
+.vz-client-card-track {
+  display: contents;
+}
+
 .vz-client-card-sizer {
   display: none;
+}
+
+@media (min-width: 901px) {
+  .vz-client-card-track {
+    display: flow-root;
+    transform: translateY(clamp(104px, 10vw, 120px));
+  }
 }
 
 .vz-client-copy p {
@@ -5122,7 +5394,7 @@ useHead(() => ({
   background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
   box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
   color: var(--text2);
-  font-size: 17px;
+  font-size: var(--type-body);
   line-height: 1.65;
   backdrop-filter: blur(18px) saturate(1.08);
 }
@@ -5182,7 +5454,7 @@ useHead(() => ({
 .vz-contacts h2 {
   max-width: 18ch;
   margin: 0 auto;
-  font-size: clamp(40px, 6vw, 80px);
+  font-size: var(--type-cta);
   letter-spacing: -0.03em;
   line-height: 1.02;
 }
@@ -5220,7 +5492,7 @@ useHead(() => ({
   margin: 0;
   padding: 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: var(--type-label);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -5245,13 +5517,13 @@ useHead(() => ({
   display: block;
   margin-bottom: 14px;
   color: var(--muted2);
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .vz-footer__cols strong {
-  font-size: 30px;
+  font-size: var(--type-feature);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -5263,7 +5535,7 @@ useHead(() => ({
   gap: 10px;
   margin: 0;
   color: var(--text2);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.6;
 }
 
@@ -5282,7 +5554,7 @@ useHead(() => ({
   justify-content: space-between;
   margin-bottom: 10px;
   color: var(--muted2);
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -5309,7 +5581,7 @@ useHead(() => ({
   gap: 12px;
   padding: 18px 40px 44px;
   color: var(--muted2);
-  font-size: 11px;
+  font-size: var(--type-label);
   letter-spacing: 0.06em;
 }
 
@@ -5348,7 +5620,7 @@ useHead(() => ({
   padding-bottom: 12px;
   color: var(--muted2);
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
+  font-size: calc(var(--type-micro) + 1px);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -5514,6 +5786,14 @@ useHead(() => ({
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .vz-nav[data-nav-visible] {
+    transition-duration: 0.01ms;
+  }
+
+  .vz-nav[data-nav-visible="false"] {
+    transform: translate3d(0, calc(-100% - 24px), 0);
+  }
+
   .vz-orbit svg,
 .vz-marquee > div {
     animation: none !important;
@@ -5545,8 +5825,21 @@ useHead(() => ({
     top: 10px;
     right: 20px;
     left: 20px;
-    height: 54px;
+    height: 60px;
     padding: 0 8px 0 16px;
+  }
+
+  .vz-nav[data-nav-visible] {
+    opacity: 1;
+    filter: none;
+    pointer-events: auto;
+    transform: none;
+    transition: none;
+    visibility: visible;
+  }
+
+  .vz-nav-hover-zone {
+    display: none;
   }
 
   .vz-nav__links,
@@ -5568,7 +5861,7 @@ useHead(() => ({
   }
 
   .vz-hero h1 {
-    font-size: clamp(30px, 8.4vw, 46px);
+    font-size: clamp(1.875rem, 8.4vw, 2.875rem);
   }
 
   .vz-hero__grid,
@@ -5587,9 +5880,27 @@ useHead(() => ({
   }
 
   .vz-hero__stats {
-    grid-template-columns: repeat(2, max-content);
-    gap: 10px 12px;
+    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-items: stretch;
+    gap: 6px;
     margin-top: 44px;
+  }
+
+  .vz-hero__stats span {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 6px 8px;
+    background: var(--bg);
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--ink) 4%, transparent);
+    font-size: clamp(0.625rem, 0.6rem + 0.1vw, 0.6875rem);
+    line-height: 1.25;
+    text-align: center;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+    white-space: normal;
   }
 
   .vz-about {
@@ -5623,7 +5934,7 @@ useHead(() => ({
 
   .vz-about__note {
     margin-top: 20px;
-    font-size: 15px;
+    font-size: var(--type-body);
   }
 
   .vz-about__copy {
@@ -5633,7 +5944,7 @@ useHead(() => ({
 
   .vz-about__lead {
     max-width: 14ch;
-    font-size: clamp(30px, 10vw, 42px);
+    font-size: var(--type-section);
   }
 
   .vz-about__principles {
@@ -5694,8 +6005,13 @@ useHead(() => ({
 
   .vz-stack h2 {
     max-width: none;
-    font-size: 26px;
+    font-size: var(--type-section);
     line-height: 1.05;
+  }
+
+  .vz-stack .vz-sec-head {
+    position: relative;
+    z-index: 3;
   }
 
   .vz-stack {
@@ -5737,10 +6053,10 @@ useHead(() => ({
 
   .vz-stack__sphere-label--mobile {
     gap: 6px;
-    min-width: 76px;
-    height: 29px;
+    min-width: 0;
+    height: 30px;
     padding-inline: 7px 9px;
-    font-size: 11px;
+    font-size: var(--type-label);
   }
 
   .vz-stack__sphere-label--mobile .vz-stack__sphere-label-icon {
@@ -5754,13 +6070,16 @@ useHead(() => ({
     display: grid;
     row-gap: 12px;
     max-width: none;
+    translate: clamp(-0.625rem, -2.4vw, -0.5rem) 0;
   }
 
   .vz-stack__mobile-layout {
+    --stack-mobile-list-width: 120px;
+    --stack-mobile-column-gap: clamp(1.125rem, 6vw, 1.5rem);
     position: relative;
     display: grid;
-    grid-template-columns: 132px minmax(0, 1fr);
-    gap: 16px;
+    grid-template-columns: var(--stack-mobile-list-width) minmax(0, 1fr);
+    column-gap: var(--stack-mobile-column-gap);
     min-height: 218px;
   }
 
@@ -5782,7 +6101,7 @@ useHead(() => ({
     grid-column: 2;
     grid-row: 1;
     padding-right: 0;
-    font-size: 18px;
+    font-size: var(--type-lead);
     text-align: left;
   }
 
@@ -5809,8 +6128,9 @@ useHead(() => ({
     position: absolute;
     top: 0;
     right: 0;
-    left: 148px;
+    left: calc(var(--stack-mobile-list-width) + var(--stack-mobile-column-gap));
     display: block;
+    min-width: 0;
     min-height: 112px;
     margin: 0;
   }
@@ -5819,7 +6139,7 @@ useHead(() => ({
     max-width: none;
     margin: 0 0 8px;
     color: var(--text2);
-    font-size: 13px;
+    font-size: var(--type-caption);
     line-height: 1.4;
   }
 
@@ -5830,12 +6150,15 @@ useHead(() => ({
   }
 
   .vz-stack__mobile-details span {
+    display: inline-flex;
+    min-height: 30px;
+    align-items: center;
     padding: 5px 7px;
     border: 1px solid var(--chipbd);
     border-radius: 999px;
     color: var(--chipink);
     font-family: "JetBrains Mono", monospace;
-    font-size: 11px;
+    font-size: var(--type-chip);
     letter-spacing: 0.03em;
     white-space: nowrap;
   }
@@ -5847,13 +6170,13 @@ useHead(() => ({
   .vz-stack-item p {
     max-width: none;
     margin-bottom: 8px;
-    font-size: 13px;
+    font-size: var(--type-caption);
     line-height: 1.4;
   }
 
   .vz-stack-item span:not([data-dot], [data-halo]) {
     padding: 5px 10px;
-    font-size: 11px;
+    font-size: var(--type-chip);
   }
 
   .vz-stack-item > div:last-child > div {
@@ -5880,6 +6203,7 @@ useHead(() => ({
     width: 100%;
     height: auto;
     min-height: 0;
+    transform: none;
   }
 
   .vz-client-capsules {
@@ -5891,7 +6215,7 @@ useHead(() => ({
     height: 58px;
     min-height: 0;
     padding: 10px 8px;
-    font-size: 13px;
+    font-size: var(--type-control);
   }
 
   .vz-client-connector {
@@ -5934,10 +6258,14 @@ useHead(() => ({
   }
 
   .vz-client-copy h3 {
-    height: auto;
+    height: 3.15em;
+    min-height: 3.15em;
+    max-height: 3.15em;
     max-width: none;
     order: 4;
     font-size: 25px;
+    line-height: 1.05;
+    text-wrap: balance;
   }
 
   .vz-client-card-slot {
@@ -5946,12 +6274,12 @@ useHead(() => ({
     margin-top: 16px;
   }
 
-  .vz-client-card-slot > p {
+  .vz-client-card-track > p {
     grid-area: 1 / 1;
-    align-self: end;
+    align-self: start;
   }
 
-  .vz-client-card-slot > .vz-client-card-sizer {
+  .vz-client-card-track > .vz-client-card-sizer {
     display: block;
     visibility: hidden;
     pointer-events: none;
@@ -5970,7 +6298,7 @@ useHead(() => ({
     background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
     box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
     backdrop-filter: blur(18px) saturate(1.08);
-    font-size: 15px;
+    font-size: var(--type-body);
     line-height: 1.55;
   }
 
@@ -5979,7 +6307,7 @@ useHead(() => ({
   }
 
   .vz-contacts h2 {
-    font-size: clamp(26px, 8vw, 40px);
+    font-size: var(--type-cta);
   }
 
   .vz-contacts__buttons {
@@ -6027,7 +6355,7 @@ useHead(() => ({
 
   .vz-footer-game__hud {
     gap: 10px;
-    font-size: 10px;
+    font-size: calc(var(--type-micro) + 1px);
     letter-spacing: 0.11em;
   }
 
@@ -6054,11 +6382,11 @@ useHead(() => ({
 
 @media (max-width: 520px) {
   .vz-hero__meta span {
-    font-size: 11px;
+    font-size: var(--type-label);
   }
 
   .vz-hero h1 {
-    font-size: clamp(26px, 8vw, 40px);
+    font-size: clamp(1.625rem, 8vw, 2.5rem);
   }
 
   .vz-footer__cols {
@@ -6125,12 +6453,15 @@ useHead(() => ({
 }
 
 .vz-stack-item span:not([data-dot], [data-halo]) {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
   padding: 7px 13px;
   border: 1px solid var(--chipbd);
   border-radius: 999px;
   color: var(--chipink);
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
+  font-size: var(--type-chip);
   letter-spacing: 0.03em;
 }
 

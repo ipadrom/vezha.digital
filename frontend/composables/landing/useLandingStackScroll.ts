@@ -96,7 +96,7 @@ export function useLandingStackScroll(
     const sectionTop = window.scrollY + section.getBoundingClientRect().top;
     window.scrollTo({
       top: Math.ceil(sectionTop + scrollRange * maxProgress),
-      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      behavior: "auto",
     });
   }
 

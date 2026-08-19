@@ -146,7 +146,7 @@
   }
 
   .vz-services h2 {
-    font-size: 26px;
+    font-size: var(--type-section);
   }
 
   .vz-services {
@@ -199,7 +199,7 @@
 }
 
 .vz-services h2 {
-  font-size: clamp(34px, 4.4vw, 56px);
+  font-size: var(--type-section);
 }
 
 .vz-services__grid {
@@ -893,7 +893,7 @@
 @media (max-width: 900px) {
 
   .vz-services h2 {
-    font-size: 26px;
+    font-size: var(--type-section);
   }
 
   .vz-services [data-sec-head] {
@@ -2477,7 +2477,7 @@
 }
 
 .vz-service-panel {
-  row-gap: 8px;
+  row-gap: 5px;
 }
 
 .vz-service-panel h3 {
@@ -2980,7 +2980,7 @@
 
   .vz-services__grid {
     grid-template-columns: minmax(220px, 0.75fr) minmax(420px, 1.55fr) minmax(280px, 0.9fr);
-    grid-template-rows: minmax(clamp(500px, 37vw, 560px), auto);
+    grid-template-rows: clamp(500px, 37vw, 560px);
     gap: clamp(24px, 2.2vw, 36px);
     align-items: center;
   }
@@ -3009,7 +3009,7 @@
   }
 
   .vz-service-caption > .vz-service-panel__cta--shared[data-positioned="true"] {
-    transition: transform 250ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -3019,6 +3019,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .vz-service-caption[data-positioned="true"],
     .vz-service-caption > .vz-service-panel__cta--shared[data-positioned="true"] {
       transition: none;
     }
@@ -3272,15 +3273,28 @@
     grid-column: 3;
     grid-row: 1;
     width: 100%;
-    height: 500px;
-    min-height: 500px;
+    max-width: none;
+    min-width: 0;
+    height: clamp(528px, 37vw, 560px);
+    min-height: clamp(528px, 37vw, 560px);
     align-self: center;
+    justify-self: start;
     margin-top: 0;
     transition: none;
   }
 
   .vz-service-caption[data-positioned="true"] {
-    transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: width, height;
+    transition:
+      width 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+      min-height 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vz-service-caption[data-positioned="true"] {
+      transition: none;
+    }
   }
 
   .vz-service-panel {
@@ -3551,7 +3565,12 @@
   }
 
   .vz-service-panel {
-    padding: clamp(34px, 3vw, 44px) clamp(28px, 2.6vw, 40px) 80px clamp(8px, 1.4vw, 20px);
+    padding: clamp(34px, 3vw, 44px) clamp(8px, 1.4vw, 20px) 80px;
+  }
+
+  .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] {
+    width: 100%;
+    gap: 6px;
   }
 
   .vz-service-panel > div.vz-service-panel__title,
@@ -3585,7 +3604,7 @@
   }
 
   .vz-service-caption > .vz-service-panel__cta--shared {
-    right: clamp(28px, 2.6vw, 40px);
+    right: clamp(8px, 1.4vw, 20px);
     left: clamp(8px, 1.4vw, 20px);
     background: var(--ink);
     box-shadow: 0 18px 42px -28px color-mix(in srgb, var(--ink) 58%, transparent);
@@ -3593,7 +3612,7 @@
   }
 
   .vz-service-panel__cta-divider {
-    right: clamp(28px, 2.6vw, 40px);
+    right: clamp(8px, 1.4vw, 20px);
     left: clamp(8px, 1.4vw, 20px);
     background: var(--services-card-border);
   }
@@ -3970,7 +3989,7 @@
   to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
 }
 
-.vz-min.vz-motion-ready .vz-nav {
+.vz-min.vz-motion-ready .vz-nav:not([data-nav-visible]) {
   animation: vz-motion-nav-enter 600ms var(--ease-out) both;
 }
 
@@ -4235,7 +4254,6 @@
     opacity: 1 !important;
   }
 
-  .vz-min .vz-nav,
   .vz-min .vz-hero__art,
   .vz-min .vz-about__flow,
   .vz-min .vz-stack__sphere,
@@ -4547,5 +4565,244 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+}
+
+/* Unified dense-interface typography roles. */
+.vz-services__aside-cta strong,
+.vz-service-panel__cta strong {
+  font-size: var(--type-control);
+}
+
+/* Desktop service labels mirror the case-tab text without changing menu geometry or state. */
+@media (min-width: 901px) {
+  .vz-services__nav button [data-serv-nav-label],
+  .vz-services__nav button[data-active="true"] [data-serv-nav-label] {
+    font-family: var(--font-ui, "Onest", system-ui, sans-serif);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: .01em;
+    text-transform: uppercase;
+  }
+}
+
+.vz-services__aside-cta strong b {
+  font-size: var(--type-control);
+}
+
+@media (min-width: 901px) {
+  .vz-service-panel__cta > span {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .vz-service-panel__cta small {
+    font-size: clamp(0.5rem, 0.4rem + 0.18vw, 0.625rem);
+    letter-spacing: 0.1em;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .vz-service-panel__cta svg {
+    flex: 0 0 auto;
+  }
+}
+
+.vz-service-panel p {
+  font-size: var(--type-body);
+}
+
+.vz-service-panel__title span,
+.vz-service-commercial small,
+.vz-services__aside-cta small,
+.vz-service-panel__cta small,
+.vz-services__nav [data-serv-nav-num] {
+  font-size: var(--type-label);
+}
+
+.vz-service-panel [data-serv-metawrap] span,
+.vz-service-commercial__included [data-serv-metawrap] span,
+.vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
+  min-height: 32px;
+  align-items: center;
+  font-size: var(--type-chip);
+}
+
+/* Each balanced row sizes independently, so a long capsule cannot widen both rows. */
+.vz-min .vz-service-panel .vz-service-commercial__included .vz-service-commercial__chips {
+  display: grid;
+  width: 100%;
+  max-width: 100%;
+  align-content: flex-start;
+  justify-content: flex-start;
+  row-gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(2, auto);
+}
+
+.vz-min .vz-service-panel .vz-service-commercial__included .vz-service-commercial__chips-row {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.vz-min .vz-service-panel .vz-service-commercial__included .vz-service-commercial__chips span {
+  width: fit-content;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  flex: 0 1 auto;
+  padding: 7px;
+  overflow: visible;
+  font-size: clamp(0.625rem, 0.6rem + 0.1vw, 0.6875rem);
+  line-height: 1.35;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  white-space: normal;
+}
+
+.vz-services__aside-cta em {
+  font-size: var(--type-caption);
+}
+
+.vz-service-panel__cta {
+  min-height: 48px;
+}
+
+.vz-screen-topbar i,
+.vz-browserbar i,
+.vz-service-ui--miniapp > header,
+.vz-service-ui--bot > header,
+.vz-service-ui--mobile > header,
+.vz-service-ui--miniapp main small,
+.vz-service-ui--miniapp main div i b,
+.vz-service-ui--miniapp main div i small,
+.vz-service-ui--miniapp footer,
+.vz-service-ui--bot > small,
+.vz-service-ui--bot nav button,
+.vz-service-ui--bot footer,
+.vz-service-ui--site > header,
+.vz-service-ui--site main small,
+.vz-service-ui--site footer,
+.vz-service-ui--shop > header,
+.vz-service-ui--shop > nav,
+.vz-service-ui--shop article small,
+.vz-service-ui--ai > header b,
+.vz-service-ui--ai main article small,
+.vz-service-ui--ai footer span,
+.vz-service-ui--corp > main > header,
+.vz-service-ui--corp section small,
+.vz-service-ui--corp > main > div header,
+.vz-service-ui--corp > main > div p,
+.vz-service-ui--corp > main > div i,
+.vz-service-ui--mobile > main small,
+.vz-service-ui--mobile > section article,
+.vz-service-ui--mobile > div,
+.vz-service-ui--mobile > div p,
+.vz-service-ui--mobile > div p strong,
+.vz-phone-screen > header,
+.vz-phone-screen > header b {
+  font-size: var(--type-micro);
+}
+
+.vz-shop-top b,
+.vz-ai-answer span,
+.vz-code-pane,
+.vz-ui-message,
+.vz-service-ui--shop article,
+.vz-service-ui--ai > header,
+.vz-service-ui--ai main article strong,
+.vz-service-ui--mobile > main span,
+.vz-phone-screen > main small,
+.vz-phone-screen > footer,
+.vz-services__callouts small {
+  font-size: calc(var(--type-micro) + 1px);
+}
+
+.vz-services__callouts b {
+  font-size: calc(var(--type-micro) + 2px);
+}
+
+.vz-service-ui--miniapp main div i {
+  height: 58px;
+  padding: 7px;
+}
+
+.vz-service-ui--bot nav button {
+  min-height: 28px;
+}
+
+.vz-service-ui--site {
+  grid-template-rows: 36px 1fr 40px;
+}
+
+.vz-service-ui--shop {
+  grid-template-rows: 40px 36px 1fr;
+}
+
+.vz-service-ui--ai {
+  grid-template-rows: 42px 1fr 64px;
+}
+
+.vz-service-ui--corp > main > div header,
+.vz-service-ui--corp > main > div p {
+  min-height: 36px;
+}
+
+.vz-service-ui--mobile > section article {
+  min-height: 38px;
+}
+
+.vz-service-ui--mobile > div p {
+  min-height: 32px;
+}
+
+.vz-phone-screen > header b {
+  width: 22px;
+  height: 22px;
+}
+
+.vz-phone-screen > footer {
+  min-height: 36px;
+}
+
+.vz-services__callouts > span {
+  min-height: 36px;
+}
+
+@media (max-width: 900px) {
+  .vz-services__nav button,
+  .vz-services__nav button[data-active="true"] {
+    min-height: 44px;
+  }
+
+  .vz-min .vz-service-panel .vz-service-commercial__included .vz-service-commercial__chips-row {
+    display: grid;
+    width: 100%;
+    max-width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .vz-min .vz-service-panel .vz-service-commercial__included .vz-service-commercial__chips span,
+  .vz-service-panel .vz-service-commercial__included [data-serv-metawrap] span {
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 6px 8px;
+    overflow: visible;
+    font-size: clamp(0.625rem, 0.6rem + 0.1vw, 0.6875rem);
+    line-height: 1.25;
+    text-align: center;
+    text-overflow: clip;
+    overflow-wrap: anywhere;
+    text-wrap: balance;
+    white-space: normal;
   }
 }

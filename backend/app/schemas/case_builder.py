@@ -10,6 +10,7 @@ BlockType = Literal[
     "media_hero",
     "text",
     "challenge_solution",
+    "insight",
     "image",
     "image_text",
     "gallery",
@@ -57,9 +58,11 @@ class MediaHeroContent(FlexibleContent):
 
 
 class TextContent(FlexibleContent):
+    kicker: str = ""
     eyebrow: str = ""
     title: str = ""
     body: str = ""
+    tags: list[str] = Field(default_factory=list)
 
 
 class ChallengeSolutionContent(FlexibleContent):
@@ -69,6 +72,20 @@ class ChallengeSolutionContent(FlexibleContent):
     challenge: str = ""
     solution_label: str = ""
     solution: str = ""
+    impact_label: str = ""
+    impact: str = ""
+
+
+class InsightContent(FlexibleContent):
+    eyebrow: str = ""
+    title: str = ""
+    statement: str = ""
+    rationale_label: str = ""
+    rationale: str = ""
+    outcome_label: str = ""
+    outcome: str = ""
+    image_url: str = ""
+    image_alt: str = ""
 
 
 class ImageContent(FlexibleContent):
@@ -87,6 +104,7 @@ class GalleryItem(FlexibleContent):
     image_url: str = ""
     alt: str = ""
     caption: str = ""
+    frame: Literal["auto", "plain", "screen", "device"] = "auto"
 
 
 class GalleryContent(FlexibleContent):
@@ -122,6 +140,7 @@ class ProcessItem(FlexibleContent):
 class ProcessContent(FlexibleContent):
     eyebrow: str = ""
     title: str = ""
+    summary: str = ""
     items: list[ProcessItem] = Field(default_factory=list)
 
 
@@ -165,7 +184,12 @@ class ComparisonContent(FlexibleContent):
     after_label: str = ""
 
 
+class ResultItem(FlexibleContent):
+    text: str = ""
+
+
 class ResultsContent(TextContent):
+    items: list[ResultItem] = Field(default_factory=list)
     link_url: str = ""
     link_label: str = ""
 
@@ -187,6 +211,7 @@ BLOCK_CONTENT_MODELS: dict[str, type[BaseModel]] = {
     "media_hero": MediaHeroContent,
     "text": TextContent,
     "challenge_solution": ChallengeSolutionContent,
+    "insight": InsightContent,
     "image": ImageContent,
     "image_text": ImageTextContent,
     "gallery": GalleryContent,
@@ -211,6 +236,9 @@ class BlockSettings(BaseModel):
     spacing: Literal["compact", "normal", "large"] = "normal"
     layout: str = "default"
     alignment: Literal["left", "center", "right"] = "left"
+    disclosure_mode: Literal["single", "multiple"] | None = None
+    open_first: bool | None = None
+    show_intro: bool | None = None
     desktop_span: int = Field(default=12, ge=1, le=12)
     desktop_start: int = Field(default=0, ge=0, le=12)
     tablet_span: int = Field(default=12, ge=1, le=12)

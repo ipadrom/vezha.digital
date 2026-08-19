@@ -18,7 +18,7 @@
               data-serv-list
               role="tablist"
               :aria-label="copy.navAria"
-              aria-orientation="horizontal"
+              aria-orientation="vertical"
               @keydown="onNavKeydown"
             >
               <span class="vz-services__nav-highlight" data-serv-nav-highlight aria-hidden="true"></span>
@@ -85,6 +85,7 @@
               :id="`service-panel-${index}`"
               :key="service.n"
               data-serv-panel
+              :data-od-id="`service-card-${service.n}`"
               class="vz-service-panel"
               role="tabpanel"
               :aria-labelledby="`service-tab-${index}`"
@@ -105,7 +106,13 @@
                 <div class="vz-service-commercial__included" data-serv-included>
                   <small>{{ copy.commercialLabels.included }}</small>
                   <div class="vz-service-commercial__chips" data-serv-metawrap>
-                    <span v-for="item in copy.commercial[index]?.included ?? []" :key="item">{{ item }}</span>
+                    <div
+                      v-for="(row, rowIndex) in balancedCommercialCapsuleRows[index] ?? []"
+                      :key="`${service.n}-${rowIndex}`"
+                      class="vz-service-commercial__chips-row"
+                    >
+                      <span v-for="item in row" :key="item">{{ item }}</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -270,6 +277,8 @@ func main() {
 </template>
 
 <script setup lang="ts">
+import { balanceServiceCapsuleRows } from "~/utils/landingServiceCapsules";
+
 import { useLandingServices } from "~/composables/landing/useLandingServices";
 
 type LandingService = { n: string; title: string; desc: string; meta: string[] };
@@ -306,7 +315,10 @@ const serviceScreens = ["miniapp", "bot", "site", "shop", "ai", "corp", "mobile"
 const serviceCount = computed(() => props.services.length);
 const { activeIndex, select } = useLandingServices(rootRef, serviceCount, (index) => emit("activeChange", index));
 const activeServiceCallouts = computed(() => props.copy.commercial[activeIndex.value]?.included ?? []);
-
+// Vue caches the balanced order and recomputes it only when localized service data changes.
+const balancedCommercialCapsuleRows = computed(() => props.copy.commercial.map(({ included }) => (
+  balanceServiceCapsuleRows(included)
+)));
 function alignActiveServiceToStart(index: number) {
   if (!window.matchMedia("(max-width: 900px)").matches) return;
 
@@ -314,7 +326,6 @@ function alignActiveServiceToStart(index: number) {
   const tab = rootRef.value?.querySelectorAll<HTMLElement>("[data-serv-mobile-nav]")[index];
   if (!nav || !tab) return;
 
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tabRect = tab.getBoundingClientRect();
   const navRect = nav.getBoundingClientRect();
   const gap = Number.parseFloat(window.getComputedStyle(nav).columnGap) || 0;
@@ -322,7 +333,7 @@ function alignActiveServiceToStart(index: number) {
   const startLeft = nav.scrollLeft + tabRect.left - navRect.left;
 
   nav.style.setProperty("--vz-tabs-trailing-space", `${trailingSpace}px`);
-  nav.scrollTo({ left: Math.max(0, startLeft), behavior: reduceMotion ? "auto" : "smooth" });
+  nav.scrollTo({ left: Math.max(0, startLeft), behavior: "auto" });
 }
 
 function selectService(index: number, focus = false) {

@@ -21,7 +21,10 @@
               <div class="vz-about__step-meta">
                 <span>{{ step.number }}</span>
                 <div>
-                  <strong>{{ step.title }}</strong>
+                  <strong>
+                    <span class="vz-about__stage-title--desktop">{{ step.title }}</span>
+                    <span class="vz-about__stage-title--mobile">{{ step.mobileTitle }}</span>
+                  </strong>
                   <small>{{ step.duration }}</small>
                 </div>
               </div>
@@ -139,7 +142,10 @@
             <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true"><i></i></span>
             <span class="vz-about__flow-stage-label">
               <small>{{ String(index + 1).padStart(2, '0') }}</small>
-              <b>{{ stage }}</b>
+              <b>
+                <span class="vz-about__stage-title--desktop">{{ stage }}</span>
+                <span class="vz-about__stage-title--mobile">{{ mobileStageTitle(stage, index) }}</span>
+              </b>
             </span>
           </button>
 
@@ -255,15 +261,22 @@ const emit = defineEmits<{
 const flowRef = ref<HTMLElement | null>(null);
 const stageKeys = ["design", "ux", "development", "testing", "launch"] as const;
 const supportStepIndex = stageKeys.length + 1;
+const mobileStageTitle = (stage: string, index: number) => (
+  stageKeys[index] === "testing" && stage === "Тестирование" ? "Тест" : stage
+);
 const allFlowSteps = computed(() => Array.from({ length: supportStepIndex + 1 }, (_, index) => {
   const details = props.copy.stepDetails[index] || { duration: "", description: "", deliverables: [] };
+  const title = index === 0
+    ? props.copy.brief
+    : index === supportStepIndex
+      ? props.copy.support
+      : props.copy.stages[index - 1] || "";
   return {
     number: String(index).padStart(2, "0"),
-    title: index === 0
-      ? props.copy.brief
-      : index === supportStepIndex
-        ? props.copy.support
-        : props.copy.stages[index - 1] || "",
+    title,
+    mobileTitle: index > 0 && index < supportStepIndex
+      ? mobileStageTitle(title, index - 1)
+      : title,
     ...details,
   };
 }));
@@ -287,35 +300,53 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 .vz-about__inner {
   width: 100%;
-  max-width: 1320px;
+  max-width: 1240px;
   margin: 0 auto;
 }
 
 .vz-about__head {
+  --about-head-flow-gap: clamp(32px, 4vw, 48px);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: clamp(48px, 8vw, 120px);
-  margin-bottom: clamp(32px, 4vw, 48px);
+  gap: clamp(36px, 4vw, 64px);
+  margin-bottom: var(--about-head-flow-gap);
 }
 
+@media (min-width: 901px) {
+  .vz-about__head {
+    transform: translateY(calc((var(--about-head-flow-gap) - var(--section-space)) / 2));
+  }
+}
+
+.vz-about__stage-title--mobile { display: none; }
+
 .vz-about__title {
-  max-width: 720px;
+  width: 100%;
+  max-width: 520px;
+  flex: 1 1 520px;
 }
 
 .vz-about__head h2 {
-  max-width: 680px;
+  max-width: 520px;
   margin: 0;
   color: var(--ink);
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: var(--type-section);
   font-weight: 600;
   letter-spacing: -0.035em;
   line-height: 1.02;
+  text-wrap: balance;
   text-transform: uppercase;
 }
 
+@media (min-width: 901px) and (max-width: 1023px) {
+  .vz-about__head h2 {
+    font-size: clamp(36px, 4vw, 42px);
+  }
+}
+
 .vz-about__intro {
-  width: min(100%, 600px);
+  width: clamp(420px, 42vw, 540px);
   flex: 0 0 auto;
   margin-top: 12px;
   padding: 20px;
@@ -336,7 +367,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   min-height: 154px;
   grid-template-columns: minmax(150px, 0.62fr) minmax(0, 1.38fr);
   align-items: start;
-  gap: clamp(24px, 2.4vw, 34px);
+  gap: clamp(14px, 1.2vw, 18px);
   padding-top: 0;
   border-top: 0;
   opacity: 0;
@@ -378,7 +409,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__step-meta strong {
   margin-top: 22px;
   color: var(--ink);
-  font-size: 13px;
+  font-size: var(--type-chip);
   font-weight: 600;
   line-height: 1.2;
   text-transform: uppercase;
@@ -387,7 +418,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__step-meta small {
   margin-top: 10px;
   color: var(--muted);
-  font: 500 9px/1.3 "JetBrains Mono", monospace;
+  font: 500 var(--type-label)/1.3 "JetBrains Mono", monospace;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -396,7 +427,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   max-width: 32ch;
   margin: 2px 0 0;
   color: var(--text2);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.62;
 }
 
@@ -416,6 +447,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 .vz-about__step-deliverables li {
   display: inline-flex;
+  min-height: 32px;
   align-items: center;
   justify-content: center;
   padding: 7px 13px;
@@ -424,10 +456,21 @@ onBeforeUnmount(() => emit("flow-ready", null));
   background: transparent;
   color: var(--chipink);
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
+  font-size: var(--type-chip);
   letter-spacing: 0.03em;
   text-transform: none;
   white-space: nowrap;
+}
+
+@media (min-width: 1200px) {
+  .vz-about__step-deliverables {
+    flex-wrap: nowrap;
+    gap: 5px;
+  }
+
+  .vz-about__step-deliverables li {
+    padding-inline: 10px;
+  }
 }
 
 .vz-about__flow {
@@ -463,11 +506,12 @@ onBeforeUnmount(() => emit("flow-ready", null));
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  min-height: 44px;
   padding: 8px 0 8px 12px;
   border: 0;
   background: transparent;
   color: var(--muted);
-  font: 500 9px/1 "JetBrains Mono", monospace;
+  font: 500 calc(var(--type-micro) + 1px)/1 "JetBrains Mono", monospace;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -477,13 +521,13 @@ onBeforeUnmount(() => emit("flow-ready", null));
 
 .vz-about__flow-control span {
   display: grid;
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   place-items: center;
   border: 1px solid var(--border);
   border-radius: 50%;
   color: var(--ink);
-  font-size: 12px;
+  font-size: var(--type-chip);
   transition: transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
@@ -496,6 +540,32 @@ onBeforeUnmount(() => emit("flow-ready", null));
   stroke-linejoin: round;
   stroke-width: 1.5;
   transform: translateY(-0.75px);
+}
+
+@media (min-width: 901px) {
+  .vz-about__flow-controls {
+    flex-direction: column-reverse;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .vz-about__flow-control {
+    min-height: 52px;
+    gap: 10px;
+    padding: 7px 0 7px 14px;
+    font: 500 var(--type-label)/1 "JetBrains Mono", monospace;
+  }
+
+  .vz-about__flow-control span {
+    width: 38px;
+    height: 38px;
+    font-size: 16px;
+  }
+
+  .vz-about__flow-continue svg {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 .vz-about__flow-control:focus-visible {
@@ -744,6 +814,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  min-height: 34px;
   padding: 8px 12px;
   border-radius: 999px;
   color: var(--ink);
@@ -783,7 +854,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   position: relative;
   z-index: 1;
   color: var(--muted2);
-  font: 500 9px/1 "JetBrains Mono", monospace;
+  font: 500 var(--type-micro)/1 "JetBrains Mono", monospace;
   letter-spacing: 0.1em;
   transition: color 400ms ease;
 }
@@ -791,7 +862,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__flow-stage-label b {
   position: relative;
   z-index: 1;
-  font: 600 13px/1 "Onest", sans-serif;
+  font: 600 var(--type-chip)/1 "Onest", sans-serif;
   letter-spacing: 0.01em;
   text-transform: uppercase;
 }
@@ -844,7 +915,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   max-width: 44ch;
   margin: 0;
   color: var(--text2);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.6;
 }
 
@@ -898,7 +969,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
 .vz-about__proof dd {
   margin: 0;
   color: var(--text2);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.35;
 }
 
@@ -926,7 +997,10 @@ onBeforeUnmount(() => emit("flow-ready", null));
 @media (max-width: 900px) {
   .vz-about { padding: var(--section-space) 20px 0; }
   .vz-about__head { align-items: flex-start; flex-direction: column; gap: 30px; margin-bottom: 48px; }
-  .vz-about__head h2 { max-width: 14ch; font-size: clamp(30px, 8.8vw, 46px); }
+  .vz-about__title { flex: none; }
+  .vz-about__title,
+  .vz-about__head h2 { width: 100%; max-width: 100%; }
+  .vz-about__head h2 { font-size: var(--type-section); }
   .vz-about__intro { width: min(100%, 520px); margin-top: 0; }
   .vz-about__step-copy p { max-width: 44ch; }
   .vz-about__proof { grid-template-columns: 1fr; gap: 24px; }
@@ -934,14 +1008,17 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 @media (max-width: 720px) {
+  .vz-about__stage-title--desktop { display: none; }
+  .vz-about__stage-title--mobile { display: inline; }
   .vz-about__head { margin-bottom: 14px; }
-  .vz-about__intro { height: auto; min-height: 0; }
+  .vz-about__intro { height: auto; min-height: 0; padding: 12px 16px 10px; }
+  .vz-about__step-stack { grid-template-rows: max-content; }
   .vz-about__flow {
     --mobile-business-center-y: 15%;
     overflow: visible;
   }
   .vz-about__flow-canvas { width: 100%; height: 488px; min-height: 488px; }
-  .vz-about__intro { padding: 14px 16px; border-radius: 18px; }
+  .vz-about__intro { border-radius: 18px; }
   .vz-about__flow-controls {
     top: var(--mobile-business-center-y);
     right: 14px;
@@ -957,7 +1034,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
     top: 50%;
     bottom: auto;
     left: 8px;
-    font-size: 6.5px;
+    font-size: var(--type-micro);
     letter-spacing: 0.12em;
     transform: translateY(-50%) rotate(180deg);
     writing-mode: vertical-rl;
@@ -991,8 +1068,8 @@ onBeforeUnmount(() => emit("flow-ready", null));
     padding: 7px 9px;
     transform: translateY(-50%);
   }
-  .vz-about__flow-stage-label small { font-size: 7px; }
-  .vz-about__flow-stage-label b { font-size: 10px; }
+  .vz-about__flow-stage-label small { font-size: var(--type-micro); }
+  .vz-about__flow-stage-label b { font-size: calc(var(--type-micro) + 2px); }
   .vz-about__flow-stage.is-active .vz-about__flow-stage-label {
     transform: translateY(-50%) translateX(3px);
   }
@@ -1034,7 +1111,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   }
   .vz-about__endpoint-icon { width: 28px; height: 28px; }
   .vz-about__endpoint-content { gap: 6px; }
-  .vz-about__endpoint-content span { max-width: 15ch; font-size: 10px; line-height: 1.2; }
+  .vz-about__endpoint-content span { max-width: 15ch; font-size: calc(var(--type-micro) + 2px); line-height: 1.2; }
   .vz-about__flow-node--business .vz-about__endpoint-content > span {
     position: absolute;
     top: -43px;
@@ -1052,7 +1129,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
     padding: 16px 18px;
   }
   .vz-about__proof dt { font-size: 28px; }
-  .vz-about__proof dd { max-width: 24ch; font-size: 14px; text-align: right; }
+  .vz-about__proof dd { max-width: 24ch; font-size: var(--type-caption); text-align: right; }
   .vz-about__step-copy {
     height: auto;
     min-height: 0;
@@ -1061,27 +1138,38 @@ onBeforeUnmount(() => emit("flow-ready", null));
     padding-top: 0;
   }
   .vz-about__step-meta > span { font-size: 40px; }
-  .vz-about__step-meta strong { margin-top: 12px; font-size: 11px; }
-  .vz-about__step-meta small { margin-top: 5px; font-size: 8px; }
+  .vz-about__step-meta strong { margin-top: 12px; font-size: var(--type-label); }
+  .vz-about__step-meta small { margin-top: 5px; font-size: var(--type-label); }
   .vz-about__step-copy p {
     max-width: none;
     margin: 0;
     color: var(--text2);
-    font-size: 13px;
+    font-size: var(--type-caption);
     line-height: 1.4;
   }
-  .vz-about__step-deliverables { gap: 5px; margin-top: 8px; }
+  .vz-about__step-deliverables {
+    flex-wrap: nowrap;
+    gap: 5px;
+    margin-top: 6px;
+  }
   .vz-about__step-deliverables li {
-    padding: 5px 7px;
-    font-size: 11px;
+    min-height: 28px;
+    padding: 4px 6px;
+    font-size: var(--type-chip);
     white-space: nowrap;
   }
   .vz-about__step-deliverables li:nth-child(n + 3) { display: none; }
 }
 
 @media (max-width: 390px) {
-  .vz-about__step-copy { grid-template-columns: 88px minmax(0, 1fr); gap: 12px; }
+  .vz-about__step-copy { grid-template-columns: 80px minmax(0, 1fr); gap: 10px; }
   .vz-about__step-meta > span { font-size: 36px; }
+}
+
+@media (max-width: 370px) {
+  .vz-about__step-detail { display: contents; }
+  .vz-about__step-copy p { grid-column: 2; }
+  .vz-about__step-deliverables { grid-column: 1 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -52,6 +52,11 @@ import {
   getServiceHighlightLayoutBounds,
   getServiceHighlightTargetBounds,
 } from "../utils/landingServicesHighlight.ts";
+import {
+  balanceServiceCapsuleRows,
+  balanceServiceCapsules,
+  estimateServiceCapsuleWidth,
+} from "../utils/landingServiceCapsules.ts";
 
 test("places a desktop DevOps label at 75% of its bridge stick", () => {
   assert.deepEqual(
@@ -294,6 +299,153 @@ test("keeps the mobile about flow connected and the design label clear of its po
   assert.match(mobileCss, /\.vz-about__flow-stage--design\.is-active \.vz-about__flow-stage-label\s*\{[^}]*translateX\(-3px\)/s);
 });
 
+test("keeps the about section on the shared 1240px page grid", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /\.vz-about__inner\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*1240px;[^}]*margin:\s*0 auto;/s);
+  assert.doesNotMatch(aboutComponent, /\.vz-about__inner\s*\{[^}]*max-width:\s*1320px;/s);
+});
+
+test("centres the desktop about heading group in the space above the flow", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /\.vz-about__head\s*\{[^}]*--about-head-flow-gap:\s*clamp\(32px, 4vw, 48px\);[^}]*margin-bottom:\s*var\(--about-head-flow-gap\);/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__head\s*\{[^}]*transform:\s*translateY\(calc\(\(var\(--about-head-flow-gap\) - var\(--section-space\)\) \/ 2\)\);/s);
+});
+
+test("keeps the about heading on three balanced lines across desktop and mobile", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /\.vz-about__head\s*\{[^}]*gap:\s*clamp\(36px, 4vw, 64px\);/s);
+  assert.match(aboutComponent, /\.vz-about__title\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*520px;[^}]*flex:\s*1 1 520px;/s);
+  assert.match(aboutComponent, /\.vz-about__head h2\s*\{[^}]*max-width:\s*520px;[^}]*text-wrap:\s*balance;/s);
+  assert.match(aboutComponent, /\.vz-about__intro\s*\{[^}]*width:\s*clamp\(420px, 42vw, 540px\);/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\) and \(max-width: 1023px\)[\s\S]*?\.vz-about__head h2\s*\{[^}]*font-size:\s*clamp\(36px, 4vw, 42px\);/s);
+  assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__title\s*\{[^}]*flex:\s*none;/s);
+  assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__title,[\s\S]*?\.vz-about__head h2\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%;/s);
+});
+
+test("keeps about-stage durations readable at the shared label size", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /\.vz-about__step-meta small\s*\{[^}]*font:\s*500 var\(--type-label\)\/1\.3 "JetBrains Mono", monospace;/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__step-meta small\s*\{[^}]*font-size:\s*var\(--type-label\);/s);
+  assert.doesNotMatch(aboutComponent, /\.vz-about__step-meta small\s*\{[^}]*var\(--type-micro\)/s);
+});
+
+test("keeps the two visible mobile about capsules on one line", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__step-deliverables\s*\{[^}]*flex-wrap:\s*nowrap;[^}]*gap:\s*5px;/s);
+  assert.match(aboutComponent, /@media \(max-width: 390px\)[\s\S]*?\.vz-about__step-copy\s*\{[^}]*grid-template-columns:\s*80px minmax\(0, 1fr\);[^}]*gap:\s*10px;/s);
+  assert.match(aboutComponent, /@media \(max-width: 370px\)[\s\S]*?\.vz-about__step-detail\s*\{[^}]*display:\s*contents;[^}]*\}[\s\S]*?\.vz-about__step-deliverables\s*\{[^}]*grid-column:\s*1 \/ -1;/s);
+});
+
+test("keeps mobile about cards compact at the tallest content height", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__intro\s*\{[^}]*padding:\s*12px 16px 10px;/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__step-stack\s*\{[^}]*grid-template-rows:\s*max-content;/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__step-deliverables li\s*\{[^}]*min-height:\s*28px;[^}]*padding:\s*4px 6px;/s);
+});
+
+test("uses the full testing label on desktop and the short label on mobile", () => {
+  const messages = JSON.parse(readFileSync("locales/ru.json", "utf8"));
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.equal(messages.landing.about.stages[3], "Тестирование");
+  assert.match(aboutComponent, /stageKeys\[index\] === "testing" && stage === "Тестирование" \? "Тест" : stage/);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__stage-title--desktop\s*\{\s*display:\s*none;\s*\}[\s\S]*?\.vz-about__stage-title--mobile\s*\{\s*display:\s*inline;/s);
+});
+
+test("stacks larger desktop about controls with continue below replay", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /class="vz-about__flow-control vz-about__flow-continue"[\s\S]*?class="vz-about__flow-control vz-about__flow-replay"/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__flow-controls\s*\{[^}]*flex-direction:\s*column-reverse;[^}]*align-items:\s*flex-end;[^}]*gap:\s*8px;/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__flow-control\s*\{[^}]*min-height:\s*52px;[^}]*font:\s*500 var\(--type-label\)\/1 "JetBrains Mono", monospace;/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__flow-control span\s*\{[^}]*width:\s*38px;[^}]*height:\s*38px;[^}]*font-size:\s*16px;/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__flow-continue svg\s*\{[^}]*width:\s*16px;[^}]*height:\s*16px;/s);
+});
+
+test("anchors the mobile client card at the top while keeping the cube fixed", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-client-card-track > p\s*\{[^}]*grid-area:\s*1 \/ 1;[^}]*align-self:\s*start;/s);
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-client-copy h3\s*\{[^}]*height:\s*3\.15em;[^}]*min-height:\s*3\.15em;[^}]*max-height:\s*3\.15em;[^}]*font-size:\s*25px;[^}]*line-height:\s*1\.05;[^}]*text-wrap:\s*balance;/s);
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-client-cube-field\s*\{[^}]*position:\s*relative;[^}]*top:\s*auto;[^}]*order:\s*5;[^}]*transform:\s*none;[^}]*justify-self:\s*end;/s);
+  assert.doesNotMatch(landingPage, /\.vz-client-cube-field\[data-client-cube-stage=/);
+});
+
+test("uses native scrolling across landing interactions", () => {
+  const landing = readFileSync("pages/index.vue", "utf8");
+  const casePage = readFileSync("pages/cases/[slug].vue", "utf8");
+  const mainCss = readFileSync("assets/css/main.css", "utf8");
+  const stackScroll = readFileSync("composables/landing/useLandingStackScroll.ts", "utf8");
+  const services = readFileSync("components/landing/LandingServices.vue", "utf8");
+  const cases = readFileSync("components/landing/LandingCases.vue", "utf8");
+
+  assert.doesNotMatch(landing, /useDesktopSmoothScroll\(\)/);
+  assert.doesNotMatch(casePage, /useDesktopSmoothScroll\(\)/);
+  assert.match(mainCss, /html\s*\{[^}]*scroll-behavior:\s*auto;/s);
+  assert.doesNotMatch(mainCss, /\.lenis|scroll-behavior:\s*smooth/);
+  assert.match(stackScroll, /window\.scrollTo\(\{[^}]*behavior:\s*"auto"/s);
+  assert.match(services, /nav\.scrollTo\(\{[^}]*behavior:\s*"auto"/s);
+  assert.match(cases, /tabList\.scrollTo\(\{[^}]*behavior:\s*"auto"/s);
+});
+
+test("keeps the desktop service CTA eyebrow on one line", () => {
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+
+  assert.match(css, /@media \(min-width: 901px\)[\s\S]*?\.vz-service-panel__cta > span\s*\{[^}]*flex:\s*1;[^}]*min-width:\s*0;/s);
+  assert.match(css, /@media \(min-width: 901px\)[\s\S]*?\.vz-service-panel__cta small\s*\{[^}]*font-size:\s*clamp\(0\.5rem, 0\.4rem \+ 0\.18vw, 0\.625rem\);[^}]*white-space:\s*nowrap;/s);
+  assert.match(css, /@media \(min-width: 901px\)[\s\S]*?\.vz-service-panel__cta svg\s*\{[^}]*flex:\s*0 0 auto;/s);
+});
+
+test("lowers only the desktop client text card beneath the cube composition", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const clients = readFileSync("components/landing/LandingClients.vue", "utf8");
+
+  assert.match(clients, /class="vz-client-card-slot"[\s\S]*?class="vz-client-card-track"[\s\S]*?<p>\{\{ activeClient\.text \}\}<\/p>/s);
+  assert.match(landingPage, /@media \(min-width: 901px\)\s*\{\s*\.vz-client-card-track\s*\{[^}]*display:\s*flow-root;[^}]*transform:\s*translateY\(clamp\(104px, 10vw, 120px\)\);/s);
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-client-card-slot\s*\{[^}]*display:\s*grid;[^}]*order:\s*6;[^}]*margin-top:\s*16px;/s);
+});
+
+test("aligns the desktop client heading and cube to the active-copy gap", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(landingPage, /const targetViewportY = titleRect && cardRect\s*\? \(titleRect\.bottom \+ cardRect\.top\) \/ 2\s*:\s*headingRect\.top \+ headingRect\.height \/ 2;/s);
+  assert.match(landingPage, /const currentHeadingCenter = headingRect\.top \+ headingRect\.height \/ 2;/);
+  assert.match(landingPage, /renderedHeadOffset \+ targetViewportY - currentHeadingCenter/);
+  assert.match(landingPage, /headingGroup\.style\.setProperty\("--client-head-y", nextHeadOffset\)/);
+  assert.doesNotMatch(landingPage, /copy\.style\.setProperty\("--client-copy-y"/);
+  assert.match(landingPage, /clientLayoutResizeObserver = new ResizeObserver\(updateClientCubePosition\);/);
+  assert.match(landingPage, /document\.fonts\?\.ready\.then\(updateClientCubePosition\)/);
+  assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?\.vz-clients__head\s*\{[^}]*transform:\s*translateY\(var\(--client-head-y\)\);/s);
+  assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?\.vz-client-copy\s*\{[^}]*--client-copy-y:\s*24px;[^}]*transform:\s*translateY\(var\(--client-copy-y\)\);/s);
+  assert.match(landingPage, /const nextTop = `\$\{Math\.round\(targetViewportY - gridRect\.top - cubeHeight \* cubeVisualCenterRatio\)\}px`;/);
+  assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?\.vz-clients\s*\{[^}]*--client-menu-reserve:\s*clamp\(40px, 4vw, 56px\);[^}]*margin-top:\s*calc\(-1 \* var\(--client-menu-reserve\)\);[^}]*padding-top:\s*calc\(var\(--section-space\) \+ var\(--client-menu-reserve\)\);/s);
+  assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?--client-menu-lift:\s*calc\(clamp\(48px, 4\.3vw, 56px\) \+ var\(--client-menu-reserve\)\);[\s\S]*?\.vz-client-capsules\s*\{[^}]*transform:\s*translateY\(calc\(-1 \* var\(--client-menu-lift\)\)\);[\s\S]*?\.vz-client-connector\s*\{[^}]*height:\s*calc\(48px \+ var\(--client-menu-lift\) \+ var\(--client-line-adjust\)\);[^}]*margin-top:\s*calc\(-1 \* var\(--client-menu-lift\)\);/s);
+});
+
+test("keeps equal desktop gaps around the client eyebrow without moving the copy", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(landingPage, /const upperGap = eyebrowRect\.top - connectorRect\.bottom;/);
+  assert.match(landingPage, /const lowerGap = currentTitleRect\.top - eyebrowRect\.bottom;/);
+  assert.match(landingPage, /currentAdjust \+ upperGap - lowerGap/);
+  assert.match(landingPage, /connector\.style\.setProperty\("--client-line-adjust", nextLineAdjust\)/);
+  assert.match(landingPage, /height:\s*calc\(48px \+ var\(--client-menu-lift\) \+ var\(--client-line-adjust\)\);/);
+  assert.match(landingPage, /margin-bottom:\s*calc\(-1 \* var\(--client-line-adjust\)\);/);
+});
+
+test("matches mobile hero capsules to the service capsule grid", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-hero__stats\s*\{[^}]*width:\s*100%;[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);[^}]*justify-items:\s*stretch;[^}]*gap:\s*6px;/s);
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-hero__stats span\s*\{[^}]*width:\s*100%;[^}]*min-height:\s*42px;[^}]*padding:\s*6px 8px;[^}]*background:\s*var\(--bg\);[^}]*font-size:\s*clamp\(0\.625rem, 0\.6rem \+ 0\.1vw, 0\.6875rem\);[^}]*line-height:\s*1\.25;[^}]*text-align:\s*center;[^}]*white-space:\s*normal;/s);
+});
+
 test("matches the mobile about label offset to the stack section divider", () => {
   const landingPage = readFileSync("pages/index.vue", "utf8");
   const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
@@ -357,6 +509,102 @@ test("expands services into a three-column scene only on wide desktop", () => {
   assert.match(services, /class="vz-services__callouts"[\s\S]*?activeServiceCallouts/);
   assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?grid-template-columns:\s*minmax\(220px, 0\.75fr\) minmax\(420px, 1\.55fr\) minmax\(280px, 0\.9fr\);/);
   assert.match(css, /@media \(min-width: 901px\) and \(max-width: 1199px\)[\s\S]*?\.vz-service-caption\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*2;/);
+});
+
+test("fits and animates the desktop service card around the Internet shops center", () => {
+  const composable = readFileSync("composables/landing/useLandingServices.ts", "utf8");
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+
+  assert.match(composable, /const ctaTop = contentCtaTop;[\s\S]*?requiredCaptionHeight[\s\S]*?caption\.style\.height = targetCaptionHeight;[\s\S]*?caption\.style\.transform = "";/);
+  assert.doesNotMatch(composable, /bottomAnchoredCtaTop/);
+  assert.doesNotMatch(composable, /centerOffset/);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-services__rail\s*\{[^}]*align-self:\s*center;/);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-services__nav\s*\{[^}]*grid-auto-rows:\s*46px;[^}]*gap:\s*5px;/s);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-service-caption\s*\{[^}]*align-self:\s*center;/);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-service-panel\s*\{[^}]*padding:\s*clamp\(34px, 3vw, 44px\) clamp\(8px, 1\.4vw, 20px\) 80px;/);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-service-caption > \.vz-service-panel__cta--shared\s*\{[^}]*right:\s*clamp\(8px, 1\.4vw, 20px\);[^}]*left:\s*clamp\(8px, 1\.4vw, 20px\);/s);
+  assert.match(composable, /const ctaOuterInsets = readCssPixels\(ctaStyle\.left\) \+ readCssPixels\(ctaStyle\.right\);[\s\S]*?ctaWidth \+ ctaOuterInsets \+ 12/);
+  assert.match(composable, /const cardBottomSpace = isWideDesktop\s*\? 24/);
+  assert.match(css, /\.vz-service-caption\[data-positioned="true"\]\s*\{[^}]*height 420ms cubic-bezier\(0\.22, 1, 0\.36, 1\),[^}]*min-height 420ms cubic-bezier\(0\.22, 1, 0\.36, 1\);/s);
+  assert.match(css, /\.vz-service-caption > \.vz-service-panel__cta--shared\[data-positioned="true"\]\s*\{[^}]*transform 420ms cubic-bezier\(0\.22, 1, 0\.36, 1\);/s);
+});
+
+test("recalculates the service card while its dynamic width settles", () => {
+  const composable = readFileSync("composables/landing/useLandingServices.ts", "utf8");
+
+  assert.match(composable, /let layoutSettleTimer: ReturnType<typeof setTimeout> \| null = null;/);
+  assert.match(composable, /function scheduleSettledRender\(\)[\s\S]*?setTimeout\(\(\) => \{[\s\S]*?scheduleRender\(\);[\s\S]*?\}, 460\);/s);
+  assert.match(composable, /function select\(index: number\)[\s\S]*?nextTick\(\(\) => \{[\s\S]*?scheduleRender\(\);[\s\S]*?scheduleSettledRender\(\);/s);
+  assert.match(composable, /layoutResizeObserver\.observe\(rootRef\.value\);[\s\S]*?if \(caption\) layoutResizeObserver\.observe\(caption\);[\s\S]*?if \(sharedCta\) layoutResizeObserver\.observe\(sharedCta\);/s);
+  assert.match(composable, /if \(layoutSettleTimer\) clearTimeout\(layoutSettleTimer\);[\s\S]*?layoutResizeObserver\?\.disconnect\(\);/s);
+});
+
+test("keeps the services menu visible and reveals only the global header while scrolling or approaching it", () => {
+  const services = readFileSync("components/landing/LandingServices.vue", "utf8");
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+  const landing = readFileSync("pages/index.vue", "utf8");
+
+  assert.doesNotMatch(services, /isDesktopMenuVisible|handleDesktopMenuScroll|data-menu-visible|desktopServiceRows/);
+  assert.doesNotMatch(css, /\.vz-services__nav--desktop\s*\{[^}]*opacity:\s*0;/s);
+  assert.match(services, /v-for="\(service, index\) in services"/);
+  assert.match(landing, /const isHeaderVisible = ref\(false\)/);
+  assert.match(landing, /window\.addEventListener\("scroll", handleHeaderScroll/);
+  assert.match(landing, /class="vz-nav-hover-zone"/);
+  assert.match(landing, /function queueHeaderHide\(delay = 820\)/);
+  assert.match(landing, /\.vz-nav\[data-nav-visible="false"\]\s*\{[^}]*opacity:\s*0;[^}]*pointer-events:\s*none;[^}]*transform:\s*translate3d\(0,\s*calc\(-100% - 24px\),\s*0\);[^}]*visibility:\s*hidden;/s);
+  assert.doesNotMatch(landing, /\.vz-nav\[data-nav-visible="false"\]\s*\{[^}]*filter:\s*blur/s);
+  assert.match(landing, /\.vz-nav-hover-zone\s*\{[^}]*height:\s*96px;/s);
+});
+
+test("balances service capsules into fitted rows without changing the card width", () => {
+  const services = readFileSync("components/landing/LandingServices.vue", "utf8");
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+  const labels = ["Каталог и UX", "Дизайн магазина", "Оплата и CRM", "Запуск и аналитика"];
+  const balanced = balanceServiceCapsules(labels);
+  const rows = balanceServiceCapsuleRows(labels);
+
+  assert.equal(balanced.length, labels.length);
+  assert.deepEqual([...balanced].sort(), [...labels].sort());
+  assert.equal(rows.length, 2);
+  assert.deepEqual(rows.map((row) => row.length), [2, 2]);
+  assert.deepEqual(rows.flat(), balanced);
+  assert.ok(estimateServiceCapsuleWidth("Запуск и аналитика") > estimateServiceCapsuleWidth("Оплата и CRM"));
+  assert.match(services, /const balancedCommercialCapsuleRows = computed/);
+  assert.match(services, /balanceServiceCapsuleRows\(included\)/);
+  assert.match(services, /class="vz-service-commercial__chips-row"/);
+  assert.match(css, /Each balanced row sizes independently[\s\S]*?row-gap:\s*8px;[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\);[\s\S]*?grid-template-rows:\s*repeat\(2, auto\);/);
+  assert.match(css, /\.vz-service-commercial__chips-row\s*\{[^}]*display:\s*flex;[^}]*width:\s*100%;[^}]*max-width:\s*100%;[^}]*min-width:\s*0;[^}]*flex-wrap:\s*wrap;/s);
+  assert.doesNotMatch(css, /--service-card-left-expansion/);
+});
+
+test("gives desktop service cards extra vertical capacity around a fixed center", () => {
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-services__grid\s*\{[^}]*grid-template-rows:\s*clamp\(500px, 37vw, 560px\);/s);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-service-caption\s*\{[^}]*height:\s*clamp\(528px, 37vw, 560px\);[^}]*align-self:\s*center;/s);
+});
+
+test("sizes desktop service cards from their content while keeping the left edge fixed", () => {
+  const services = readFileSync("composables/landing/useLandingServices.ts", "utf8");
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+
+  assert.match(services, /function getDesktopCaptionWidth\(/);
+  assert.match(services, /const captionWidthCache = new WeakMap/);
+  assert.match(services, /descriptionWidth = Math\.min\(248, measureBalancedTwoLineText\(description\)\)/);
+  assert.match(services, /ctaWidth = Math\.max\(measureBalancedTwoLineText\(ctaSmall\), measureText\(ctaStrong\)\)/);
+  assert.match(services, /preferredContentWidth = Math\.max\(titleWidth, descriptionWidth, metricsWidth, chipWidth\)/);
+  assert.match(services, /Math\.min\(availableWidth, 420, Math\.max\(292, naturalWidth\)\)/);
+  assert.match(services, /caption\.style\.width !== targetCaptionWidth/);
+  assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-service-caption\s*\{[^}]*min-width:\s*0;[^}]*justify-self:\s*start;/s);
+  assert.match(css, /\.vz-service-caption\[data-positioned="true"\]\s*\{[^}]*width 420ms cubic-bezier\(0\.22, 1, 0\.36, 1\)/s);
+});
+
+test("matches desktop service-label typography to the case tabs", () => {
+  const caseCss = readFileSync("assets/css/landing-cases.css", "utf8");
+  const serviceCss = readFileSync("assets/css/landing-redesign.css", "utf8");
+
+  assert.match(caseCss, /\.vz-cases__tabs button b\s*\{[^}]*font-family:\s*var\(--font-ui[^}]*font-size:\s*13px;[^}]*font-weight:\s*500;[^}]*line-height:\s*1\.25;[^}]*letter-spacing:\s*\.01em;[^}]*text-transform:\s*uppercase;/s);
+  assert.match(serviceCss, /@media \(min-width: 901px\)\s*\{[^}]*\.vz-services__nav button \[data-serv-nav-label\],[^}]*font-family:\s*var\(--font-ui[^}]*font-size:\s*12px;[^}]*font-weight:\s*500;[^}]*line-height:\s*1\.25;[^}]*letter-spacing:\s*\.01em;[^}]*text-transform:\s*uppercase;/s);
 });
 
 test("expands a service highlight rectangle on both axes without a midpoint", () => {

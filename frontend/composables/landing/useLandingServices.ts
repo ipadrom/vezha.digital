@@ -15,7 +15,144 @@ export function useLandingServices(
   let highlightAnimation: Animation | null = null;
   let highlightTargetIndex = -1;
   let layoutResizeObserver: ResizeObserver | null = null;
+  let layoutSettleTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingActiveNotification = false;
+  let textMeasureCanvas: HTMLCanvasElement | null = null;
+  const captionWidthCache = new WeakMap<HTMLElement, { signature: string; width: number }>();
+
+  function readCssPixels(value: string) {
+    const parsed = Number.parseFloat(value);
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
+
+  function measureText(element: HTMLElement | null, text = element?.textContent?.trim() || "") {
+    if (!element || !text) return 0;
+    textMeasureCanvas ||= document.createElement("canvas");
+    const context = textMeasureCanvas.getContext("2d");
+    if (!context) return element.scrollWidth;
+
+    const style = getComputedStyle(element);
+    const compactText = text.trim().replace(/\s+/g, " ");
+    const transformedText = style.textTransform === "uppercase"
+      ? compactText.toLocaleUpperCase()
+      : style.textTransform === "lowercase"
+        ? compactText.toLocaleLowerCase()
+        : compactText;
+    context.font = style.font;
+    return context.measureText(transformedText).width
+      + Math.max(0, transformedText.length - 1) * readCssPixels(style.letterSpacing);
+  }
+
+  function measureBalancedTwoLineText(element: HTMLElement | null) {
+    if (!element) return 0;
+    const words = (element.textContent ?? "").trim().split(/\s+/).filter(Boolean);
+    if (words.length < 2) return measureText(element);
+
+    let bestWidth = measureText(element);
+    for (let split = 1; split < words.length; split += 1) {
+      const firstLineWidth = measureText(element, words.slice(0, split).join(" "));
+      const secondLineWidth = measureText(element, words.slice(split).join(" "));
+      bestWidth = Math.min(bestWidth, Math.max(firstLineWidth, secondLineWidth));
+    }
+    return bestWidth;
+  }
+
+  function measureTextBox(element: HTMLElement) {
+    const style = getComputedStyle(element);
+    return measureText(element)
+      + readCssPixels(style.paddingLeft)
+      + readCssPixels(style.paddingRight)
+      + readCssPixels(style.borderLeftWidth)
+      + readCssPixels(style.borderRightWidth);
+  }
+
+  function getDesktopCaptionWidth(
+    root: HTMLElement,
+    caption: HTMLElement,
+    panel: HTMLElement,
+    metawrap: HTMLElement,
+    sharedCta: HTMLElement,
+  ) {
+    if (!window.matchMedia("(min-width: 1200px)").matches) return null;
+
+    const captionRect = caption.getBoundingClientRect();
+    const rootRect = root.getBoundingClientRect();
+    const panelStyle = getComputedStyle(panel);
+    const horizontalPadding = readCssPixels(panelStyle.paddingLeft) + readCssPixels(panelStyle.paddingRight);
+    const titleWrap = panel.querySelector<HTMLElement>(".vz-service-panel__title");
+    const title = panel.querySelector<HTMLElement>(".vz-service-panel__title h3");
+    const titleNumber = panel.querySelector<HTMLElement>(".vz-service-panel__title span");
+    const description = panel.querySelector<HTMLElement>(":scope > p");
+    const metricCells = Array.from(panel.querySelectorAll<HTMLElement>(".vz-service-commercial__metrics > div"));
+    const chipRows = Array.from(metawrap.querySelectorAll<HTMLElement>(".vz-service-commercial__chips-row"));
+    const firstChip = metawrap.querySelector<HTMLElement>("span");
+    const ctaSmall = sharedCta.querySelector<HTMLElement>("small");
+    const ctaStrong = sharedCta.querySelector<HTMLElement>("strong");
+    const ctaIcon = sharedCta.querySelector<SVGElement>("svg");
+    const ctaStyle = getComputedStyle(sharedCta);
+    const signature = [
+      panel.textContent,
+      title ? getComputedStyle(title).font : "",
+      description ? getComputedStyle(description).font : "",
+      firstChip ? getComputedStyle(firstChip).font : "",
+      ctaSmall ? getComputedStyle(ctaSmall).font : "",
+      panelStyle.paddingLeft,
+      panelStyle.paddingRight,
+      ctaStyle.left,
+      ctaStyle.right,
+      ctaStyle.paddingLeft,
+      ctaStyle.paddingRight,
+    ].join("|");
+    const cachedWidth = captionWidthCache.get(panel);
+
+    let naturalWidth = cachedWidth?.signature === signature ? cachedWidth.width : 0;
+    if (!naturalWidth) {
+      const titleStyle = titleWrap ? getComputedStyle(titleWrap) : null;
+      const titleWidth = title && titleNumber
+        ? measureTextBox(titleNumber)
+          + readCssPixels(titleStyle?.columnGap ?? "0")
+          + measureBalancedTwoLineText(title)
+        : 0;
+      // Body copy may gain a third line and grow the already-fluid height.
+      // Titles, metrics and chips define the horizontal comfort of the card.
+      const descriptionWidth = Math.min(248, measureBalancedTwoLineText(description));
+      const widestMetricCell = metricCells.reduce((widest, cell) => {
+        const cellStyle = getComputedStyle(cell);
+        const label = cell.querySelector<HTMLElement>("small");
+        const value = cell.querySelector<HTMLElement>("strong");
+        const contentWidth = Math.max(measureText(label), measureText(value));
+        return Math.max(
+          widest,
+          contentWidth + readCssPixels(cellStyle.paddingLeft) + readCssPixels(cellStyle.paddingRight),
+        );
+      }, 0);
+      const metricsWidth = widestMetricCell * Math.max(1, metricCells.length);
+      const chipWidth = chipRows.reduce((largest, row) => {
+        const chips = Array.from(row.querySelectorAll<HTMLElement>("span"));
+        const gap = readCssPixels(getComputedStyle(row).columnGap || getComputedStyle(row).gap) || 5;
+        const rowWidth = chips.reduce((sum, chip) => sum + measureTextBox(chip), 0)
+          + Math.max(0, chips.length - 1) * gap;
+        return Math.max(largest, rowWidth);
+      }, 0);
+      const ctaWidth = Math.max(measureBalancedTwoLineText(ctaSmall), measureText(ctaStrong))
+        + (ctaIcon?.getBoundingClientRect().width ?? 0)
+        + readCssPixels(ctaStyle.columnGap)
+        + readCssPixels(ctaStyle.paddingLeft)
+        + readCssPixels(ctaStyle.paddingRight);
+      const ctaOuterInsets = readCssPixels(ctaStyle.left) + readCssPixels(ctaStyle.right);
+      const preferredContentWidth = Math.max(titleWidth, descriptionWidth, metricsWidth, chipWidth);
+      naturalWidth = Math.ceil(Math.max(
+        preferredContentWidth + horizontalPadding + 12,
+        ctaWidth + ctaOuterInsets + 12,
+      ));
+      captionWidthCache.set(panel, { signature, width: naturalWidth });
+    }
+
+    const safeRight = Math.min(window.innerWidth - 40, rootRect.right + 60);
+    const availableWidth = Math.max(0, safeRight - captionRect.left);
+
+    return Math.round(Math.min(availableWidth, 420, Math.max(292, naturalWidth)));
+  }
 
   function getRelativeHighlightBounds(element: HTMLElement, navList: HTMLElement): ServiceHighlightBounds {
     const elementRect = element.getBoundingClientRect();
@@ -126,8 +263,16 @@ export function useLandingServices(
     const activeMetawrap = activeIncluded?.querySelector<HTMLElement>("[data-serv-metawrap]");
 
     if (caption && sharedCta && activeIncluded && activeMetawrap) {
-      caption.style.height = "";
-      caption.style.minHeight = "";
+      const activePanel = panels[active];
+      if (activePanel) {
+        const targetWidth = getDesktopCaptionWidth(root, caption, activePanel, activeMetawrap, sharedCta);
+        if (targetWidth !== null) {
+          const targetCaptionWidth = `${targetWidth}px`;
+          if (caption.style.width !== targetCaptionWidth) caption.style.width = targetCaptionWidth;
+        } else {
+          caption.style.removeProperty("width");
+        }
+      }
 
       const captionRect = caption.getBoundingClientRect();
       const metawrapRect = activeMetawrap.getBoundingClientRect();
@@ -139,10 +284,14 @@ export function useLandingServices(
       const dividerGap = Number.parseFloat(getComputedStyle(activeIncluded).paddingTop) || 12;
       const contentCtaTop = Math.ceil(metawrapBottom + dividerGap * 2 + 1);
       const isWideDesktop = window.matchMedia("(min-width: 1200px)").matches;
-      const desktopCardBottomSpace = 18;
-      const ctaTop = isWideDesktop
-        ? Math.max(0, Math.floor(caption.clientHeight - sharedCta.offsetHeight - desktopCardBottomSpace))
-        : contentCtaTop;
+      const cardBottomSpace = isWideDesktop
+        ? 24
+        : window.matchMedia("(max-width: 900px)").matches ? 20 : 10;
+      const ctaTop = contentCtaTop;
+      const requiredCaptionHeight = Math.ceil(
+        ctaTop + sharedCta.offsetHeight + cardBottomSpace,
+      );
+      const targetCaptionHeight = `${requiredCaptionHeight}px`;
 
       // Keep the divider on the caption rather than inside the lifting CTA.
       // Both layers inherit the same geometry, but only the CTA responds to hover.
@@ -153,17 +302,14 @@ export function useLandingServices(
       sharedCta.style.top = "0";
       sharedCta.style.bottom = "auto";
 
-      if (isWideDesktop) {
-        const contentHeight = ctaTop + sharedCta.offsetHeight;
-        const centerOffset = Math.round((caption.clientHeight - contentHeight) / 2 - 20);
-        caption.style.transform = `translateY(${centerOffset}px)`;
-      } else {
-        const cardBottomSpace = window.matchMedia("(max-width: 900px)").matches ? 20 : 10;
-        const contentHeight = Math.ceil(ctaTop + sharedCta.offsetHeight + cardBottomSpace);
-        caption.style.height = `${contentHeight}px`;
-        caption.style.minHeight = `${contentHeight}px`;
-        caption.style.transform = "";
+      if (caption.style.height !== targetCaptionHeight) {
+        caption.style.height = targetCaptionHeight;
+        caption.style.minHeight = targetCaptionHeight;
       }
+      // The desktop card shares the fixed grid center with the seven-row menu.
+      // Its midpoint therefore stays level with the fourth row (Internet shops),
+      // while height changes expand evenly above and below that anchor.
+      caption.style.transform = "";
 
       if (sharedCta.dataset.positioned !== "true" || caption.dataset.positioned !== "true") {
         requestAnimationFrame(() => {
@@ -176,6 +322,7 @@ export function useLandingServices(
       sharedCta.style.removeProperty("--service-divider-gap");
       caption.style.removeProperty("--service-cta-offset");
       caption.style.removeProperty("--service-divider-gap");
+      caption.style.removeProperty("width");
       sharedCta.style.top = "";
       sharedCta.style.bottom = "";
       delete sharedCta.dataset.positioned;
@@ -278,11 +425,23 @@ export function useLandingServices(
     });
   }
 
+  function scheduleSettledRender() {
+    if (layoutSettleTimer) clearTimeout(layoutSettleTimer);
+    layoutSettleTimer = setTimeout(() => {
+      layoutSettleTimer = null;
+      scheduleRender();
+    }, 460);
+  }
+
   function select(index: number) {
     const count = Math.max(1, serviceCount.value);
     activeIndex.value = ((index % count) + count) % count;
     pendingActiveNotification = true;
     scheduleRender();
+    nextTick(() => {
+      scheduleRender();
+      scheduleSettledRender();
+    });
   }
 
   function handleResize() {
@@ -300,6 +459,10 @@ export function useLandingServices(
     if (rootRef.value && "ResizeObserver" in window) {
       layoutResizeObserver = new ResizeObserver(scheduleRender);
       layoutResizeObserver.observe(rootRef.value);
+      const caption = rootRef.value.querySelector<HTMLElement>("[data-serv-caption]");
+      const sharedCta = rootRef.value.querySelector<HTMLElement>("[data-serv-shared-cta]");
+      if (caption) layoutResizeObserver.observe(caption);
+      if (sharedCta) layoutResizeObserver.observe(sharedCta);
     }
     void document.fonts?.ready.then(scheduleRender);
     nextTick(scheduleRender);
@@ -309,6 +472,7 @@ export function useLandingServices(
     window.removeEventListener("scroll", scheduleRender);
     window.removeEventListener("resize", handleResize);
     if (raf) cancelAnimationFrame(raf);
+    if (layoutSettleTimer) clearTimeout(layoutSettleTimer);
     highlightAnimation?.cancel();
     layoutResizeObserver?.disconnect();
   });

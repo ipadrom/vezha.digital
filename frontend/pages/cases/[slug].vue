@@ -1,6 +1,6 @@
 <template>
   <div class="case-page" :data-theme="theme">
-    <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-locale="toggleLocale" @toggle-theme="toggleTheme" />
+    <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-theme="toggleTheme" />
 
     <main v-if="project">
       <PublicCaseBuilder
@@ -87,7 +87,6 @@ const relatedProjects = computed(() => {
     .slice(0, 3);
 });
 const two = (value: number) => String(value).padStart(2, "0");
-useDesktopSmoothScroll();
 
 async function loadProject() {
   const fallback = fallbacks.value.find((item) => item.slug === slug.value) || null;
@@ -109,10 +108,15 @@ function applySeo() {
     robots: project.value.seo_noindex || project.value.metrics.some((metric) => metric.is_demo) ? "noindex, nofollow" : undefined,
   });
 }
-function toggleLocale() { locale.value = currentLocale.value === "ru" ? "en" : "ru"; }
-function toggleTheme() { theme.value = theme.value === "light" ? "dark" : "light"; }
+function toggleTheme() {
+  theme.value = theme.value === "light" ? "dark" : "light";
+  localStorage.setItem("vz_theme", theme.value);
+}
 watch([slug, currentLocale], loadProject);
-onMounted(loadProject);
+onMounted(() => {
+  theme.value = localStorage.getItem("vz_theme") === "dark" ? "dark" : "light";
+  loadProject();
+});
 </script>
 
 <style src="~/assets/css/case-detail.css"></style>

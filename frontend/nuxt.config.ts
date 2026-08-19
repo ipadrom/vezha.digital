@@ -1,6 +1,17 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  vite: {
+    server: {
+      watch: process.env.NUXT_VITE_USE_POLLING === 'true'
+        ? {
+            usePolling: true,
+            interval: Number(process.env.NUXT_VITE_POLL_INTERVAL) || 500,
+          }
+        : undefined,
+    },
+  },
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',

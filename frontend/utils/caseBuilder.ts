@@ -5,6 +5,7 @@ export type CaseBlockType =
   | 'media_hero'
   | 'text'
   | 'challenge_solution'
+  | 'insight'
   | 'image'
   | 'image_text'
   | 'gallery'
@@ -56,6 +57,9 @@ export interface CaseBlockSettings {
   spacing: 'compact' | 'normal' | 'large'
   layout: string
   alignment: 'left' | 'center' | 'right'
+  disclosure_mode?: 'single' | 'multiple'
+  open_first?: boolean
+  show_intro?: boolean
   desktop_span: number
   desktop_start: number
   tablet_span: number
@@ -197,13 +201,14 @@ export const blockLibrary: Array<{
 }> = [
   { type: 'hero', label: 'Обложка', description: 'Первый экран и ключевая метрика', mark: 'H' },
   { type: 'media_hero', label: 'Медиа-хиро', description: 'Фото или видео на всю ширину', mark: '◫' },
-  { type: 'text', label: 'Текст', description: 'Заголовок и повествование', mark: 'T' },
+  { type: 'text', label: 'Редакционная глава', description: 'Заголовок слева, текст и теги справа', mark: 'T' },
   { type: 'challenge_solution', label: 'Задача и решение', description: 'Две связанные главы', mark: '2' },
-  { type: 'image', label: 'Изображение', description: 'Один крупный визуал', mark: '□' },
+  { type: 'insight', label: 'Ключевое решение', description: 'Решение, аргумент и эффект', mark: '!' },
+  { type: 'image', label: 'Крупное медиа', description: 'Полноразмерное фото или GIF между главами', mark: '□' },
   { type: 'image_text', label: 'Текст + изображение', description: 'Редакционная композиция', mark: '▤' },
-  { type: 'gallery', label: 'Галерея', description: 'Сетка или мозаика', mark: '▦' },
-  { type: 'metrics', label: 'Метрики', description: 'Цифры и доказательства', mark: '%' },
-  { type: 'process', label: 'Этапы', description: 'Последовательность работы', mark: '→' },
+  { type: 'gallery', label: 'Медиалента', description: 'Последовательность экранов или кадров', mark: '▦' },
+  { type: 'metrics', label: 'Показатели', description: 'Карточки с числами и контекстом', mark: '%' },
+  { type: 'process', label: 'Раскрывающаяся глава', description: 'Нумерованные решения с медиа и результатами', mark: '→' },
   { type: 'quote', label: 'Цитата', description: 'Отзыв клиента', mark: '“' },
   { type: 'technologies', label: 'Технологии', description: 'Стек и интеграции', mark: '</>' },
   { type: 'video', label: 'Видео', description: 'Демонстрация продукта', mark: '▶' },
@@ -223,12 +228,16 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
     { image_url: '', video_url: '', poster_url: '', alt: '', caption: '', autoplay: true, loop: true, muted: true, controls: false },
   ],
   text: [
-    { eyebrow: 'Контекст', title: 'Заголовок раздела', body: '' },
-    { eyebrow: 'Context', title: 'Section title', body: '' },
+    { kicker: '', eyebrow: 'Контекст', title: 'Ключевой тезис раздела', body: '', tags: [] },
+    { kicker: '', eyebrow: 'Context', title: 'Key section statement', body: '', tags: [] },
   ],
   challenge_solution: [
-    { eyebrow: 'История', title: 'От задачи к решению', challenge_label: 'Задача', challenge: '', solution_label: 'Решение', solution: '' },
-    { eyebrow: 'Story', title: 'From challenge to solution', challenge_label: 'Challenge', challenge: '', solution_label: 'Solution', solution: '' },
+    { eyebrow: 'История', title: 'От задачи к решению', challenge_label: 'Задача', challenge: '', solution_label: 'Решение', solution: '', impact_label: 'Эффект', impact: '' },
+    { eyebrow: 'Story', title: 'From challenge to solution', challenge_label: 'Challenge', challenge: '', solution_label: 'Solution', solution: '', impact_label: 'Impact', impact: '' },
+  ],
+  insight: [
+    { eyebrow: 'Ключевое решение', title: 'Сформулируйте главное решение', statement: '', rationale_label: 'Почему', rationale: '', outcome_label: 'Что изменилось', outcome: '', image_url: '', image_alt: '' },
+    { eyebrow: 'Key decision', title: 'State the defining decision', statement: '', rationale_label: 'Why', rationale: '', outcome_label: 'Outcome', outcome: '', image_url: '', image_alt: '' },
   ],
   image: [
     { image_url: '', alt: '', caption: '' },
@@ -247,8 +256,8 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
     { eyebrow: 'Result', title: 'What changed', summary: '', items: [] },
   ],
   process: [
-    { eyebrow: 'Процесс', title: 'Как мы работали', items: [{ title: 'Первый этап', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }] },
-    { eyebrow: 'Process', title: 'How we worked', items: [{ title: 'First stage', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }] },
+    { eyebrow: 'Процесс', title: 'Как мы работали', summary: '', items: [{ title: 'Первый этап', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }] },
+    { eyebrow: 'Process', title: 'How we worked', summary: '', items: [{ title: 'First stage', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }] },
   ],
   quote: [
     { quote: '', author: '', role: '', logo_url: '' },
@@ -291,8 +300,8 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
     { eyebrow: 'Comparison', title: 'Before and after', before_url: '', before_alt: '', before_label: 'Before', after_url: '', after_alt: '', after_label: 'After' },
   ],
   results: [
-    { eyebrow: 'Итог', title: 'Результат проекта', body: '', link_url: '', link_label: 'Открыть продукт' },
-    { eyebrow: 'Outcome', title: 'Project result', body: '', link_url: '', link_label: 'Open product' },
+    { eyebrow: 'Итог', title: 'Результат проекта', body: '', items: [], link_url: '', link_label: 'Открыть продукт' },
+    { eyebrow: 'Outcome', title: 'Project result', body: '', items: [], link_url: '', link_label: 'Open product' },
   ],
   next_case: [
     { eyebrow: 'Дальше', title: 'Следующий кейс', case_slug: '', cta_label: 'Открыть' },
@@ -380,7 +389,7 @@ export const convertBlockToFreeform = (block: CaseBlock): CaseBlock => {
 
   addText('eyebrow', 'eyebrow')
   addText('heading', 'title')
-  for (const key of ['subtitle', 'body', 'summary', 'challenge', 'solution', 'quote']) addText('text', key)
+  for (const key of ['subtitle', 'body', 'summary', 'challenge', 'solution', 'impact', 'statement', 'rationale', 'outcome', 'quote']) addText('text', key)
 
   const imagePairs = [
     ['image_url', block.type === 'media_hero' ? 'alt' : 'image_alt'],
@@ -434,11 +443,11 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
     content_ru: structuredClone(defaults[0]),
     content_en: structuredClone(defaults[1]),
     settings: {
-      theme: ['hero', 'metrics', 'media_hero'].includes(type) ? 'ink' : type === 'technologies' ? 'soft' : type === 'next_case' ? 'signal' : 'paper',
-      surface: 'card',
-      width: type === 'hero' ? 'full' : ['media_hero', 'gallery', 'metrics', 'technologies', 'next_case'].includes(type) ? 'wide' : 'standard',
-      spacing: ['hero', 'next_case'].includes(type) ? 'large' : ['technologies', 'media_hero'].includes(type) ? 'compact' : 'normal',
-      layout: type === 'hero' ? 'case-header' : type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : type === 'media_hero' ? 'media-16x9' : 'default',
+      theme: ['hero', 'media_hero', 'insight'].includes(type) ? 'ink' : type === 'technologies' ? 'soft' : type === 'next_case' ? 'signal' : 'paper',
+      surface: ['text', 'image', 'metrics', 'challenge_solution', 'process', 'results'].includes(type) ? 'plain' : 'card',
+      width: type === 'hero' ? 'full' : ['media_hero', 'text', 'image', 'gallery', 'metrics', 'process', 'results', 'technologies', 'next_case', 'insight'].includes(type) ? 'wide' : 'standard',
+      spacing: ['hero', 'text', 'process', 'results', 'next_case', 'insight'].includes(type) ? 'large' : ['image', 'technologies', 'media_hero'].includes(type) ? 'compact' : 'normal',
+      layout: type === 'hero' ? 'case-header' : type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : type === 'media_hero' ? 'media-16x9' : type === 'text' ? 'editorial' : type === 'metrics' ? 'cards' : type === 'challenge_solution' ? 'narrative' : type === 'process' ? 'chapter' : type === 'insight' || type === 'results' ? 'statement' : 'default',
       alignment: 'left',
       desktop_span: 12,
       desktop_start: 0,
@@ -459,6 +468,13 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
         map_accent: technologyMapColorDefaults.accent,
         map_background: technologyMapColorDefaults.background,
         map_text: technologyMapColorDefaults.text,
+      } : {}),
+      ...(type === 'process' ? {
+        disclosure_mode: 'multiple',
+        open_first: false,
+      } : {}),
+      ...(type === 'metrics' ? {
+        show_intro: true,
       } : {}),
     },
     sort_order: 0,

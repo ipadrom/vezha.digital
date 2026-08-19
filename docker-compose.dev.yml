@@ -1,0 +1,114 @@
+services:
+  backend:
+    image: vezhadigital-backend-dev:latest
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: vezha-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      SECRET_KEY: ${SECRET_KEY}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
+      TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME}
+      ADMIN_TELEGRAM_IDS: ${ADMIN_TELEGRAM_IDS}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      MINIO_ENDPOINT: ${MINIO_ENDPOINT:-minio:9000}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:-minioadmin}
+      MINIO_BUCKET: ${MINIO_BUCKET:-vezha-uploads}
+      MINIO_USE_SSL: ${MINIO_USE_SSL:-false}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://localhost:9000}
+      PYTHONDONTWRITEBYTECODE: "1"
+      PYTHONUNBUFFERED: "1"
+      WATCHFILES_FORCE_POLLING: "true"
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+      - --reload-dir
+      - /app/app
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      minio:
+        condition: service_started
+
+  frontend:
+    image: vezhadigital-frontend-dev:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: vezha-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+      NUXT_PUBLIC_API_URL: ${NUXT_PUBLIC_API_URL:-http://localhost:8000}
+      NUXT_PUBLIC_TELEGRAM_BOT_USERNAME: ${TELEGRAM_BOT_USERNAME}
+      NUXT_VITE_USE_POLLING: "true"
+      NUXT_VITE_POLL_INTERVAL: "500"
+    command:
+      - yarn
+      - dev
+      - --host
+      - 0.0.0.0
+      - --port
+      - "3000"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    tmpfs:
+      - /app/.nuxt
+    ports:
+      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_started
+
+  db:
+    image: postgres:15-alpine
+    container_name: vezha-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-vezha}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vezha}
+      POSTGRES_DB: ${POSTGRES_DB:-vezha}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U $${POSTGRES_USER:-vezha} -d $${POSTGRES_DB:-vezha}
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  minio:
+    image: minio/minio:latest
+    container_name: vezha-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+
+volumes:
+  frontend_node_modules:
+  postgres_data:
+  minio_data:

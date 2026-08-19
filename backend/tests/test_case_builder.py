@@ -19,6 +19,15 @@ def load_wellness_migration():
     return module
 
 
+def load_pluto_structure_migration():
+    path = Path(__file__).parents[1] / "alembic/versions/u1j2k3l4m5n6_pluto_case_structure.py"
+    spec = spec_from_file_location("pluto_case_structure_migration", path)
+    assert spec and spec.loader
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def published_snapshot() -> dict:
     return {
         "meta": {
@@ -92,6 +101,108 @@ def test_block_document_validates_nested_builder_content() -> None:
     assert document.blocks[0].settings.surface == "card"
     assert document.blocks[0].settings.desktop_span == 12
     assert document.blocks[0].settings.mobile_start == 0
+
+
+def test_insight_preserves_decision_rationale_and_outcome() -> None:
+    block = CaseBlockInput(
+        type="insight",
+        content_ru={
+            "eyebrow": "Ключевое решение",
+            "title": "Показывать только следующий шаг",
+            "statement": "Интерфейс ведёт пользователя по ближайшему действию.",
+            "rationale_label": "Почему",
+            "rationale": "Так пользователь сохраняет внимание на задаче.",
+            "outcome_label": "Эффект",
+            "outcome": "Одна логика работает во всех сценариях.",
+        },
+        content_en={
+            "eyebrow": "Key decision",
+            "title": "Reveal only the next step",
+            "statement": "The interface guides the nearest action.",
+            "rationale": "Attention stays on the task.",
+            "outcome": "One model works across scenarios.",
+        },
+        settings={"theme": "ink", "layout": "statement"},
+    )
+
+    assert block.content_ru["statement"].startswith("Интерфейс")
+    assert block.content_ru["rationale_label"] == "Почему"
+    assert block.content_en["outcome"] == "One model works across scenarios."
+    assert block.settings.layout == "statement"
+
+
+def test_gallery_frame_defaults_and_rejects_unknown_values() -> None:
+    block = CaseBlockInput(
+        type="gallery",
+        content_ru={"items": [{"image_url": "/one.webp", "frame": "device"}]},
+        content_en={"items": [{"image_url": "/one.webp"}]},
+    )
+
+    assert block.content_ru["items"][0]["frame"] == "device"
+    assert block.content_en["items"][0]["frame"] == "auto"
+
+    with pytest.raises(ValidationError):
+        CaseBlockInput(
+            type="gallery",
+            content_ru={"items": [{"image_url": "/one.webp", "frame": "floating"}]},
+            content_en={"items": []},
+        )
+
+
+def test_process_disclosure_settings_allow_single_or_multiple_open_items() -> None:
+    block = CaseBlockInput(
+        type="process",
+        content_ru={"items": [{"title": "Исследование"}]},
+        content_en={"items": [{"title": "Research"}]},
+        settings={"layout": "story", "disclosure_mode": "multiple", "open_first": True},
+    )
+
+    assert block.settings.disclosure_mode == "multiple"
+    assert block.settings.open_first is True
+
+    with pytest.raises(ValidationError):
+        CaseBlockInput(
+            type="process",
+            content_ru={"items": []},
+            content_en={"items": []},
+            settings={"disclosure_mode": "hover"},
+        )
+
+
+def test_editorial_text_tags_process_summary_and_metric_intro_are_preserved() -> None:
+    overview = CaseBlockInput(
+        type="text",
+        content_ru={"kicker": "Кейс", "eyebrow": "О проекте", "title": "Ключевой тезис", "body": "Описание", "tags": ["Nuxt 3", "FastAPI"]},
+        content_en={"kicker": "Case", "eyebrow": "About", "title": "Key statement", "body": "Description", "tags": ["Nuxt 3", "FastAPI"]},
+        settings={"layout": "overview"},
+    )
+    process = CaseBlockInput(
+        type="process",
+        content_ru={"title": "Процесс", "summary": "Вводный текст", "items": []},
+        content_en={"title": "Process", "summary": "Intro copy", "items": []},
+    )
+    metrics = CaseBlockInput(
+        type="metrics",
+        content_ru={"items": []},
+        content_en={"items": []},
+        settings={"layout": "cards", "show_intro": False},
+    )
+
+    assert overview.content_ru["tags"] == ["Nuxt 3", "FastAPI"]
+    assert overview.settings.layout == "overview"
+    assert process.content_ru["summary"] == "Вводный текст"
+    assert metrics.settings.show_intro is False
+
+
+def test_results_preserve_editable_outcome_items() -> None:
+    block = CaseBlockInput(
+        type="results",
+        content_ru={"title": "Результат", "items": [{"text": "Контекст сохраняется"}]},
+        content_en={"title": "Outcome", "items": [{"text": "Context is preserved"}]},
+    )
+
+    assert block.content_ru["items"] == [{"text": "Контекст сохраняется"}]
+    assert block.content_en["items"] == [{"text": "Context is preserved"}]
 
 
 def test_block_document_rejects_unknown_type() -> None:
@@ -255,6 +366,132 @@ def test_wellness_import_is_a_complete_bilingual_builder_document() -> None:
         "wellness-mark.svg",
     ):
         assert filename in serialized
+
+
+def test_pluto_structure_preserves_media_and_builds_three_closed_chapters() -> None:
+    migration = load_pluto_structure_migration()
+    block_types = [
+        "hero",
+        "media_hero",
+        "text",
+        "metrics",
+        "challenge_solution",
+        "insight",
+        "process",
+        "text",
+        "image",
+        "gallery",
+        "text",
+        "image",
+        "gallery",
+        "technologies",
+        "results",
+        "next_case",
+    ]
+    process_media = [
+        "/cases/wellness-app/system-flow.gif",
+        "/cases/wellness-app/sequence-flow.gif",
+        "/cases/wellness-app/technique-flow.gif",
+        "/cases/wellness-app/recovery-flow.gif",
+        "/cases/wellness-app/progression-flow.gif",
+        "/cases/wellness-app/nutrition-process-flow.gif",
+    ]
+    gallery_media = [
+        "/cases/wellness-app/training-plan.jpg",
+        "/cases/wellness-app/training-active.jpg",
+        "/cases/wellness-app/training-rest.jpg",
+        "/cases/wellness-app/food-daily-menu.jpg",
+        "/cases/wellness-app/food-recipes.jpg",
+        "/cases/wellness-app/food-recipe-detail.jpg",
+    ]
+
+    rows = []
+    for order, block_type in enumerate(block_types):
+        content = {"title": f"Block {order}"}
+        if order == 0:
+            content = {"title": "WELLNESS APP", "logo_url": "/cases/wellness-app/training-mark.svg"}
+        elif order == 1:
+            content = {
+                "video_url": "/cases/wellness-app/wellness-promo.mp4",
+                "poster_url": "/cases/wellness-app/wellness-promo-poster.jpg",
+            }
+        elif order == 3:
+            content = {"items": []}
+        elif order == 6:
+            content = {
+                "items": [
+                    {
+                        "title": f"Step {index + 1}",
+                        "description": "Description",
+                        "image_url": media_url,
+                        "image_alt": "Flow",
+                        "media_size": "full",
+                        "tags": ["UX", "PWA", "STATE"],
+                    }
+                    for index, media_url in enumerate(process_media)
+                ]
+            }
+        elif order in (8, 11):
+            content = {
+                "image_url": "/cases/wellness-app/workout-flow.gif"
+                if order == 8
+                else "/cases/wellness-app/nutrition-flow.gif",
+                "alt": "Flow",
+                "caption": "",
+            }
+        elif order in (9, 12):
+            offset = 0 if order == 9 else 3
+            content = {
+                "items": [
+                    {"image_url": url, "alt": "Screen", "caption": ""}
+                    for url in gallery_media[offset : offset + 3]
+                ]
+            }
+        elif order == 13:
+            content = {"items": []}
+        elif order == 14:
+            content = {"title": "Result", "body": "Body", "items": []}
+
+        rows.append(
+            {
+                "id": uuid4(),
+                "type": block_type,
+                "content_ru": content,
+                "content_en": dict(content),
+                "settings": {"theme": "paper", "surface": "plain"},
+                "sort_order": order,
+                "is_visible": True,
+            }
+        )
+
+    hero_before = dict(rows[0]["content_ru"])
+    media_hero_before = dict(rows[1]["content_ru"])
+    composed = migration._compose(rows)
+
+    assert len(composed) == 18
+    assert [block["sort_order"] for block in composed] == list(range(18))
+    assert composed[0]["content_ru"] == hero_before
+    assert composed[1]["content_ru"] == media_hero_before
+    assert composed[4]["type"] == "text"
+    assert composed[5]["type"] == "image"
+    chapters = [block for block in composed if block["type"] == "process"]
+    assert [len(block["content_ru"]["items"]) for block in chapters] == [2, 2, 1]
+    assert all(block["settings"]["layout"] == "chapter" for block in chapters)
+    assert all(block["settings"]["disclosure_mode"] == "multiple" for block in chapters)
+    assert all(block["settings"]["open_first"] is False for block in chapters)
+    assert all(CaseBlockInput.model_validate(block) for block in composed)
+
+    serialized = str(composed)
+    for media_url in [
+        "/cases/wellness-app/training-mark.svg",
+        "/cases/wellness-app/wellness-promo.mp4",
+        "/cases/wellness-app/wellness-promo-poster.jpg",
+        *process_media,
+        "/cases/wellness-app/workout-flow.gif",
+        "/cases/wellness-app/nutrition-flow.gif",
+        *gallery_media,
+    ]:
+        assert media_url in serialized
 
 
 def test_public_serializer_reads_only_published_snapshot() -> None:

@@ -191,7 +191,6 @@ function alignActiveTabToStart(index: number) {
   const tabList = tab?.closest<HTMLElement>(".vz-cases__tabs");
   if (!tab || !tabList) return;
 
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tabRect = tab.getBoundingClientRect();
   const listRect = tabList.getBoundingClientRect();
   const gap = Number.parseFloat(window.getComputedStyle(tabList).columnGap) || 0;
@@ -199,7 +198,7 @@ function alignActiveTabToStart(index: number) {
   const startLeft = tabList.scrollLeft + tabRect.left - listRect.left;
 
   tabList.style.setProperty("--vz-tabs-trailing-space", `${trailingSpace}px`);
-  tabList.scrollTo({ left: Math.max(0, startLeft), behavior: reduceMotion ? "auto" : "smooth" });
+  tabList.scrollTo({ left: Math.max(0, startLeft), behavior: "auto" });
 }
 
 function selectCase(index: number, focus = false) {

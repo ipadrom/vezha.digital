@@ -8,6 +8,7 @@
       :class="blockClasses(block)"
       :style="blockGridStyle(block)"
       :data-block="block.type"
+      :data-od-id="`case-block-${block.type}-${block.id}`"
     >
       <div class="builder-block__inner">
         <CaseFreeformBlock v-if="block.settings.layout === 'freeform' && block.type !== 'hero'" :content="block.content" :settings="block.settings" />
@@ -56,16 +57,69 @@
         </template>
 
         <template v-else-if="block.type === 'text'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <p class="builder-prose">{{ block.content.body }}</p>
+          <article class="builder-editorial" :data-variant="block.settings.layout || 'editorial'">
+            <header class="builder-editorial__heading" :data-od-id="`case-heading-${block.id}`">
+              <span v-if="block.content.kicker" class="builder-eyebrow">{{ block.content.kicker }}</span>
+              <h2>{{ block.content.eyebrow || block.content.title }}</h2>
+            </header>
+            <div class="builder-editorial__copy">
+              <p v-if="block.content.eyebrow && block.content.title" class="builder-editorial__lead">{{ block.content.title }}</p>
+              <p v-if="block.content.body" class="builder-prose">{{ block.content.body }}</p>
+              <div v-if="contentTags(block.content).length" class="builder-tags" :aria-label="locale === 'ru' ? 'Теги проекта' : 'Project tags'">
+                <span v-for="tag in contentTags(block.content)" :key="tag">{{ tag }}</span>
+              </div>
+            </div>
+          </article>
         </template>
 
         <template v-else-if="block.type === 'challenge_solution'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <div class="builder-duo">
-            <article><span>{{ block.content.challenge_label }}</span><p>{{ block.content.challenge }}</p></article>
-            <article><span>{{ block.content.solution_label }}</span><p>{{ block.content.solution }}</p></article>
-          </div>
+          <article class="builder-challenge">
+            <header class="builder-challenge__heading" :data-od-id="`case-heading-${block.id}`">
+              <h2>{{ block.content.eyebrow }}</h2>
+            </header>
+            <div class="builder-challenge__copy">
+              <p class="builder-challenge__lead">{{ block.content.title }}</p>
+              <div class="builder-challenge__problem">
+                <span>{{ block.content.challenge_label }}</span>
+                <p>{{ block.content.challenge }}</p>
+              </div>
+              <dl v-if="block.content.solution || block.content.impact" class="builder-challenge__details">
+                <div v-if="block.content.solution">
+                  <dt>{{ block.content.solution_label }}</dt>
+                  <dd>{{ block.content.solution }}</dd>
+                </div>
+                <div v-if="block.content.impact">
+                  <dt>{{ block.content.impact_label || (locale === 'ru' ? 'Эффект' : 'Impact') }}</dt>
+                  <dd>{{ block.content.impact }}</dd>
+                </div>
+              </dl>
+            </div>
+          </article>
+        </template>
+
+        <template v-else-if="block.type === 'insight'">
+          <article class="builder-insight">
+            <header class="builder-insight__heading">
+              <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
+              <h2>{{ block.content.title }}</h2>
+            </header>
+            <div class="builder-insight__body">
+              <p class="builder-insight__statement">{{ block.content.statement }}</p>
+              <dl class="builder-insight__facts">
+                <div v-if="block.content.rationale" class="builder-insight__fact">
+                  <dt>{{ block.content.rationale_label || (locale === 'ru' ? 'Почему' : 'Why') }}</dt>
+                  <dd>{{ block.content.rationale }}</dd>
+                </div>
+                <div v-if="block.content.outcome" class="builder-insight__fact">
+                  <dt>{{ block.content.outcome_label || (locale === 'ru' ? 'Что изменилось' : 'Outcome') }}</dt>
+                  <dd>{{ block.content.outcome }}</dd>
+                </div>
+              </dl>
+            </div>
+            <figure v-if="block.content.image_url" class="builder-insight__media">
+              <img :src="block.content.image_url" :alt="block.content.image_alt || ''" loading="lazy" decoding="async" />
+            </figure>
+          </article>
         </template>
 
         <template v-else-if="block.type === 'image'">
@@ -79,23 +133,35 @@
 
         <template v-else-if="block.type === 'gallery'">
           <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <div class="builder-gallery" :class="`builder-gallery--${block.settings.layout}`"><figure v-for="(item, index) in block.content.items" :key="`${item.image_url}-${index}`"><img :src="item.image_url" :alt="item.alt || ''" loading="lazy" decoding="async" /><figcaption v-if="item.caption"><span>{{ String(index + 1).padStart(2, '0') }}</span>{{ item.caption }}</figcaption></figure></div>
+          <div class="builder-gallery" :class="`builder-gallery--${block.settings.layout}`"><figure v-for="(item, index) in block.content.items" :key="`${item.image_url}-${index}`" :data-frame="item.frame && item.frame !== 'auto' ? item.frame : block.settings.layout === 'phones' ? 'device' : 'screen'" :data-od-id="`case-gallery-${block.id}-${index + 1}`"><img :src="item.image_url" :alt="item.alt || ''" loading="lazy" decoding="async" /><figcaption v-if="item.caption"><span>{{ String(index + 1).padStart(2, '0') }}</span>{{ item.caption }}</figcaption></figure></div>
         </template>
 
         <template v-else-if="block.type === 'metrics'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2><p v-if="block.content.summary">{{ block.content.summary }}</p></header>
-          <div class="builder-metrics"><article v-for="(item, index) in block.content.items" :key="index" :data-demo="item.is_demo ? 'true' : undefined"><b>{{ item.value }}</b><span>{{ item.label }}</span><small v-if="item.context">{{ item.context }}</small></article></div>
+          <header v-if="block.settings.show_intro !== false && (block.content.eyebrow || block.content.title || block.content.summary)" class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2><p v-if="block.content.summary">{{ block.content.summary }}</p></header>
+          <div class="builder-metrics"><article v-for="(item, index) in block.content.items" :key="index" :data-demo="item.is_demo ? 'true' : undefined" :data-od-id="`case-metric-${block.id}-${index + 1}`"><b>{{ item.value }}</b><span>{{ item.label }}</span><small v-if="item.context">{{ item.context }}</small></article></div>
         </template>
 
         <template v-else-if="block.type === 'process'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <ol class="builder-process">
-            <li v-for="(item, index) in block.content.items" :key="index" :class="{ 'is-open': isProcessOpen(block, index) }">
+          <header v-if="block.settings.layout === 'chapter'" class="builder-heading builder-process-chapter" :data-od-id="`case-heading-${block.id}`">
+            <h3>{{ block.content.eyebrow }}</h3>
+            <div class="builder-process-chapter__copy">
+              <p v-if="block.content.title" class="builder-process-chapter__lead">{{ block.content.title }}</p>
+              <p v-if="block.content.summary" class="builder-process-chapter__summary">{{ block.content.summary }}</p>
+            </div>
+          </header>
+          <header v-else class="builder-heading" :data-od-id="`case-heading-${block.id}`">
+            <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
+            <h2>{{ block.content.title }}</h2>
+            <p v-if="block.content.summary">{{ block.content.summary }}</p>
+          </header>
+          <ol class="builder-process" :data-mode="processDisclosureMode(block)">
+            <li v-for="(item, index) in block.content.items" :key="index" :class="{ 'is-open': isProcessOpen(block, index), 'is-active': isProcessActive(block, index) }">
               <button
                 class="builder-process__trigger"
                 type="button"
                 :aria-expanded="isProcessOpen(block, index)"
                 :aria-controls="processPanelId(block, index)"
+                :data-od-id="`case-process-${block.id}-${index + 1}`"
                 @click="toggleProcess(block, index)"
               >
                 <span>{{ String(index + 1).padStart(2, '0') }}</span>
@@ -120,8 +186,8 @@
                         {{ locale === 'ru' ? 'Ваш браузер не поддерживает видео.' : 'Your browser does not support video.' }}
                       </video>
                     </div>
-                    <div v-if="processTags(item).length" class="builder-process__tags" :aria-label="locale === 'ru' ? 'Результаты этапа' : 'Stage deliverables'">
-                      <span v-for="tag in processTags(item)" :key="tag"><i aria-hidden="true" />{{ tag }}</span>
+                    <div v-if="contentTags(item).length" class="builder-process__tags" :aria-label="locale === 'ru' ? 'Результаты этапа' : 'Stage deliverables'">
+                      <span v-for="tag in contentTags(item)" :key="tag"><i aria-hidden="true" />{{ tag }}</span>
                     </div>
                   </div>
                 </div>
@@ -153,7 +219,22 @@
         </template>
 
         <template v-else-if="block.type === 'results'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header><p class="builder-prose">{{ block.content.body }}</p><a v-if="block.content.link_url" class="builder-link" :href="block.content.link_url" target="_blank" rel="noopener">{{ block.content.link_label }} ↗</a>
+          <article class="builder-results">
+            <header class="builder-results__heading" :data-od-id="`case-heading-${block.id}`">
+              <h2>{{ block.content.eyebrow || block.content.title }}</h2>
+            </header>
+            <div class="builder-results__body">
+              <p v-if="block.content.eyebrow && block.content.title" class="builder-results__lead">{{ block.content.title }}</p>
+              <p v-if="block.content.body" class="builder-prose">{{ block.content.body }}</p>
+              <ul v-if="resultItems(block).length" class="builder-results-list">
+                <li v-for="(item, index) in resultItems(block)" :key="`${item}-${index}`" :data-od-id="`case-result-${block.id}-${index + 1}`">
+                  <span>{{ String(index + 1).padStart(2, '0') }}</span>
+                  <p>{{ item }}</p>
+                </li>
+              </ul>
+              <a v-if="block.content.link_url" class="builder-link" :href="block.content.link_url" target="_blank" rel="noopener">{{ block.content.link_label }} ↗</a>
+            </div>
+          </article>
         </template>
 
         <template v-else-if="block.type === 'next_case'">
@@ -248,15 +329,38 @@ const blockGridStyle = (block: PublicBuilderBlock): Record<string, string> => {
   }
   return style
 }
-const processOpen = reactive<Record<string, number | null>>({})
-const isProcessOpen = (block: PublicBuilderBlock, index: number) => (processOpen[block.id] === undefined ? 0 : processOpen[block.id]) === index
+const processOpen = reactive<Record<string, number[]>>({})
+const processActive = reactive<Record<string, number | null>>({})
+const processDisclosureMode = (block: PublicBuilderBlock): 'single' | 'multiple' => block.settings.disclosure_mode === 'single' ? 'single' : 'multiple'
+const processOpenIndexes = (block: PublicBuilderBlock): number[] => processOpen[block.id] ?? (block.settings.open_first === false ? [] : [0])
+const processActiveIndex = (block: PublicBuilderBlock): number | null => processActive[block.id] === undefined
+  ? (block.settings.open_first === false ? null : 0)
+  : processActive[block.id]
+const isProcessOpen = (block: PublicBuilderBlock, index: number) => processOpenIndexes(block).includes(index)
+const isProcessActive = (block: PublicBuilderBlock, index: number) => processActiveIndex(block) === index
 const toggleProcess = (block: PublicBuilderBlock, index: number) => {
-  processOpen[block.id] = isProcessOpen(block, index) ? null : index
+  const current = processOpenIndexes(block)
+  if (current.includes(index)) {
+    const next = current.filter(openIndex => openIndex !== index)
+    processOpen[block.id] = next
+    if (processActiveIndex(block) === index) processActive[block.id] = next.length ? next[next.length - 1] : null
+    return
+  }
+  processOpen[block.id] = processDisclosureMode(block) === 'single'
+    ? [index]
+    : [...current, index].sort((a, b) => a - b)
+  processActive[block.id] = index
 }
 const processPanelId = (block: PublicBuilderBlock, index: number) => `process-${block.id}-${index}`
-const processTags = (item: Record<string, any>): string[] => Array.isArray(item.tags)
+const contentTags = (item: Record<string, any>): string[] => Array.isArray(item.tags)
   ? item.tags.map((tag: unknown) => String(tag).trim()).filter(Boolean)
   : String(item.tags || '').split(',').map(tag => tag.trim()).filter(Boolean)
+const resultItems = (block: PublicBuilderBlock): string[] => Array.isArray(block.content.items)
+  ? block.content.items
+      .map((item: unknown) => typeof item === 'string' ? item : String((item as Record<string, unknown>)?.text || ''))
+      .map((item: string) => item.trim())
+      .filter(Boolean)
+  : []
 const processMediaSize = (item: Record<string, any>): 'compact' | 'medium' | 'full' => {
   const size = String(item.media_size || '')
   return size === 'compact' || size === 'full' ? size : 'medium'
@@ -280,3 +384,4 @@ onBeforeUnmount(() => motionQuery?.removeEventListener('change', syncMediaMotion
 </script>
 
 <style src="~/assets/css/case-builder-public.css"></style>
+<style src="~/assets/css/case-builder-v2.css"></style>

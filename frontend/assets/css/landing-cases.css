@@ -29,11 +29,11 @@
 }
 
 .vz-cases__title-block { min-width: 0; }
-.vz-cases__heading .vz-section-label { margin-bottom: 0; font: 500 12px/1.3 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
+.vz-cases__heading .vz-section-label { margin-bottom: 0; font: 500 var(--type-label)/1.3 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
 .vz-cases__heading h2 {
   max-width: 640px;
   margin: 0;
-  font-size: clamp(32px, 4vw, 52px);
+  font-size: var(--type-section);
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -.025em;
@@ -56,7 +56,7 @@
   max-width: 390px;
   margin: 0 0 7px;
   color: var(--text-2);
-  font-size: 14px;
+  font-size: var(--type-body);
   line-height: 1.65;
 }
 
@@ -113,12 +113,13 @@
 
 .vz-cases__tabs button span {
   color: var(--muted);
-  font: 500 10px/1 var(--font-mono);
+  font: 500 calc(var(--type-micro) + 1px)/1 var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
 .vz-cases__tabs button b {
   overflow: hidden;
+  font-family: var(--font-ui, "Onest", system-ui, sans-serif);
   font-size: 13px;
   font-weight: 500;
   line-height: 1.25;
@@ -165,12 +166,12 @@
 .vz-cases__caption > :first-child { padding-left: 0; }
 .vz-cases__caption > :not(:first-child) { border-left: 1px solid var(--border); }
 .vz-cases__identity { display: flex; justify-content: space-between; flex-direction: column; gap: 12px; }
-.vz-cases__meta { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font: 500 9px/1.35 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
+.vz-cases__meta { display: flex; flex-wrap: wrap; gap: 8px 14px; color: var(--muted); font: 500 var(--type-micro)/1.35 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
 .vz-cases__identity h3 { max-width: 320px; margin: 0; font-size: clamp(25px, 2.5vw, 38px); font-weight: 500; line-height: 1; letter-spacing: -.035em; text-wrap: balance; }
-.vz-cases__caption > p { color: var(--text-2); font-size: 14px; line-height: 1.55; }
+.vz-cases__caption > p { color: var(--text-2); font-size: var(--type-body); line-height: 1.55; }
 .vz-cases__proof { display: grid; align-content: start; gap: 10px; }
-.vz-cases__proof span { color: var(--muted); font: 500 9px/1.3 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
-.vz-cases__proof strong { max-width: 310px; font-size: 12px; font-weight: 600; line-height: 1.45; letter-spacing: .04em; text-transform: uppercase; }
+.vz-cases__proof span { color: var(--muted); font: 500 var(--type-micro)/1.3 var(--font-mono); letter-spacing: .14em; text-transform: uppercase; }
+.vz-cases__proof strong { max-width: 310px; font-size: var(--type-chip); font-weight: 600; line-height: 1.45; letter-spacing: .04em; text-transform: uppercase; }
 
 .vz-cases__link {
   display: inline-flex;
@@ -183,7 +184,7 @@
   padding: 7px 0;
   border-bottom: 1px solid currentColor;
   color: inherit;
-  font: 500 11px/1.2 var(--font-mono);
+  font: 500 var(--type-control)/1.2 var(--font-mono);
   letter-spacing: .07em;
   text-decoration: none;
   text-transform: uppercase;
@@ -201,7 +202,7 @@
   border-bottom: 1px solid var(--border-2);
 }
 
-.vz-cases__empty span { color: var(--muted); font: 500 11px var(--font-mono); }
+.vz-cases__empty span { color: var(--muted); font: 500 var(--type-label) var(--font-mono); }
 .vz-cases__empty p { max-width: 420px; margin: 0; font-size: clamp(20px, 2.4vw, 34px); line-height: 1.15; }
 
 .case-switch-enter-active,
@@ -235,8 +236,8 @@
 @media (max-width: 900px) {
   .vz-cases { scroll-margin-top: 0; padding: var(--section-space) 20px; }
   .vz-cases__heading { grid-template-columns: 1fr; gap: 20px; margin-bottom: 26px; }
-  .vz-cases__heading h2 { max-width: 14ch; margin-top: 0; font-size: 26px; line-height: 1.05; }
-  .vz-cases__heading > p { justify-self: start; max-width: 44ch; margin: 0; font-size: 14px; line-height: 1.55; }
+  .vz-cases__heading h2 { max-width: 14ch; margin-top: 0; font-size: var(--type-section); line-height: 1.05; }
+  .vz-cases__heading > p { justify-self: start; max-width: 44ch; margin: 0; font-size: var(--type-body); line-height: 1.55; }
   .vz-cases__shell {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
@@ -277,7 +278,7 @@
     flex: 0 0 auto;
     grid-template-columns: 24px minmax(110px, auto) 8px;
     gap: 9px;
-    min-height: 46px;
+    min-height: 48px;
     padding: 8px 0 6px;
     scroll-snap-align: start;
   }
@@ -286,7 +287,7 @@
     grid-column: 1;
     grid-row: 1;
     display: inline-grid;
-    grid-template-columns: repeat(2, 36px);
+    grid-template-columns: repeat(2, 44px);
     gap: 0;
     margin: 0;
     padding: 3px;
@@ -299,8 +300,8 @@
   .vz-cases__mobile-controls button {
     position: relative;
     display: grid;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     place-items: center;
     padding: 0;
     border: 0;
@@ -348,14 +349,14 @@
   .vz-cases__caption > :not(:first-child) { border-left: 0; border-top: 1px solid var(--border); }
   .vz-cases__identity { grid-column: 1 / -1; }
   .vz-cases__identity h3 { max-width: 540px; font-size: clamp(32px, 8.6vw, 46px); }
-  .vz-cases__caption > p { grid-column: 1 / -1; font-size: 15px; }
+  .vz-cases__caption > p { grid-column: 1 / -1; font-size: var(--type-body); }
   .vz-cases__proof { grid-column: 1; padding-right: 18px; }
   .vz-cases__link { grid-column: 2; align-self: stretch; justify-self: stretch; margin: 0; padding-left: 18px; }
 }
 
 @media (max-width: 620px) {
-  .vz-cases__heading .vz-section-label { font-size: 12px; }
-  .vz-cases__heading h2 { font-size: 26px; }
+  .vz-cases__heading .vz-section-label { font-size: var(--type-label); }
+  .vz-cases__heading h2 { font-size: var(--type-section); }
   .vz-cases__caption { display: block; }
   .vz-cases__caption > * { padding: 20px 0; }
   .vz-cases__proof { padding-right: 0; }
@@ -427,7 +428,7 @@
 
 .vz-cases__caption > p {
   color: var(--text-2);
-  font-size: 15px;
+  font-size: var(--type-body);
   line-height: 1.55;
 }
 
@@ -506,7 +507,7 @@
   .vz-cases__caption > p {
     grid-column: 2;
     grid-row: 1 / 3;
-    font-size: 14px;
+    font-size: var(--type-body);
     line-height: 1.55;
   }
 
@@ -671,7 +672,7 @@
   }
 
   .vz-cases__tabs button {
-    min-height: 46px;
+    min-height: 48px;
     flex: 0 0 auto;
     grid-template-columns: 24px minmax(110px, auto) 8px;
     gap: 9px;
@@ -688,7 +689,7 @@
     display: inline-grid;
     grid-column: 1;
     grid-row: 1;
-    grid-template-columns: repeat(2, 36px);
+    grid-template-columns: repeat(2, 44px);
     gap: 0;
     margin: 0;
     padding: 3px;
@@ -702,8 +703,8 @@
   .vz-cases__mobile-controls button {
     position: relative;
     display: grid;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     place-items: center;
     padding: 0;
     border: 0;
