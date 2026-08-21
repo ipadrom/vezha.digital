@@ -1,5 +1,9 @@
 import { watch, type ComputedRef, type Ref } from "vue";
 import {
+  getLandingPresentationScale,
+  syncThreeRendererPixelRatio,
+} from "~/utils/threeRenderQuality";
+import {
   BACKEND_DESKTOP_STACK_LABEL_ROUTE_PROFILE,
   DESKTOP_MOBILE_CORE_BELT_TEXT,
   DESKTOP_MOBILE_CORE_BELT_Z_INDEX,
@@ -213,7 +217,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       stackSphereCleanup = disposePartial;
 
       renderer.setClearColor(0x000000, 0);
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      syncThreeRendererPixelRatio(renderer, host);
       renderer.outputColorSpace = THREE.SRGBColorSpace;
       renderer.domElement.setAttribute("aria-hidden", "true");
       labelLayer.className = "vz-stack__sphere-labels";
@@ -807,6 +811,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         if (window.innerWidth > 900) mobileBridgeRevealStates.clear();
         const width = Math.max(1, host.clientWidth);
         const height = Math.max(1, host.clientHeight);
+        syncThreeRendererPixelRatio(renderer, host);
         renderer.setSize(width, height, false);
         camera.aspect = width / height;
         camera.fov = getStackCameraFov(
@@ -1436,14 +1441,15 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
     const backendRect = backendItem.getBoundingClientRect();
     const devopsRect = devopsItem.getBoundingClientRect();
     const sphereRect = host.getBoundingClientRect();
-    const sphereSize = sphereRect.height || host.offsetHeight;
-    const sphereWidth = sphereRect.width || host.offsetWidth;
+    const presentationScale = getLandingPresentationScale(host);
+    const sphereSize = sphereRect.height / presentationScale || host.offsetHeight;
+    const sphereWidth = sphereRect.width / presentationScale || host.offsetWidth;
     if (!sphereSize || !sphereWidth) return;
 
     const backendCenter = backendRect.top + backendRect.height / 2;
     const devopsCenter = devopsRect.top + devopsRect.height / 2;
-    const targetY = (backendCenter + devopsCenter) / 2 - innerRect.top;
-    const targetX = metaRect.left + metaRect.width / 2 - innerRect.left;
+    const targetY = ((backendCenter + devopsCenter) / 2 - innerRect.top) / presentationScale;
+    const targetX = (metaRect.left + metaRect.width / 2 - innerRect.left) / presentationScale;
     const nextTop = `${Math.round(targetY - sphereSize / 2)}px`;
     const nextLeft = `${Math.round(targetX - sphereWidth / 2)}px`;
     if (host.style.getPropertyValue("--stack-sphere-top") !== nextTop) {

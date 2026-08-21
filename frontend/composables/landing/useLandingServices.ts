@@ -4,6 +4,7 @@ import {
   getServiceHighlightTargetBounds,
   type ServiceHighlightBounds,
 } from "~/utils/landingServicesHighlight";
+import { getLandingPresentationScale } from "~/utils/threeRenderQuality";
 
 export function useLandingServices(
   rootRef: Ref<HTMLElement | null>,
@@ -77,6 +78,7 @@ export function useLandingServices(
 
     const captionRect = caption.getBoundingClientRect();
     const rootRect = root.getBoundingClientRect();
+    const presentationScale = getLandingPresentationScale(root);
     const panelStyle = getComputedStyle(panel);
     const horizontalPadding = readCssPixels(panelStyle.paddingLeft) + readCssPixels(panelStyle.paddingRight);
     const titleWrap = panel.querySelector<HTMLElement>(".vz-service-panel__title");
@@ -135,7 +137,7 @@ export function useLandingServices(
         return Math.max(largest, rowWidth);
       }, 0);
       const ctaWidth = Math.max(measureBalancedTwoLineText(ctaSmall), measureText(ctaStrong))
-        + (ctaIcon?.getBoundingClientRect().width ?? 0)
+        + (ctaIcon?.getBoundingClientRect().width ?? 0) / presentationScale
         + readCssPixels(ctaStyle.columnGap)
         + readCssPixels(ctaStyle.paddingLeft)
         + readCssPixels(ctaStyle.paddingRight);
@@ -148,8 +150,9 @@ export function useLandingServices(
       captionWidthCache.set(panel, { signature, width: naturalWidth });
     }
 
-    const safeRight = Math.min(window.innerWidth - 40, rootRect.right + 60);
-    const availableWidth = Math.max(0, safeRight - captionRect.left);
+    const viewportWidth = window.innerWidth / presentationScale;
+    const safeRight = Math.min(viewportWidth - 40, rootRect.right / presentationScale + 60);
+    const availableWidth = Math.max(0, safeRight - captionRect.left / presentationScale);
 
     return Math.round(Math.min(availableWidth, 420, Math.max(292, naturalWidth)));
   }
@@ -157,12 +160,13 @@ export function useLandingServices(
   function getRelativeHighlightBounds(element: HTMLElement, navList: HTMLElement): ServiceHighlightBounds {
     const elementRect = element.getBoundingClientRect();
     const navRect = navList.getBoundingClientRect();
+    const presentationScale = getLandingPresentationScale(navList);
 
     return {
-      x: elementRect.left - navRect.left,
-      y: elementRect.top - navRect.top,
-      width: elementRect.width,
-      height: elementRect.height,
+      x: (elementRect.left - navRect.left) / presentationScale,
+      y: (elementRect.top - navRect.top) / presentationScale,
+      width: elementRect.width / presentationScale,
+      height: elementRect.height / presentationScale,
     };
   }
 
@@ -276,11 +280,14 @@ export function useLandingServices(
 
       const captionRect = caption.getBoundingClientRect();
       const metawrapRect = activeMetawrap.getBoundingClientRect();
+      const presentationScale = getLandingPresentationScale(root);
       const metawrapTransform = getComputedStyle(activeMetawrap).transform;
       const animatedMetawrapY = metawrapTransform === "none"
         ? 0
         : new DOMMatrixReadOnly(metawrapTransform).m42;
-      const metawrapBottom = metawrapRect.bottom - captionRect.top - animatedMetawrapY;
+      const metawrapBottom = (
+        metawrapRect.bottom - captionRect.top
+      ) / presentationScale - animatedMetawrapY;
       const dividerGap = Number.parseFloat(getComputedStyle(activeIncluded).paddingTop) || 12;
       const contentCtaTop = Math.ceil(metawrapBottom + dividerGap * 2 + 1);
       const isWideDesktop = window.matchMedia("(min-width: 1200px)").matches;

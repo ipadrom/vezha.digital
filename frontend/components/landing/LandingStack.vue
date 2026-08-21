@@ -274,14 +274,14 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .vz-stack {
-  min-height: 380vh;
+  min-height: var(--landing-stack-scroll-height, 380vh);
   padding: 0;
 }
 
 .vz-stack > .vz-sticky {
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: var(--landing-layout-viewport-height, 100vh);
   min-height: 620px;
   overflow: clip;
 }

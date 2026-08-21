@@ -52,18 +52,30 @@
         >
           <span>{{ activeClient.eyebrow }}</span>
           <h3>{{ activeClient.title }}</h3>
-          <div class="vz-client-card-slot">
-            <div class="vz-client-card-track">
-              <p>{{ activeClient.text }}</p>
+          <div class="vz-client-card-reserve">
+            <div
+              ref="cardSlotRef"
+              class="vz-client-card-slot"
+              :class="{ 'is-height-ready': isCardHeightReady }"
+              :style="cardSlotStyle"
+              @transitionend="handleCardTransitionEnd"
+            >
               <p
-                v-for="segment in segments"
-                :key="`client-card-size-${segment.key}`"
-                class="vz-client-card-sizer"
-                aria-hidden="true"
+                :key="activeClient.key"
+                ref="cardTextRef"
+                class="vz-client-card-text"
               >
-                {{ segment.text }}
+                {{ activeClient.text }}
               </p>
             </div>
+            <p
+              v-for="segment in segments"
+              :key="`client-card-reserve-${segment.key}`"
+              class="vz-client-card-sizer"
+              aria-hidden="true"
+            >
+              {{ segment.text }}
+            </p>
           </div>
         </article>
       </div>
@@ -100,11 +112,81 @@ const props = defineProps<{
 const emit = defineEmits<{
   "update:activeIndex": [index: number];
   cubeReady: [element: HTMLElement | null];
+  layoutChange: [];
 }>();
 
 const cubeRef = ref<HTMLElement | null>(null);
+const cardSlotRef = ref<HTMLElement | null>(null);
+const cardTextRef = ref<HTMLElement | null>(null);
+const cardHeight = ref<number | null>(null);
+const isCardHeightReady = ref(false);
+let cardResizeObserver: ResizeObserver | null = null;
+let cardReadyFrame = 0;
 const activeClient = computed<ClientSegment>(() => props.segments[props.activeIndex] || props.segments[0]!);
+const cardSlotStyle = computed(() => (
+  cardHeight.value === null
+    ? undefined
+    : { "--client-card-height": `${cardHeight.value}px` }
+));
 
-onMounted(() => emit("cubeReady", cubeRef.value));
-onBeforeUnmount(() => emit("cubeReady", null));
+function syncCardHeight() {
+  const slot = cardSlotRef.value;
+  const text = cardTextRef.value;
+  if (!slot || !text) return;
+
+  const style = getComputedStyle(slot);
+  const verticalChrome = [
+    style.paddingTop,
+    style.paddingBottom,
+    style.borderTopWidth,
+    style.borderBottomWidth,
+  ].reduce((total, value) => total + (Number.parseFloat(value) || 0), 0);
+  // Use the unscaled layout height. getBoundingClientRect() includes the 2K
+  // presentation zoom and would feed that visual size back into CSS a second time.
+  const nextHeight = Math.round(text.scrollHeight + verticalChrome);
+  if (nextHeight > 0 && nextHeight !== cardHeight.value) {
+    cardHeight.value = nextHeight;
+    void nextTick(() => emit("layoutChange"));
+  }
+}
+
+function observeCardText(current: HTMLElement | null, previous?: HTMLElement | null) {
+  if (previous) cardResizeObserver?.unobserve(previous);
+  if (current) cardResizeObserver?.observe(current);
+}
+
+function handleCardTransitionEnd(event: TransitionEvent) {
+  if (event.target === cardSlotRef.value && event.propertyName === "height") {
+    emit("layoutChange");
+  }
+}
+
+watch(cardTextRef, (current, previous) => {
+  observeCardText(current, previous);
+  void nextTick(syncCardHeight);
+}, { flush: "post" });
+
+watch(() => activeClient.value.text, () => {
+  void nextTick(syncCardHeight);
+}, { flush: "post" });
+
+onMounted(async () => {
+  emit("cubeReady", cubeRef.value);
+  if ("ResizeObserver" in window) {
+    cardResizeObserver = new ResizeObserver(syncCardHeight);
+    observeCardText(cardTextRef.value);
+  }
+  await nextTick();
+  syncCardHeight();
+  cardReadyFrame = requestAnimationFrame(() => {
+    isCardHeightReady.value = true;
+  });
+  void document.fonts?.ready.then(syncCardHeight);
+});
+
+onBeforeUnmount(() => {
+  cancelAnimationFrame(cardReadyFrame);
+  cardResizeObserver?.disconnect();
+  emit("cubeReady", null);
+});
 </script>

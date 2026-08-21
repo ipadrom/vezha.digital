@@ -4404,7 +4404,7 @@
   .vz-about__flow,
   .vz-about__proof dl > div,
   .vz-service-caption,
-  .vz-client-copy p,
+  .vz-client-card-slot,
   .vz-contacts__inner,
   .vz-cases__caption > *,
   .vz-cases__empty
@@ -4418,7 +4418,7 @@
   .vz-about__flow,
   .vz-about__proof dl > div,
   .vz-service-caption,
-  .vz-client-copy p,
+  .vz-client-card-slot,
   .vz-contacts__inner,
   .vz-cases__caption > *,
   .vz-cases__empty
@@ -4459,7 +4459,7 @@
     .vz-about__flow,
     .vz-about__proof dl > div,
     .vz-service-caption,
-    .vz-client-copy p,
+    .vz-client-card-slot,
     .vz-contacts__inner,
     .vz-cases__caption > *,
     .vz-cases__empty
@@ -4475,7 +4475,7 @@
     .vz-about__flow,
     .vz-about__proof dl > div,
     .vz-service-caption,
-    .vz-client-copy p,
+    .vz-client-card-slot,
     .vz-contacts__inner,
     .vz-cases__caption > *,
     .vz-cases__empty

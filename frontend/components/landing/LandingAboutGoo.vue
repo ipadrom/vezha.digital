@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { getLandingPresentationScale } from "~/utils/threeRenderQuality";
 
 type Point = { x: number; y: number };
 type Particle = Point & {
@@ -98,7 +99,9 @@ function refreshAnchors() {
     return;
   }
 
-  const hostRect = host.getBoundingClientRect();
+  const canvasRect = canvas.getBoundingClientRect();
+  const scaleX = Math.max(0.0001, canvasRect.width / Math.max(1, width));
+  const scaleY = Math.max(0.0001, canvasRect.height / Math.max(1, height));
   const anchorElements = [...host.querySelectorAll<HTMLElement>("[data-flow-anchor]")];
   if (anchorElements.length !== LEG_COUNT + 1) {
     routeAnchors = fallbackAnchors();
@@ -108,8 +111,8 @@ function refreshAnchors() {
   routeAnchors = anchorElements.map((element) => {
     const rect = element.getBoundingClientRect();
     return {
-      x: rect.left + rect.width / 2 - hostRect.left,
-      y: rect.top + rect.height / 2 - hostRect.top,
+      x: (rect.left + rect.width / 2 - canvasRect.left) / scaleX,
+      y: (rect.top + rect.height / 2 - canvasRect.top) / scaleY,
     };
   });
 }
@@ -193,8 +196,11 @@ function resetWorld(now = performance.now(), revealProgress = 0) {
   particlesPerLeg.forEach((count, leg) => {
     for (let slot = 0; slot < count; slot += 1) {
       const offset = OFFSETS[offsetIndex % OFFSETS.length]!;
+      const resolvedOffset = !mobileQuery?.matches && leg === LEG_COUNT - 1 && slot === 0
+        ? -8
+        : offset;
       const radius = 2.6 + ((offsetIndex * 17) % 5) * 0.58;
-      const safe = findSafeParticle(leg, slot, count, offset, radius);
+      const safe = findSafeParticle(leg, slot, count, resolvedOffset, radius);
       offsetIndex += 1;
       if (!safe) continue;
 
@@ -574,14 +580,14 @@ function resizeCanvas() {
   const canvas = canvasRef.value;
   const host = canvas?.parentElement;
   if (!canvas || !host) return;
-  const rect = host.getBoundingClientRect();
-  width = Math.max(1, rect.width);
-  height = Math.max(1, rect.height);
-  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const presentationScale = getLandingPresentationScale(host);
+  width = Math.max(1, host.clientWidth);
+  height = Math.max(1, host.clientHeight);
+  dpr = Math.min((window.devicePixelRatio || 1) * presentationScale, 2);
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
-  canvas.style.width = `${width}px`;
-  canvas.style.height = `${height}px`;
+  canvas.style.width = "100%";
+  canvas.style.height = "100%";
   context = canvas.getContext("2d");
   context?.setTransform(dpr, 0, 0, dpr, 0, 0);
   refreshAnchors();

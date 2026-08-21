@@ -329,7 +329,9 @@ function syncIntroHeight() {
 
     const steps = [...stack.querySelectorAll<HTMLElement>(".vz-about__step-copy")];
     if (!steps.length) return;
-    const stepHeights = steps.map((step) => Math.ceil(step.getBoundingClientRect().height));
+    const stepHeights = steps.map((step) => Math.ceil(
+      Math.max(step.scrollHeight, step.offsetHeight),
+    ));
     const activeIndex = Math.max(0, Math.min(stepHeights.length - 1, props.displayStepIndex));
     const activeHeight = stepHeights[activeIndex] || Math.max(...stepHeights);
     const reservedHeight = Math.max(...stepHeights);

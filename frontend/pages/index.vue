@@ -143,6 +143,7 @@
       :copy="copy.clients"
       :segments="clientSegments"
       @cube-ready="setClientCubeHost"
+      @layout-change="updateClientCubePosition"
     />
 
     <LandingCases
@@ -178,7 +179,10 @@ import type { ITechStack } from "~/utils/interfaces/ITechStack";
 import enMessagesRaw from "~/locales/en.json?raw";
 import ruMessagesRaw from "~/locales/ru.json?raw";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
-import { syncThreeRendererPixelRatio } from "~/utils/threeRenderQuality";
+import {
+  getLandingPresentationScale,
+  syncThreeRendererPixelRatio,
+} from "~/utils/threeRenderQuality";
 
 definePageMeta({
   layout: false,
@@ -422,6 +426,8 @@ let stackSphereCleanup: (() => void) | null = null;
 let clientCubeCleanup: (() => void) | null = null;
 let updateClientCubeStage: ((index: number) => void) | null = null;
 let clientLayoutResizeObserver: ResizeObserver | null = null;
+let clientLayoutMotionCleanup: (() => void) | null = null;
+let clientLayoutMotionRaf = 0;
 let isHeaderZoneHovered = false;
 let isHeaderHovered = false;
 let isHeaderFocused = false;
@@ -1072,7 +1078,7 @@ async function setupAboutLiquidScene() {
       powerPreference: "high-performance",
     });
     renderer.setClearColor(0x000000, 0);
-    syncThreeRendererPixelRatio(renderer);
+    syncThreeRendererPixelRatio(renderer, host);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 0.94;
@@ -1115,7 +1121,7 @@ async function setupAboutLiquidScene() {
     const resize = () => {
       const width = Math.max(1, host.clientWidth);
       const height = Math.max(1, host.clientHeight);
-      syncThreeRendererPixelRatio(renderer);
+      syncThreeRendererPixelRatio(renderer, host);
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -1257,7 +1263,7 @@ async function setupStackSphereScene() {
       powerPreference: "high-performance",
     });
     renderer.setClearColor(0x000000, 0);
-    syncThreeRendererPixelRatio(renderer);
+    syncThreeRendererPixelRatio(renderer, host);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.domElement.setAttribute("aria-hidden", "true");
     const labelLayer = document.createElement("div");
@@ -1490,7 +1496,7 @@ async function setupStackSphereScene() {
       updateStackSpherePosition();
       const width = Math.max(1, host.clientWidth);
       const height = Math.max(1, host.clientHeight);
-      syncThreeRendererPixelRatio(renderer);
+      syncThreeRendererPixelRatio(renderer, host);
       renderer.setSize(width, height, false);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
@@ -1660,7 +1666,7 @@ async function setupClientCubeScene() {
       powerPreference: "high-performance",
     });
     renderer.setClearColor(0x000000, 0);
-    syncThreeRendererPixelRatio(renderer);
+    syncThreeRendererPixelRatio(renderer, host);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.06;
@@ -1873,7 +1879,7 @@ async function setupClientCubeScene() {
     const resize = () => {
       const width = Math.max(1, host.clientWidth);
       const height = Math.max(1, host.clientHeight);
-      syncThreeRendererPixelRatio(renderer);
+      syncThreeRendererPixelRatio(renderer, host);
       renderer.setSize(width, height, false);
       const aspect = width / height;
       const baseAspect = 1.08;
@@ -1976,14 +1982,15 @@ function updateStackSpherePosition() {
   const backendRect = backendItem.getBoundingClientRect();
   const devopsRect = devopsItem.getBoundingClientRect();
   const sphereRect = host.getBoundingClientRect();
-  const sphereSize = sphereRect.height || host.offsetHeight;
-  const sphereWidth = sphereRect.width || host.offsetWidth;
+  const presentationScale = getLandingPresentationScale(host);
+  const sphereSize = sphereRect.height / presentationScale || host.offsetHeight;
+  const sphereWidth = sphereRect.width / presentationScale || host.offsetWidth;
   if (!sphereSize || !sphereWidth) return;
 
   const backendCenter = backendRect.top + backendRect.height / 2;
   const devopsCenter = devopsRect.top + devopsRect.height / 2;
-  const targetY = (backendCenter + devopsCenter) / 2 - innerRect.top;
-  const targetX = metaRect.left + metaRect.width / 2 - innerRect.left;
+  const targetY = ((backendCenter + devopsCenter) / 2 - innerRect.top) / presentationScale;
+  const targetX = (metaRect.left + metaRect.width / 2 - innerRect.left) / presentationScale;
   const nextTop = `${Math.round(targetY - sphereSize / 2)}px`;
   const nextLeft = `${Math.round(targetX - sphereWidth / 2)}px`;
   if (host.style.getPropertyValue("--stack-sphere-top") !== nextTop) {
@@ -2013,8 +2020,8 @@ function updateClientCubePosition() {
   const headingGroup = grid.querySelector<HTMLElement>(".vz-clients__head");
   const heading = headingGroup?.querySelector<HTMLElement>("h2");
   const activeTitle = grid.querySelector<HTMLElement>(".vz-client-copy h3");
-  const activeCard = grid.querySelector<HTMLElement>(".vz-client-card-track > p:not(.vz-client-card-sizer)");
-  const clientCards = Array.from(grid.querySelectorAll<HTMLElement>(".vz-client-card-track > p"));
+  const activeCard = grid.querySelector<HTMLElement>(".vz-client-card-slot");
+  const cardReserve = grid.querySelector<HTMLElement>(".vz-client-card-reserve");
   const capsules = grid.querySelector<HTMLElement>(".vz-client-capsules");
   const gridRect = grid.getBoundingClientRect();
   const headingRect = heading?.getBoundingClientRect();
@@ -2022,13 +2029,13 @@ function updateClientCubePosition() {
   const cardRect = activeCard?.getBoundingClientRect();
   const capsulesRect = capsules?.getBoundingClientRect();
   const cubeRect = host.getBoundingClientRect();
-  const cubeWidth = cubeRect.width || host.offsetWidth;
-  const cubeHeight = cubeRect.height || host.offsetHeight;
-  const longestCardBottom = clientCards.reduce(
-    (bottom, card) => Math.max(bottom, card.getBoundingClientRect().bottom),
-    gridRect.top,
-  );
-  const nextContentHeight = `${Math.ceil(longestCardBottom - gridRect.top)}px`;
+  const presentationScale = getLandingPresentationScale(host);
+  const cubeWidth = cubeRect.width / presentationScale || host.offsetWidth;
+  const cubeHeight = cubeRect.height / presentationScale || host.offsetHeight;
+  const reservedCardBottom = cardReserve?.getBoundingClientRect().bottom
+    ?? activeCard?.getBoundingClientRect().bottom
+    ?? gridRect.top;
+  const nextContentHeight = `${Math.ceil((reservedCardBottom - gridRect.top) / presentationScale)}px`;
 
   if (grid.style.getPropertyValue("--client-content-height") !== nextContentHeight) {
     grid.style.setProperty("--client-content-height", nextContentHeight);
@@ -2044,7 +2051,9 @@ function updateClientCubePosition() {
       getComputedStyle(headingGroup).getPropertyValue("--client-head-y"),
     ) || 0;
     const currentHeadingCenter = headingRect.top + headingRect.height / 2;
-    const nextHeadOffset = `${Math.round(renderedHeadOffset + targetViewportY - currentHeadingCenter)}px`;
+    const nextHeadOffset = `${Math.round(
+      renderedHeadOffset + (targetViewportY - currentHeadingCenter) / presentationScale,
+    )}px`;
     if (headingGroup.style.getPropertyValue("--client-head-y") !== nextHeadOffset) {
       headingGroup.style.setProperty("--client-head-y", nextHeadOffset);
     }
@@ -2052,10 +2061,14 @@ function updateClientCubePosition() {
 
   const cubeVisualCenterRatio = 0.62;
   const rightSceneRoom = Math.max(0, cubeWidth - cubeHeight * 1.08);
-  const targetRightWithinGrid = (capsulesRect?.right ?? gridRect.right) - gridRect.left;
+  const targetRightWithinGrid = (
+    (capsulesRect?.right ?? gridRect.right) - gridRect.left
+  ) / presentationScale;
   // The canvas reserves transparent space on the right, so align the visible cube edge.
   const nextLeft = `${Math.round(targetRightWithinGrid - cubeWidth + rightSceneRoom)}px`;
-  const nextTop = `${Math.round(targetViewportY - gridRect.top - cubeHeight * cubeVisualCenterRatio)}px`;
+  const nextTop = `${Math.round(
+    (targetViewportY - gridRect.top) / presentationScale - cubeHeight * cubeVisualCenterRatio,
+  )}px`;
 
   if (host.style.getPropertyValue("--client-cube-left") !== nextLeft) {
     host.style.setProperty("--client-cube-left", nextLeft);
@@ -2063,6 +2076,26 @@ function updateClientCubePosition() {
   if (host.style.getPropertyValue("--client-cube-top") !== nextTop) {
     host.style.setProperty("--client-cube-top", nextTop);
   }
+}
+
+function getLandingLayoutRect(element: Element) {
+  const rect = element.getBoundingClientRect();
+  const presentationScale = getLandingPresentationScale(element);
+  return DOMRect.fromRect({
+    x: rect.x / presentationScale,
+    y: rect.y / presentationScale,
+    width: rect.width / presentationScale,
+    height: rect.height / presentationScale,
+  });
+}
+
+function getLandingLayoutViewport(element: Element | null = rootRef.value) {
+  const presentationScale = getLandingPresentationScale(element);
+  return {
+    height: window.innerHeight / presentationScale,
+    scale: presentationScale,
+    width: window.innerWidth / presentationScale,
+  };
 }
 
 function getFooterGameTrack() {
@@ -2252,14 +2285,14 @@ function getSectionLiquidTargets() {
     const section = root.querySelector<HTMLElement>(config.section);
     if (!element || !section) return targets;
 
-    const rect = element.getBoundingClientRect();
+    const rect = getLandingLayoutRect(element);
     if (rect.width < 2 || rect.height < 2) return targets;
 
     targets.push({
       element,
       key: config.key,
       rect,
-      sectionRect: section.getBoundingClientRect(),
+      sectionRect: getLandingLayoutRect(section),
     });
 
     return targets;
@@ -2278,22 +2311,24 @@ function getSectionLiquidRadius(target: SectionLiquidTarget) {
     );
   }
 
-  const wideLimit = window.innerWidth * 0.13;
+  const wideLimit = getLandingLayoutViewport(target.element).width * 0.13;
   const byWidth = target.rect.width * 0.2;
   const byHeight = target.rect.height * (target.key === "footer" ? 0.46 : 0.72);
   return clampValue(Math.max(78, Math.min(wideLimit, byWidth, byHeight)), 68, 162);
 }
 
 function isSectionLiquidTargetFullyVisible(target: SectionLiquidTarget) {
+  const viewportHeight = getLandingLayoutViewport(target.element).height;
   const topGuard = window.innerWidth > 900 ? 76 : 62;
   const bottomGuard = 24;
-  return target.rect.top >= topGuard && target.rect.bottom <= window.innerHeight - bottomGuard;
+  return target.rect.top >= topGuard && target.rect.bottom <= viewportHeight - bottomGuard;
 }
 
 function isSectionLiquidTargetVisible(target: SectionLiquidTarget) {
+  const viewportHeight = getLandingLayoutViewport(target.element).height;
   const topGuard = window.innerWidth > 900 ? 76 : 62;
   const bottomGuard = 24;
-  return target.rect.bottom > topGuard && target.rect.top < window.innerHeight - bottomGuard;
+  return target.rect.bottom > topGuard && target.rect.top < viewportHeight - bottomGuard;
 }
 
 function getSectionLiquidTargetCenter(target: SectionLiquidTarget) {
@@ -2308,7 +2343,7 @@ function getStackLiquidScrollLock(targets: SectionLiquidTarget[]) {
   if (
     !stackTarget
     || stackTarget.sectionRect.top > 0
-    || stackTarget.sectionRect.bottom < window.innerHeight
+    || stackTarget.sectionRect.bottom < getLandingLayoutViewport(stackTarget.element).height
   ) return null;
 
   return stackTarget;
@@ -2319,7 +2354,7 @@ function formatStablePx(value: number) {
 }
 
 function getClosestSectionLiquidTarget(targets: SectionLiquidTarget[]) {
-  const viewportCenter = window.innerHeight * 0.5;
+  const viewportCenter = getLandingLayoutViewport(targets[0]?.element).height * 0.5;
   return targets.reduce((best, target) => {
     const bestDistance = Math.abs(getSectionLiquidTargetCenter(best) - viewportCenter);
     const distance = Math.abs(getSectionLiquidTargetCenter(target) - viewportCenter);
@@ -2333,20 +2368,20 @@ function getInitialSectionLiquidTarget(targets: SectionLiquidTarget[]) {
 
   const viewportTargets = targets.filter((target) => (
     target.rect.bottom > 0 &&
-    target.rect.top < window.innerHeight
+    target.rect.top < getLandingLayoutViewport(target.element).height
   ));
 
   return viewportTargets.length ? getClosestSectionLiquidTarget(viewportTargets) : getClosestSectionLiquidTarget(targets);
 }
 
 function getSectionLiquidSwitchLine(direction: number) {
-  return window.innerHeight * (direction > 0 ? 0.43 : 0.57);
+  return getLandingLayoutViewport().height * (direction > 0 ? 0.43 : 0.57);
 }
 
 function isSectionLiquidTargetReadyToEnter(target: SectionLiquidTarget, direction: number) {
   const center = getSectionLiquidTargetCenter(target);
   const switchLine = getSectionLiquidSwitchLine(direction);
-  const enterLine = window.innerHeight * (direction > 0 ? 0.78 : 0.22);
+  const enterLine = getLandingLayoutViewport(target.element).height * (direction > 0 ? 0.78 : 0.22);
 
   return direction > 0
     ? center >= switchLine && center <= enterLine
@@ -2506,6 +2541,25 @@ function setupClientLayoutObserver() {
   clientLayoutResizeObserver = new ResizeObserver(updateClientCubePosition);
   clientLayoutResizeObserver.observe(grid);
   clientLayoutResizeObserver.observe(heading);
+
+  const section = grid.closest<HTMLElement>(".vz-clients");
+  if (section && !clientLayoutMotionCleanup) {
+    const handleMotionEnd = () => {
+      if (clientLayoutMotionRaf) cancelAnimationFrame(clientLayoutMotionRaf);
+      clientLayoutMotionRaf = requestAnimationFrame(() => {
+        clientLayoutMotionRaf = 0;
+        updateClientCubePosition();
+      });
+    };
+
+    section.addEventListener("animationend", handleMotionEnd);
+    clientLayoutMotionCleanup = () => {
+      section.removeEventListener("animationend", handleMotionEnd);
+      if (clientLayoutMotionRaf) cancelAnimationFrame(clientLayoutMotionRaf);
+      clientLayoutMotionRaf = 0;
+      clientLayoutMotionCleanup = null;
+    };
+  }
 }
 
 function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
@@ -2516,8 +2570,8 @@ function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
 
   const sourceText = target.element.querySelector<HTMLElement>("[data-reveal]")
     ?? target.element;
-  const sourceRect = sourceText.getBoundingClientRect();
-  const overlayRect = overlay.getBoundingClientRect();
+  const sourceRect = getLandingLayoutRect(sourceText);
+  const overlayRect = getLandingLayoutRect(overlay);
   const sourceStyle = window.getComputedStyle(sourceText);
   const text = sourceText.textContent?.replace(/\s+/g, " ").trim() ?? "";
   if (!text) return;
@@ -2604,13 +2658,13 @@ function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
     ?? target.element;
   const cloneText = cloneTarget.querySelector<HTMLElement>("span span")
     ?? cloneTarget;
-  const cloneSectionRect = cloneSection.getBoundingClientRect();
+  const cloneSectionRect = getLandingLayoutRect(cloneSection);
 
   cloneSection.style.translate = `${formatStablePx(target.sectionRect.left - cloneSectionRect.left)} ${formatStablePx(target.sectionRect.top - cloneSectionRect.top)}`;
   cloneSection.dataset.liquidCloneAligned = "true";
 
-  const sourceRect = sourceText.getBoundingClientRect();
-  const cloneRect = cloneText.getBoundingClientRect();
+  const sourceRect = getLandingLayoutRect(sourceText);
+  const cloneRect = getLandingLayoutRect(cloneText);
 
   cloneTarget.style.translate = `${formatStablePx(sourceRect.left - cloneRect.left)} ${formatStablePx(sourceRect.top - cloneRect.top)}`;
   cloneTarget.dataset.liquidTextAligned = "true";
@@ -2643,10 +2697,11 @@ function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
     const dy = targetY - sectionLiquidState.currentY;
     const distance = Math.max(1, Math.hypot(dx, dy));
     const isMobile = window.innerWidth <= 900;
+    const layoutViewport = getLandingLayoutViewport(target.element);
     const widestRadius = Math.max(sectionLiquidState.radius, targetRadius);
     const offscreenClearance = isMobile
-      ? Math.max(28, window.innerWidth * 0.065)
-      : Math.max(120, window.innerWidth * 0.085);
+      ? Math.max(28, layoutViewport.width * 0.065)
+      : Math.max(120, layoutViewport.width * 0.085);
     const apexX = -(widestRadius + offscreenClearance);
     const midpointX = (sectionLiquidState.currentX + targetX) / 2;
 
@@ -2723,7 +2778,7 @@ function animateSectionLiquid(now: number) {
       const sticky = rootRef.value?.querySelector<HTMLElement>(
         "[data-stack-section] > .vz-sticky",
       );
-      const stickyRect = sticky?.getBoundingClientRect();
+      const stickyRect = sticky ? getLandingLayoutRect(sticky) : null;
       sectionLiquidStackLock = {
         x: stackScrollLock.rect.left + stackScrollLock.rect.width / 2,
         y: stackScrollLock.rect.top + stackScrollLock.rect.height / 2,
@@ -2833,14 +2888,15 @@ function animateSectionLiquid(now: number) {
   sectionLiquidState.lastX = sectionLiquidState.currentX;
   sectionLiquidState.lastY = sectionLiquidState.currentY;
 
-  const overlayRect = overlay.getBoundingClientRect();
+  const overlayRect = getLandingLayoutRect(overlay);
+  const layoutViewport = getLandingLayoutViewport(overlay);
   const bounds = {
-    bottom: window.innerHeight - overlayRect.top,
-    height: window.innerHeight,
+    bottom: layoutViewport.height - overlayRect.top,
+    height: layoutViewport.height,
     left: -overlayRect.left,
-    right: window.innerWidth - overlayRect.left,
+    right: layoutViewport.width - overlayRect.left,
     top: -overlayRect.top,
-    width: window.innerWidth,
+    width: layoutViewport.width,
   };
   const moveIntensity = clampValue(Math.max(sectionLiquidState.speed, directDistance / 340), 0, 1);
   const renderRadius = sectionLiquidState.radius * (1 - moveIntensity * 0.34);
@@ -2895,10 +2951,12 @@ function updateHeroNegative(event: PointerEvent) {
   const hero = heroRef.value;
   if (!hero || event.pointerType === "touch") return;
 
-  const rect = hero.getBoundingClientRect();
+  const visualRect = hero.getBoundingClientRect();
+  const presentationScale = getLandingPresentationScale(hero);
+  const rect = getLandingLayoutRect(hero);
   const bounds = getHeroLiquidBounds(hero, rect);
-  const pointerX = event.clientX - rect.left;
-  const pointerY = event.clientY - rect.top;
+  const pointerX = (event.clientX - visualRect.left) / presentationScale;
+  const pointerY = (event.clientY - visualRect.top) / presentationScale;
   const isInsideBounds = pointerX >= bounds.left && pointerX <= bounds.right && pointerY >= bounds.top && pointerY <= bounds.bottom;
   if (!isInsideBounds) return;
 
@@ -2950,7 +3008,7 @@ function animateHeroNegative(now: number) {
     return;
   }
 
-  const rect = hero.getBoundingClientRect();
+  const rect = getLandingLayoutRect(hero);
   if (rect.width < 1 || rect.height < 1) {
     heroFxRaf = requestAnimationFrame(animateHeroNegative);
     return;
@@ -3029,7 +3087,7 @@ function getHeroLiquidBounds(hero: HTMLElement, heroRect: DOMRect): HeroLiquidBo
     };
   }
 
-  const titleRect = title.getBoundingClientRect();
+  const titleRect = getLandingLayoutRect(title);
   const left = clampValue(titleRect.left - heroRect.left, 0, heroRect.width);
   const top = clampValue(titleRect.top - heroRect.top, 0, heroRect.height);
   const right = clampValue(titleRect.right - heroRect.left, left, heroRect.width);
@@ -3457,8 +3515,9 @@ function updateNegativeWorldPositions() {
     overlay.style.right = "";
     overlay.style.bottom = "";
     overlay.style.minHeight = "";
-    const rect = root.getBoundingClientRect();
-    const height = Math.max(root.scrollHeight, root.offsetHeight, window.innerHeight);
+    const rect = getLandingLayoutRect(root);
+    const layoutViewport = getLandingLayoutViewport(root);
+    const height = Math.max(root.scrollHeight, root.offsetHeight, layoutViewport.height);
     const cloneStackSticky = pageHost.querySelector<HTMLElement>(
       "[data-negative-clone='true'] [data-stack-section] > .vz-sticky",
     );
@@ -3469,11 +3528,11 @@ function updateNegativeWorldPositions() {
     if (window.innerWidth > 900 && sectionLiquidState.lastTargetKey === "stack") {
       overlay.style.left = "0px";
       overlay.style.top = "0px";
-      overlay.style.width = formatStablePx(window.innerWidth);
-      overlay.style.height = formatStablePx(window.innerHeight);
+      overlay.style.width = formatStablePx(layoutViewport.width);
+      overlay.style.height = formatStablePx(layoutViewport.height);
 
       const stickyRect = sectionLiquidStackLock?.stickyBounds
-        ?? sourceStackSticky?.getBoundingClientRect()
+        ?? (sourceStackSticky ? getLandingLayoutRect(sourceStackSticky) : null)
         ?? null;
       if (stickyRect && cloneStackSticky) {
         cloneStackSticky.style.position = "fixed";
@@ -3497,8 +3556,8 @@ function updateNegativeWorldPositions() {
       cloneStackSticky.style.height = "";
     }
 
-    const documentLeft = rect.left + window.scrollX;
-    const documentTop = rect.top + window.scrollY;
+    const documentLeft = rect.left + window.scrollX / layoutViewport.scale;
+    const documentTop = rect.top + window.scrollY / layoutViewport.scale;
     overlay.style.left = formatStablePx(documentLeft);
     overlay.style.top = formatStablePx(documentTop);
     overlay.style.width = formatStablePx(rect.width);
@@ -3583,6 +3642,7 @@ onBeforeUnmount(() => {
   window.visualViewport?.removeEventListener("resize", scheduleUpdate);
   clearHeaderIdleTimer();
   clientLayoutResizeObserver?.disconnect();
+  clientLayoutMotionCleanup?.();
   sectionLiquidLayoutObserver?.disconnect();
   if (raf) cancelAnimationFrame(raf);
   if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
@@ -3686,7 +3746,7 @@ useHead(() => ({
   --aura: rgba(63, 77, 91, 0.1);
   --section-space: 80px;
   overflow-x: clip;
-  min-height: 100vh;
+  min-height: var(--landing-layout-viewport-height, 100vh);
   background: var(--bg);
   color: var(--ink);
   font-family: var(--font-ui, "Onest", system-ui, sans-serif);
@@ -4413,7 +4473,7 @@ useHead(() => ({
   left: 0;
   z-index: 170;
   width: 100%;
-  min-height: 100vh;
+  min-height: var(--landing-layout-viewport-height, 100vh);
   overflow: clip;
   opacity: 0;
   pointer-events: none;
@@ -4542,7 +4602,7 @@ useHead(() => ({
   .vz-stack__active-card,
   .vz-stack__mobile-details,
   .vz-service-caption,
-  .vz-client-copy p,
+  .vz-client-card-slot,
   .vz-cases__caption > *,
   .vz-contacts__inner
 ) {
@@ -4634,8 +4694,8 @@ useHead(() => ({
 .vz-hero > .vz-marquee {
   position: relative;
   z-index: 1;
-  width: 100vw;
-  margin: 20px 0 0 calc(50% - 50vw);
+  width: var(--landing-layout-viewport-width, 100vw);
+  margin: 20px 0 0 calc(50% - var(--landing-layout-viewport-half-width, 50vw));
 }
 
 .vz-marquee > div {
@@ -4701,7 +4761,7 @@ useHead(() => ({
 .vz-about__liquid {
   position: absolute;
   top: clamp(82px, 9vw, 132px);
-  right: max(-64px, calc((100vw - 1240px) / 2 - 64px));
+  right: max(-64px, calc((var(--landing-layout-viewport-width, 100vw) - 1240px) / 2 - 64px));
   z-index: 0;
   width: clamp(300px, 30vw, 480px);
   aspect-ratio: 16 / 10;
@@ -5305,7 +5365,10 @@ useHead(() => ({
   grid-template-columns: minmax(400px, 0.82fr) minmax(0, 1.18fr);
   gap: clamp(40px, 5vw, 80px);
   align-items: center;
-  height: max(clamp(540px, 56vh, 620px), var(--client-content-height));
+  height: max(
+    clamp(540px, var(--landing-client-grid-fluid-height, 56vh), 620px),
+    var(--client-content-height)
+  );
   min-height: 0;
 }
 
@@ -5439,52 +5502,54 @@ useHead(() => ({
   text-transform: uppercase;
 }
 
-.vz-client-card-slot {
-  display: contents;
+.vz-client-card-reserve {
+  position: relative;
+  display: grid;
+  width: 100%;
+  max-width: 62ch;
+  margin-top: calc(clamp(104px, 10vw, 120px) + 18px);
 }
 
-.vz-client-card-track {
-  display: contents;
+.vz-client-card-reserve > * {
+  grid-area: 1 / 1;
+  align-self: start;
+}
+
+.vz-client-card-slot,
+.vz-client-card-sizer {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 22px 24px;
+  border: 1px solid transparent;
+}
+
+.vz-client-card-slot {
+  overflow: hidden;
+  border-color: var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+  border-radius: 24px;
+  background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
+  box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
+  backdrop-filter: blur(18px) saturate(1.08);
 }
 
 .vz-client-card-sizer {
-  display: none;
+  visibility: hidden;
+  pointer-events: none;
 }
 
-@media (min-width: 901px) {
-  .vz-client-card-track {
-    display: grid;
-    transform: translateY(clamp(104px, 10vw, 120px));
-  }
-
-  .vz-client-card-track > p {
-    grid-area: 1 / 1;
-    align-self: start;
-  }
-
-  .vz-client-card-track > .vz-client-card-sizer {
-    display: block;
-    visibility: hidden;
-    pointer-events: none;
-  }
+.vz-client-card-slot.is-height-ready {
+  height: var(--client-card-height);
+  transition: height 280ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
 }
 
 .vz-client-copy p {
   position: relative;
   width: 100%;
-  max-width: 62ch;
   height: auto;
-  min-height: 190px;
-  margin: 18px 0 0;
-  padding: 22px 24px;
-  border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
-  border-radius: 24px;
-  background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
-  box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
+  margin: 0;
   color: var(--text2);
   font-size: var(--type-body);
   line-height: 1.65;
-  backdrop-filter: blur(18px) saturate(1.08);
 }
 
 .vz-client-cube-field {
@@ -6362,21 +6427,19 @@ useHead(() => ({
     text-wrap: balance;
   }
 
-  .vz-client-card-slot {
-    display: grid;
+  .vz-client-card-reserve {
     order: 6;
     margin-top: 16px;
+    max-width: none;
   }
 
-  .vz-client-card-track > p {
-    grid-area: 1 / 1;
-    align-self: start;
+  .vz-client-card-slot,
+  .vz-client-card-sizer {
+    padding: 18px;
   }
 
-  .vz-client-card-track > .vz-client-card-sizer {
-    display: block;
-    visibility: hidden;
-    pointer-events: none;
+  .vz-client-card-slot {
+    border-radius: 20px;
   }
 
   .vz-client-copy p {
@@ -6386,12 +6449,6 @@ useHead(() => ({
     width: 100%;
     max-width: none;
     margin-top: 0;
-    padding: 18px;
-    border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
-    border-radius: 20px;
-    background: var(--landing-card-surface-diagonal, var(--landing-card-surface, var(--bg)));
-    box-shadow: var(--landing-card-shadow, 0 22px 50px -40px color-mix(in srgb, var(--ink) 36%, transparent));
-    backdrop-filter: blur(18px) saturate(1.08);
     font-size: var(--type-body);
     line-height: 1.55;
   }
@@ -6588,6 +6645,25 @@ useHead(() => ({
   width: fit-content;
   margin-inline: auto;
 }
+
+@media (min-width: 2200px) and (min-height: 1000px) {
+  html {
+    --landing-presentation-scale: 1.5;
+    --landing-layout-viewport-width: 66.6666667vw;
+    --landing-layout-viewport-half-width: 33.3333333vw;
+    --landing-layout-viewport-height: 66.6666667vh;
+    --landing-stack-scroll-height: 253.3333333vh;
+    --landing-client-grid-fluid-height: 37.3333333vh;
+    zoom: 1.5;
+    overflow-x: clip;
+  }
+
+  body {
+    width: 66.6666667vw;
+    overflow-x: clip;
+  }
+}
+
 
 @media (max-width: 900px) {
   .vz-contacts__buttons {

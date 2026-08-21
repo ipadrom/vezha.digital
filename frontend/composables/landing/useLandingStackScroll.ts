@@ -57,11 +57,12 @@ export function useLandingStackScroll(
     if (!section) return;
     if (window.innerWidth <= 900) return;
 
-    const total = Math.max(1, section.offsetHeight - window.innerHeight);
-    const nextProgress = Math.max(0, Math.min(1, -section.getBoundingClientRect().top / total));
+    const sectionRect = section.getBoundingClientRect();
+    const total = Math.max(1, sectionRect.height - window.innerHeight);
+    const nextProgress = Math.max(0, Math.min(1, -sectionRect.top / total));
     const count = Math.max(1, itemCount.value);
     const nextIndex = count > 1
-      ? Math.min(count - 1, Math.floor(nextProgress * (count - 1) + 1e-6))
+      ? Math.min(count - 1, Math.floor(nextProgress * count + 1e-6))
       : 0;
 
     progress.value = nextProgress;
@@ -83,7 +84,7 @@ export function useLandingStackScroll(
     if (!section || count < 1) return;
 
     const nextIndex = Math.max(0, Math.min(count - 1, index));
-    const maxProgress = count > 1 ? nextIndex / (count - 1) : 0;
+    const maxProgress = count > 1 ? nextIndex / count : 0;
     if (window.innerWidth <= 900) {
       manualMobileSelection = true;
       stopMobileAutoplay();
@@ -91,9 +92,9 @@ export function useLandingStackScroll(
       return;
     }
 
-    const scrollRange = Math.max(0, section.offsetHeight - window.innerHeight);
-
-    const sectionTop = window.scrollY + section.getBoundingClientRect().top;
+    const sectionRect = section.getBoundingClientRect();
+    const scrollRange = Math.max(0, sectionRect.height - window.innerHeight);
+    const sectionTop = window.scrollY + sectionRect.top;
     window.scrollTo({
       top: Math.ceil(sectionTop + scrollRange * maxProgress),
       behavior: "auto",
