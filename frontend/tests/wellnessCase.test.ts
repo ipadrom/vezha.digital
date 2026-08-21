@@ -135,15 +135,29 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.match(header, /class="case-header__inner"/);
   assert.match(header, /class="case-header__menu"/);
   assert.match(header, /class="case-header__mobile-nav"/);
+  assert.match(header, /:data-nav-visible="isHeaderShown \? 'true' : 'false'"/);
+  assert.match(header, /class="case-header-hover-zone"/);
+  assert.match(header, /function queueHeaderHide\(delay = 820\)/);
+  assert.match(header, /queueHeaderHide\(220\)/);
+  assert.match(header, /Math\.abs\(delta\) < 6/);
+  assert.match(header, /isHeaderVisible\.value = delta < 0/);
+  assert.match(header, /window\.addEventListener\("scroll", handleHeaderScroll, \{ passive: true \}\)/);
+  assert.match(header, /window\.addEventListener\("resize", handleHeaderResize, \{ passive: true \}\)/);
   assert.doesNotMatch(header, /toggle-locale|case-header__locale|English version/);
   assert.match(header, /theme === "dark" \? "☀" : "☾"/);
   assert.match(css, /\.case-header__inner\s*\{[^}]*max-width:\s*1240px;/s);
   assert.match(css, /\.case-header\s*\{[^}]*padding:\s*12px max\(40px, calc\(\(100% - 1240px\) \/ 2\)\) 0;/s);
+  assert.match(css, /\.case-header__inner\s*\{[^}]*backdrop-filter:\s*saturate\(1\.18\) blur\(18px\);[^}]*opacity:\s*1;[^}]*transform:\s*translate3d\(0, 0, 0\);[^}]*opacity 180ms var\(--ease-out[^}]*transform 220ms var\(--ease-out/s);
+  assert.match(css, /\.case-header\[data-nav-visible="false"\] \.case-header__inner\s*\{[^}]*opacity:\s*0;[^}]*transform:\s*translate3d\(0, calc\(-100% - 24px\), 0\);[^}]*visibility:\s*hidden;/s);
+  assert.match(css, /\.case-header-hover-zone\s*\{[^}]*height:\s*96px;[^}]*background:\s*transparent;/s);
   assert.match(css, /\.case-header__inner\s*\{[^}]*height:\s*64px;[^}]*padding:\s*0 12px 0 20px;/s);
   assert.match(css, /\.case-header__icon, \.case-header__cta, \.case-header__menu\s*\{[^}]*height:\s*44px;/s);
   assert.match(css, /\.case-header__menu\s*\{[^}]*display:\s*none;/s);
   assert.match(css, /\.case-header__inner\s*\{[^}]*border-radius:\s*999px;/s);
   assert.match(css, /\.case-header__inner\s*\{[^}]*backdrop-filter:\s*saturate\(1\.18\) blur\(18px\)/s);
+  assert.match(css, /\.case-menu-enter-active, \.case-menu-leave-active\s*\{[^}]*opacity 400ms ease[^}]*transform 400ms cubic-bezier\(\.77, 0, \.175, 1\);/s);
+  assert.match(css, /\.case-menu-enter-from, \.case-menu-leave-to\s*\{[^}]*opacity:\s*0;[^}]*transform:\s*translateY\(-100%\);/s);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.case-menu-enter-active, \.case-menu-leave-active\s*\{[^}]*opacity 100ms ease;/s);
   assert.match(page, /localStorage\.setItem\("vz_theme", theme\.value\)/);
   assert.match(page, /localStorage\.getItem\("vz_theme"\) === "dark"/);
 });
@@ -315,6 +329,19 @@ test("case sections use a compact shared rhythm and the last open disclosure has
   assert.match(baseCss, /\.builder-block--space-large \.builder-block__inner\s*\{[^}]*padding:\s*clamp\(44px, 3\.5cqw, 52px\) clamp\(40px, 7cqw, 104px\);/s);
   assert.match(v2Css, /\.builder-block:not\([^}]+margin-block:\s*clamp\(0\.375rem, 0\.4vw, 0\.5rem\);/s);
   assert.match(v2Css, /\.builder-process > li:last-child\.is-open\s*\{[^}]*border-bottom-color:\s*transparent;/s);
+});
+
+test("case process controls animate their fill and balance the edge controls", () => {
+  const css = readFileSync("assets/css/case-builder-v2.css", "utf8");
+
+  assert.match(css, /\.builder-process__trigger\s*>\s*i,[\s\S]*?border:\s*0;[\s\S]*?background:\s*transparent;/s);
+  assert.match(css, /\.builder-process__trigger::before\s*\{[^}]*clip-path:\s*inset\(100% 0 0\);[^}]*transition:\s*clip-path 400ms cubic-bezier\(0\.77, 0, 0\.175, 1\);/s);
+  assert.match(css, /\.builder-process__trigger\s*>\s*i::before\s*\{[^}]*clip-path:\s*circle\(0 at 50% 50%\);[^}]*transition:\s*clip-path 400ms cubic-bezier\(0\.77, 0, 0\.175, 1\);/s);
+  assert.match(css, /\.builder-process__trigger\s*>\s*i,[\s\S]*?transform:\s*translateX\(-0\.5rem\);/s);
+  assert.match(css, /\.builder-process__trigger\s*>\s*span\s*\{[^}]*transform:\s*translateX\(0\.5rem\);/s);
+  assert.match(css, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)[\s\S]*?\.builder-block--process\s+\.builder-process__trigger:hover\s*>\s*i::before\s*\{[^}]*clip-path:\s*circle\(50% at 50% 50%\);/s);
+  assert.match(css, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)[\s\S]*?\.builder-block--process\s+\.builder-process__trigger:hover::before\s*\{[^}]*clip-path:\s*inset\(0\);/s);
+  assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.builder-process__trigger:active\s*\{[^}]*transform:\s*none;/s);
 });
 
 test("plain case content aligns with the header gutter", () => {

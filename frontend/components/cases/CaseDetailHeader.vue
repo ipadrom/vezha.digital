@@ -1,5 +1,20 @@
 <template>
-  <header class="case-header">
+  <div
+    class="case-header-hover-zone"
+    aria-hidden="true"
+    @pointerenter="handleHeaderZonePointerEnter"
+    @pointerleave="handleHeaderZonePointerLeave"
+  ></div>
+  <header
+    class="case-header"
+    :data-nav-visible="isHeaderShown ? 'true' : 'false'"
+    :aria-hidden="isHeaderShown ? undefined : 'true'"
+    :inert="isHeaderShown ? undefined : true"
+    @pointerenter="handleHeaderPointerEnter"
+    @pointerleave="handleHeaderPointerLeave"
+    @focusin="handleHeaderFocusIn"
+    @focusout="handleHeaderFocusOut"
+  >
     <div class="case-header__inner">
       <NuxtLink class="case-header__logo" to="/"><b>VEZHA</b><span>DIGITAL</span></NuxtLink>
       <nav class="case-header__nav" :aria-label="locale === 'ru' ? 'Навигация кейса' : 'Case navigation'">
@@ -47,4 +62,110 @@
 defineProps<{ locale: "ru" | "en"; theme: "light" | "dark"; hasTechnical: boolean }>();
 defineEmits<{ "toggle-theme": [] }>();
 const isMenuOpen = ref(false);
+const isHeaderVisible = ref(false);
+const isHeaderShown = computed(() => isHeaderVisible.value || isMenuOpen.value);
+let isHeaderZoneHovered = false;
+let isHeaderHovered = false;
+let isHeaderFocused = false;
+let headerIdleTimer: ReturnType<typeof setTimeout> | null = null;
+let headerLastScrollY = 0;
+
+function clearHeaderIdleTimer() {
+  if (!headerIdleTimer) return;
+  window.clearTimeout(headerIdleTimer);
+  headerIdleTimer = null;
+}
+
+function isDesktopHeaderViewport() {
+  return window.matchMedia("(min-width: 901px)").matches;
+}
+
+function revealHeader() {
+  clearHeaderIdleTimer();
+  isHeaderVisible.value = true;
+}
+
+function queueHeaderHide(delay = 820) {
+  if (!isDesktopHeaderViewport()) return;
+  clearHeaderIdleTimer();
+  headerIdleTimer = window.setTimeout(() => {
+    headerIdleTimer = null;
+    if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused || isMenuOpen.value) return;
+    isHeaderVisible.value = false;
+  }, delay);
+}
+
+function handleHeaderScroll() {
+  const nextScrollY = Math.max(0, window.scrollY);
+
+  if (isDesktopHeaderViewport()) {
+    headerLastScrollY = nextScrollY;
+    revealHeader();
+    queueHeaderHide();
+    return;
+  }
+
+  if (isMenuOpen.value || nextScrollY <= 12) {
+    headerLastScrollY = nextScrollY;
+    isHeaderVisible.value = true;
+    return;
+  }
+
+  const delta = nextScrollY - headerLastScrollY;
+  if (Math.abs(delta) < 6) return;
+
+  isHeaderVisible.value = delta < 0;
+  headerLastScrollY = nextScrollY;
+}
+
+function handleHeaderZonePointerEnter() {
+  isHeaderZoneHovered = true;
+  revealHeader();
+}
+
+function handleHeaderZonePointerLeave() {
+  isHeaderZoneHovered = false;
+  queueHeaderHide(220);
+}
+
+function handleHeaderPointerEnter() {
+  isHeaderHovered = true;
+  revealHeader();
+}
+
+function handleHeaderPointerLeave() {
+  isHeaderHovered = false;
+  queueHeaderHide(220);
+}
+
+function handleHeaderFocusIn() {
+  isHeaderFocused = true;
+  revealHeader();
+}
+
+function handleHeaderFocusOut(event: FocusEvent) {
+  const header = event.currentTarget;
+  const next = event.relatedTarget;
+  if (header instanceof HTMLElement && next instanceof Node && header.contains(next)) return;
+  isHeaderFocused = false;
+  queueHeaderHide(220);
+}
+
+function handleHeaderResize() {
+  clearHeaderIdleTimer();
+  headerLastScrollY = Math.max(0, window.scrollY);
+  isHeaderVisible.value = !isDesktopHeaderViewport();
+}
+
+onMounted(() => {
+  handleHeaderResize();
+  window.addEventListener("scroll", handleHeaderScroll, { passive: true });
+  window.addEventListener("resize", handleHeaderResize, { passive: true });
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("scroll", handleHeaderScroll);
+  window.removeEventListener("resize", handleHeaderResize);
+  clearHeaderIdleTimer();
+});
 </script>

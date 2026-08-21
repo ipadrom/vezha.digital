@@ -28,7 +28,7 @@
             :aria-label="`${two(index + 1)}. ${item.name}. ${item.type}`"
             :aria-selected="index === activeIndex"
             :tabindex="index === activeIndex ? 0 : -1"
-            @click="selectCase(index)"
+            @click="selectCase(index, false, true)"
           >
             <span>{{ two(index + 1) }}</span>
             <b>{{ caseLabel(item) }}</b>
@@ -43,14 +43,14 @@
           <button
             type="button"
             :aria-label="currentLocale === 'ru' ? 'Предыдущий кейс' : 'Previous case'"
-            @click="move(-1, false)"
+            @click="move(-1, false, true)"
           >
             <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
           </button>
           <button
             type="button"
             :aria-label="currentLocale === 'ru' ? 'Следующий кейс' : 'Next case'"
-            @click="move(1, false)"
+            @click="move(1, false, true)"
           >
             <svg aria-hidden="true" viewBox="0 0 20 20"><path d="m11 5 5 5-5 5M4 10h12" /></svg>
           </button>
@@ -240,7 +240,7 @@ function caseMonogram(project: IProjects) {
   return words.slice(0, 3).map((word) => word[0]).join("").toUpperCase();
 }
 
-function keepActiveTabVisible(index: number) {
+function keepActiveTabVisible(index: number, animate = false) {
   const tabList = tabListRef.value;
   const tab = tabList?.querySelector<HTMLElement>(`#case-tab-${index}`);
   if (!tab || !tabList) return;
@@ -265,7 +265,11 @@ function keepActiveTabVisible(index: number) {
     else return;
 
     const maxScroll = Math.max(0, tabList.scrollWidth - tabList.clientWidth);
-    tabList.scrollTo({ left: Math.max(0, Math.min(maxScroll, nextLeft)), behavior: "auto" });
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    tabList.scrollTo({
+      left: Math.max(0, Math.min(maxScroll, nextLeft)),
+      behavior: animate && !reduceMotion ? "smooth" : "auto",
+    });
     return;
   }
 
@@ -275,17 +279,17 @@ function keepActiveTabVisible(index: number) {
   tabList.scrollTo({ left: Math.max(0, tabLeft), behavior: "auto" });
 }
 
-function selectCase(index: number, focus = false) {
+function selectCase(index: number, focus = false, animate = false) {
   activeIndex.value = index;
   nextTick(() => {
     const tab = tabListRef.value?.querySelector<HTMLElement>(`#case-tab-${index}`);
     if (focus) tab?.focus();
-    keepActiveTabVisible(index);
+    keepActiveTabVisible(index, animate);
   });
 }
 
-function move(direction: 1 | -1, focus = true) {
-  selectCase(moveCaseIndex(activeIndex.value, direction, cases.value.length), focus);
+function move(direction: 1 | -1, focus = true, animate = false) {
+  selectCase(moveCaseIndex(activeIndex.value, direction, cases.value.length), focus, animate);
 }
 
 function onTabsKeydown(event: KeyboardEvent) {
