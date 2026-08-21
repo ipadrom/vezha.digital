@@ -80,16 +80,36 @@
                 <h3 :key="`case-title-${activeCase.id}`">{{ activeCase.name }}</h3>
               </Transition>
             </div>
-            <p>
-              <Transition name="case-copy" mode="out-in">
-                <span :key="`case-description-${activeCase.id}`">{{ activeCase.description }}</span>
-              </Transition>
-            </p>
-            <div class="vz-cases__proof">
-              <span>{{ copy.proof }}</span>
-              <Transition name="case-copy" mode="out-in">
-                <strong :key="`case-proof-${activeCase.id}`">{{ caseProof(activeCase) }}</strong>
-              </Transition>
+            <div :key="`case-meta-${activeCase.id}`" class="vz-cases__meta-layout">
+              <dl class="vz-cases__facts">
+                <div class="vz-cases__fact">
+                  <dt>{{ metaLabels.format }}</dt>
+                  <dd>{{ caseFormat(activeCase) }}</dd>
+                </div>
+                <div class="vz-cases__fact">
+                  <dt>{{ metaLabels.product }}</dt>
+                  <dd>{{ caseLabel(activeCase) }}</dd>
+                </div>
+                <div class="vz-cases__fact">
+                  <dt>{{ metaLabels.client }}</dt>
+                  <dd>{{ activeCase.industry || metaLabels.privateClient }}</dd>
+                </div>
+              </dl>
+
+              <div class="vz-cases__brand" :aria-label="`${metaLabels.logo}: ${caseLabel(activeCase)}`">
+                <img
+                  v-if="caseLogoSrc(activeCase)"
+                  :src="caseLogoSrc(activeCase)"
+                  alt=""
+                  aria-hidden="true"
+                />
+                <span v-else aria-hidden="true">{{ caseMonogram(activeCase) }}</span>
+              </div>
+
+              <div class="vz-cases__stack-card">
+                <span>{{ metaLabels.stack }}</span>
+                <strong>{{ caseStack(activeCase) }}</strong>
+              </div>
             </div>
             <NuxtLink class="vz-cases__link" :to="`/cases/${activeCase.slug}`">
               {{ copy.open }}
@@ -164,24 +184,50 @@ const labelsBySlug: Record<string, { ru: string; en: string }> = {
   "crm-workspace": { ru: "CRM", en: "CRM" },
 };
 
-const proofBySlug: Record<string, { ru: string; en: string }> = {
-  "wellness-app": { ru: "План → занятие → восстановление", en: "Plan → session → recovery" },
-  "restaurant-menu": { ru: "Каталог → корзина → заказ", en: "Menu → cart → order" },
-  "ai-support": { ru: "Вопрос → источники → ответ", en: "Question → sources → answer" },
-  "crm-workspace": { ru: "Риск → контекст → действие", en: "Risk → context → action" },
+const formatsBySlug: Record<string, string> = {
+  "wellness-app": "PWA",
+  "restaurant-menu": "Telegram Mini App",
+  "ai-support": "AI / Automation",
+  "crm-workspace": "Corporate System",
 };
+
+const logosBySlug: Record<string, string> = {
+  "wellness-app": "/cases/wellness-app/wellness-mark.svg",
+};
+
+const stacksBySlug: Record<string, string> = {
+  "wellness-app": "Vue 3 / Vite",
+  "restaurant-menu": "Vue 3 / FastAPI",
+  "ai-support": "LLM / Vector Search",
+  "crm-workspace": "Nuxt / PostgreSQL",
+};
+
+const metaLabels = computed(() => currentLocale.value === "ru"
+  ? { format: "Формат", product: "Продукт", client: "Заказчик", logo: "Логотип", stack: "Стек", privateClient: "Частный заказчик" }
+  : { format: "Format", product: "Product", client: "Client", logo: "Logo", stack: "Stack", privateClient: "Private client" });
 
 function caseLabel(project: IProjects) {
   const slug = project.slug || "";
   return labelsBySlug[slug]?.[currentLocale.value] || project.name;
 }
 
-function caseProof(project: IProjects) {
+function caseFormat(project: IProjects) {
   const slug = project.slug || "";
-  const authored = proofBySlug[slug]?.[currentLocale.value];
-  if (authored) return authored;
-  const metric = project.metrics?.find((item) => !item.is_demo);
-  return metric ? `${metric.value} · ${metric.label}` : project.type;
+  return formatsBySlug[slug] || project.type;
+}
+
+function caseLogoSrc(project: IProjects) {
+  return logosBySlug[project.slug || ""] || "";
+}
+
+function caseStack(project: IProjects) {
+  return stacksBySlug[project.slug || ""] || "Web / API";
+}
+
+function caseMonogram(project: IProjects) {
+  const words = caseLabel(project).split(/\s+/).filter(Boolean);
+  if (words.length === 1) return words[0]?.slice(0, 3).toUpperCase() || "VZ";
+  return words.slice(0, 3).map((word) => word[0]).join("").toUpperCase();
 }
 
 function alignActiveTabToStart(index: number) {

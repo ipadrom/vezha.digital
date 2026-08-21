@@ -7,7 +7,17 @@
           <i>/</i>
           <span data-secnum>04</span>
         </div>
-        <h2><span><span data-reveal>{{ copy.title }}</span></span></h2>
+        <h2 :aria-label="copy.title">
+          <span aria-hidden="true">
+            <span data-reveal>
+              <span
+                v-for="line in copy.titleLines || [copy.title]"
+                :key="line"
+                class="vz-clients__title-line"
+              >{{ line }}</span>
+            </span>
+          </span>
+        </h2>
       </div>
       <div
         class="vz-client-interactive"
@@ -80,6 +90,7 @@ const props = defineProps<{
   copy: {
     label: string;
     title: string;
+    titleLines?: string[];
     tabAria: string;
   };
   segments: ClientSegment[];

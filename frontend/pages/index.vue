@@ -22,6 +22,7 @@
     </div>
 
     <div
+      v-show="!showPreloader"
       class="vz-nav-hover-zone"
       aria-hidden="true"
       @pointerenter="handleHeaderZonePointerEnter"
@@ -29,9 +30,9 @@
     ></div>
     <nav
       class="vz-nav"
-      :data-nav-visible="isHeaderVisible || isMenuOpen ? 'true' : 'false'"
-      :aria-hidden="isHeaderVisible || isMenuOpen ? undefined : 'true'"
-      :inert="isHeaderVisible || isMenuOpen ? undefined : true"
+      :data-nav-visible="isHeaderShown ? 'true' : 'false'"
+      :aria-hidden="isHeaderShown ? undefined : 'true'"
+      :inert="isHeaderShown ? undefined : true"
       :aria-label="copy.nav.aria"
       data-od-id="global-header"
       @pointerenter="handleHeaderPointerEnter"
@@ -273,6 +274,7 @@ type LandingCopy = {
     note: string;
     eyebrow: [string, string];
     teamLead: string;
+    teamLeadLines?: [string, string, string];
     metrics: [string, string, string];
     flowAria: string;
     replay: string;
@@ -323,6 +325,7 @@ type LandingCopy = {
   clients: {
     label: string;
     title: string;
+    titleLines?: string[];
     tags: string[];
     tabAria: string;
     segments: ClientSegment[];
@@ -380,6 +383,7 @@ const introProgress = ref(0);
 const theme = ref<ThemeMode>("light");
 const isMenuOpen = ref(false);
 const isHeaderVisible = ref(false);
+const isHeaderShown = computed(() => !showPreloader.value && (isHeaderVisible.value || isMenuOpen.value));
 const activeStackIndex = ref(0);
 const activeClientSegment = ref(0);
 const enableMotionLayer = true;
@@ -390,6 +394,10 @@ let heroFxLastFrame = 0;
 let sectionLiquidRaf = 0;
 let sectionLiquidLastFrame = 0;
 let sectionLiquidIdleTimer = 0;
+let sectionLiquidResizeTimer = 0;
+let sectionLiquidLayoutRaf = 0;
+let sectionLiquidLayoutObserver: ResizeObserver | null = null;
+let sectionLiquidForceCloneOnLayoutSync = false;
 let sectionLiquidLastScrollY = 0;
 let sectionLiquidScrollDirection = 0;
 let sectionLiquidStackLock: {
@@ -418,6 +426,7 @@ let isHeaderZoneHovered = false;
 let isHeaderHovered = false;
 let isHeaderFocused = false;
 let headerIdleTimer: ReturnType<typeof setTimeout> | null = null;
+let headerLastScrollY = 0;
 
 const heroFxState = {
   active: false,
@@ -540,17 +549,21 @@ const aboutProductItems = computed<AboutFlowItem[]>(() => copy.value.about.produ
   label,
   iconPaths: aboutProductIcons[index] || aboutProductIcons[0]!,
 })));
-const aboutFlowSnakeSegments = [
-  { key: "design", path: "M 25 50 C 29 50 31 69 35 69", begin: "6.22s" },
-  { key: "ux", path: "M 35 69 C 39 69 41 30 45 30", begin: "12.21s" },
-  { key: "development", path: "M 45 30 C 50 30 50 65 55 65", begin: "18.19s" },
-  { key: "testing", path: "M 55 65 C 60 65 60 33 65 33", begin: "24.18s" },
-  { key: "launch", path: "M 65 33 C 70 33 70 50 75 50", begin: "30.16s" },
-  { key: "product", path: "M 75 50 L 87.5 50", begin: "36.14s" },
-];
-const aboutFlowStepDelaysMs = [6770, 12750, 18740, 24720, 30700];
-const aboutFlowResultDelayMs = 37130;
 const aboutSupportStepIndex = 6;
+const aboutFlowStepDurationMs = 4500;
+const aboutFlowSnakeSegments = [
+  { key: "design", path: "M 25 50 C 29 50 31 69 35 69", begin: "3.95s" },
+  { key: "ux", path: "M 35 69 C 39 69 41 30 45 30", begin: "8.45s" },
+  { key: "development", path: "M 45 30 C 50 30 50 65 55 65", begin: "12.95s" },
+  { key: "testing", path: "M 55 65 C 60 65 60 33 65 33", begin: "17.45s" },
+  { key: "launch", path: "M 65 33 C 70 33 70 50 75 50", begin: "21.95s" },
+  { key: "product", path: "M 75 50 L 87.5 50", begin: "25.8s" },
+];
+const aboutFlowStepDelaysMs = Array.from(
+  { length: aboutSupportStepIndex - 1 },
+  (_, index) => (index + 1) * aboutFlowStepDurationMs,
+);
+const aboutFlowResultDelayMs = aboutSupportStepIndex * aboutFlowStepDurationMs;
 const aboutFlowBusinessIndex = ref(0);
 const aboutFlowStepIndex = ref(0);
 const aboutFlowDisplayStepIndex = ref(0);
@@ -847,21 +860,17 @@ function clearHeaderIdleTimer() {
   headerIdleTimer = null;
 }
 
-function isHeaderAutoHideViewport() {
+function isDesktopHeaderViewport() {
   return window.matchMedia("(min-width: 901px)").matches;
 }
 
 function revealHeader() {
-  if (!isHeaderAutoHideViewport()) {
-    isHeaderVisible.value = true;
-    return;
-  }
   clearHeaderIdleTimer();
   isHeaderVisible.value = true;
 }
 
 function queueHeaderHide(delay = 820) {
-  if (!isHeaderAutoHideViewport()) return;
+  if (!isDesktopHeaderViewport()) return;
   clearHeaderIdleTimer();
   headerIdleTimer = window.setTimeout(() => {
     headerIdleTimer = null;
@@ -871,9 +880,31 @@ function queueHeaderHide(delay = 820) {
 }
 
 function handleHeaderScroll() {
-  if (!isHeaderAutoHideViewport()) return;
-  revealHeader();
-  queueHeaderHide();
+  const nextScrollY = Math.max(0, window.scrollY);
+
+  if (showPreloader.value) {
+    headerLastScrollY = nextScrollY;
+    return;
+  }
+
+  if (isDesktopHeaderViewport()) {
+    headerLastScrollY = nextScrollY;
+    revealHeader();
+    queueHeaderHide();
+    return;
+  }
+
+  if (isMenuOpen.value || nextScrollY <= 12) {
+    headerLastScrollY = nextScrollY;
+    isHeaderVisible.value = true;
+    return;
+  }
+
+  const delta = nextScrollY - headerLastScrollY;
+  if (Math.abs(delta) < 6) return;
+
+  isHeaderVisible.value = delta < 0;
+  headerLastScrollY = nextScrollY;
 }
 
 function handleHeaderZonePointerEnter() {
@@ -911,7 +942,8 @@ function handleHeaderFocusOut(event: FocusEvent) {
 
 function handleHeaderResize() {
   clearHeaderIdleTimer();
-  isHeaderVisible.value = !isHeaderAutoHideViewport();
+  headerLastScrollY = Math.max(0, window.scrollY);
+  isHeaderVisible.value = !isDesktopHeaderViewport();
 }
 
 let publicDataRequestId = 0;
@@ -1970,12 +2002,11 @@ function updateClientCubePosition() {
   if (window.innerWidth <= 900) {
     host.style.removeProperty("--client-cube-left");
     host.style.removeProperty("--client-cube-top");
+    grid.style.removeProperty("--client-content-height");
     grid.querySelector<HTMLElement>(".vz-clients__head")
       ?.style.removeProperty("--client-head-y");
     grid.querySelector<HTMLElement>(".vz-client-copy")
       ?.style.removeProperty("--client-copy-y");
-    grid.querySelector<HTMLElement>(".vz-client-connector")
-      ?.style.removeProperty("--client-line-adjust");
     return;
   }
 
@@ -1983,9 +2014,8 @@ function updateClientCubePosition() {
   const heading = headingGroup?.querySelector<HTMLElement>("h2");
   const activeTitle = grid.querySelector<HTMLElement>(".vz-client-copy h3");
   const activeCard = grid.querySelector<HTMLElement>(".vz-client-card-track > p:not(.vz-client-card-sizer)");
+  const clientCards = Array.from(grid.querySelectorAll<HTMLElement>(".vz-client-card-track > p"));
   const capsules = grid.querySelector<HTMLElement>(".vz-client-capsules");
-  const connector = grid.querySelector<HTMLElement>(".vz-client-connector");
-  const eyebrow = grid.querySelector<HTMLElement>(".vz-client-copy > span");
   const gridRect = grid.getBoundingClientRect();
   const headingRect = heading?.getBoundingClientRect();
   const titleRect = activeTitle?.getBoundingClientRect();
@@ -1994,6 +2024,15 @@ function updateClientCubePosition() {
   const cubeRect = host.getBoundingClientRect();
   const cubeWidth = cubeRect.width || host.offsetWidth;
   const cubeHeight = cubeRect.height || host.offsetHeight;
+  const longestCardBottom = clientCards.reduce(
+    (bottom, card) => Math.max(bottom, card.getBoundingClientRect().bottom),
+    gridRect.top,
+  );
+  const nextContentHeight = `${Math.ceil(longestCardBottom - gridRect.top)}px`;
+
+  if (grid.style.getPropertyValue("--client-content-height") !== nextContentHeight) {
+    grid.style.setProperty("--client-content-height", nextContentHeight);
+  }
   if (!cubeWidth || !cubeHeight || !headingRect) return;
 
   const targetViewportY = titleRect && cardRect
@@ -2008,28 +2047,6 @@ function updateClientCubePosition() {
     const nextHeadOffset = `${Math.round(renderedHeadOffset + targetViewportY - currentHeadingCenter)}px`;
     if (headingGroup.style.getPropertyValue("--client-head-y") !== nextHeadOffset) {
       headingGroup.style.setProperty("--client-head-y", nextHeadOffset);
-    }
-  }
-
-  if (connector && eyebrow && activeTitle) {
-    const connectorRect = connector.getBoundingClientRect();
-    const eyebrowRect = eyebrow.getBoundingClientRect();
-    const currentTitleRect = activeTitle.getBoundingClientRect();
-    const currentAdjust = Number.parseFloat(
-      getComputedStyle(connector).getPropertyValue("--client-line-adjust"),
-    ) || 0;
-    const upperGap = eyebrowRect.top - connectorRect.bottom;
-    const lowerGap = currentTitleRect.top - eyebrowRect.bottom;
-    const targetAdjust = Math.max(
-      0,
-      Math.min(
-        72,
-        currentAdjust + upperGap - lowerGap,
-      ),
-    );
-    const nextLineAdjust = `${Math.round(targetAdjust)}px`;
-    if (connector.style.getPropertyValue("--client-line-adjust") !== nextLineAdjust) {
-      connector.style.setProperty("--client-line-adjust", nextLineAdjust);
     }
   }
 
@@ -2416,6 +2433,70 @@ function clearSectionLiquidTextAlignment() {
     });
 }
 
+function syncSectionLiquidGeometry(forceClone = false) {
+  const overlay = sectionLiquidRef.value;
+  if (!overlay) return;
+
+  sectionLiquidStackLock = null;
+  if (forceClone) syncNegativeWorlds(true);
+
+  const targets = getSectionLiquidTargets();
+  if (!targets.length) {
+    overlay.classList.remove("is-active", "is-stack-active");
+    hideSectionLiquidTargetOverlay();
+    return;
+  }
+
+  const activeTarget = targets.find(({ key }) => key === sectionLiquidState.lastTargetKey)
+    ?? getInitialSectionLiquidTarget(targets);
+  commitSectionLiquidTarget(activeTarget, true);
+  updateNegativeWorldPositions();
+  syncSectionLiquidTargetOverlay(getSectionLiquidTargets());
+  startSectionLiquid();
+}
+
+function queueSectionLiquidGeometrySync(forceClone = false) {
+  sectionLiquidForceCloneOnLayoutSync ||= forceClone;
+  if (sectionLiquidResizeTimer || sectionLiquidLayoutRaf) return;
+
+  sectionLiquidLayoutRaf = requestAnimationFrame(() => {
+    sectionLiquidLayoutRaf = 0;
+    const shouldForceClone = sectionLiquidForceCloneOnLayoutSync;
+    sectionLiquidForceCloneOnLayoutSync = false;
+    syncSectionLiquidGeometry(shouldForceClone);
+  });
+}
+
+function handleSectionLiquidResize() {
+  const overlay = sectionLiquidRef.value;
+  if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
+  sectionLiquidRaf = 0;
+  if (sectionLiquidIdleTimer) window.clearTimeout(sectionLiquidIdleTimer);
+  sectionLiquidIdleTimer = 0;
+  if (sectionLiquidResizeTimer) window.clearTimeout(sectionLiquidResizeTimer);
+  if (sectionLiquidLayoutRaf) cancelAnimationFrame(sectionLiquidLayoutRaf);
+  sectionLiquidLayoutRaf = 0;
+  sectionLiquidStackLock = null;
+  sectionLiquidForceCloneOnLayoutSync = true;
+  overlay?.classList.remove("is-active", "is-stack-active");
+  clearSectionLiquidTextAlignment();
+  hideSectionLiquidTargetOverlay();
+
+  sectionLiquidResizeTimer = window.setTimeout(() => {
+    sectionLiquidResizeTimer = 0;
+    queueSectionLiquidGeometrySync(true);
+  }, 90);
+}
+
+function setupSectionLiquidLayoutObserver() {
+  if (sectionLiquidLayoutObserver || !("ResizeObserver" in window)) return;
+  const targets = getSectionLiquidTargets();
+  if (!targets.length) return;
+
+  sectionLiquidLayoutObserver = new ResizeObserver(() => queueSectionLiquidGeometrySync());
+  targets.forEach(({ element }) => sectionLiquidLayoutObserver?.observe(element));
+}
+
 function setupClientLayoutObserver() {
   if (clientLayoutResizeObserver || !("ResizeObserver" in window)) return;
   const grid = rootRef.value?.querySelector<HTMLElement>("[data-clients-grid]");
@@ -2459,7 +2540,8 @@ function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
   ].join("|");
 
   if (targetHost.dataset.mobileLiquidSignature !== styleSignature) {
-    targetHost.textContent = text;
+    const clonedChildren = Array.from(sourceText.childNodes, (node) => node.cloneNode(true));
+    targetHost.replaceChildren(...clonedChildren);
     targetHost.style.fontFamily = sourceStyle.fontFamily;
     targetHost.style.fontSize = sourceStyle.fontSize;
     targetHost.style.fontStyle = sourceStyle.fontStyle;
@@ -2594,6 +2676,7 @@ function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
 
 function startSectionLiquid() {
   if (!enableSectionLiquid) return;
+  if (sectionLiquidResizeTimer) return;
   if (sectionLiquidIdleTimer) {
     window.clearTimeout(sectionLiquidIdleTimer);
     sectionLiquidIdleTimer = 0;
@@ -3456,17 +3539,22 @@ onMounted(async () => {
   await nextTick();
   setupClientLayoutObserver();
   syncNegativeWorlds(true);
+  setupSectionLiquidLayoutObserver();
   updateStackSpherePosition();
   updateClientCubePosition();
   void document.fonts?.ready.then(updateClientCubePosition);
+  void document.fonts?.ready.then(() => queueSectionLiquidGeometrySync(true));
   startHeroNegative();
   startSectionLiquid();
   setupAboutFlowObserver();
   void setupClientCubeScene();
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
   window.addEventListener("scroll", handleHeaderScroll, { passive: true });
+  window.addEventListener("resize", handleSectionLiquidResize, { passive: true });
   window.addEventListener("resize", scheduleUpdate);
   window.addEventListener("resize", handleHeaderResize, { passive: true });
+  window.visualViewport?.addEventListener("resize", handleSectionLiquidResize, { passive: true });
+  window.visualViewport?.addEventListener("resize", scheduleUpdate, { passive: true });
   await loadPublicData();
   await nextTick();
   restoreInitialHashPosition();
@@ -3488,14 +3576,20 @@ watch(activeClientSegment, async () => {
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scheduleUpdate);
   window.removeEventListener("scroll", handleHeaderScroll);
+  window.removeEventListener("resize", handleSectionLiquidResize);
   window.removeEventListener("resize", scheduleUpdate);
   window.removeEventListener("resize", handleHeaderResize);
+  window.visualViewport?.removeEventListener("resize", handleSectionLiquidResize);
+  window.visualViewport?.removeEventListener("resize", scheduleUpdate);
   clearHeaderIdleTimer();
   clientLayoutResizeObserver?.disconnect();
+  sectionLiquidLayoutObserver?.disconnect();
   if (raf) cancelAnimationFrame(raf);
   if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
   if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
+  if (sectionLiquidLayoutRaf) cancelAnimationFrame(sectionLiquidLayoutRaf);
   if (sectionLiquidIdleTimer) window.clearTimeout(sectionLiquidIdleTimer);
+  if (sectionLiquidResizeTimer) window.clearTimeout(sectionLiquidResizeTimer);
   stopAboutFlow();
   stackSphereCleanup?.();
   clientCubeCleanup?.();
@@ -3515,6 +3609,8 @@ watch(currentLocale, async (nextLocale) => {
   await nextTick();
   setupReveals();
   updateScrollEffects();
+  syncNegativeWorlds(true);
+  queueSectionLiquidGeometrySync(true);
 });
 
 watch(displayServices, async () => {
@@ -3924,8 +4020,8 @@ useHead(() => ({
   box-sizing: border-box;
   transform-origin: top center;
   transition:
-    opacity 220ms cubic-bezier(0.23, 1, 0.32, 1),
-    transform 420ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 220ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
     visibility 0s linear;
   will-change: opacity, transform;
 }
@@ -3936,9 +4032,9 @@ useHead(() => ({
   transform: translate3d(0, calc(-100% - 24px), 0);
   visibility: hidden;
   transition:
-    opacity 180ms cubic-bezier(0.4, 0, 1, 1),
-    transform 360ms cubic-bezier(0.4, 0, 0.2, 1),
-    visibility 0s linear 360ms;
+    opacity 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 220ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    visibility 0s linear 220ms;
 }
 
 .vz-nav[data-nav-visible="true"] {
@@ -4051,7 +4147,8 @@ useHead(() => ({
 .vz-menu-button span {
   display: block;
   width: 17px;
-  height: 1.5px;
+  height: 1px;
+  flex: 0 0 1px;
   background: var(--ink);
 }
 
@@ -5202,42 +5299,22 @@ useHead(() => ({
   background: var(--bg);
 }
 
-@media (min-width: 901px) {
-  .vz-clients {
-    --client-menu-reserve: clamp(40px, 4vw, 56px);
-    margin-top: calc(-1 * var(--client-menu-reserve));
-    padding-top: calc(var(--section-space) + var(--client-menu-reserve));
-    padding-bottom: calc(var(--section-space) + 64px);
-  }
-
-  .vz-client-interactive {
-    --client-menu-lift: calc(clamp(48px, 4.3vw, 56px) + var(--client-menu-reserve));
-  }
-
-  .vz-client-capsules {
-    transform: translateY(calc(-1 * var(--client-menu-lift)));
-  }
-
-  .vz-client-connector {
-    --client-line-adjust: 0px;
-    height: calc(48px + var(--client-menu-lift) + var(--client-line-adjust));
-    margin-top: calc(-1 * var(--client-menu-lift));
-    margin-bottom: calc(-1 * var(--client-line-adjust));
-  }
-}
-
 .vz-clients__grid {
+  --client-content-height: 0px;
   position: relative;
-  grid-template-columns: 360px minmax(0, 1fr);
-  gap: 80px;
+  grid-template-columns: minmax(400px, 0.82fr) minmax(0, 1.18fr);
+  gap: clamp(40px, 5vw, 80px);
   align-items: center;
-  height: clamp(540px, 56vh, 620px);
+  height: max(clamp(540px, 56vh, 620px), var(--client-content-height));
   min-height: 0;
 }
 
 .vz-clients h2 {
-  margin-top: 22px;
   font-size: var(--type-section);
+}
+
+.vz-clients__title-line {
+  white-space: nowrap;
 }
 
 .vz-clients__head {
@@ -5352,7 +5429,7 @@ useHead(() => ({
   max-width: 100%;
   height: auto;
   min-height: 5.25em;
-  margin: 14px 0 0;
+  margin: 0;
   color: var(--ink);
   font-size: clamp(1.25rem, 1.0625rem + 0.7vw, 2rem);
   font-weight: 600;
@@ -5376,8 +5453,19 @@ useHead(() => ({
 
 @media (min-width: 901px) {
   .vz-client-card-track {
-    display: flow-root;
+    display: grid;
     transform: translateY(clamp(104px, 10vw, 120px));
+  }
+
+  .vz-client-card-track > p {
+    grid-area: 1 / 1;
+    align-self: start;
+  }
+
+  .vz-client-card-track > .vz-client-card-sizer {
+    display: block;
+    visibility: hidden;
+    pointer-events: none;
   }
 }
 
@@ -5787,11 +5875,13 @@ useHead(() => ({
 
 @media (prefers-reduced-motion: reduce) {
   .vz-nav[data-nav-visible] {
-    transition-duration: 0.01ms;
+    transition:
+      opacity 120ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      visibility 0s linear;
   }
 
   .vz-nav[data-nav-visible="false"] {
-    transform: translate3d(0, calc(-100% - 24px), 0);
+    transform: translate3d(0, 0, 0);
   }
 
   .vz-orbit svg,
@@ -5827,15 +5917,6 @@ useHead(() => ({
     left: 20px;
     height: 60px;
     padding: 0 8px 0 16px;
-  }
-
-  .vz-nav[data-nav-visible] {
-    opacity: 1;
-    filter: none;
-    pointer-events: auto;
-    transform: none;
-    transition: none;
-    visibility: visible;
   }
 
   .vz-nav-hover-zone {
@@ -6143,7 +6224,7 @@ useHead(() => ({
     line-height: 1.4;
   }
 
-  .vz-stack__mobile-details > div {
+  .vz-stack__mobile-details-body > div {
     display: flex;
     flex-wrap: wrap;
     gap: 6px 5px;
@@ -6185,6 +6266,19 @@ useHead(() => ({
 
   .vz-clients {
     padding: var(--section-space) 20px;
+  }
+
+  .vz-clients h2,
+  .vz-clients h2 > span,
+  .vz-clients h2 [data-reveal] {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .vz-clients__title-line {
+    display: block;
+    max-width: 100%;
+    white-space: normal;
   }
 
   .vz-clients__grid {

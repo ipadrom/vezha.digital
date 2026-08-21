@@ -41,45 +41,86 @@ test("published API cases replace fallbacks and featured cases stay first", () =
   assert.deepEqual(selectPublishedProjects(api).map((item) => item.slug), ["wellness-app", "api-case"]);
 });
 
-test("mobile case flow places the visual before metrics without changing desktop markup order", () => {
+test("mobile case flow keeps the visual before the responsive summary", () => {
   const component = readFileSync("components/landing/LandingCases.vue", "utf8");
   const css = readFileSync("assets/css/landing-cases.css", "utf8");
 
-  assert.match(component, /class="vz-cases__story-copy"/);
-  assert.match(css, /\.vz-cases__story\s*\{\s*display:\s*contents;/);
-  assert.match(css, /\.vz-cases__story-copy\s*\{[^}]*order:\s*1;/s);
-  assert.match(css, /\.vz-cases__active\s*>\s*\.case-visual\s*\{[^}]*order:\s*2;/s);
-  assert.match(css, /\.vz-cases__story\s*>\s*\.case-metrics\s*\{[^}]*order:\s*3;/s);
+  assert.ok(component.indexOf("<CaseArtifactVisual") < component.indexOf("<footer class=\"vz-cases__caption\""));
+  assert.match(css, /@media \(max-width: 900px\)[\s\S]*?\.vz-cases__active\s*\{[^}]*grid-column:\s*1 \/ -1;[^}]*grid-row:\s*2;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption\s*\{[^}]*grid-template-columns:\s*minmax\(0, 0\.95fr\) minmax\(0, 1\.05fr\);/s);
 });
 
-test("landing case metrics stay unframed", () => {
-  const css = readFileSync("assets/css/landing-cases.css", "utf8");
-
-  assert.match(css, /\.vz-cases\s+\.case-metrics\s*\{[^}]*border:\s*0;/s);
-  assert.match(css, /\.vz-cases\s+\.case-metric\s*\{[^}]*border:\s*0;/s);
-});
-
-test("landing cases use the accessible capsule tab treatment", () => {
+test("landing case metadata wrapper stays unframed", () => {
   const component = readFileSync("components/landing/LandingCases.vue", "utf8");
   const css = readFileSync("assets/css/landing-cases.css", "utf8");
 
-  assert.match(css, /\.vz-cases__tabs\s*\{[^}]*gap:\s*10px;[^}]*padding:/s);
-  assert.match(css, /\.vz-cases__tabs button\s*\{[^}]*border-radius:\s*999px;/s);
+  assert.doesNotMatch(component, /class="case-metrics"/);
+  assert.match(css, /\.vz-cases__caption > \.vz-cases__meta-layout\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s);
+});
+
+test("landing cases use an accessible project tab treatment", () => {
+  const component = readFileSync("components/landing/LandingCases.vue", "utf8");
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(css, /\.vz-cases__tabs button\s*\{[^}]*min-height:\s*82px;[^}]*border:\s*0;[^}]*border-bottom:\s*1px solid var\(--border-2\);/s);
+  assert.match(css, /\.vz-cases__tabs button\[aria-selected="true"\]::after\s*\{[^}]*transform:\s*scaleX\(1\);/s);
   assert.match(css, /@media \(max-width: 900px\)[\s\S]*\.vz-cases__tabs\s*\{[^}]*overflow-x:\s*auto;/s);
   assert.match(component, /role="tablist"/);
   assert.match(component, /role="tab"/);
-  assert.match(component, /@keydown\.left\.prevent="move\(-1\)"/);
-  assert.match(component, /@keydown\.right\.prevent="move\(1\)"/);
+  assert.match(component, /@keydown="onTabsKeydown"/);
+  assert.match(component, /event\.key === "ArrowRight"/);
+  assert.match(component, /event\.key === "ArrowLeft"/);
 });
 
-test("landing case selector follows the client capsule styling and open section layout", () => {
+test("landing case selector keeps the open stage and capsule arrow controls", () => {
+  const component = readFileSync("components/landing/LandingCases.vue", "utf8");
   const css = readFileSync("assets/css/landing-cases.css", "utf8");
 
-  assert.match(css, /\.vz-cases__shell\s*\{[^}]*border:\s*0;/s);
-  assert.match(css, /\.vz-cases__tabs\s*\{[^}]*padding:\s*0;/s);
-  assert.match(css, /\.vz-cases__tabs button\s*\{[^}]*border:\s*1px solid var\(--chipbd\);[^}]*background:\s*var\(--bg\);[^}]*color:\s*var\(--ink\);/s);
-  assert.match(css, /\.vz-cases__tabs button\[aria-selected="true"\]\s*\{[^}]*border-color:\s*var\(--ink\);[^}]*background:\s*var\(--ink\);[^}]*color:\s*var\(--bg\);/s);
-  assert.doesNotMatch(css, /\.vz-cases__tabs button\[aria-selected="true"\]::after/);
-  assert.match(css, /\.vz-cases__tabs button span\s*\{[^}]*grid-row:\s*1 \/ span 2;[^}]*align-self:\s*center;/s);
-  assert.match(css, /\.vz-cases \.case-visual\s*\{[^}]*border-radius:\s*28px;/s);
+  assert.match(component, /class="vz-cases__mobile-controls"/);
+  assert.match(css, /\.vz-cases__shell\s*\{[^}]*display:\s*grid;[^}]*align-items:\s*start;/s);
+  assert.match(css, /@media \(max-width: 900px\)[\s\S]*?\.vz-cases__mobile-controls\s*\{[^}]*display:\s*inline-grid;[^}]*border-radius:\s*999px;/s);
+  assert.match(css, /@media \(min-width: 901px\)[\s\S]*?\.vz-cases__active > \.case-artifact\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1;/s);
+});
+
+test("case action mirrors the dark service CTA treatment", () => {
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(
+    css,
+    /\.vz-cases__caption > \.vz-cases__link\s*\{[^}]*min-height:\s*54px;[^}]*padding:\s*10px 14px;[^}]*border-radius:\s*14px;[^}]*background:\s*var\(--ink\);[^}]*color:\s*var\(--bg\);[^}]*font-weight:\s*600;/s,
+  );
+  assert.match(
+    css,
+    /\.vz-cases__caption > \.vz-cases__link svg\s*\{[^}]*width:\s*22px;[^}]*height:\s*22px;[^}]*stroke-width:\s*1\.6;/s,
+  );
+});
+
+test("case summary follows the title, facts, logo and action composition", () => {
+  const component = readFileSync("components/landing/LandingCases.vue", "utf8");
+  const css = readFileSync("assets/css/landing-cases.css", "utf8");
+
+  assert.match(component, /class="vz-cases__meta-layout"/);
+  assert.match(component, /class="vz-cases__facts"/);
+  assert.equal(component.match(/class="vz-cases__fact"/g)?.length, 3);
+  assert.match(component, /class="vz-cases__brand"/);
+  assert.match(component, /class="vz-cases__stack-card"/);
+  assert.match(component, /wellness-mark\.svg/);
+  assert.match(css, /\.vz-cases__caption > \.vz-cases__meta-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0, 0\.92fr\) minmax\(0, 1\.08fr\);/s);
+  assert.match(css, /\.vz-cases__brand\s*\{[^}]*aspect-ratio:\s*1;[^}]*padding:\s*0;[^}]*overflow:\s*hidden;/s);
+  assert.match(css, /\.vz-cases__brand\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s);
+  assert.match(css, /\.vz-cases__brand img\s*\{[^}]*object-fit:\s*cover;/s);
+  assert.match(css, /\.vz-cases__fact dd\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
+  assert.match(css, /\.vz-cases__stack-card strong\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
+  assert.match(css, /\.vz-cases__fact dt,[\s\S]*?\.vz-cases__stack-card > span\s*\{[^}]*position:\s*absolute;[^}]*top:\s*10px;[^}]*left:\s*12px;[^}]*text-align:\s*left;/s);
+  assert.match(css, /\.vz-cases__caption > \*::before\s*\{[^}]*display:\s*none !important;/s);
+  assert.match(css, /\.vz-cases__fact:hover,[\s\S]*\.vz-cases__stack-card:hover\s*\{[^}]*transform:\s*translateY\(-2px\);/s);
+  assert.match(css, /@media \(min-width: 901px\)[\s\S]*\.vz-cases__caption\s*\{[^}]*grid-template-rows:\s*96px minmax\(0, 1fr\) minmax\(64px, 74px\);/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption\s*\{[^}]*grid-template-columns:\s*minmax\(0, 0\.95fr\) minmax\(0, 1\.05fr\);/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption > \.vz-cases__identity\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption > \.vz-cases__meta-layout\s*\{[^}]*display:\s*contents;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__facts\s*\{[^}]*display:\s*contents;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__brand\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1 \/ 4;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__stack-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*4;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__fact dt,[\s\S]*?\.vz-cases__stack-card > span\s*\{[^}]*display:\s*block;[^}]*top:\s*6px;[^}]*left:\s*8px;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption > \.vz-cases__link\s*\{[^}]*height:\s*auto;[^}]*grid-column:\s*1 \/ -1;[^}]*grid-row:\s*5;[^}]*margin-top:\s*14px;/s);
 });

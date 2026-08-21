@@ -488,6 +488,10 @@
     "clients": {
       "label": "For any client",
       "title": "From solo specialists to companies",
+      "titleLines": [
+        "From solo specialists",
+        "to companies"
+      ],
       "tags": [
         "Photographer landing page",
         "Portfolio website",

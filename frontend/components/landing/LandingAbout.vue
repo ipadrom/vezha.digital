@@ -6,33 +6,47 @@
           <div class="vz-section-label">
             <span>{{ copy.label }}</span><i>/</i><span data-secnum>01</span>
           </div>
-          <h2>{{ copy.teamLead }}</h2>
+          <h2 :aria-label="copy.teamLead">
+            <span class="vz-about__team-lead--desktop" aria-hidden="true">
+              <template v-if="copy.teamLeadLines">
+                <span
+                  v-for="line in copy.teamLeadLines"
+                  :key="line"
+                  class="vz-about__team-lead-line"
+                >{{ line }}</span>
+              </template>
+              <template v-else>{{ copy.teamLead }}</template>
+            </span>
+            <span class="vz-about__team-lead--mobile" aria-hidden="true">{{ copy.teamLead }}</span>
+          </h2>
         </div>
 
-        <div class="vz-about__intro" aria-live="polite" aria-atomic="true">
-          <div class="vz-about__step-stack">
-            <div
-              v-for="step in allFlowSteps"
-              :key="step.number"
-              class="vz-about__step-copy"
-              :class="{ 'is-active': step.number === activeFlowStep.number }"
-              :aria-hidden="step.number === activeFlowStep.number ? undefined : 'true'"
-            >
-              <div class="vz-about__step-meta">
-                <span>{{ step.number }}</span>
-                <div>
-                  <strong>
-                    <span class="vz-about__stage-title--desktop">{{ step.title }}</span>
-                    <span class="vz-about__stage-title--mobile">{{ step.mobileTitle }}</span>
-                  </strong>
-                  <small>{{ step.duration }}</small>
+        <div ref="introSlotRef" class="vz-about__intro-slot">
+          <div ref="introRef" class="vz-about__intro" aria-live="polite" aria-atomic="true">
+            <div ref="stepStackRef" class="vz-about__step-stack">
+              <div
+                v-for="step in allFlowSteps"
+                :key="step.number"
+                class="vz-about__step-copy"
+                :class="{ 'is-active': step.number === activeFlowStep.number }"
+                :aria-hidden="step.number === activeFlowStep.number ? undefined : 'true'"
+              >
+                <div class="vz-about__step-meta">
+                  <span>{{ step.number }}</span>
+                  <div>
+                    <strong>
+                      <span class="vz-about__stage-title--desktop">{{ step.title }}</span>
+                      <span class="vz-about__stage-title--mobile">{{ step.mobileTitle }}</span>
+                    </strong>
+                    <small>{{ step.duration }}</small>
+                  </div>
                 </div>
-              </div>
-              <div class="vz-about__step-detail">
-                <p>{{ step.description }}</p>
-                <ul class="vz-about__step-deliverables">
-                  <li v-for="item in step.deliverables" :key="item">{{ item }}</li>
-                </ul>
+                <div class="vz-about__step-detail">
+                  <p>{{ step.description }}</p>
+                  <ul class="vz-about__step-deliverables">
+                    <li v-for="item in step.deliverables" :key="item">{{ item }}</li>
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
@@ -42,7 +56,10 @@
       <div
         ref="flowRef"
         class="vz-about__flow"
-        :class="`is-${flowPhase}`"
+        :class="[
+          `is-${flowPhase}`,
+          { 'is-autoplaying': flowPhase === 'signal' && targetStepIndex === null },
+        ]"
         :aria-label="copy.flowAria"
         role="group"
       >
@@ -120,7 +137,12 @@
             :aria-current="activeStepIndex === 0 ? 'step' : undefined"
             @click="$emit('select-step', 0)"
           >
-            <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true"><i></i></span>
+            <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true">
+              <svg class="vz-about__flow-stage-progress" viewBox="0 0 20 20">
+                <circle cx="10" cy="10" r="8.5" />
+              </svg>
+              <i></i>
+            </span>
             <span class="vz-about__flow-stage-label">
               <small>00</small>
               <b>{{ copy.brief }}</b>
@@ -139,7 +161,12 @@
             :aria-current="activeStepIndex === index + 1 ? 'step' : undefined"
             @click="$emit('select-step', index + 1)"
           >
-            <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true"><i></i></span>
+            <span class="vz-about__flow-stage-anchor" data-flow-anchor aria-hidden="true">
+              <svg class="vz-about__flow-stage-progress" viewBox="0 0 20 20">
+                <circle cx="10" cy="10" r="8.5" />
+              </svg>
+              <i></i>
+            </span>
             <span class="vz-about__flow-stage-label">
               <small>{{ String(index + 1).padStart(2, '0') }}</small>
               <b>
@@ -223,6 +250,7 @@ type AboutCopy = {
   note: string;
   eyebrow: [string, string];
   teamLead: string;
+  teamLeadLines?: [string, string, string];
   metrics: [string, string, string];
   flowAria: string;
   replay: string;
@@ -259,6 +287,12 @@ const emit = defineEmits<{
 }>();
 
 const flowRef = ref<HTMLElement | null>(null);
+const introRef = ref<HTMLElement | null>(null);
+const introSlotRef = ref<HTMLElement | null>(null);
+const stepStackRef = ref<HTMLElement | null>(null);
+let introHeightFrame = 0;
+let introResizeObserver: ResizeObserver | null = null;
+let lastIntroSlotWidth = 0;
 const stageKeys = ["design", "ux", "development", "testing", "launch"] as const;
 const supportStepIndex = stageKeys.length + 1;
 const mobileStageTitle = (stage: string, index: number) => (
@@ -284,18 +318,67 @@ const activeFlowStep = computed(() => {
   const index = Math.max(0, Math.min(supportStepIndex, props.displayStepIndex));
   return allFlowSteps.value[index];
 });
-onMounted(() => {
+
+function syncIntroHeight() {
+  cancelAnimationFrame(introHeightFrame);
+  introHeightFrame = requestAnimationFrame(() => {
+    const intro = introRef.value;
+    const slot = introSlotRef.value;
+    const stack = stepStackRef.value;
+    if (!intro || !slot || !stack) return;
+
+    const steps = [...stack.querySelectorAll<HTMLElement>(".vz-about__step-copy")];
+    if (!steps.length) return;
+    const stepHeights = steps.map((step) => Math.ceil(step.getBoundingClientRect().height));
+    const activeIndex = Math.max(0, Math.min(stepHeights.length - 1, props.displayStepIndex));
+    const activeHeight = stepHeights[activeIndex] || Math.max(...stepHeights);
+    const reservedHeight = Math.max(...stepHeights);
+    const introStyle = getComputedStyle(intro);
+    const verticalChrome = [
+      introStyle.paddingTop,
+      introStyle.paddingBottom,
+      introStyle.borderTopWidth,
+      introStyle.borderBottomWidth,
+    ].reduce((total, value) => total + (Number.parseFloat(value) || 0), 0);
+
+    slot.style.setProperty("--about-intro-current-height", `${activeHeight + verticalChrome}px`);
+    slot.style.setProperty("--about-intro-reserved-height", `${reservedHeight + verticalChrome}px`);
+    slot.style.setProperty("--about-step-height", `${activeHeight}px`);
+  });
+}
+
+watch(() => props.displayStepIndex, syncIntroHeight, { flush: "post" });
+watch(() => props.copy, syncIntroHeight, { deep: true, flush: "post" });
+
+onMounted(async () => {
   emit("flow-ready", flowRef.value);
+  await nextTick();
+  syncIntroHeight();
+  if ("ResizeObserver" in window && introSlotRef.value) {
+    introResizeObserver = new ResizeObserver(([entry]) => {
+      const nextWidth = entry?.contentRect.width || 0;
+      if (Math.abs(nextWidth - lastIntroSlotWidth) < 0.5) return;
+      lastIntroSlotWidth = nextWidth;
+      syncIntroHeight();
+    });
+    introResizeObserver.observe(introSlotRef.value);
+  }
+  document.fonts?.ready.then(syncIntroHeight);
 });
-onBeforeUnmount(() => emit("flow-ready", null));
+onBeforeUnmount(() => {
+  cancelAnimationFrame(introHeightFrame);
+  introResizeObserver?.disconnect();
+  emit("flow-ready", null);
+});
 </script>
 
 <style scoped>
 .vz-about {
   --flow-blue: #5aa9ff;
+  --about-head-flow-gap: clamp(32px, 4vw, 48px);
   position: relative;
   overflow: clip;
-  padding: var(--section-space) 40px 0;
+  padding: var(--section-space) 40px var(--section-space);
 }
 
 .vz-about__inner {
@@ -305,7 +388,6 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 .vz-about__head {
-  --about-head-flow-gap: clamp(32px, 4vw, 48px);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -314,9 +396,15 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 @media (min-width: 901px) {
-  .vz-about__head {
-    transform: translateY(calc((var(--about-head-flow-gap) - var(--section-space)) / 2));
+  .vz-about {
+    --about-content-edge: calc((var(--section-space) + var(--about-head-flow-gap)) / 2);
+    padding-top: var(--about-content-edge);
   }
+
+  .vz-about__head {
+    margin-bottom: var(--about-content-edge);
+  }
+
 }
 
 .vz-about__stage-title--mobile { display: none; }
@@ -339,32 +427,64 @@ onBeforeUnmount(() => emit("flow-ready", null));
   text-transform: uppercase;
 }
 
+.vz-about__team-lead--desktop,
+.vz-about__team-lead-line {
+  display: block;
+}
+
+.vz-about__team-lead-line {
+  white-space: nowrap;
+}
+
+.vz-about__team-lead--mobile {
+  display: none;
+}
+
 @media (min-width: 901px) and (max-width: 1023px) {
   .vz-about__head h2 {
     font-size: clamp(36px, 4vw, 42px);
   }
 }
 
-.vz-about__intro {
-  width: clamp(420px, 42vw, 540px);
+.vz-about__intro-slot {
+  --about-intro-current-height: 196px;
+  --about-intro-reserved-height: 196px;
+  --about-step-height: 154px;
+  position: relative;
+  width: clamp(460px, 46vw, 600px);
+  height: var(--about-intro-reserved-height);
   flex: 0 0 auto;
   margin-top: 12px;
+}
+
+.vz-about__intro {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: var(--about-intro-current-height);
+  box-sizing: border-box;
   padding: 20px;
+  overflow: hidden;
   border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
   border-radius: 20px;
   background: var(--landing-card-surface-north-east, var(--landing-card-surface, var(--bg)));
   box-shadow: var(--landing-card-shadow, 0 24px 54px -38px color-mix(in srgb, var(--ink) 38%, transparent));
   backdrop-filter: blur(18px) saturate(1.08);
+  transition: height 360ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
 .vz-about__step-stack {
   display: grid;
+  height: var(--about-step-height);
+  transition: height 360ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
 .vz-about__step-copy {
   display: grid;
   grid-area: 1 / 1;
-  min-height: 154px;
+  min-height: 0;
+  align-self: start;
   grid-template-columns: minmax(150px, 0.62fr) minmax(0, 1.38fr);
   align-items: start;
   gap: clamp(14px, 1.2vw, 18px);
@@ -800,11 +920,34 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 .vz-about__flow-stage-anchor i {
+  position: relative;
+  z-index: 2;
   width: 4px;
   height: 4px;
   border-radius: 50%;
   background: var(--ink);
   transition: background-color 240ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.vz-about__flow-stage-progress {
+  position: absolute;
+  z-index: 1;
+  inset: -5px;
+  width: calc(100% + 10px);
+  height: calc(100% + 10px);
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transform: rotate(-90deg);
+}
+
+.vz-about__flow-stage-progress circle {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.75;
+  stroke-linecap: round;
+  stroke-dasharray: 53.407;
+  stroke-dashoffset: 53.407;
 }
 
 .vz-about__flow-stage-label {
@@ -873,12 +1016,33 @@ onBeforeUnmount(() => emit("flow-ready", null));
   border-color: var(--ink);
   background: var(--ink);
   transform: translate(-50%, -50%) scale(1.16);
-  transition-delay: 220ms;
 }
 
 .vz-about__flow-stage.is-active .vz-about__flow-stage-anchor i {
   background: var(--flow-blue);
-  transition-delay: 220ms;
+}
+
+.vz-about__flow.is-autoplaying .vz-about__flow-stage.is-active .vz-about__flow-stage-anchor {
+  animation: vz-about-stage-focus 4500ms linear both;
+}
+
+.vz-about__flow.is-autoplaying .vz-about__flow-stage.is-active .vz-about__flow-stage-progress {
+  opacity: 1;
+}
+
+.vz-about__flow.is-autoplaying .vz-about__flow-stage.is-active .vz-about__flow-stage-progress circle {
+  animation: vz-about-stage-progress 4500ms linear forwards;
+}
+
+@keyframes vz-about-stage-focus {
+  0% { transform: translate(-50%, -50%) scale(1); }
+  6%, 94% { transform: translate(-50%, -50%) scale(1.22); }
+  100% { transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes vz-about-stage-progress {
+  from { stroke-dashoffset: 53.407; }
+  to { stroke-dashoffset: 0; }
 }
 
 .vz-about__flow-stage.is-active .vz-about__flow-stage-label {
@@ -908,7 +1072,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   grid-template-columns: minmax(280px, 1.35fr) minmax(0, 2fr);
   gap: clamp(24px, 3vw, 48px);
   align-items: center;
-  padding-block: clamp(28px, 4vw, 56px);
+  padding-top: clamp(28px, 4vw, 56px);
 }
 
 .vz-about__proof > p {
@@ -995,13 +1159,15 @@ onBeforeUnmount(() => emit("flow-ready", null));
 }
 
 @media (max-width: 900px) {
-  .vz-about { padding: var(--section-space) 20px 0; }
+  .vz-about { padding: var(--section-space) 20px var(--section-space); }
   .vz-about__head { align-items: flex-start; flex-direction: column; gap: 30px; margin-bottom: 48px; }
   .vz-about__title { flex: none; }
   .vz-about__title,
   .vz-about__head h2 { width: 100%; max-width: 100%; }
   .vz-about__head h2 { font-size: var(--type-section); }
-  .vz-about__intro { width: min(100%, 520px); margin-top: 0; }
+  .vz-about__team-lead--desktop { display: none; }
+  .vz-about__team-lead--mobile { display: block; }
+  .vz-about__intro-slot { width: min(100%, 520px); margin-top: 0; }
   .vz-about__step-copy p { max-width: 44ch; }
   .vz-about__proof { grid-template-columns: 1fr; gap: 24px; }
   .vz-about__proof > p { max-width: 58ch; }
@@ -1011,7 +1177,7 @@ onBeforeUnmount(() => emit("flow-ready", null));
   .vz-about__stage-title--desktop { display: none; }
   .vz-about__stage-title--mobile { display: inline; }
   .vz-about__head { margin-bottom: 14px; }
-  .vz-about__intro { height: auto; min-height: 0; padding: 12px 16px 10px; }
+  .vz-about__intro { padding: 12px 16px 10px; }
   .vz-about__step-stack { grid-template-rows: max-content; }
   .vz-about__flow {
     --mobile-business-center-y: 15%;
@@ -1198,6 +1364,20 @@ onBeforeUnmount(() => emit("flow-ready", null));
   .vz-about__flow-stage.is-active .vz-about__flow-stage-label::before {
     transform: none;
     transition: opacity 180ms ease;
+  }
+
+  .vz-about__flow.is-autoplaying .vz-about__flow-stage.is-active .vz-about__flow-stage-anchor,
+  .vz-about__flow.is-autoplaying .vz-about__flow-stage.is-active .vz-about__flow-stage-progress circle {
+    animation: none;
+  }
+
+  .vz-about__flow-stage-progress {
+    display: none;
+  }
+
+  .vz-about__intro,
+  .vz-about__step-stack {
+    transition-duration: 1ms;
   }
 }
 

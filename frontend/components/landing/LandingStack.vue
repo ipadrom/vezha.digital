@@ -58,11 +58,19 @@
             </div>
           </div>
 
-          <div v-if="activeGroup" class="vz-stack__mobile-details">
-            <p>{{ activeGroup.description }}</p>
-            <div>
-              <span v-for="item in balancedMobileItems" :key="item">{{ item }}</span>
-            </div>
+          <div v-if="activeGroup" ref="mobileDetailsRef" class="vz-stack__mobile-details">
+            <Transition
+              name="vz-stack-mobile-card"
+              mode="out-in"
+              @enter="resizeMobileDetailsForContent"
+            >
+              <div :key="`${activeIndex}-${activeGroup.title}`" class="vz-stack__mobile-details-body">
+                <p>{{ activeGroup.description }}</p>
+                <div>
+                  <span v-for="item in balancedMobileItems" :key="item">{{ item }}</span>
+                </div>
+              </div>
+            </Transition>
           </div>
         </div>
 
@@ -96,6 +104,7 @@ const emit = defineEmits<{
 const rootRef = ref<HTMLElement | null>(null);
 const sphereRef = ref<HTMLElement | null>(null);
 const timelineRef = ref<HTMLElement | null>(null);
+const mobileDetailsRef = ref<HTMLElement | null>(null);
 const lineStyle = ref<Record<string, string>>({});
 const activeCardStyle = ref<Record<string, string>>({});
 const itemCount = computed(() => props.groups.length);
@@ -126,6 +135,49 @@ const stackSphere = useLandingStackSphere({
 });
 
 let timelineResizeObserver: ResizeObserver | null = null;
+let mobileDetailsResizeObserver: ResizeObserver | null = null;
+let mobileDetailsHeightFrame = 0;
+let lastMobileDetailsWidth = 0;
+
+function getMobileDetailsHeight(body: HTMLElement) {
+  const card = mobileDetailsRef.value;
+  if (!card) return body.scrollHeight;
+  const style = getComputedStyle(card);
+  const chrome = [
+    style.paddingTop,
+    style.paddingBottom,
+    style.borderTopWidth,
+    style.borderBottomWidth,
+  ].reduce((total, value) => total + (Number.parseFloat(value) || 0), 0);
+  const contentHeight = Math.max(body.scrollHeight, body.getBoundingClientRect().height);
+  return Math.max(Number.parseFloat(style.minHeight) || 0, Math.ceil(contentHeight + chrome));
+}
+
+function syncMobileDetailsHeight(body?: HTMLElement | null, animate = false) {
+  const card = mobileDetailsRef.value;
+  const content = body || card?.querySelector<HTMLElement>(".vz-stack__mobile-details-body");
+  if (!card || !content || card.offsetParent === null) return;
+  const targetHeight = getMobileDetailsHeight(content);
+
+  cancelAnimationFrame(mobileDetailsHeightFrame);
+  if (!animate || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    card.style.height = `${targetHeight}px`;
+    return;
+  }
+
+  card.style.height = `${card.getBoundingClientRect().height}px`;
+  void card.offsetHeight;
+  mobileDetailsHeightFrame = requestAnimationFrame(() => {
+    card.style.height = `${targetHeight}px`;
+  });
+}
+
+function resizeMobileDetailsForContent(element: Element) {
+  cancelAnimationFrame(mobileDetailsHeightFrame);
+  mobileDetailsHeightFrame = requestAnimationFrame(() => {
+    syncMobileDetailsHeight(element as HTMLElement, true);
+  });
+}
 
 function getLayoutCenterY(element: HTMLElement, ancestor: HTMLElement) {
   let offset = element.offsetHeight / 2;
@@ -185,6 +237,17 @@ onMounted(async () => {
     timelineResizeObserver = new ResizeObserver(updateTimelineGeometry);
     timelineResizeObserver.observe(timelineRef.value);
   }
+  syncMobileDetailsHeight();
+  if (mobileDetailsRef.value) {
+    lastMobileDetailsWidth = mobileDetailsRef.value.getBoundingClientRect().width;
+    mobileDetailsResizeObserver = new ResizeObserver(([entry]) => {
+      const nextWidth = entry?.contentRect.width || 0;
+      if (Math.abs(nextWidth - lastMobileDetailsWidth) < 0.5) return;
+      lastMobileDetailsWidth = nextWidth;
+      syncMobileDetailsHeight();
+    });
+    mobileDetailsResizeObserver.observe(mobileDetailsRef.value);
+  }
   stackSphere.updatePosition();
   void stackSphere.setup();
 });
@@ -200,8 +263,11 @@ watch(activeIndex, async () => {
 });
 
 onBeforeUnmount(() => {
+  cancelAnimationFrame(mobileDetailsHeightFrame);
   timelineResizeObserver?.disconnect();
   timelineResizeObserver = null;
+  mobileDetailsResizeObserver?.disconnect();
+  mobileDetailsResizeObserver = null;
   stackSphere.cleanup();
 });
 </script>
@@ -337,12 +403,41 @@ onBeforeUnmount(() => {
   }
 
   .vz-stack__mobile-details {
+    overflow: hidden;
     padding: 13px 12px;
     border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
     border-radius: 16px;
     background: var(--landing-card-surface-violet-top, var(--landing-card-surface, var(--bg)));
     box-shadow: var(--landing-card-shadow, 0 18px 44px -32px color-mix(in srgb, var(--ink) 32%, transparent));
     backdrop-filter: blur(16px) saturate(1.08);
+    transition: height 360ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+    will-change: height;
+  }
+
+  .vz-stack__mobile-details-body {
+    width: 100%;
+  }
+
+  .vz-stack-mobile-card-enter-active {
+    transition:
+      opacity 220ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      transform 220ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .vz-stack-mobile-card-leave-active {
+    transition:
+      opacity 140ms ease-in,
+      transform 140ms ease-in;
+  }
+
+  .vz-stack-mobile-card-enter-from {
+    opacity: 0;
+    transform: translate3d(0, 5px, 0);
+  }
+
+  .vz-stack-mobile-card-leave-to {
+    opacity: 0;
+    transform: translate3d(0, -3px, 0);
   }
 }
 
@@ -351,8 +446,17 @@ onBeforeUnmount(() => {
     transition: none;
   }
 
+  .vz-stack__mobile-details {
+    transition: none;
+  }
+
   .vz-stack-card-content-enter-active,
   .vz-stack-card-content-leave-active {
+    transition: opacity 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .vz-stack-mobile-card-enter-active,
+  .vz-stack-mobile-card-leave-active {
     transition: opacity 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
   }
 }

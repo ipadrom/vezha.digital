@@ -306,23 +306,59 @@ test("keeps the about section on the shared 1240px page grid", () => {
   assert.doesNotMatch(aboutComponent, /\.vz-about__inner\s*\{[^}]*max-width:\s*1320px;/s);
 });
 
-test("centres the desktop about heading group in the space above the flow", () => {
+test("bounds the desktop about content by its label and proof cards", () => {
   const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
 
-  assert.match(aboutComponent, /\.vz-about__head\s*\{[^}]*--about-head-flow-gap:\s*clamp\(32px, 4vw, 48px\);[^}]*margin-bottom:\s*var\(--about-head-flow-gap\);/s);
-  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__head\s*\{[^}]*transform:\s*translateY\(calc\(\(var\(--about-head-flow-gap\) - var\(--section-space\)\) \/ 2\)\);/s);
+  assert.match(aboutComponent, /\.vz-about\s*\{[^}]*--about-head-flow-gap:\s*clamp\(32px, 4vw, 48px\);/s);
+  assert.match(aboutComponent, /\.vz-about\s*\{[^}]*padding:\s*var\(--section-space\) 40px var\(--section-space\);/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about\s*\{[^}]*--about-content-edge:\s*calc\(\(var\(--section-space\) \+ var\(--about-head-flow-gap\)\) \/ 2\);[^}]*padding-top:\s*var\(--about-content-edge\);/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__head\s*\{[^}]*margin-bottom:\s*var\(--about-content-edge\);/s);
+  assert.doesNotMatch(aboutComponent, /transform:\s*translateY\(calc\(\(var\(--about-head-flow-gap\) - var\(--section-space\)\) \/ 2\)\)/);
+  assert.match(aboutComponent, /\.vz-about__proof\s*\{[^}]*padding-top:\s*clamp\(28px, 4vw, 56px\);/s);
+  assert.doesNotMatch(aboutComponent, /\.vz-about__proof\s*\{[^}]*padding-block:/s);
 });
 
-test("keeps the about heading on three balanced lines across desktop and mobile", () => {
+test("keeps the about heading on three authored desktop lines and natural mobile copy", () => {
   const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+  const messages = JSON.parse(readFileSync("locales/ru.json", "utf8"));
 
+  assert.deepEqual(messages.landing.about.teamLeadLines, ["Команда,", "которая ведёт", "проект до запуска"]);
+  assert.match(aboutComponent, /v-for="line in copy\.teamLeadLines"/);
+  assert.match(aboutComponent, /class="vz-about__team-lead--mobile"[^>]*>\{\{ copy\.teamLead \}\}<\/span>/);
   assert.match(aboutComponent, /\.vz-about__head\s*\{[^}]*gap:\s*clamp\(36px, 4vw, 64px\);/s);
   assert.match(aboutComponent, /\.vz-about__title\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*520px;[^}]*flex:\s*1 1 520px;/s);
   assert.match(aboutComponent, /\.vz-about__head h2\s*\{[^}]*max-width:\s*520px;[^}]*text-wrap:\s*balance;/s);
+  assert.match(aboutComponent, /\.vz-about__team-lead-line\s*\{[^}]*white-space:\s*nowrap;/s);
   assert.match(aboutComponent, /\.vz-about__intro\s*\{[^}]*width:\s*clamp\(420px, 42vw, 540px\);/s);
   assert.match(aboutComponent, /@media \(min-width: 901px\) and \(max-width: 1023px\)[\s\S]*?\.vz-about__head h2\s*\{[^}]*font-size:\s*clamp\(36px, 4vw, 42px\);/s);
   assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__title\s*\{[^}]*flex:\s*none;/s);
   assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__title,[\s\S]*?\.vz-about__head h2\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%;/s);
+  assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__team-lead--desktop\s*\{\s*display:\s*none;\s*\}[\s\S]*?\.vz-about__team-lead--mobile\s*\{\s*display:\s*block;\s*\}/s);
+});
+
+test("sets the requested client heading as two fixed lines without shrinking its type", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const clients = readFileSync("components/landing/LandingClients.vue", "utf8");
+  const messages = JSON.parse(readFileSync("locales/ru.json", "utf8"));
+
+  assert.equal(messages.landing.clients.title, "От частника до корпорации");
+  assert.deepEqual(messages.landing.clients.titleLines, ["От частника", "до корпорации"]);
+  assert.match(clients, /<h2 :aria-label="copy\.title">[\s\S]*?<span aria-hidden="true">/s);
+  assert.match(clients, /v-for="line in copy\.titleLines \|\| \[copy\.title\]"/);
+  assert.match(landingPage, /\.vz-clients__grid\s*\{[^}]*grid-template-columns:\s*minmax\(400px, 0\.82fr\) minmax\(0, 1\.18fr\);/s);
+  assert.match(landingPage, /\.vz-clients h2\s*\{[^}]*font-size:\s*var\(--type-section\);/s);
+  assert.match(landingPage, /\.vz-clients__title-line\s*\{[^}]*white-space:\s*nowrap;/s);
+  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-clients__title-line\s*\{[^}]*display:\s*block;[^}]*white-space:\s*normal;/s);
+});
+
+test("resynchronizes the liquid heading mask after layout and viewport changes", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(landingPage, /sectionLiquidStackLock = null;[\s\S]*?syncNegativeWorlds\(true\);/s);
+  assert.match(landingPage, /targetHost\.replaceChildren\(\.\.\.clonedChildren\);/);
+  assert.match(landingPage, /sectionLiquidLayoutObserver = new ResizeObserver\(\(\) => queueSectionLiquidGeometrySync\(\)\);/);
+  assert.match(landingPage, /window\.addEventListener\("resize", handleSectionLiquidResize/);
+  assert.match(landingPage, /window\.visualViewport\?\.addEventListener\("resize", handleSectionLiquidResize/);
 });
 
 test("keeps about-stage durations readable at the shared label size", () => {
@@ -407,7 +443,11 @@ test("lowers only the desktop client text card beneath the cube composition", ()
   const clients = readFileSync("components/landing/LandingClients.vue", "utf8");
 
   assert.match(clients, /class="vz-client-card-slot"[\s\S]*?class="vz-client-card-track"[\s\S]*?<p>\{\{ activeClient\.text \}\}<\/p>/s);
-  assert.match(landingPage, /@media \(min-width: 901px\)\s*\{\s*\.vz-client-card-track\s*\{[^}]*display:\s*flow-root;[^}]*transform:\s*translateY\(clamp\(104px, 10vw, 120px\)\);/s);
+  assert.match(landingPage, /@media \(min-width: 901px\)\s*\{\s*\.vz-client-card-track\s*\{[^}]*display:\s*grid;[^}]*transform:\s*translateY\(clamp\(104px, 10vw, 120px\)\);/s);
+  assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?\.vz-client-card-track > \.vz-client-card-sizer\s*\{[^}]*display:\s*block;[^}]*visibility:\s*hidden;/s);
+  assert.match(landingPage, /const longestCardBottom = clientCards\.reduce\(/);
+  assert.match(landingPage, /grid\.style\.setProperty\("--client-content-height", nextContentHeight\)/);
+  assert.match(landingPage, /height:\s*max\(clamp\(540px, 56vh, 620px\), var\(--client-content-height\)\);/);
   assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-client-card-slot\s*\{[^}]*display:\s*grid;[^}]*order:\s*6;[^}]*margin-top:\s*16px;/s);
 });
 
@@ -424,19 +464,22 @@ test("aligns the desktop client heading and cube to the active-copy gap", () => 
   assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?\.vz-clients__head\s*\{[^}]*transform:\s*translateY\(var\(--client-head-y\)\);/s);
   assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?\.vz-client-copy\s*\{[^}]*--client-copy-y:\s*24px;[^}]*transform:\s*translateY\(var\(--client-copy-y\)\);/s);
   assert.match(landingPage, /const nextTop = `\$\{Math\.round\(targetViewportY - gridRect\.top - cubeHeight \* cubeVisualCenterRatio\)\}px`;/);
-  assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?\.vz-clients\s*\{[^}]*--client-menu-reserve:\s*clamp\(40px, 4vw, 56px\);[^}]*margin-top:\s*calc\(-1 \* var\(--client-menu-reserve\)\);[^}]*padding-top:\s*calc\(var\(--section-space\) \+ var\(--client-menu-reserve\)\);/s);
-  assert.match(landingPage, /@media \(min-width: 901px\)[\s\S]*?--client-menu-lift:\s*calc\(clamp\(48px, 4\.3vw, 56px\) \+ var\(--client-menu-reserve\)\);[\s\S]*?\.vz-client-capsules\s*\{[^}]*transform:\s*translateY\(calc\(-1 \* var\(--client-menu-lift\)\)\);[\s\S]*?\.vz-client-connector\s*\{[^}]*height:\s*calc\(48px \+ var\(--client-menu-lift\) \+ var\(--client-line-adjust\)\);[^}]*margin-top:\s*calc\(-1 \* var\(--client-menu-lift\)\);/s);
+  assert.match(landingPage, /\.vz-clients\s*\{[^}]*padding:\s*var\(--section-space\) 40px;[^}]*border-top:\s*1px solid var\(--border2\);/s);
+  assert.doesNotMatch(landingPage, /padding-bottom:\s*calc\(var\(--section-space\) \+ 64px\)/);
+  assert.doesNotMatch(landingPage, /margin-top:\s*calc\(-1 \* var\(--client-menu-reserve\)\)/);
+  assert.doesNotMatch(landingPage, /padding-top:\s*calc\(var\(--section-space\) \+ var\(--client-menu-reserve\)\)/);
+  assert.doesNotMatch(landingPage, /--client-menu-(?:reserve|lift)/);
+  assert.doesNotMatch(landingPage, /\.vz-client-capsules\s*\{[^}]*transform:/s);
+  assert.match(landingPage, /\.vz-client-connector\s*\{[^}]*height:\s*48px;[^}]*border-bottom:\s*1px solid var\(--border\);/s);
 });
 
-test("keeps equal desktop gaps around the client eyebrow without moving the copy", () => {
+test("keeps the client connector stable and matches both heading gaps", () => {
   const landingPage = readFileSync("pages/index.vue", "utf8");
 
-  assert.match(landingPage, /const upperGap = eyebrowRect\.top - connectorRect\.bottom;/);
-  assert.match(landingPage, /const lowerGap = currentTitleRect\.top - eyebrowRect\.bottom;/);
-  assert.match(landingPage, /currentAdjust \+ upperGap - lowerGap/);
-  assert.match(landingPage, /connector\.style\.setProperty\("--client-line-adjust", nextLineAdjust\)/);
-  assert.match(landingPage, /height:\s*calc\(48px \+ var\(--client-menu-lift\) \+ var\(--client-line-adjust\)\);/);
-  assert.match(landingPage, /margin-bottom:\s*calc\(-1 \* var\(--client-line-adjust\)\);/);
+  assert.doesNotMatch(landingPage, /--client-line-adjust/);
+  assert.match(landingPage, /\.vz-client-connector\s*\{[^}]*height:\s*48px;[^}]*border-bottom:\s*1px solid var\(--border\);/s);
+  assert.doesNotMatch(landingPage, /\.vz-clients \.vz-clients__head h2\s*\{[^}]*margin-top:/s);
+  assert.match(landingPage, /\.vz-client-copy h3\s*\{[^}]*margin:\s*0;/s);
 });
 
 test("matches mobile hero capsules to the service capsule grid", () => {
@@ -548,12 +591,18 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.doesNotMatch(css, /\.vz-services__nav--desktop\s*\{[^}]*opacity:\s*0;/s);
   assert.match(services, /v-for="\(service, index\) in services"/);
   assert.match(landing, /const isHeaderVisible = ref\(false\)/);
+  assert.match(landing, /const isHeaderShown = computed\(\(\) => !showPreloader\.value && \(isHeaderVisible\.value \|\| isMenuOpen\.value\)\)/);
+  assert.match(landing, /v-show="!showPreloader"[\s\S]*?class="vz-nav-hover-zone"/s);
+  assert.match(landing, /:data-nav-visible="isHeaderShown \? 'true' : 'false'"/);
   assert.match(landing, /window\.addEventListener\("scroll", handleHeaderScroll/);
   assert.match(landing, /class="vz-nav-hover-zone"/);
   assert.match(landing, /function queueHeaderHide\(delay = 820\)/);
+  assert.match(landing, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(isDesktopHeaderViewport\(\)\)[\s\S]*?const delta = nextScrollY - headerLastScrollY;[\s\S]*?isHeaderVisible\.value = delta < 0;/s);
   assert.match(landing, /\.vz-nav\[data-nav-visible="false"\]\s*\{[^}]*opacity:\s*0;[^}]*pointer-events:\s*none;[^}]*transform:\s*translate3d\(0,\s*calc\(-100% - 24px\),\s*0\);[^}]*visibility:\s*hidden;/s);
+  assert.match(landing, /\.vz-nav\s*\{[^}]*opacity 180ms var\(--ease-out,[^}]*transform 220ms var\(--ease-out,/s);
   assert.doesNotMatch(landing, /\.vz-nav\[data-nav-visible="false"\]\s*\{[^}]*filter:\s*blur/s);
   assert.match(landing, /\.vz-nav-hover-zone\s*\{[^}]*height:\s*96px;/s);
+  assert.doesNotMatch(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-nav\[data-nav-visible\]\s*\{[^}]*transition:\s*none;/s);
 });
 
 test("balances service capsules into fitted rows without changing the card width", () => {
