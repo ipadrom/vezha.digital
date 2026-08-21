@@ -105,6 +105,7 @@
             :target-step-index="targetStepIndex"
             :navigation-key="navigationKey"
             :snake-segments="snakeSegments"
+            @scene-ready="$emit('scene-ready', $event)"
             @stage-reached="$emit('stage-reached', $event)"
           />
 
@@ -284,6 +285,7 @@ const emit = defineEmits<{
   "select-step": [index: number];
   "stage-reached": [index: number];
   "flow-ready": [element: HTMLElement | null];
+  "scene-ready": [rendered: boolean];
 }>();
 
 const flowRef = ref<HTMLElement | null>(null);

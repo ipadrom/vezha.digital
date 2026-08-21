@@ -99,6 +99,7 @@ type StackCopy = { label: string; title: string; meta: string; hint: [string, st
 const props = defineProps<{ groups: StackGroup[]; copy: StackCopy }>();
 const emit = defineEmits<{
   activeChange: [index: number, progress: number];
+  "scene-ready": [rendered: boolean];
 }>();
 
 const rootRef = ref<HTMLElement | null>(null);
@@ -138,6 +139,13 @@ let timelineResizeObserver: ResizeObserver | null = null;
 let mobileDetailsResizeObserver: ResizeObserver | null = null;
 let mobileDetailsHeightFrame = 0;
 let lastMobileDetailsWidth = 0;
+let sceneReadyReported = false;
+
+function reportSceneReady(rendered: boolean) {
+  if (sceneReadyReported) return;
+  sceneReadyReported = true;
+  emit("scene-ready", rendered);
+}
 
 function getMobileDetailsHeight(body: HTMLElement) {
   const card = mobileDetailsRef.value;
@@ -249,7 +257,7 @@ onMounted(async () => {
     mobileDetailsResizeObserver.observe(mobileDetailsRef.value);
   }
   stackSphere.updatePosition();
-  void stackSphere.setup();
+  reportSceneReady(await stackSphere.setup());
 });
 
 watch(itemCount, async () => {
@@ -263,6 +271,7 @@ watch(activeIndex, async () => {
 });
 
 onBeforeUnmount(() => {
+  reportSceneReady(false);
   cancelAnimationFrame(mobileDetailsHeightFrame);
   timelineResizeObserver?.disconnect();
   timelineResizeObserver = null;

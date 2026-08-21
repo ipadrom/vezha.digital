@@ -25,6 +25,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   "stage-reached": [index: number];
+  "scene-ready": [rendered: boolean];
 }>();
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -44,6 +45,13 @@ let resizeObserver: ResizeObserver | null = null;
 let visibilityObserver: IntersectionObserver | null = null;
 let motionQuery: MediaQueryList | null = null;
 let mobileQuery: MediaQueryList | null = null;
+let sceneReadyReported = false;
+
+function reportSceneReady(rendered: boolean) {
+  if (sceneReadyReported) return;
+  sceneReadyReported = true;
+  emit("scene-ready", rendered);
+}
 let frameId = 0;
 let width = 0;
 let height = 0;
@@ -368,6 +376,8 @@ function drawScene(progress: number, now: number, settled = false, reversing = f
     ctx.fill();
     ctx.globalAlpha = 1;
   });
+
+  reportSceneReady(true);
 }
 
 function legStartTimes() {
@@ -660,7 +670,10 @@ watch(() => props.flowPhase, (phase) => {
 onMounted(async () => {
   const canvas = canvasRef.value;
   const host = canvas?.parentElement;
-  if (!canvas || !host) return;
+  if (!canvas || !host) {
+    reportSceneReady(false);
+    return;
+  }
   motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   mobileQuery = window.matchMedia("(max-width: 720px)");
   reducedMotion = motionQuery.matches;
@@ -680,6 +693,10 @@ onMounted(async () => {
   document.addEventListener("visibilitychange", onDocumentVisibility);
   await nextTick();
   resizeCanvas();
+  if (!context) {
+    reportSceneReady(false);
+    return;
+  }
   if (props.targetStepIndex !== null) {
     const target = (Math.max(0, Math.min(LAST_STEP_INDEX, props.targetStepIndex)) + 1) / LEG_COUNT;
     pauseAtProgress(target);
@@ -688,6 +705,7 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  reportSceneReady(false);
   cancelAnimationFrame(frameId);
   resizeObserver?.disconnect();
   visibilityObserver?.disconnect();

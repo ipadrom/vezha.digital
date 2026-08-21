@@ -151,9 +151,10 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
     return geometry;
   }
 
-  async function setupStackSphereScene() {
+  async function setupStackSphereScene(): Promise<boolean> {
     const host = stackSphereRef.value;
-    if (!host || stackSphereCleanup) return;
+    if (!host) return false;
+    if (stackSphereCleanup) return true;
 
     const setupToken = ++stackSphereSetupToken;
     let disposePartial: (() => void) | null = null;
@@ -164,7 +165,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
         setupToken !== stackSphereSetupToken
         || stackSphereRef.value !== host
         || !host.isConnected
-      ) return;
+      ) return false;
 
       const renderer = new THREE.WebGLRenderer({
         alpha: true,
@@ -1416,11 +1417,13 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
       resize();
       if (reduceMotion) renderStaticState();
       else frameId = requestAnimationFrame(tick);
+      return true;
     } catch (error) {
-      if (setupToken !== stackSphereSetupToken || stackSphereRef.value !== host) return;
+      if (setupToken !== stackSphereSetupToken || stackSphereRef.value !== host) return false;
       disposePartial?.();
       console.info("VEZHA stack 3D fallback is inactive:", error);
       host.hidden = true;
+      return false;
     }
   }
 

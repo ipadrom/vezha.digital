@@ -11,6 +11,7 @@
     <div v-if="cases.length" class="vz-cases__shell">
       <div class="vz-cases__case-nav">
         <div
+          ref="tabListRef"
           class="vz-cases__tabs"
           role="tablist"
           :aria-label="copy.tabAria"
@@ -133,6 +134,7 @@
 import CaseArtifactVisual from "~/components/cases/CaseArtifactVisual.vue";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 import { mergeFeaturedProjects, moveCaseIndex } from "~/utils/landingCases";
+import { getLandingPresentationScale } from "~/utils/threeRenderQuality";
 
 const props = defineProps<{
   projects: IProjects[];
@@ -151,6 +153,7 @@ const props = defineProps<{
 const { locale } = useI18n();
 const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const activeIndex = ref(0);
+const tabListRef = ref<HTMLElement | null>(null);
 
 const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback));
 const activeCase = computed(() => cases.value[activeIndex.value]);
@@ -165,16 +168,23 @@ let desktopMedia: MediaQueryList | undefined;
 
 function onDesktopMediaChange(event: MediaQueryListEvent) {
   isDesktop.value = event.matches;
+  void nextTick(() => keepActiveTabVisible(activeIndex.value));
+}
+
+function onTabsViewportResize() {
+  keepActiveTabVisible(activeIndex.value);
 }
 
 onMounted(() => {
   desktopMedia = window.matchMedia(desktopMediaQuery);
   isDesktop.value = desktopMedia.matches;
   desktopMedia.addEventListener("change", onDesktopMediaChange);
+  window.addEventListener("resize", onTabsViewportResize, { passive: true });
 });
 
 onBeforeUnmount(() => {
   desktopMedia?.removeEventListener("change", onDesktopMediaChange);
+  window.removeEventListener("resize", onTabsViewportResize);
 });
 
 const labelsBySlug: Record<string, { ru: string; en: string }> = {
@@ -230,29 +240,47 @@ function caseMonogram(project: IProjects) {
   return words.slice(0, 3).map((word) => word[0]).join("").toUpperCase();
 }
 
-function alignActiveTabToStart(index: number) {
-  if (!window.matchMedia("(max-width: 900px)").matches) return;
-
-  const tab = document.getElementById(`case-tab-${index}`);
-  const tabList = tab?.closest<HTMLElement>(".vz-cases__tabs");
+function keepActiveTabVisible(index: number) {
+  const tabList = tabListRef.value;
+  const tab = tabList?.querySelector<HTMLElement>(`#case-tab-${index}`);
   if (!tab || !tabList) return;
 
   const tabRect = tab.getBoundingClientRect();
   const listRect = tabList.getBoundingClientRect();
   const gap = Number.parseFloat(window.getComputedStyle(tabList).columnGap) || 0;
-  const trailingSpace = Math.max(0, tabList.clientWidth - tabRect.width - gap);
-  const startLeft = tabList.scrollLeft + tabRect.left - listRect.left;
+  const presentationScale = getLandingPresentationScale(tabList);
+  const tabWidth = tabRect.width / presentationScale;
+  const tabLeft = tabList.scrollLeft + (tabRect.left - listRect.left) / presentationScale;
+
+  if (!window.matchMedia("(max-width: 900px)").matches) {
+    tabList.style.removeProperty("--vz-tabs-trailing-space");
+    const edge = Math.max(12, gap);
+    const tabRight = tabLeft + tabWidth;
+    const visibleLeft = tabList.scrollLeft + edge;
+    const visibleRight = tabList.scrollLeft + tabList.clientWidth - edge;
+    let nextLeft = tabList.scrollLeft;
+
+    if (tabLeft < visibleLeft) nextLeft = tabLeft - edge;
+    else if (tabRight > visibleRight) nextLeft = tabRight - tabList.clientWidth + edge;
+    else return;
+
+    const maxScroll = Math.max(0, tabList.scrollWidth - tabList.clientWidth);
+    tabList.scrollTo({ left: Math.max(0, Math.min(maxScroll, nextLeft)), behavior: "auto" });
+    return;
+  }
+
+  const trailingSpace = Math.max(0, tabList.clientWidth - tabWidth - gap);
 
   tabList.style.setProperty("--vz-tabs-trailing-space", `${trailingSpace}px`);
-  tabList.scrollTo({ left: Math.max(0, startLeft), behavior: "auto" });
+  tabList.scrollTo({ left: Math.max(0, tabLeft), behavior: "auto" });
 }
 
 function selectCase(index: number, focus = false) {
   activeIndex.value = index;
   nextTick(() => {
-    const tab = document.getElementById(`case-tab-${index}`);
+    const tab = tabListRef.value?.querySelector<HTMLElement>(`#case-tab-${index}`);
     if (focus) tab?.focus();
-    alignActiveTabToStart(index);
+    keepActiveTabVisible(index);
   });
 }
 
@@ -276,7 +304,11 @@ function onTabsKeydown(event: KeyboardEvent) {
   }
 }
 
-watch(cases, () => { if (activeIndex.value >= cases.value.length) activeIndex.value = 0; });
+watch(cases, async () => {
+  if (activeIndex.value >= cases.value.length) activeIndex.value = 0;
+  await nextTick();
+  keepActiveTabVisible(activeIndex.value);
+});
 </script>
 
 <style src="~/assets/css/landing-cases.css"></style>
