@@ -72,6 +72,15 @@ test("landing cases use an accessible project tab treatment", () => {
   assert.match(component, /event\.key === "ArrowLeft"/);
 });
 
+test("mobile case tabs scroll smoothly when changed with the controls", () => {
+  const component = readFileSync("components/landing/LandingCases.vue", "utf8");
+
+  assert.match(component, /const reduceMotion = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)\.matches;/);
+  assert.match(component, /tabList\.style\.setProperty\("--vz-tabs-trailing-space", `\$\{trailingSpace\}px`\);[\s\S]*?behavior:\s*animate && !reduceMotion \? "smooth" : "auto",/s);
+  assert.match(component, /@click="move\(-1, false, true\)"/);
+  assert.match(component, /@click="move\(1, false, true\)"/);
+});
+
 test("landing case selector keeps the open stage and capsule arrow controls", () => {
   const component = readFileSync("components/landing/LandingCases.vue", "utf8");
   const css = readFileSync("assets/css/landing-cases.css", "utf8");
@@ -102,6 +111,14 @@ test("case summary follows the title, facts, logo and action composition", () =>
   assert.match(component, /class="vz-cases__meta-layout"/);
   assert.match(component, /class="vz-cases__facts"/);
   assert.equal(component.match(/class="vz-cases__fact"/g)?.length, 3);
+  assert.equal(component.match(/class="vz-cases__meta-value"/g)?.length, 4);
+  assert.equal(component.match(/class="vz-cases__meta-detail"/g)?.length, 4);
+  assert.match(component, /type CaseMetaField = "format" \| "product" \| "client" \| "stack";/);
+  assert.match(component, /function caseMetaDetail\(project: IProjects, field: CaseMetaField\)/);
+  assert.match(component, /PWA — сайт, который устанавливается как приложение\./);
+  assert.match(component, /Wellness App — приложение для тренировок и здоровья\./);
+  assert.match(component, /Заказчик — специалист по фитнесу и питанию\./);
+  assert.match(component, /Vue 3 — интерфейс, Vite — сборка приложения\./);
   assert.match(component, /class="vz-cases__brand"/);
   assert.match(component, /class="vz-cases__stack-card"/);
   assert.match(component, /wellness-mark\.svg/);
@@ -113,7 +130,14 @@ test("case summary follows the title, facts, logo and action composition", () =>
   assert.match(css, /\.vz-cases__stack-card strong\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
   assert.match(css, /\.vz-cases__fact dt,[\s\S]*?\.vz-cases__stack-card > span\s*\{[^}]*position:\s*absolute;[^}]*top:\s*10px;[^}]*left:\s*12px;[^}]*text-align:\s*left;/s);
   assert.match(css, /\.vz-cases__caption > \*::before\s*\{[^}]*display:\s*none !important;/s);
-  assert.match(css, /\.vz-cases__fact:hover,[\s\S]*\.vz-cases__stack-card:hover\s*\{[^}]*transform:\s*translateY\(-2px\);/s);
+  assert.match(css, /\.vz-cases__fact dt,[\s\S]*?\.vz-cases__stack-card > span\s*\{[^}]*z-index:\s*2;/s);
+  assert.match(css, /\.vz-cases__meta-value,[\s\S]*?\.vz-cases__meta-detail\s*\{[^}]*grid-area:\s*1 \/ 1;[^}]*backface-visibility:\s*hidden;[^}]*transform 200ms var\(--ease-in-out,/s);
+  assert.match(css, /\.vz-cases__meta-detail\s*\{[^}]*width:\s*100%;[^}]*justify-self:\s*stretch;[^}]*text-align:\s*left;/s);
+  assert.match(css, /\.vz-cases__meta-detail\s*\{[^}]*display:\s*block;[^}]*overflow:\s*visible;/s);
+  assert.doesNotMatch(css, /\.vz-cases__meta-detail\s*\{[^}]*-webkit-line-clamp:/s);
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.vz-cases__fact:hover \.vz-cases__meta-value,[\s\S]*?transform:\s*rotateY\(82deg\);[\s\S]*?\.vz-cases__fact:hover \.vz-cases__meta-detail,[\s\S]*?opacity:\s*1;[^}]*transform:\s*rotateY\(0deg\);/s);
+  assert.doesNotMatch(css, /\.vz-cases__fact:hover,[\s\S]*?\.vz-cases__stack-card:hover\s*\{[^}]*transform:\s*translateY/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.vz-cases__meta-value,[\s\S]*?\.vz-cases__meta-detail\s*\{[^}]*transform:\s*none;[^}]*transition:\s*opacity 125ms/s);
   assert.match(css, /@media \(min-width: 901px\)[\s\S]*\.vz-cases__caption\s*\{[^}]*grid-template-rows:\s*96px minmax\(0, 1fr\) minmax\(64px, 74px\);/s);
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption\s*\{[^}]*grid-template-columns:\s*minmax\(0, 0\.95fr\) minmax\(0, 1\.05fr\);/s);
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption > \.vz-cases__identity\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1;/s);
@@ -122,5 +146,6 @@ test("case summary follows the title, facts, logo and action composition", () =>
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__brand\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1 \/ 4;/s);
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__stack-card\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*4;/s);
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__fact dt,[\s\S]*?\.vz-cases__stack-card > span\s*\{[^}]*display:\s*block;[^}]*top:\s*6px;[^}]*left:\s*8px;/s);
+  assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__meta-detail\s*\{[^}]*position:\s*relative;[^}]*top:\s*4px;/s);
   assert.match(css, /@media \(max-width: 620px\)[\s\S]*?\.vz-cases__caption > \.vz-cases__link\s*\{[^}]*height:\s*auto;[^}]*grid-column:\s*1 \/ -1;[^}]*grid-row:\s*5;[^}]*margin-top:\s*14px;/s);
 });

@@ -60,7 +60,7 @@
                   :aria-label="`${service.n}. ${copy.navLabels[index] ?? service.title}`"
                   :aria-selected="index === activeIndex"
                   :tabindex="index === activeIndex ? 0 : -1"
-                  @click="selectService(index)"
+                  @click="selectService(index, false, true)"
                 >
                   <span>{{ service.n }}</span>
                   <b>{{ copy.navLabels[index] ?? service.title }}</b>
@@ -69,10 +69,10 @@
               </div>
 
               <div class="vz-cases__mobile-controls" :aria-label="copy.navAria">
-                <button type="button" :aria-label="copy.previousAria" @click="move(-1)">
+                <button type="button" :aria-label="copy.previousAria" @click="move(-1, false, true)">
                   <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
                 </button>
-                <button type="button" :aria-label="copy.nextAria" @click="move(1)">
+                <button type="button" :aria-label="copy.nextAria" @click="move(1, false, true)">
                   <svg aria-hidden="true" viewBox="0 0 20 20"><path d="m11 5 5 5-5 5M4 10h12" /></svg>
                 </button>
               </div>
@@ -319,7 +319,7 @@ const activeServiceCallouts = computed(() => props.copy.commercial[activeIndex.v
 const balancedCommercialCapsuleRows = computed(() => props.copy.commercial.map(({ included }) => (
   balanceServiceCapsuleRows(included)
 )));
-function alignActiveServiceToStart(index: number) {
+function alignActiveServiceToStart(index: number, animate = false) {
   if (!window.matchMedia("(max-width: 900px)").matches) return;
 
   const nav = rootRef.value?.querySelector<HTMLElement>(".vz-services__mobile-tabs");
@@ -331,12 +331,16 @@ function alignActiveServiceToStart(index: number) {
   const gap = Number.parseFloat(window.getComputedStyle(nav).columnGap) || 0;
   const trailingSpace = Math.max(0, nav.clientWidth - tabRect.width - gap);
   const startLeft = nav.scrollLeft + tabRect.left - navRect.left;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   nav.style.setProperty("--vz-tabs-trailing-space", `${trailingSpace}px`);
-  nav.scrollTo({ left: Math.max(0, startLeft), behavior: "auto" });
+  nav.scrollTo({
+    left: Math.max(0, startLeft),
+    behavior: animate && !reduceMotion ? "smooth" : "auto",
+  });
 }
 
-function selectService(index: number, focus = false) {
+function selectService(index: number, focus = false, animate = false) {
   select(index);
   nextTick(() => {
     const selector = window.matchMedia("(max-width: 900px)").matches
@@ -344,13 +348,13 @@ function selectService(index: number, focus = false) {
       : "[data-serv-nav]";
     const tab = rootRef.value?.querySelectorAll<HTMLElement>(selector)[activeIndex.value];
     if (focus) tab?.focus();
-    alignActiveServiceToStart(activeIndex.value);
+    alignActiveServiceToStart(activeIndex.value, animate);
   });
 }
 
-function move(direction: 1 | -1, focus = false) {
+function move(direction: 1 | -1, focus = false, animate = false) {
   if (!serviceCount.value) return;
-  selectService(activeIndex.value + direction, focus);
+  selectService(activeIndex.value + direction, focus, animate);
 }
 
 function onNavKeydown(event: KeyboardEvent) {

@@ -431,6 +431,8 @@ let sectionLiquidLayoutObserver: ResizeObserver | null = null;
 let sectionLiquidForceCloneOnLayoutSync = false;
 let sectionLiquidLastScrollY = 0;
 let sectionLiquidScrollDirection = 0;
+let sectionLiquidViewportWidth = 0;
+let sectionLiquidViewportScale = 1;
 let sectionLiquidStackLock: {
   x: number;
   y: number;
@@ -461,6 +463,7 @@ let isHeaderHovered = false;
 let isHeaderFocused = false;
 let headerIdleTimer: ReturnType<typeof setTimeout> | null = null;
 let headerLastScrollY = 0;
+let headerWasDesktop: boolean | null = null;
 
 function markAboutSceneReady(rendered: boolean) {
   aboutSceneGate.complete(rendered);
@@ -912,7 +915,6 @@ function revealHeader() {
 }
 
 function queueHeaderHide(delay = 820) {
-  if (!isDesktopHeaderViewport()) return;
   clearHeaderIdleTimer();
   headerIdleTimer = window.setTimeout(() => {
     headerIdleTimer = null;
@@ -936,17 +938,21 @@ function handleHeaderScroll() {
     return;
   }
 
-  if (isMenuOpen.value || nextScrollY <= 12) {
+  if (isMenuOpen.value) {
     headerLastScrollY = nextScrollY;
-    isHeaderVisible.value = true;
+    revealHeader();
     return;
   }
 
-  const delta = nextScrollY - headerLastScrollY;
-  if (Math.abs(delta) < 6) return;
+  if (nextScrollY <= 12) {
+    headerLastScrollY = nextScrollY;
+    revealHeader();
+    return;
+  }
 
-  isHeaderVisible.value = delta < 0;
   headerLastScrollY = nextScrollY;
+  revealHeader();
+  queueHeaderHide();
 }
 
 function handleHeaderZonePointerEnter() {
@@ -983,9 +989,13 @@ function handleHeaderFocusOut(event: FocusEvent) {
 }
 
 function handleHeaderResize() {
-  clearHeaderIdleTimer();
+  const isDesktop = isDesktopHeaderViewport();
   headerLastScrollY = Math.max(0, window.scrollY);
-  isHeaderVisible.value = !isDesktopHeaderViewport();
+  if (headerWasDesktop === isDesktop) return;
+
+  headerWasDesktop = isDesktop;
+  clearHeaderIdleTimer();
+  isHeaderVisible.value = !isDesktop;
 }
 
 let publicDataRequestId = 0;
@@ -2562,6 +2572,21 @@ function queueSectionLiquidGeometrySync(forceClone = false) {
 }
 
 function handleSectionLiquidResize() {
+  const nextViewportWidth = window.innerWidth;
+  const nextViewportScale = window.visualViewport?.scale ?? 1;
+  const widthChanged = Math.abs(nextViewportWidth - sectionLiquidViewportWidth) > 1;
+  const scaleChanged = Math.abs(nextViewportScale - sectionLiquidViewportScale) > 0.01;
+  sectionLiquidViewportWidth = nextViewportWidth;
+  sectionLiquidViewportScale = nextViewportScale;
+
+  // Mobile browser chrome changes only the viewport height while scrolling.
+  // Rebuilding the overlay for that transient resize blanks the liquid mark for
+  // a frame, so keep the existing layer and let its animation use fresh bounds.
+  if (nextViewportWidth <= 900 && !widthChanged && !scaleChanged) {
+    startSectionLiquid();
+    return;
+  }
+
   const overlay = sectionLiquidRef.value;
   if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
   sectionLiquidRaf = 0;
@@ -3735,6 +3760,8 @@ onMounted(async () => {
   setupReveals();
   updateScrollEffects();
   sectionLiquidLastScrollY = window.scrollY;
+  sectionLiquidViewportWidth = window.innerWidth;
+  sectionLiquidViewportScale = window.visualViewport?.scale ?? 1;
   footerGameLastScrollY = window.scrollY;
   handleHeaderResize();
   await nextTick();
@@ -5214,6 +5241,12 @@ useHead(() => ({
   font-size: var(--type-caption);
 }
 
+@media (min-width: 1920px) {
+  .vz-stack .vz-sec-meta p {
+    font-size: 17px;
+  }
+}
+
 .vz-stack__timeline {
   position: relative;
   z-index: 1;
@@ -6139,6 +6172,22 @@ useHead(() => ({
     left: 20px;
     height: 60px;
     padding: 0 8px 0 16px;
+  }
+
+  .vz-mobile-menu {
+    padding: 10px 20px max(40px, env(safe-area-inset-bottom));
+  }
+
+  .vz-mobile-menu__top {
+    box-sizing: border-box;
+    width: 100%;
+    height: 60px;
+    padding: 0 8px 0 16px;
+    border: 1px solid transparent;
+  }
+
+  .vz-mobile-menu__controls {
+    gap: 12px;
   }
 
   .vz-nav-hover-zone {

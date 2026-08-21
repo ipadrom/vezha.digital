@@ -83,17 +83,44 @@
             </div>
             <div :key="`case-meta-${activeCase.id}`" class="vz-cases__meta-layout">
               <dl class="vz-cases__facts">
-                <div class="vz-cases__fact">
+                <div
+                  class="vz-cases__fact"
+                  role="group"
+                  tabindex="0"
+                  :aria-label="`${metaLabels.format}: ${caseFormat(activeCase)}`"
+                  :aria-describedby="`case-meta-format-${activeCase.id}`"
+                >
                   <dt>{{ metaLabels.format }}</dt>
-                  <dd>{{ caseFormat(activeCase) }}</dd>
+                  <dd>
+                    <span class="vz-cases__meta-value">{{ caseFormat(activeCase) }}</span>
+                    <span :id="`case-meta-format-${activeCase.id}`" class="vz-cases__meta-detail">{{ caseMetaDetail(activeCase, "format") }}</span>
+                  </dd>
                 </div>
-                <div class="vz-cases__fact">
+                <div
+                  class="vz-cases__fact"
+                  role="group"
+                  tabindex="0"
+                  :aria-label="`${metaLabels.product}: ${caseLabel(activeCase)}`"
+                  :aria-describedby="`case-meta-product-${activeCase.id}`"
+                >
                   <dt>{{ metaLabels.product }}</dt>
-                  <dd>{{ caseLabel(activeCase) }}</dd>
+                  <dd>
+                    <span class="vz-cases__meta-value">{{ caseLabel(activeCase) }}</span>
+                    <span :id="`case-meta-product-${activeCase.id}`" class="vz-cases__meta-detail">{{ caseMetaDetail(activeCase, "product") }}</span>
+                  </dd>
                 </div>
-                <div class="vz-cases__fact">
+                <div
+                  class="vz-cases__fact"
+                  role="group"
+                  tabindex="0"
+                  :aria-label="`${metaLabels.client}: ${activeCase.industry || metaLabels.privateClient}`"
+                  :aria-describedby="`case-meta-client-${activeCase.id}`"
+                >
                   <dt>{{ metaLabels.client }}</dt>
-                  <dd>{{ activeCase.industry || metaLabels.privateClient }}</dd>
+                  <dd>
+                    <span class="vz-cases__meta-value">{{ activeCase.industry || metaLabels.privateClient }}</span>
+                    <span :id="`case-meta-client-${activeCase.id}`" class="vz-cases__meta-detail">{{ caseMetaDetail(activeCase, "client") }}</span>
+                  </dd>
                 </div>
               </dl>
 
@@ -107,9 +134,18 @@
                 <span v-else aria-hidden="true">{{ caseMonogram(activeCase) }}</span>
               </div>
 
-              <div class="vz-cases__stack-card">
+              <div
+                class="vz-cases__stack-card"
+                role="group"
+                tabindex="0"
+                :aria-label="`${metaLabels.stack}: ${caseStack(activeCase)}`"
+                :aria-describedby="`case-meta-stack-${activeCase.id}`"
+              >
                 <span>{{ metaLabels.stack }}</span>
-                <strong>{{ caseStack(activeCase) }}</strong>
+                <strong>
+                  <span class="vz-cases__meta-value">{{ caseStack(activeCase) }}</span>
+                  <span :id="`case-meta-stack-${activeCase.id}`" class="vz-cases__meta-detail">{{ caseMetaDetail(activeCase, "stack") }}</span>
+                </strong>
               </div>
             </div>
             <NuxtLink class="vz-cases__link" :to="`/cases/${activeCase.slug}`">
@@ -212,6 +248,83 @@ const stacksBySlug: Record<string, string> = {
   "crm-workspace": "Nuxt / PostgreSQL",
 };
 
+type CaseMetaField = "format" | "product" | "client" | "stack";
+
+const metaDetailsBySlug: Record<string, Record<CaseMetaField, { ru: string; en: string }>> = {
+  "wellness-app": {
+    format: {
+      ru: "PWA — сайт, который устанавливается как приложение.",
+      en: "A PWA is a website installed and used like an app.",
+    },
+    product: {
+      ru: "Wellness App — приложение для тренировок и здоровья.",
+      en: "Wellness App is an app for workouts and health.",
+    },
+    client: {
+      ru: "Заказчик — специалист по фитнесу и питанию.",
+      en: "The client is a fitness and nutrition specialist.",
+    },
+    stack: {
+      ru: "Vue 3 — интерфейс, Vite — сборка приложения.",
+      en: "Vue 3 is the interface; Vite builds the app.",
+    },
+  },
+  "restaurant-menu": {
+    format: {
+      ru: "Mini App — приложение внутри Telegram.",
+      en: "A Mini App runs inside Telegram.",
+    },
+    product: {
+      ru: "Сервис для выбора блюд и оформления заказа.",
+      en: "A service for choosing dishes and placing an order.",
+    },
+    client: {
+      ru: "Заказчик — ресторанный бизнес.",
+      en: "The client is a restaurant business.",
+    },
+    stack: {
+      ru: "Vue 3 — интерфейс, FastAPI — сервер.",
+      en: "Vue 3 is the interface; FastAPI is the server.",
+    },
+  },
+  "ai-support": {
+    format: {
+      ru: "AI-автоматизация — передача рутинных задач нейросети.",
+      en: "AI automation delegates routine tasks to an AI model.",
+    },
+    product: {
+      ru: "AI-поддержка — помощник для клиентов и операторов.",
+      en: "AI support assists customers and operators.",
+    },
+    client: {
+      ru: "Заказчик — команда клиентского сервиса.",
+      en: "The client is a customer service team.",
+    },
+    stack: {
+      ru: "LLM понимает запрос, Vector Search ищет ответ.",
+      en: "The LLM reads the request; Vector Search finds the answer.",
+    },
+  },
+  "crm-workspace": {
+    format: {
+      ru: "Корпоративная система — внутренний рабочий сервис.",
+      en: "A corporate system is an internal work service.",
+    },
+    product: {
+      ru: "CRM — система для сделок, задач и клиентов.",
+      en: "A CRM manages deals, tasks and customers.",
+    },
+    client: {
+      ru: "Заказчик — B2B-компания и отдел продаж.",
+      en: "The client is a B2B company and its sales team.",
+    },
+    stack: {
+      ru: "Nuxt — приложение, PostgreSQL — хранение данных.",
+      en: "Nuxt powers the app; PostgreSQL stores the data.",
+    },
+  },
+};
+
 const metaLabels = computed(() => currentLocale.value === "ru"
   ? { format: "Формат", product: "Продукт", client: "Заказчик", logo: "Логотип", stack: "Стек", privateClient: "Частный заказчик" }
   : { format: "Format", product: "Product", client: "Client", logo: "Logo", stack: "Stack", privateClient: "Private client" });
@@ -234,6 +347,29 @@ function caseStack(project: IProjects) {
   return stacksBySlug[project.slug || ""] || "Web / API";
 }
 
+function caseMetaDetail(project: IProjects, field: CaseMetaField) {
+  const ru = currentLocale.value === "ru";
+  const detail = metaDetailsBySlug[project.slug || ""]?.[field];
+  if (detail) return detail[currentLocale.value];
+
+  if (field === "format") {
+    const format = caseFormat(project);
+    return ru ? `${format} — способ запуска и использования продукта.` : `${format} is how the product launches and is used.`;
+  }
+  if (field === "product") {
+    const product = caseLabel(project);
+    return ru ? `${product} — цифровой продукт, созданный для задачи клиента.` : `${product} is a digital product built for the client's task.`;
+  }
+  if (field === "client") {
+    const industry = project.industry || metaLabels.value.privateClient;
+    return ru ? `Заказчик работает в сфере ${industry}.` : `The client works in ${industry}.`;
+  }
+  const stack = caseStack(project);
+  return ru
+    ? `${stack} — технологии, на которых работает продукт.`
+    : `${stack} is the technology behind the product.`;
+}
+
 function caseMonogram(project: IProjects) {
   const words = caseLabel(project).split(/\s+/).filter(Boolean);
   if (words.length === 1) return words[0]?.slice(0, 3).toUpperCase() || "VZ";
@@ -251,6 +387,7 @@ function keepActiveTabVisible(index: number, animate = false) {
   const presentationScale = getLandingPresentationScale(tabList);
   const tabWidth = tabRect.width / presentationScale;
   const tabLeft = tabList.scrollLeft + (tabRect.left - listRect.left) / presentationScale;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (!window.matchMedia("(max-width: 900px)").matches) {
     tabList.style.removeProperty("--vz-tabs-trailing-space");
@@ -265,7 +402,6 @@ function keepActiveTabVisible(index: number, animate = false) {
     else return;
 
     const maxScroll = Math.max(0, tabList.scrollWidth - tabList.clientWidth);
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     tabList.scrollTo({
       left: Math.max(0, Math.min(maxScroll, nextLeft)),
       behavior: animate && !reduceMotion ? "smooth" : "auto",
@@ -276,7 +412,10 @@ function keepActiveTabVisible(index: number, animate = false) {
   const trailingSpace = Math.max(0, tabList.clientWidth - tabWidth - gap);
 
   tabList.style.setProperty("--vz-tabs-trailing-space", `${trailingSpace}px`);
-  tabList.scrollTo({ left: Math.max(0, tabLeft), behavior: "auto" });
+  tabList.scrollTo({
+    left: Math.max(0, tabLeft),
+    behavior: animate && !reduceMotion ? "smooth" : "auto",
+  });
 }
 
 function selectCase(index: number, focus = false, animate = false) {

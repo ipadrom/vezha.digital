@@ -218,20 +218,53 @@
 
       <div class="vz-about__proof">
         <p>{{ copy.paragraphs[0] }}</p>
-        <dl>
-          <div>
-            <dt>1</dt>
-            <dd>{{ copy.metrics[0] }}</dd>
+        <div
+          class="vz-about__proof-facts"
+          data-expanded="true"
+        >
+          <div
+            v-for="(item, index) in proofDetails"
+            :id="`about-proof-panel-${index}`"
+            :key="`proof-reveal-${item.number}`"
+            class="vz-about__proof-reveal"
+            :class="{ 'vz-about__proof-reveal--timeline': index === 2 }"
+            role="tabpanel"
+            :aria-labelledby="`about-proof-tab-${index}`"
+            :aria-hidden="activeProofIndex === index ? undefined : 'true'"
+            :data-active="activeProofIndex === index ? 'true' : 'false'"
+            @pointerenter="openProof(index)"
+          >
+            <span class="vz-about__proof-reveal-number" aria-hidden="true">{{ item.number }}</span>
+            <div class="vz-about__proof-reveal-copy">
+              <strong>{{ item.label }}</strong>
+              <p :id="`about-proof-detail-${index}`">{{ item.detail }}</p>
+            </div>
           </div>
-          <div>
-            <dt>0</dt>
-            <dd>{{ copy.metrics[1] }}</dd>
+          <div
+            class="vz-about__proof-switcher"
+            role="tablist"
+            :aria-label="copy.label"
+            data-visible="true"
+          >
+            <button
+              v-for="(item, index) in proofDetails"
+              :id="`about-proof-tab-${index}`"
+              :key="`proof-tab-${item.number}`"
+              type="button"
+              role="tab"
+              :aria-controls="`about-proof-panel-${index}`"
+              :aria-selected="activeProofIndex === index"
+              :aria-label="`${item.number}: ${item.label}`"
+              :data-active="activeProofIndex === index ? 'true' : 'false'"
+              tabindex="0"
+              @pointerenter="openProof(index)"
+              @focus="openProof(index)"
+              @click="openProof(index)"
+            >
+              {{ item.number }}
+            </button>
           </div>
-          <div>
-            <dt>1–4</dt>
-            <dd>{{ copy.metrics[2] }}</dd>
-          </div>
-        </dl>
+        </div>
       </div>
     </div>
   </section>
@@ -247,6 +280,7 @@ type AboutFlowItem = {
 
 type AboutCopy = {
   label: string;
+  lead: string;
   paragraphs: [string, string];
   note: string;
   eyebrow: [string, string];
@@ -320,6 +354,16 @@ const activeFlowStep = computed(() => {
   const index = Math.max(0, Math.min(supportStepIndex, props.displayStepIndex));
   return allFlowSteps.value[index];
 });
+const activeProofIndex = ref(0);
+const proofDetails = computed(() => [
+  { number: "1", label: props.copy.metrics[0], detail: props.copy.lead },
+  { number: "0", label: props.copy.metrics[1], detail: props.copy.note },
+  { number: "1–4", label: props.copy.metrics[2], detail: props.copy.paragraphs[1] },
+]);
+
+function openProof(index: number) {
+  activeProofIndex.value = index;
+}
 
 function syncIntroHeight() {
   cancelAnimationFrame(introHeightFrame);
@@ -406,7 +450,7 @@ onBeforeUnmount(() => {
   }
 
   .vz-about__head {
-    margin-bottom: var(--about-content-edge);
+    margin-bottom: clamp(28px, 4vw, 56px);
   }
 
 }
@@ -1087,58 +1131,166 @@ onBeforeUnmount(() => {
   line-height: 1.6;
 }
 
-.vz-about__proof dl {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0;
+.vz-about__proof-facts {
+  position: relative;
+  min-width: 0;
+  min-height: 134px;
+  perspective: 900px;
 }
 
-.vz-about__proof dl div {
-  position: relative;
-  display: flex;
-  min-height: 112px;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 18px;
+.vz-about__proof-reveal {
+  position: absolute;
+  z-index: 4;
+  inset: 0 78px 0 0;
+  display: grid;
+  grid-template-columns: clamp(180px, 24%, 220px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(22px, 2.5vw, 36px);
+  padding: 18px 24px 18px 18px;
+  overflow: hidden;
   border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
   border-radius: 16px;
-  background: var(--about-proof-surface, var(--landing-card-surface, var(--bg)));
+  background: var(--landing-card-surface-cyan-left, var(--landing-card-surface, var(--bg)));
   box-shadow: var(--landing-card-shadow, 0 20px 46px -36px color-mix(in srgb, var(--ink) 34%, transparent));
-  backdrop-filter: blur(16px) saturate(1.08);
+  opacity: 0;
+  clip-path: inset(0 66.666% 0 0);
+  transform: rotateY(-16deg);
+  transform-origin: left center;
+  backface-visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    clip-path 250ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1)),
+    transform 250ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
 }
 
-.vz-about__proof dl div:nth-child(1) {
-  --about-proof-surface: var(--landing-card-surface-cyan-left, var(--landing-card-surface));
+.vz-about__proof-reveal[data-active="true"] {
+  opacity: 1;
+  clip-path: inset(0);
+  transform: none;
+  pointer-events: auto;
 }
 
-.vz-about__proof dl div:nth-child(2) {
-  --about-proof-surface: var(--landing-card-surface-violet-top, var(--landing-card-surface));
-}
-
-.vz-about__proof dl div:nth-child(3) {
-  --about-proof-surface: var(--landing-card-surface-diagonal, var(--landing-card-surface));
-}
-
-.vz-about__proof dl div:not(:last-child)::after {
-  display: none;
-}
-
-.vz-about__proof dt {
+.vz-about__proof-reveal-number {
+  display: flex;
+  height: 100%;
+  align-items: center;
   color: var(--ink);
-  font-size: clamp(28px, 2.6vw, 38px);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1;
+  font-size: clamp(84px, 8vw, 112px);
+  font-weight: 650;
+  letter-spacing: -0.055em;
+  line-height: 0.78;
+  white-space: nowrap;
 }
 
-.vz-about__proof dd {
-  margin: 0;
+.vz-about__proof-reveal--timeline .vz-about__proof-reveal-number {
+  font-size: clamp(72px, 6.5vw, 92px);
+}
+
+.vz-about__proof-reveal-copy {
+  min-width: 0;
+}
+
+.vz-about__proof-reveal-copy strong {
+  display: block;
+  color: var(--ink);
+  font-size: var(--type-chip);
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.vz-about__proof-reveal-copy p {
+  max-width: 56ch;
+  margin: 10px 0 0;
   color: var(--text2);
   font-size: var(--type-body);
-  line-height: 1.35;
+  line-height: 1.45;
+}
+
+.vz-about__proof-switcher {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  width: 66px;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  overflow: hidden;
+  border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+  border-radius: 12px;
+  background: var(--landing-card-surface, var(--bg));
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition:
+    opacity 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-about__proof-switcher[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  pointer-events: auto;
+}
+
+.vz-about__proof-switcher button {
+  display: grid;
+  min-height: 0;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text2);
+  font: 600 16px/1 var(--font-ui, sans-serif);
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    color 160ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-about__proof-switcher button + button {
+  border-top: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 7%, transparent));
+}
+
+.vz-about__proof-switcher button[data-active="true"] {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.vz-about__proof-switcher button:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) {
+  .vz-about__proof-switcher button:hover {
+    background-color: color-mix(in srgb, var(--ink) 5%, transparent);
+    color: var(--ink);
+  }
+
+  .vz-about__proof-switcher button[data-active="true"]:hover {
+    background-color: var(--ink);
+    color: var(--bg);
+  }
+}
+
+@media (min-width: 901px) {
+  .vz-about__proof-switcher {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .vz-about__proof-facts:has(.vz-about__proof-switcher button:focus-visible) .vz-about__proof-reveal[data-active="true"] {
+    transition-duration: 0ms;
+  }
 }
 
 .vz-flow-icon-enter-active,
@@ -1177,10 +1329,29 @@ onBeforeUnmount(() => {
   .vz-about__proof > p { max-width: 58ch; }
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .vz-about__proof-reveal {
+    clip-path: inset(0);
+    transform: none;
+    transition: opacity 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .vz-about__proof-switcher {
+    transform: none;
+    transition: opacity 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  .vz-about__proof-switcher button {
+    transition:
+      background-color 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      color 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+}
+
 @media (max-width: 720px) {
   .vz-about__stage-title--desktop { display: none; }
   .vz-about__stage-title--mobile { display: inline; }
-  .vz-about__head { margin-bottom: 14px; }
+  .vz-about__head { margin-bottom: 20px; }
   .vz-about__intro { padding: 12px 16px 10px; }
   .vz-about__step-stack { grid-template-rows: max-content; }
   .vz-about__flow {
@@ -1290,16 +1461,39 @@ onBeforeUnmount(() => {
     max-width: none;
     text-align: center;
   }
-  .vz-about__proof dl { grid-template-columns: 1fr; gap: 10px; }
-  .vz-about__proof dl div {
-    min-height: 82px;
-    flex-direction: row;
-    align-items: center;
-    gap: 18px;
-    padding: 16px 18px;
+  .vz-about__proof {
+    gap: 20px;
+    padding-top: 20px;
   }
-  .vz-about__proof dt { font-size: 28px; }
-  .vz-about__proof dd { max-width: 24ch; font-size: var(--type-caption); text-align: right; }
+  .vz-about__proof-facts { min-height: 154px; }
+  .vz-about__proof-reveal {
+    inset: 0 58px 0 0;
+    grid-template-columns: 80px minmax(0, 1fr);
+    gap: 8px;
+    padding: 10px;
+    transform: rotateY(-12deg);
+  }
+  .vz-about__proof-reveal-number {
+    font-size: clamp(52px, 17vw, 68px);
+  }
+  .vz-about__proof-reveal--timeline .vz-about__proof-reveal-number {
+    font-size: clamp(42px, 13vw, 54px);
+  }
+  .vz-about__proof-reveal-copy strong {
+    font-size: var(--type-chip);
+    line-height: 1.2;
+  }
+  .vz-about__proof-reveal-copy p {
+    margin-top: 5px;
+    font-size: var(--type-caption);
+    line-height: 1.3;
+  }
+  .vz-about__proof-switcher {
+    width: 50px;
+  }
+  .vz-about__proof-switcher button {
+    font-size: 14px;
+  }
   .vz-about__step-copy {
     height: auto;
     min-height: 0;

@@ -885,6 +885,7 @@
   padding: 9px 10px;
   border-radius: 16px;
   text-align: center;
+  perspective: 700px;
 }
 
 .vz-cases__fact:nth-child(1) {
@@ -902,6 +903,7 @@
 .vz-cases__fact dt,
 .vz-cases__stack-card > span {
   position: absolute;
+  z-index: 2;
   top: 10px;
   left: 12px;
   color: var(--muted);
@@ -912,6 +914,11 @@
 }
 
 .vz-cases__fact dd {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  place-items: center;
   max-width: 100%;
   margin: 0;
   overflow-wrap: anywhere;
@@ -921,6 +928,7 @@
   line-height: 1.15;
   letter-spacing: 0.01em;
   text-transform: uppercase;
+  transform-style: preserve-3d;
 }
 
 .vz-cases__brand {
@@ -974,9 +982,15 @@
   border-radius: 16px;
   background: var(--landing-card-surface-cyan-left, var(--landing-card-surface, var(--bg)));
   text-align: center;
+  perspective: 700px;
 }
 
 .vz-cases__stack-card strong {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  place-items: center;
   max-width: 100%;
   overflow-wrap: anywhere;
   color: var(--ink);
@@ -985,6 +999,37 @@
   line-height: 1.15;
   letter-spacing: 0.01em;
   text-transform: uppercase;
+  transform-style: preserve-3d;
+}
+
+.vz-cases__meta-value,
+.vz-cases__meta-detail {
+  grid-area: 1 / 1;
+  max-width: 100%;
+  backface-visibility: hidden;
+  transition:
+    opacity 160ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 200ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
+}
+
+.vz-cases__meta-value {
+  transform: rotateY(0deg);
+}
+
+.vz-cases__meta-detail {
+  display: block;
+  width: 100%;
+  justify-self: stretch;
+  overflow: visible;
+  color: var(--text2);
+  font-size: clamp(9px, 0.72vw, 11px);
+  font-weight: 450;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+  opacity: 0;
+  transform: rotateY(-82deg);
 }
 
 .vz-cases__caption > .vz-cases__identity,
@@ -992,18 +1037,58 @@
 .vz-cases__stack-card {
   transition:
     border-color 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-cases__caption > .vz-cases__identity {
+  transition:
+    border-color 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
     box-shadow 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
     transform 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .vz-cases__caption > .vz-cases__identity:hover,
-  .vz-cases__fact:hover,
-  .vz-cases__stack-card:hover {
+  .vz-cases__caption > .vz-cases__identity:hover {
     border-color: color-mix(in srgb, var(--ink) 18%, transparent);
     box-shadow: 0 18px 34px -26px color-mix(in srgb, var(--ink) 54%, transparent);
     transform: translateY(-2px);
   }
+
+  .vz-cases__fact:hover,
+  .vz-cases__stack-card:hover {
+    border-color: color-mix(in srgb, var(--ink) 18%, transparent);
+    box-shadow: 0 18px 34px -26px color-mix(in srgb, var(--ink) 54%, transparent);
+  }
+
+  .vz-cases__fact:hover .vz-cases__meta-value,
+  .vz-cases__stack-card:hover .vz-cases__meta-value {
+    opacity: 0;
+    transform: rotateY(82deg);
+  }
+
+  .vz-cases__fact:hover .vz-cases__meta-detail,
+  .vz-cases__stack-card:hover .vz-cases__meta-detail {
+    opacity: 1;
+    transform: rotateY(0deg);
+  }
+}
+
+.vz-cases__fact:focus .vz-cases__meta-value,
+.vz-cases__stack-card:focus .vz-cases__meta-value {
+  opacity: 0;
+  transform: rotateY(82deg);
+}
+
+.vz-cases__fact:focus .vz-cases__meta-detail,
+.vz-cases__stack-card:focus .vz-cases__meta-detail {
+  opacity: 1;
+  transform: rotateY(0deg);
+}
+
+.vz-cases__fact:focus-visible,
+.vz-cases__stack-card:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1011,6 +1096,12 @@
   .vz-cases__fact,
   .vz-cases__stack-card {
     transition: none;
+  }
+
+  .vz-cases__meta-value,
+  .vz-cases__meta-detail {
+    transform: none;
+    transition: opacity 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
   }
 }
 
@@ -1130,6 +1221,11 @@
   .vz-cases__fact dd,
   .vz-cases__stack-card strong {
     font-size: 12px;
+  }
+
+  .vz-cases__meta-detail {
+    position: relative;
+    top: 4px;
   }
 
   .vz-cases__caption > .vz-cases__link {

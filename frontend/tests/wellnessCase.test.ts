@@ -155,6 +155,9 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.match(css, /\.case-header__menu\s*\{[^}]*display:\s*none;/s);
   assert.match(css, /\.case-header__inner\s*\{[^}]*border-radius:\s*999px;/s);
   assert.match(css, /\.case-header__inner\s*\{[^}]*backdrop-filter:\s*saturate\(1\.18\) blur\(18px\)/s);
+  assert.match(css, /\.case-header__nav a\s*\{[^}]*position:\s*relative;/s);
+  assert.match(css, /\.case-header__nav a::after\s*\{[^}]*bottom:\s*-7px;[^}]*height:\s*1px;[^}]*transform:\s*scaleX\(0\);[^}]*transform-origin:\s*left;[^}]*transition:\s*transform var\(--motion-fast, 160ms\) var\(--ease-out,/s);
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)\s*\{[^}]*\.case-header__nav a:hover::after\s*\{[^}]*transform:\s*scaleX\(1\);/s);
   assert.match(css, /\.case-menu-enter-active, \.case-menu-leave-active\s*\{[^}]*opacity 400ms ease[^}]*transform 400ms cubic-bezier\(\.77, 0, \.175, 1\);/s);
   assert.match(css, /\.case-menu-enter-from, \.case-menu-leave-to\s*\{[^}]*opacity:\s*0;[^}]*transform:\s*translateY\(-100%\);/s);
   assert.match(css, /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.case-menu-enter-active, \.case-menu-leave-active\s*\{[^}]*opacity 100ms ease;/s);

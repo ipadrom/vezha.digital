@@ -267,6 +267,26 @@ test("keeps mobile service navigation on one line with only the active item fill
   assert.match(mobileCss, /button\[data-active="true"\] \[data-serv-nav-label\]\s*\{[^}]*font-weight:\s*400;/);
 });
 
+test("sets the desktop stack support copy to 17px at 2K", () => {
+  const landingPage = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(
+    landingPage,
+    /@media \(min-width: 1920px\)\s*\{[\s\S]*?\.vz-stack \.vz-sec-meta p\s*\{[^}]*font-size:\s*17px;/s,
+  );
+});
+
+test("scrolls the mobile service labels smoothly from pointer controls", () => {
+  const servicesComponent = readFileSync("components/landing/LandingServices.vue", "utf8");
+
+  assert.match(servicesComponent, /@click="selectService\(index, false, true\)"/);
+  assert.match(servicesComponent, /@click="move\(-1, false, true\)"/);
+  assert.match(servicesComponent, /@click="move\(1, false, true\)"/);
+  assert.match(servicesComponent, /function alignActiveServiceToStart\(index: number, animate = false\)/);
+  assert.match(servicesComponent, /behavior:\s*animate && !reduceMotion \? "smooth" : "auto",/);
+  assert.match(servicesComponent, /function move\(direction: 1 \| -1, focus = false, animate = false\)/);
+});
+
 test("keeps service text fixed while expanding only the highlight background", () => {
   const highlightSource = readFileSync("utils/landingServicesHighlight.ts", "utf8");
 
@@ -312,10 +332,39 @@ test("bounds the desktop about content by its label and proof cards", () => {
   assert.match(aboutComponent, /\.vz-about\s*\{[^}]*--about-head-flow-gap:\s*clamp\(32px, 4vw, 48px\);/s);
   assert.match(aboutComponent, /\.vz-about\s*\{[^}]*padding:\s*var\(--section-space\) 40px var\(--section-space\);/s);
   assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about\s*\{[^}]*--about-content-edge:\s*calc\(\(var\(--section-space\) \+ var\(--about-head-flow-gap\)\) \/ 2\);[^}]*padding-top:\s*var\(--about-content-edge\);/s);
-  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__head\s*\{[^}]*margin-bottom:\s*var\(--about-content-edge\);/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__head\s*\{[^}]*margin-bottom:\s*clamp\(28px, 4vw, 56px\);/s);
   assert.doesNotMatch(aboutComponent, /transform:\s*translateY\(calc\(\(var\(--about-head-flow-gap\) - var\(--section-space\)\) \/ 2\)\)/);
   assert.match(aboutComponent, /\.vz-about__proof\s*\{[^}]*padding-top:\s*clamp\(28px, 4vw, 56px\);/s);
+  assert.match(aboutComponent, /\.vz-about__proof-facts\s*\{[^}]*min-height:\s*134px;/s);
   assert.doesNotMatch(aboutComponent, /\.vz-about__proof\s*\{[^}]*padding-block:/s);
+});
+
+test("expands every desktop proof card with a persistent numeric switcher", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /const activeProofIndex = ref\(0\);/);
+  assert.match(aboutComponent, /const proofDetails = computed\(\(\) => \[[\s\S]*?props\.copy\.lead[\s\S]*?props\.copy\.note[\s\S]*?props\.copy\.paragraphs\[1\][\s\S]*?\]\);/);
+  assert.doesNotMatch(aboutComponent, /class="vz-about__proof-card"/);
+  assert.doesNotMatch(aboutComponent, /<dl[^>]*data-expanded/);
+  assert.match(aboutComponent, /class="vz-about__proof-facts"\s*data-expanded="true"/s);
+  assert.match(aboutComponent, /class="vz-about__proof-switcher"[\s\S]*?role="tablist"[\s\S]*?role="tab"[\s\S]*?:aria-selected="activeProofIndex === index"/s);
+  assert.match(aboutComponent, /class="vz-about__proof-switcher"[\s\S]*?data-visible="true"/s);
+  assert.match(aboutComponent, /function openProof\(index: number\) \{\s*activeProofIndex\.value = index;\s*\}/s);
+  assert.doesNotMatch(aboutComponent, /function closeProof|handleProofPointerLeave|handleProofFocusOut/);
+  assert.match(aboutComponent, /\.vz-about__proof-reveal\s*\{[^}]*position:\s*absolute;[^}]*inset:\s*0 78px 0 0;[^}]*clip-path:\s*inset\(0 66\.666% 0 0\);[^}]*transform:\s*rotateY\(-16deg\);/s);
+  assert.match(aboutComponent, /\.vz-about__proof-reveal\[data-active="true"\]\s*\{[^}]*opacity:\s*1;[^}]*clip-path:\s*inset\(0\);[^}]*transform:\s*none;/s);
+  assert.match(aboutComponent, /\.vz-about__proof-reveal-number\s*\{[^}]*height:\s*100%;[^}]*font-size:\s*clamp\(84px, 8vw, 112px\);[^}]*white-space:\s*nowrap;/s);
+  assert.match(aboutComponent, /\.vz-about__proof-reveal--timeline \.vz-about__proof-reveal-number\s*\{[^}]*font-size:\s*clamp\(72px, 6\.5vw, 92px\);/s);
+  assert.match(aboutComponent, /\.vz-about__proof-switcher\s*\{[^}]*width:\s*66px;[^}]*grid-template-rows:\s*repeat\(3, minmax\(0, 1fr\)\);[^}]*gap:\s*0;[^}]*overflow:\s*hidden;[^}]*border-radius:\s*12px;/s);
+  assert.match(aboutComponent, /\.vz-about__proof-switcher button\s*\{[^}]*min-height:\s*0;[^}]*border:\s*0;[^}]*border-radius:\s*0;[^}]*background:\s*transparent;/s);
+  assert.match(aboutComponent, /\.vz-about__proof-switcher\[data-visible="true"\]\s*\{[^}]*opacity:\s*1;[^}]*pointer-events:\s*auto;/s);
+  assert.match(aboutComponent, /@media \(min-width: 901px\)[\s\S]*?\.vz-about__proof-switcher\s*\{[^}]*opacity:\s*1;[^}]*visibility:\s*visible;[^}]*pointer-events:\s*auto;/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__proof-reveal\s*\{[^}]*inset:\s*0 58px 0 0;[^}]*grid-template-columns:\s*80px minmax\(0, 1fr\);[^}]*gap:\s*8px;/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__proof-facts\s*\{\s*min-height:\s*154px;\s*\}/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__proof-switcher\s*\{[^}]*width:\s*50px;/s);
+  assert.match(aboutComponent, /\.vz-about__proof-switcher button \+ button\s*\{[^}]*border-top:\s*1px solid/s);
+  assert.doesNotMatch(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__proof-reveal\s*\{\s*display:\s*none;/s);
+  assert.match(aboutComponent, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.vz-about__proof-reveal\s*\{[^}]*transform:\s*none;[^}]*transition:\s*opacity 125ms/s);
 });
 
 test("keeps the about heading on three authored desktop lines and natural mobile copy", () => {
@@ -334,6 +383,17 @@ test("keeps the about heading on three authored desktop lines and natural mobile
   assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__title\s*\{[^}]*flex:\s*none;/s);
   assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__title,[\s\S]*?\.vz-about__head h2\s*\{[^}]*width:\s*100%;[^}]*max-width:\s*100%;/s);
   assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__team-lead--desktop\s*\{\s*display:\s*none;\s*\}[\s\S]*?\.vz-about__team-lead--mobile\s*\{\s*display:\s*block;\s*\}/s);
+});
+
+test("keeps the expanded mobile proof card selected from the start", () => {
+  const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__head\s*\{[^}]*margin-bottom:\s*20px;/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__proof\s*\{[^}]*gap:\s*20px;[^}]*padding-top:\s*20px;/s);
+  assert.match(aboutComponent, /const activeProofIndex = ref\(0\);/);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__proof-facts\s*\{\s*min-height:\s*154px;\s*\}/s);
+  assert.match(aboutComponent, /@media \(max-width: 720px\)[\s\S]*?\.vz-about__proof-reveal\s*\{[^}]*grid-template-columns:\s*80px minmax\(0, 1fr\);[^}]*gap:\s*8px;/s);
+  assert.doesNotMatch(aboutComponent, /\.vz-about__proof dl/);
 });
 
 test("sets the requested client heading as two fixed lines without shrinking its type", () => {
@@ -597,12 +657,33 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(landing, /window\.addEventListener\("scroll", handleHeaderScroll/);
   assert.match(landing, /class="vz-nav-hover-zone"/);
   assert.match(landing, /function queueHeaderHide\(delay = 820\)/);
-  assert.match(landing, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(isDesktopHeaderViewport\(\)\)[\s\S]*?const delta = nextScrollY - headerLastScrollY;[\s\S]*?isHeaderVisible\.value = delta < 0;/s);
+  assert.match(landing, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(isDesktopHeaderViewport\(\)\)[\s\S]*?if \(nextScrollY <= 12\)[\s\S]*?revealHeader\(\);[\s\S]*?queueHeaderHide\(\);/s);
+  assert.doesNotMatch(landing, /isHeaderVisible\.value = delta < 0/);
+  assert.match(landing, /function queueHeaderHide\(delay = 820\)[\s\S]*?headerIdleTimer = window\.setTimeout/s);
+  assert.doesNotMatch(landing, /function queueHeaderHide\(delay = 820\)\s*\{\s*if \(!isDesktopHeaderViewport\(\)\) return;/s);
+  assert.match(landing, /function handleHeaderResize\(\)[\s\S]*?if \(headerWasDesktop === isDesktop\) return;/s);
   assert.match(landing, /\.vz-nav\[data-nav-visible="false"\]\s*\{[^}]*opacity:\s*0;[^}]*pointer-events:\s*none;[^}]*transform:\s*translate3d\(0,\s*calc\(-100% - 24px\),\s*0\);[^}]*visibility:\s*hidden;/s);
   assert.match(landing, /\.vz-nav\s*\{[^}]*opacity 180ms var\(--ease-out,[^}]*transform 220ms var\(--ease-out,/s);
   assert.doesNotMatch(landing, /\.vz-nav\[data-nav-visible="false"\]\s*\{[^}]*filter:\s*blur/s);
   assert.match(landing, /\.vz-nav-hover-zone\s*\{[^}]*height:\s*96px;/s);
   assert.doesNotMatch(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-nav\[data-nav-visible\]\s*\{[^}]*transition:\s*none;/s);
+});
+
+test("keeps the mobile liquid mark mounted during browser chrome height changes", () => {
+  const landing = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(landing, /const widthChanged = Math\.abs\(nextViewportWidth - sectionLiquidViewportWidth\) > 1;/);
+  assert.match(landing, /if \(nextViewportWidth <= 900 && !widthChanged && !scaleChanged\)\s*\{\s*startSectionLiquid\(\);\s*return;/s);
+  assert.match(landing, /sectionLiquidViewportWidth = window\.innerWidth;[\s\S]*?window\.visualViewport\?\.addEventListener\("resize", handleSectionLiquidResize/s);
+});
+
+test("keeps the open mobile menu controls aligned with the closed header", () => {
+  const landing = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-nav\s*\{[^}]*top:\s*10px;[^}]*right:\s*20px;[^}]*left:\s*20px;[^}]*height:\s*60px;[^}]*padding:\s*0 8px 0 16px;/s);
+  assert.match(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-mobile-menu\s*\{[^}]*padding:\s*10px 20px max\(40px, env\(safe-area-inset-bottom\)\);/s);
+  assert.match(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-mobile-menu__top\s*\{[^}]*height:\s*60px;[^}]*padding:\s*0 8px 0 16px;[^}]*border:\s*1px solid transparent;/s);
+  assert.match(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-mobile-menu__controls\s*\{[^}]*gap:\s*12px;/s);
 });
 
 test("balances service capsules into fitted rows without changing the card width", () => {
