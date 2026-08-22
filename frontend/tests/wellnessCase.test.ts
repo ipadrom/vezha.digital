@@ -179,16 +179,16 @@ test("case sections and the compact landing header share the 1240px container", 
   assert.match(landing, /border-radius:\s*999px/);
 });
 
-test("gallery and standalone image blocks are removed from the wellness case and admin builder", () => {
+test("gallery blocks are removed from the wellness case and admin builder", () => {
   const preview = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
   const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
 
   assert.equal(blockLibrary.some((item) => item.type === "gallery"), false);
-  assert.equal(blockLibrary.some((item) => item.type === "image"), false);
+  assert.equal(blockLibrary.some((item) => item.type === "image"), true);
   assert.doesNotMatch(preview, /block\.type === ['"]gallery['"]|preview-grid/);
-  assert.doesNotMatch(preview, /block\.type === ['"]image['"]/);
+  assert.match(preview, /block\.type === ['"]image['"]/);
   assert.doesNotMatch(inspector, /^\s*gallery:\s*\[/m);
-  assert.doesNotMatch(inspector, /^\s*image:\s*\[/m);
+  assert.match(inspector, /^\s*image:\s*\[/m);
 });
 
 test("service inclusions stay in a two-column grid", () => {
@@ -411,10 +411,12 @@ test("mandatory case header uses a compact mark, a large thesis and a 1240px-ali
   assert.match(editor, /block\.type !== 'hero'/);
 });
 
-test("legacy single images still render without being available as new admin blocks", () => {
+test("single images can bleed across the full equal-height card", () => {
+  const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
   const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
   const css = readFileSync("assets/css/case-builder-public.css", "utf8");
 
+  assert.match(inspector, /setSetting\('image_bleed'/);
   assert.match(renderer, /builder-block--image-bleed/);
   assert.match(css, /\.builder-block--image-bleed \.builder-block__inner\s*\{[^}]*height:\s*100%;[^}]*padding:\s*0;/s);
   assert.match(css, /\.builder-block--image-bleed \.builder-single-image img,[\s\S]*object-fit:\s*cover;/s);
