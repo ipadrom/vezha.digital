@@ -483,12 +483,17 @@ const heroFxState = {
   lastPointerY: 0,
   lastX: 0.76,
   lastY: 0.43,
+  mobileDirectionX: -1,
+  mobileDirectionY: 1,
   speed: 0,
   targetX: 0.76,
   targetY: 0.43,
   velocityX: 0.00048,
   velocityY: 0.00018,
 };
+
+const mobileHeroFxHorizontalTraversalMs = 24000;
+const mobileHeroFxVerticalTraversalMs = 18000;
 
 const sectionLiquidState = {
   angle: -0.35,
@@ -3071,10 +3076,6 @@ function resetHeroNegative() {
 }
 
 function startHeroNegative() {
-  if (window.innerWidth <= 900) {
-    heroRef.value?.classList.remove("is-hero-fx-active");
-    return;
-  }
   if (heroFxRaf) return;
   heroFxLastFrame = performance.now();
   heroFxRaf = requestAnimationFrame(animateHeroNegative);
@@ -3084,10 +3085,6 @@ function animateHeroNegative(now: number) {
   heroFxRaf = 0;
   const hero = heroRef.value;
   const mask = heroNegativeRef.value;
-  if (window.innerWidth <= 900) {
-    hero?.classList.remove("is-hero-fx-active");
-    return;
-  }
   if (!hero || !mask) {
     return;
   }
@@ -3098,7 +3095,8 @@ function animateHeroNegative(now: number) {
     return;
   }
 
-  const frame = clampValue((now - heroFxLastFrame) / 16.67, 0, 2);
+  const elapsedMs = clampValue(now - heroFxLastFrame, 0, 50);
+  const frame = clampValue(elapsedMs / 16.67, 0, 2);
   heroFxLastFrame = now;
   const bounds = getHeroLiquidBounds(hero, rect);
   const radius = clampValue(Math.min(bounds.width * 0.16, bounds.height * 0.46, rect.width * 0.105), 76, 148);
@@ -3107,37 +3105,64 @@ function animateHeroNegative(now: number) {
   const maxCenterX = Math.max(bounds.right - centerInset, minCenterX);
   const minCenterY = Math.min(bounds.top + centerInset, bounds.bottom);
   const maxCenterY = Math.max(bounds.bottom - centerInset, minCenterY);
-  const targetX = clampValue(heroFxState.targetX * rect.width, minCenterX, maxCenterX) / rect.width;
-  const targetY = clampValue(heroFxState.targetY * rect.height, minCenterY, maxCenterY) / rect.height;
+  const isMobileHeroFx = window.innerWidth <= 900;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  if (heroFxState.active) {
-    const dx = targetX - heroFxState.currentX;
-    const dy = targetY - heroFxState.currentY;
-    heroFxState.velocityX += dx * 0.0024 * frame;
-    heroFxState.velocityY += dy * 0.0024 * frame;
-  }
+  if (isMobileHeroFx) {
+    let nextX = clampValue(heroFxState.currentX * rect.width, minCenterX, maxCenterX);
+    let nextY = clampValue(heroFxState.currentY * rect.height, minCenterY, maxCenterY);
 
-  const velocity = Math.hypot(heroFxState.velocityX, heroFxState.velocityY);
-  if (!heroFxState.active && velocity < 0.00016) {
-    heroFxState.velocityX += Math.cos(heroFxState.angle || -0.24) * 0.000012 * frame;
-    heroFxState.velocityY += Math.sin(heroFxState.angle || -0.24) * 0.000012 * frame;
-  }
+    if (!reduceMotion) {
+      const horizontalRange = Math.max(1, maxCenterX - minCenterX);
+      const verticalRange = Math.max(1, maxCenterY - minCenterY);
+      nextX += heroFxState.mobileDirectionX * horizontalRange * elapsedMs / mobileHeroFxHorizontalTraversalMs;
+      nextY += heroFxState.mobileDirectionY * verticalRange * elapsedMs / mobileHeroFxVerticalTraversalMs;
 
-  const damping = heroFxState.active ? 0.992 : 0.996;
-  heroFxState.velocityX *= Math.pow(damping, frame);
-  heroFxState.velocityY *= Math.pow(damping, frame);
-  heroFxState.currentX += heroFxState.velocityX * frame;
-  heroFxState.currentY += heroFxState.velocityY * frame;
+      if (nextX <= minCenterX || nextX >= maxCenterX) {
+        heroFxState.mobileDirectionX *= -1;
+        nextX = clampValue(nextX, minCenterX, maxCenterX);
+      }
+      if (nextY <= minCenterY || nextY >= maxCenterY) {
+        heroFxState.mobileDirectionY *= -1;
+        nextY = clampValue(nextY, minCenterY, maxCenterY);
+      }
+    }
 
-  const clampedCenterX = clampValue(heroFxState.currentX * rect.width, minCenterX, maxCenterX);
-  const clampedCenterY = clampValue(heroFxState.currentY * rect.height, minCenterY, maxCenterY);
-  if (Math.abs(clampedCenterX - heroFxState.currentX * rect.width) > 0.1) {
-    heroFxState.currentX = clampedCenterX / rect.width;
-    heroFxState.velocityX = Math.sign(minCenterX + maxCenterX - clampedCenterX * 2 || 1) * Math.max(0.00022, Math.abs(heroFxState.velocityX) * 0.76);
-  }
-  if (Math.abs(clampedCenterY - heroFxState.currentY * rect.height) > 0.1) {
-    heroFxState.currentY = clampedCenterY / rect.height;
-    heroFxState.velocityY = Math.sign(minCenterY + maxCenterY - clampedCenterY * 2 || 1) * Math.max(0.00016, Math.abs(heroFxState.velocityY) * 0.76);
+    heroFxState.currentX = nextX / rect.width;
+    heroFxState.currentY = nextY / rect.height;
+  } else {
+    const targetX = clampValue(heroFxState.targetX * rect.width, minCenterX, maxCenterX) / rect.width;
+    const targetY = clampValue(heroFxState.targetY * rect.height, minCenterY, maxCenterY) / rect.height;
+
+    if (heroFxState.active) {
+      const dx = targetX - heroFxState.currentX;
+      const dy = targetY - heroFxState.currentY;
+      heroFxState.velocityX += dx * 0.0024 * frame;
+      heroFxState.velocityY += dy * 0.0024 * frame;
+    }
+
+    const velocity = Math.hypot(heroFxState.velocityX, heroFxState.velocityY);
+    if (!heroFxState.active && velocity < 0.00016) {
+      heroFxState.velocityX += Math.cos(heroFxState.angle || -0.24) * 0.000012 * frame;
+      heroFxState.velocityY += Math.sin(heroFxState.angle || -0.24) * 0.000012 * frame;
+    }
+
+    const damping = heroFxState.active ? 0.992 : 0.996;
+    heroFxState.velocityX *= Math.pow(damping, frame);
+    heroFxState.velocityY *= Math.pow(damping, frame);
+    heroFxState.currentX += heroFxState.velocityX * frame;
+    heroFxState.currentY += heroFxState.velocityY * frame;
+
+    const clampedCenterX = clampValue(heroFxState.currentX * rect.width, minCenterX, maxCenterX);
+    const clampedCenterY = clampValue(heroFxState.currentY * rect.height, minCenterY, maxCenterY);
+    if (Math.abs(clampedCenterX - heroFxState.currentX * rect.width) > 0.1) {
+      heroFxState.currentX = clampedCenterX / rect.width;
+      heroFxState.velocityX = Math.sign(minCenterX + maxCenterX - clampedCenterX * 2 || 1) * Math.max(0.00022, Math.abs(heroFxState.velocityX) * 0.76);
+    }
+    if (Math.abs(clampedCenterY - heroFxState.currentY * rect.height) > 0.1) {
+      heroFxState.currentY = clampedCenterY / rect.height;
+      heroFxState.velocityY = Math.sign(minCenterY + maxCenterY - clampedCenterY * 2 || 1) * Math.max(0.00016, Math.abs(heroFxState.velocityY) * 0.76);
+    }
   }
 
   const velocityX = (heroFxState.currentX - heroFxState.lastX) * rect.width;
@@ -3155,7 +3180,9 @@ function animateHeroNegative(now: number) {
   hero.classList.add("is-hero-fx-active");
 
   applyHeroClip(mask, path);
-  heroFxRaf = requestAnimationFrame(animateHeroNegative);
+  if (!isMobileHeroFx || !reduceMotion) {
+    heroFxRaf = requestAnimationFrame(animateHeroNegative);
+  }
 }
 
 function getHeroLiquidBounds(hero: HTMLElement, heroRect: DOMRect): HeroLiquidBounds {
@@ -3653,18 +3680,10 @@ function syncNegativeWorlds(force = false) {
   }
 
   if (hero && heroHost) {
-    if (useLightMobileLiquid) {
-      hero.classList.remove("is-hero-fx-active");
-      if (heroHost.dataset.signature !== mobileSignature || heroHost.childElementCount) {
-        heroHost.textContent = "";
-        heroHost.dataset.signature = mobileSignature;
-      }
-    } else {
-      const signature = getNegativeWorldSignature("hero");
-      if (force || heroHost.dataset.signature !== signature) {
-        mountNegativeClone(heroHost, hero);
-        heroHost.dataset.signature = signature;
-      }
+    const signature = getNegativeWorldSignature("hero");
+    if (force || heroHost.dataset.signature !== signature) {
+      mountNegativeClone(heroHost, hero);
+      heroHost.dataset.signature = signature;
     }
   }
 
@@ -4728,8 +4747,7 @@ useHead(() => ({
     contain: layout paint style;
   }
 
-  .vz-section-liquid .vz-negative-world--page,
-  .vz-hero__negative {
+  .vz-section-liquid .vz-negative-world--page {
     display: none;
   }
 
@@ -6743,7 +6761,11 @@ useHead(() => ({
   }
 
   .vz-hero h1 {
-    font-size: clamp(1.625rem, 8vw, 2.5rem);
+    font-size: 2rem;
+  }
+
+  .vz-hero__grid p {
+    font-size: 1rem;
   }
 
   .vz-footer__cols {

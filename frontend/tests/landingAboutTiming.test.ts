@@ -34,8 +34,34 @@ test("uses 12px mobile case metadata without shrinking the case title", () => {
 
   assert.match(mobileCss, /\.vz-cases__fact dd,\s*\.vz-cases__stack-card strong\s*\{[^}]*font-size:\s*12px;/s);
   assert.match(mobileCss, /\.vz-cases__fact dt,\s*\.vz-cases__stack-card > span\s*\{[^}]*display:\s*block;[^}]*top:\s*6px;[^}]*left:\s*8px;/s);
+  assert.match(mobileCss, /\.vz-cases__caption > \.vz-cases__identity\s*\{[^}]*border-radius:\s*14px;/s);
+  assert.match(mobileCss, /\.vz-cases__caption\s*\{[^}]*grid-template-rows:\s*auto\s*repeat\(2, minmax\(0, 1fr\)\)\s*minmax\(44px, auto\)\s*auto;/s);
+  assert.match(mobileCss, /\.vz-cases__fact:nth-child\(1\),\s*\.vz-cases__fact:nth-child\(2\)\s*\{[^}]*min-height:\s*0;[^}]*padding-block:\s*5px;/s);
+  assert.match(mobileCss, /\.vz-cases__fact:nth-child\(1\) dd,\s*\.vz-cases__fact:nth-child\(2\) dd\s*\{[^}]*min-height:\s*0;/s);
   assert.doesNotMatch(mobileCss, /\.vz-cases__fact dd,\s*\.vz-cases__stack-card strong\s*\{[^}]*transform:/s);
   assert.match(mobileCss, /\.vz-cases__identity h3\s*\{[^}]*font-size:\s*clamp\(18px, 5\.2vw, 21px\);/s);
+});
+
+test("keeps the liquid hero spot enabled on mobile", () => {
+  const landing = readFileSync("pages/index.vue", "utf8");
+  const startHeroFx = landing.slice(landing.indexOf("function startHeroNegative"), landing.indexOf("function animateHeroNegative"));
+  const mobileLiquidCss = landing.slice(landing.indexOf("@media (max-width: 900px)", landing.indexOf(".vz-section-liquid__target")));
+
+  assert.doesNotMatch(startHeroFx, /window\.innerWidth\s*<=\s*900/);
+  assert.doesNotMatch(mobileLiquidCss, /\.vz-hero__negative\s*\{[^}]*display:\s*none;/s);
+  assert.match(landing, /if \(hero && heroHost\) \{\s*const signature = getNegativeWorldSignature\("hero"\);/s);
+  assert.match(landing, /const mobileHeroFxHorizontalTraversalMs = 24000;/);
+  assert.match(landing, /const mobileHeroFxVerticalTraversalMs = 18000;/);
+  assert.match(landing, /if \(isMobileHeroFx\) \{[\s\S]*?mobileDirectionX \*= -1;[\s\S]*?mobileDirectionY \*= -1;/s);
+  assert.match(landing, /if \(!isMobileHeroFx \|\| !reduceMotion\) \{\s*heroFxRaf = requestAnimationFrame\(animateHeroNegative\);/s);
+});
+
+test("keeps the compact mobile hero title at exactly 32px", () => {
+  const landing = readFileSync("pages/index.vue", "utf8");
+  const compactMobileCss = landing.slice(landing.indexOf("@media (max-width: 520px)"));
+
+  assert.match(compactMobileCss, /\.vz-hero h1\s*\{[^}]*font-size:\s*2rem;/s);
+  assert.match(compactMobileCss, /\.vz-hero__grid p\s*\{[^}]*font-size:\s*1rem;/s);
 });
 
 test("renders both mobile header menu lines with the same thin pixel geometry", () => {
