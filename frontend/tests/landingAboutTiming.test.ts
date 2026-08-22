@@ -56,12 +56,29 @@ test("keeps the liquid hero spot enabled on mobile", () => {
   assert.match(landing, /if \(!isMobileHeroFx \|\| !reduceMotion\) \{\s*heroFxRaf = requestAnimationFrame\(animateHeroNegative\);/s);
 });
 
+test("releases the desktop stack liquid lock when the sticky section exits", () => {
+  const landing = readFileSync("pages/index.vue", "utf8");
+  const sectionLiquidAnimation = landing.slice(
+    landing.indexOf("function animateSectionLiquid"),
+    landing.indexOf("function updateHeroNegative"),
+  );
+
+  assert.match(
+    sectionLiquidAnimation,
+    /sectionLiquidState\.lastTargetKey === "stack"\s*&& !getStackLiquidScrollLock\(targets\)[\s\S]*?sectionLiquidStackLock = null;[\s\S]*?syncCurrentSectionLiquidTarget\(targets\);/s,
+  );
+  assert.doesNotMatch(
+    sectionLiquidAnimation,
+    /sectionLiquidState\.lastTargetKey === "stack" && sectionLiquidScrollDirection < 0/,
+  );
+});
+
 test("keeps the compact mobile hero title at exactly 32px", () => {
   const landing = readFileSync("pages/index.vue", "utf8");
   const compactMobileCss = landing.slice(landing.indexOf("@media (max-width: 520px)"));
 
   assert.match(compactMobileCss, /\.vz-hero h1\s*\{[^}]*font-size:\s*2rem;/s);
-  assert.match(compactMobileCss, /\.vz-hero__grid p\s*\{[^}]*font-size:\s*1rem;/s);
+  assert.match(compactMobileCss, /\.vz-hero__grid p\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
 });
 
 test("renders both mobile header menu lines with the same thin pixel geometry", () => {

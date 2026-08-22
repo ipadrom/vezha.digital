@@ -2858,7 +2858,15 @@ function animateSectionLiquid(now: number) {
   } else {
     const nextTarget = getNextSectionLiquidTarget(targets);
     if (nextTarget) commitSectionLiquidTarget(nextTarget);
-    else if (!sectionLiquidStackLock) syncCurrentSectionLiquidTarget(targets);
+    else {
+      if (
+        sectionLiquidState.lastTargetKey === "stack"
+        && !getStackLiquidScrollLock(targets)
+      ) {
+        sectionLiquidStackLock = null;
+      }
+      if (!sectionLiquidStackLock) syncCurrentSectionLiquidTarget(targets);
+    }
   }
 
   const stackScrollLock = getStackLiquidScrollLock(targets);
@@ -2886,7 +2894,7 @@ function animateSectionLiquid(now: number) {
     sectionLiquidState.targetX = sectionLiquidStackLock.x;
     sectionLiquidState.targetY = sectionLiquidStackLock.y;
     sectionLiquidState.targetRadius = sectionLiquidStackLock.radius;
-  } else if (sectionLiquidState.lastTargetKey === "stack" && sectionLiquidScrollDirection < 0) {
+  } else if (sectionLiquidState.lastTargetKey === "stack") {
     sectionLiquidStackLock = null;
   } else if (sectionLiquidState.lastTargetKey !== "stack") {
     sectionLiquidStackLock = null;
@@ -6765,7 +6773,7 @@ useHead(() => ({
   }
 
   .vz-hero__grid p {
-    font-size: 1rem;
+    font-size: var(--type-body);
   }
 
   .vz-footer__cols {
