@@ -103,10 +103,6 @@
 
     <details open>
       <summary>Оформление</summary>
-      <label v-if="block.type === 'image'" class="surface-toggle">
-        <span><b>Изображение во всю карточку</b><small>Убирает внутренние поля и заполняет фото всю высоту карточки, включая высоту соседнего блока.</small></span>
-        <input type="checkbox" :checked="Boolean(block.settings.image_bleed)" @change="setSetting('image_bleed', checkedOf($event))" />
-      </label>
       <label v-if="block.type !== 'hero'" class="surface-toggle">
         <span><b>Карточка блока</b><small>Отключите, чтобы контент лежал прямо на фоне страницы.</small></span>
         <input type="checkbox" :checked="block.settings.surface !== 'plain'" @change="toggleSurface" />
@@ -190,7 +186,6 @@ const fieldMap: Record<string, Field[]> = {
   text: [{ key: 'kicker', label: 'Надстрочная метка' }, { key: 'eyebrow', label: 'Заголовок слева' }, { key: 'title', label: 'Лид справа' }, { key: 'body', label: 'Основной текст', kind: 'textarea', rows: 8 }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
   challenge_solution: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'challenge_label', label: 'Подпись задачи' }, { key: 'challenge', label: 'Задача', kind: 'textarea', rows: 6 }, { key: 'solution_label', label: 'Подпись решения' }, { key: 'solution', label: 'Решение', kind: 'textarea', rows: 6 }, { key: 'impact_label', label: 'Подпись эффекта' }, { key: 'impact', label: 'Эффект', kind: 'textarea', rows: 5 }],
   insight: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Ключевая формулировка' }, { key: 'statement', label: 'Суть решения', kind: 'textarea', rows: 5 }, { key: 'rationale_label', label: 'Подпись аргумента' }, { key: 'rationale', label: 'Почему принято', kind: 'textarea', rows: 4 }, { key: 'outcome_label', label: 'Подпись результата' }, { key: 'outcome', label: 'Что изменилось', kind: 'textarea', rows: 4 }, { key: 'image_url', label: 'Изображение', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt изображения' }],
-  image: [{ key: 'image_url', label: 'Изображение', media: true }, { key: 'alt', label: 'Alt' }, { key: 'caption', label: 'Подпись', kind: 'textarea' }],
   image_text: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'body', label: 'Текст', kind: 'textarea', rows: 7 }, { key: 'image_url', label: 'Изображение', media: true }, { key: 'alt', label: 'Alt' }, { key: 'caption', label: 'Подпись' }],
   metrics: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'summary', label: 'Общий результат', kind: 'textarea' }],
   process: [{ key: 'eyebrow', label: 'Заголовок слева' }, { key: 'title', label: 'Лид справа' }, { key: 'summary', label: 'Вводный текст', kind: 'textarea', rows: 5 }],

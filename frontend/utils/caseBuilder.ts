@@ -204,7 +204,6 @@ export const blockLibrary: Array<{
   { type: 'text', label: 'Редакционная глава', description: 'Заголовок слева, текст и теги справа', mark: 'T' },
   { type: 'challenge_solution', label: 'Задача и решение', description: 'Две связанные главы', mark: '2' },
   { type: 'insight', label: 'Ключевое решение', description: 'Решение, аргумент и эффект', mark: '!' },
-  { type: 'image', label: 'Крупное медиа', description: 'Полноразмерное фото или GIF между главами', mark: '□' },
   { type: 'image_text', label: 'Текст + изображение', description: 'Редакционная композиция', mark: '▤' },
   { type: 'metrics', label: 'Показатели', description: 'Карточки с числами и контекстом', mark: '%' },
   { type: 'process', label: 'Раскрывающаяся глава', description: 'Нумерованные решения с медиа и результатами', mark: '→' },

@@ -283,16 +283,6 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
       layout: "editorial",
     })),
 
-    block("workout-visual", "image", {
-      image_url: `${assets}/workout-flow.gif`,
-      alt: pick("Переход от плана тренировки к активному упражнению", "Transition from workout plan to the active exercise"),
-      caption: "",
-    }, 8, settings("paper", {
-      spacing: "compact",
-      desktop_span: 12,
-      image_bleed: false,
-    })),
-
     block("nutrition-copy", "text", {
       eyebrow: pick("Питание", "Nutrition"),
       title: pick(
@@ -308,16 +298,6 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
       surface: "plain",
       desktop_span: 12,
       layout: "editorial",
-    })),
-
-    block("nutrition-visual", "image", {
-      image_url: `${assets}/nutrition-flow.gif`,
-      alt: pick("Переход от дневного меню к рецепту и ингредиентам", "Transition from daily menu to recipe and ingredients"),
-      caption: "",
-    }, 11, settings("soft", {
-      spacing: "compact",
-      desktop_span: 12,
-      image_bleed: false,
     })),
 
     block("technologies", "technologies", {
@@ -382,16 +362,14 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
   const challengeMedia = byId("insight");
   const sourceProcess = byId("process");
   const processIntro = byId("workout-copy");
-  const workoutVisual = byId("workout-visual");
   const nutritionProcess = byId("nutrition-copy");
-  const nutritionVisual = byId("nutrition-visual");
   const technologies = byId("technologies");
   const result = byId("result");
   const next = byId("next");
 
   if (
-    context && facts && challenge && challengeMedia && sourceProcess && processIntro && workoutVisual
-    && nutritionProcess && nutritionVisual && technologies && result && next
+    context && facts && challenge && challengeMedia && sourceProcess && processIntro
+    && nutritionProcess && technologies && result && next
   ) {
     const sourceItems = [...(sourceProcess.content.items || [])];
     const systemStep = sourceItems[0] || {};
@@ -511,17 +489,6 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
       open_first: false,
     });
     nutritionProcess.sort_order = 11;
-
-    workoutVisual.settings.desktop_span = 12;
-    workoutVisual.settings.width = "wide";
-    workoutVisual.settings.surface = "plain";
-    workoutVisual.settings.image_bleed = false;
-    workoutVisual.sort_order = 8;
-    nutritionVisual.settings.desktop_span = 12;
-    nutritionVisual.settings.width = "wide";
-    nutritionVisual.settings.surface = "plain";
-    nutritionVisual.settings.image_bleed = false;
-    nutritionVisual.sort_order = 12;
 
     result.content.items = [
       { text: pick("Пользователь проходит тренировку без возврата к дашборду.", "The workout progresses without a return to a dashboard.") },

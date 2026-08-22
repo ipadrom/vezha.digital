@@ -13,7 +13,7 @@
       </div>
     </header>
 
-    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--media-hero': block.type === 'media_hero', 'canvas-block__preview--freeform': block.settings.layout === 'freeform' && block.type !== 'hero', 'canvas-block__preview--image-bleed': block.type === 'image' && block.settings.image_bleed }">
+    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--media-hero': block.type === 'media_hero', 'canvas-block__preview--freeform': block.settings.layout === 'freeform' && block.type !== 'hero' }">
       <CaseFreeformCanvas
         v-if="block.settings.layout === 'freeform' && block.type !== 'hero'"
         :elements="content.elements || []"
@@ -55,9 +55,6 @@
           <p><CaseInlineEdit :model-value="content.body" placeholder="Основной текст раздела" label="Основной текст" multiline @focus="$emit('select')" @update:model-value="edit(['body'], $event)" /></p>
           <div v-if="content.tags?.length" class="preview-overview__tags"><span v-for="tag in content.tags.slice(0, 6)" :key="tag">{{ tag }}</span></div>
         </div>
-      </template>
-      <template v-else-if="block.type === 'image'">
-        <div class="preview-media preview-media--wide"><img v-if="content.image_url" :src="content.image_url" alt="" /><span v-else>IMAGE</span></div><CaseInlineEdit class="preview-caption" :model-value="content.caption" placeholder="Добавить подпись" label="Подпись изображения" @focus="$emit('select')" @update:model-value="edit(['caption'], $event)" />
       </template>
       <template v-else-if="block.type === 'image_text'">
         <div class="preview-copy"><CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Метка" label="Метка блока" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" /><h3><CaseInlineEdit :model-value="content.title" placeholder="Заголовок раздела" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></h3><p><CaseInlineEdit :model-value="content.body" placeholder="Текст раздела появится здесь" label="Текст" multiline @focus="$emit('select')" @update:model-value="edit(['body'], $event)" /></p></div><div class="preview-media"><img v-if="content.image_url" :src="content.image_url" alt="" /><span v-else>IMAGE</span></div>

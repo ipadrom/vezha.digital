@@ -15,7 +15,7 @@ for (const locale of ["ru", "en"] as const) {
     assert.equal(wellness.sort_order, 0);
     assert.equal(wellness.metrics.length, 4);
     assert.ok(wellness.metrics.every((metric) => !metric.is_demo));
-    assert.equal(wellness.blocks.length, 16);
+    assert.equal(wellness.blocks.length, 14);
     assert.equal(wellness.blocks[0].content.logo_url, "/cases/wellness-app/training-mark.svg");
     assert.equal(wellness.blocks.filter((block) => block.type === "gallery").length, 0);
     assert.equal(wellness.blocks.filter((block) => block.type === "media_hero").length, 1);
@@ -71,16 +71,10 @@ for (const locale of ["ru", "en"] as const) {
     assert.equal(systemVisual?.type, "image");
     assert.equal(systemVisual?.content.image_url, "/cases/wellness-app/system-flow.gif");
     assert.equal(wellness.blocks.find((block) => block.id === "wellness-workout-copy")?.settings.desktop_span, 12);
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-workout-visual")?.settings.desktop_span, 12);
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-workout-visual")?.settings.image_bleed, false);
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-workout-visual")?.content.image_url, "/cases/wellness-app/workout-flow.gif");
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-workout-visual")?.content.caption, "");
+    assert.equal(wellness.blocks.some((block) => block.id === "wellness-workout-visual"), false);
     assert.equal(wellness.blocks.find((block) => block.id === "wellness-nutrition-copy")?.type, "process");
     assert.equal(wellness.blocks.find((block) => block.id === "wellness-nutrition-copy")?.settings.desktop_span, 12);
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-nutrition-visual")?.settings.desktop_span, 12);
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-nutrition-visual")?.settings.image_bleed, false);
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-nutrition-visual")?.content.image_url, "/cases/wellness-app/nutrition-flow.gif");
-    assert.equal(wellness.blocks.find((block) => block.id === "wellness-nutrition-visual")?.content.caption, "");
+    assert.equal(wellness.blocks.some((block) => block.id === "wellness-nutrition-visual"), false);
     assert.equal(wellness.blocks.find((block) => block.id === "wellness-progression")?.type, "process");
     assert.equal(wellness.blocks.find((block) => block.id === "wellness-technologies")?.settings.desktop_span, 12);
     const result = wellness.blocks.find((block) => block.id === "wellness-result");
@@ -98,8 +92,6 @@ for (const locale of ["ru", "en"] as const) {
       "/cases/wellness-app/recovery-flow.gif",
       "/cases/wellness-app/progression-flow.gif",
       "/cases/wellness-app/nutrition-process-flow.gif",
-      "/cases/wellness-app/workout-flow.gif",
-      "/cases/wellness-app/nutrition-flow.gif",
     ]) {
       assert.match(serialized, new RegExp(mediaUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
       assert.ok(readFileSync(`public${mediaUrl}`).byteLength > 0);
@@ -187,13 +179,16 @@ test("case sections and the compact landing header share the 1240px container", 
   assert.match(landing, /border-radius:\s*999px/);
 });
 
-test("gallery blocks are removed from the wellness case and admin builder", () => {
+test("gallery and standalone image blocks are removed from the wellness case and admin builder", () => {
   const preview = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
   const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
 
   assert.equal(blockLibrary.some((item) => item.type === "gallery"), false);
+  assert.equal(blockLibrary.some((item) => item.type === "image"), false);
   assert.doesNotMatch(preview, /block\.type === ['"]gallery['"]|preview-grid/);
+  assert.doesNotMatch(preview, /block\.type === ['"]image['"]/);
   assert.doesNotMatch(inspector, /^\s*gallery:\s*\[/m);
+  assert.doesNotMatch(inspector, /^\s*image:\s*\[/m);
 });
 
 test("service inclusions stay in a two-column grid", () => {
@@ -416,12 +411,10 @@ test("mandatory case header uses a compact mark, a large thesis and a 1240px-ali
   assert.match(editor, /block\.type !== 'hero'/);
 });
 
-test("single images can bleed across the full equal-height card", () => {
-  const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
+test("legacy single images still render without being available as new admin blocks", () => {
   const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
   const css = readFileSync("assets/css/case-builder-public.css", "utf8");
 
-  assert.match(inspector, /setSetting\('image_bleed'/);
   assert.match(renderer, /builder-block--image-bleed/);
   assert.match(css, /\.builder-block--image-bleed \.builder-block__inner\s*\{[^}]*height:\s*100%;[^}]*padding:\s*0;/s);
   assert.match(css, /\.builder-block--image-bleed \.builder-single-image img,[\s\S]*object-fit:\s*cover;/s);
