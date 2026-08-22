@@ -8,6 +8,8 @@
   <header
     class="case-header"
     :data-nav-visible="isHeaderShown ? 'true' : 'false'"
+    :data-media-collision="isHeaderMediaColliding ? 'true' : undefined"
+    :style="headerStyle"
     :aria-hidden="isHeaderShown ? undefined : 'true'"
     :inert="isHeaderShown ? undefined : true"
     @pointerenter="handleHeaderPointerEnter"
@@ -15,7 +17,7 @@
     @focusin="handleHeaderFocusIn"
     @focusout="handleHeaderFocusOut"
   >
-    <div class="case-header__inner">
+    <div ref="headerInnerRef" class="case-header__inner">
       <NuxtLink class="case-header__logo" to="/"><b>VEZHA</b><span>DIGITAL</span></NuxtLink>
       <nav class="case-header__nav" :aria-label="locale === 'ru' ? 'Навигация кейса' : 'Case navigation'">
         <a href="#story">{{ locale === "ru" ? "История" : "Story" }}</a>
@@ -63,7 +65,12 @@ defineProps<{ locale: "ru" | "en"; theme: "light" | "dark"; hasTechnical: boolea
 defineEmits<{ "toggle-theme": [] }>();
 const isMenuOpen = ref(false);
 const isHeaderVisible = ref(true);
-const isHeaderShown = computed(() => isHeaderVisible.value || isMenuOpen.value);
+const headerInnerRef = ref<HTMLElement | null>(null);
+const headerMediaShift = ref(0);
+const isHeaderMediaColliding = ref(false);
+const isHeaderMediaCovered = ref(false);
+const isHeaderShown = computed(() => isMenuOpen.value || (isHeaderVisible.value && !isHeaderMediaCovered.value));
+const headerStyle = computed(() => ({ "--case-header-media-shift": `${headerMediaShift.value}px` }));
 let isHeaderZoneHovered = false;
 let isHeaderHovered = false;
 let isHeaderFocused = false;
@@ -79,6 +86,41 @@ function clearHeaderIdleTimer() {
 
 function isDesktopHeaderViewport() {
   return window.matchMedia("(min-width: 901px)").matches;
+}
+
+function updateHeaderMediaCollision() {
+  const headerInner = headerInnerRef.value;
+  if (!headerInner || isMenuOpen.value) {
+    headerMediaShift.value = 0;
+    isHeaderMediaColliding.value = false;
+    isHeaderMediaCovered.value = false;
+    return;
+  }
+
+  const headerTop = headerInner.offsetTop;
+  const headerBottom = headerTop + headerInner.offsetHeight;
+  const video = Array.from(document.querySelectorAll<HTMLVideoElement>(".builder-media-hero > video"))
+    .find((item) => {
+      const rect = item.getBoundingClientRect();
+      return rect.bottom > headerTop && rect.top < headerBottom;
+    });
+
+  if (!video) {
+    headerMediaShift.value = 0;
+    isHeaderMediaColliding.value = false;
+    isHeaderMediaCovered.value = false;
+    return;
+  }
+
+  const videoRect = video.getBoundingClientRect();
+  const isCovered = videoRect.top <= 0 && videoRect.bottom >= headerBottom;
+
+  if (isCovered) headerMediaShift.value = -headerBottom;
+  else if (videoRect.top > 0) headerMediaShift.value = Math.min(0, videoRect.top - headerBottom);
+  else headerMediaShift.value = Math.max(0, videoRect.bottom - headerTop);
+
+  isHeaderMediaColliding.value = true;
+  isHeaderMediaCovered.value = isCovered;
 }
 
 function revealHeader() {
@@ -101,6 +143,7 @@ function queueHeaderHide(delay = 820) {
 
 function handleHeaderScroll() {
   const nextScrollY = Math.max(0, window.scrollY);
+  updateHeaderMediaCollision();
 
   if (nextScrollY <= 12) {
     headerLastScrollY = nextScrollY;
@@ -162,6 +205,7 @@ function handleHeaderFocusOut(event: FocusEvent) {
 function handleHeaderResize() {
   const isDesktop = isDesktopHeaderViewport();
   headerLastScrollY = Math.max(0, window.scrollY);
+  updateHeaderMediaCollision();
   if (headerWasDesktop === isDesktop) return;
 
   headerWasDesktop = isDesktop;
@@ -171,6 +215,7 @@ function handleHeaderResize() {
 
 onMounted(() => {
   handleHeaderResize();
+  nextTick(updateHeaderMediaCollision);
   window.addEventListener("scroll", handleHeaderScroll, { passive: true });
   window.addEventListener("resize", handleHeaderResize, { passive: true });
 });

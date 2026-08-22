@@ -71,10 +71,6 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
         "WELLNESS APP: тренировка, восстановление и питание",
         "WELLNESS APP: workout, recovery and nutrition",
       ),
-      caption: pick(
-        "От первого действия — к собранному дню",
-        "From the first action to a coherent day",
-      ),
       autoplay: true,
       loop: true,
       muted: true,

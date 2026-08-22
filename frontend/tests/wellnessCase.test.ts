@@ -22,6 +22,7 @@ for (const locale of ["ru", "en"] as const) {
     assert.equal(wellness.blocks.filter((block) => block.type === "video").length, 0);
     const mediaHero = wellness.blocks.find((block) => block.type === "media_hero");
     assert.equal(mediaHero?.content.video_url, "/cases/wellness-app/wellness-promo.mp4");
+    assert.equal(mediaHero?.content.caption, undefined);
     assert.equal(mediaHero?.content.autoplay, true);
     assert.equal(mediaHero?.content.loop, true);
     assert.equal(mediaHero?.content.muted, true);
@@ -129,6 +130,12 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.match(header, /class="case-header__mobile-nav"/);
   assert.match(header, /:data-nav-visible="isHeaderShown \? 'true' : 'false'"/);
   assert.match(header, /class="case-header-hover-zone"/);
+  assert.match(header, /:data-media-collision="isHeaderMediaColliding \? 'true' : undefined"/);
+  assert.match(header, /\.builder-media-hero > video/);
+  assert.match(header, /videoRect\.top > 0\) headerMediaShift\.value = Math\.min\(0, videoRect\.top - headerBottom\)/);
+  assert.match(header, /headerMediaShift\.value = Math\.max\(0, videoRect\.bottom - headerTop\)/);
+  assert.match(header, /const isCovered = videoRect\.top <= 0 && videoRect\.bottom >= headerBottom/);
+  assert.match(header, /isMenuOpen\.value \|\| \(isHeaderVisible\.value && !isHeaderMediaCovered\.value\)/);
   assert.match(header, /function queueHeaderHide\(delay = 820\)/);
   assert.match(header, /Math\.max\(0, window\.scrollY\) <= 12/);
   assert.match(header, /queueHeaderHide\(220\)/);
@@ -145,6 +152,8 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.match(css, /\.case-header\s*\{[^}]*padding:\s*12px max\(40px, calc\(\(100% - 1240px\) \/ 2\)\) 0;/s);
   assert.match(css, /\.case-header__inner\s*\{[^}]*backdrop-filter:\s*saturate\(1\.18\) blur\(18px\);[^}]*opacity:\s*1;[^}]*transform:\s*translate3d\(0, 0, 0\);[^}]*opacity 180ms var\(--ease-out[^}]*transform 220ms var\(--ease-out/s);
   assert.match(css, /\.case-header\[data-nav-visible="false"\] \.case-header__inner\s*\{[^}]*opacity:\s*0;[^}]*transform:\s*translate3d\(0, calc\(-100% - 24px\), 0\);[^}]*visibility:\s*hidden;/s);
+  assert.match(css, /\.case-header\[data-nav-visible="true"\] \.case-header__inner\s*\{[^}]*var\(--case-header-media-shift, 0px\)/s);
+  assert.match(css, /\.case-header\[data-media-collision="true"\] \.case-header__inner\s*\{[^}]*transform 0s linear/s);
   assert.match(css, /\.case-header-hover-zone\s*\{[^}]*height:\s*96px;[^}]*background:\s*transparent;/s);
   assert.match(css, /\.case-header__inner\s*\{[^}]*height:\s*64px;[^}]*padding:\s*0 12px 0 20px;/s);
   assert.match(css, /\.case-header__icon, \.case-header__cta, \.case-header__menu\s*\{[^}]*height:\s*44px;/s);
@@ -232,8 +241,9 @@ test("media hero is editable and rendered with reduced-motion controls", () => {
   assert.match(renderer, /video\.play\(\)/);
   assert.match(renderer, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /\.builder-block--media_hero\.builder-block--full \.builder-media-hero\s*\{[^}]*border-radius:\s*0;/s);
-  assert.match(css, /height:\s*min\(56\.25vw,\s*calc\(100svh - 96px\)\)/);
-  assert.match(css, /\.builder-block--media_hero\.builder-block--full \.builder-media-hero > img,[\s\S]*object-fit:\s*contain;/s);
+  assert.match(css, /\.builder-media-hero > img,[\s\S]*\.builder-media-hero > video\s*\{[^}]*width:\s*100%;[^}]*height:\s*auto;[^}]*object-fit:\s*contain;/s);
+  assert.doesNotMatch(css, /height:\s*min\(56\.25vw,\s*calc\(100svh - 96px\)\)/);
+  assert.doesNotMatch(css, /\.builder-block--layout-media-(?:16x9|3x2) \.builder-media-hero > (?:img|video)/);
 });
 
 test("case system v2 shares typography, insight and editorial process across public and admin", () => {
