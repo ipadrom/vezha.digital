@@ -1,5 +1,6 @@
 <template>
   <div class="case-page" :data-theme="theme">
+    <CaseScrollThumb :theme="theme" />
     <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-theme="toggleTheme" />
 
     <main v-if="project">
@@ -54,6 +55,7 @@
 import CaseDetailHeader from "~/components/cases/CaseDetailHeader.vue";
 import CaseGallery from "~/components/cases/CaseGallery.vue";
 import CaseResults from "~/components/cases/CaseResults.vue";
+import CaseScrollThumb from "~/components/cases/CaseScrollThumb.vue";
 import CaseTechnicalModule from "~/components/cases/CaseTechnicalModule.vue";
 import CaseVisual from "~/components/cases/CaseVisual.vue";
 import WellnessCaseStudy from "~/components/cases/WellnessCaseStudy.vue";
@@ -68,6 +70,11 @@ const { locale } = useI18n();
 const { getProjectBySlug, getProjects } = useApi();
 const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const theme = ref<"light" | "dark">("light");
+useHead(() => ({
+  htmlAttrs: {
+    class: `case-route case-route--${theme.value} overlay-scrollbar-route`,
+  },
+}));
 const slug = computed(() => String(route.params.slug));
 const fallbacks = computed(() => getCaseFallbacks(currentLocale.value));
 const project = ref<IProjectDetail | null>(null);

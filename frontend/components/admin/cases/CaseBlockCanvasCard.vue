@@ -26,24 +26,15 @@
       />
       <template v-else-if="block.type === 'hero'">
         <div class="preview-hero-layout">
-          <div class="preview-hero-copy">
-            <CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Мини-текст" label="Мини-текст шапки" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" />
-            <div>
-              <h3><CaseInlineEdit :model-value="content.title" placeholder="Название проекта" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></h3>
-              <p><CaseInlineEdit :model-value="content.subtitle" placeholder="Краткое описание кейса" label="Краткое описание" multiline @focus="$emit('select')" @update:model-value="edit(['subtitle'], $event)" /></p>
+          <div class="preview-hero-project">
+            <div class="preview-hero-mark">
+              <img v-if="content.logo_url" :src="content.logo_url" alt="" />
+              <span v-else>LOGO</span>
             </div>
+            <CaseInlineEdit :model-value="content.title" placeholder="Название проекта" label="Название проекта" @focus="$emit('select')" @update:model-value="edit(['title'], $event)" />
           </div>
-          <aside class="preview-hero-identity">
-            <div class="preview-hero-logo-stage">
-              <img v-if="content.logo_url" class="preview-hero-logo" :src="content.logo_url" alt="" />
-              <span v-else>LOGO 1:1</span>
-            </div>
-            <div class="preview-hero-meta">
-              <CaseInlineEdit :model-value="content.industry" placeholder="Категория" label="Категория" @focus="$emit('select')" @update:model-value="edit(['industry'], $event)" />
-              <i aria-hidden="true" />
-              <CaseInlineEdit :model-value="content.year" placeholder="Дата / год" label="Дата или год" @focus="$emit('select')" @update:model-value="edit(['year'], $event)" />
-            </div>
-          </aside>
+          <h3><CaseInlineEdit :model-value="content.subtitle" placeholder="Главный тезис кейса" label="Главный тезис" multiline @focus="$emit('select')" @update:model-value="edit(['subtitle'], $event)" /></h3>
+          <CaseInlineEdit class="preview-hero-category" :model-value="content.industry" placeholder="Категория" label="Категория" @focus="$emit('select')" @update:model-value="edit(['industry'], $event)" />
         </div>
       </template>
       <template v-else-if="block.type === 'media_hero'">
@@ -103,13 +94,6 @@
             <div><CaseInlineEdit class="inline-eyebrow" :model-value="content.outcome_label" placeholder="Что изменилось" label="Подпись результата" @focus="$emit('select')" @update:model-value="edit(['outcome_label'], $event)" /><CaseInlineEdit :model-value="content.outcome" placeholder="Результат" label="Что изменилось" multiline @focus="$emit('select')" @update:model-value="edit(['outcome'], $event)" /></div>
           </div>
           <div v-if="content.image_url" class="preview-media preview-media--wide"><img :src="content.image_url" :alt="content.image_alt || ''" /></div>
-        </div>
-      </template>
-      <template v-else-if="block.type === 'gallery'">
-        <div class="preview-section-copy"><CaseInlineEdit class="inline-eyebrow" :model-value="content.eyebrow" placeholder="Метка" label="Метка блока" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" /><CaseInlineEdit class="inline-section-title" :model-value="content.title" placeholder="Заголовок галереи" label="Заголовок" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></div>
-        <div class="preview-grid" :class="`preview-grid--${block.settings.layout || 'grid'}`">
-          <figure v-for="(item, galleryIndex) in content.items?.slice(0, 5)" :key="galleryIndex" :data-frame="item.frame || 'auto'"><img v-if="item.image_url" :src="item.image_url" :alt="item.alt || ''" /><span v-else>{{ String(galleryIndex + 1).padStart(2, '0') }}</span></figure>
-          <figure v-if="!content.items?.length"><span>ADD IMAGE</span></figure>
         </div>
       </template>
       <template v-else-if="block.type === 'metrics'">
@@ -301,22 +285,17 @@ function resizeWithKeyboard(direction: number) {
 .inline-eyebrow { color: #7865ed; font: 600 7px var(--font-mono); letter-spacing: .08em; text-transform: uppercase; }
 .theme-ink .inline-eyebrow { color: #b9abff; }
 .theme-signal .inline-eyebrow { color: #34304a; }
-.canvas-block__preview--hero .inline-eyebrow { color: color-mix(in srgb, var(--preview-hero-text) 72%, transparent); }
-.preview-hero-layout { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(150px, .7fr); align-items: start; gap: clamp(30px, 6cqw, 68px); }
-.preview-hero-copy { min-width: 0; display: flex; flex-direction: column; justify-content: space-between; align-self: stretch; gap: clamp(54px, 8cqw, 90px); }
-.preview-hero-copy h3 { max-width: 680px; margin: 0; font: 500 clamp(32px, 5.5cqw, 54px)/.97 var(--font-ui); letter-spacing: -.05em; overflow-wrap: normal; word-break: normal; }
+.preview-hero-layout { position: relative; min-height: 0; display: flex; flex-direction: column; justify-content: flex-start; }
+.preview-hero-project { width: fit-content; display: flex; align-items: center; gap: clamp(9px, 1.5cqw, 14px); margin-bottom: clamp(20px, 3cqw, 34px); font-size: clamp(13px, 2cqw, 18px); font-weight: 500; letter-spacing: -.02em; }
+.preview-hero-mark { width: clamp(32px, 5cqw, 44px); aspect-ratio: 1; flex: 0 0 auto; display: grid; place-items: center; overflow: hidden; border-radius: clamp(8px, 1.2cqw, 11px); color: color-mix(in srgb, var(--preview-hero-background) 70%, transparent); background: color-mix(in srgb, var(--preview-hero-text) 88%, transparent); font: 600 7px var(--font-mono); }
+.preview-hero-mark img { width: 100%; height: 100%; display: block; object-fit: contain; }
+.preview-hero-layout h3 { max-width: min(82%, 720px); margin: 0; font: 500 clamp(30px, 5.5cqw, 56px)/.98 var(--font-ui); letter-spacing: -.045em; overflow-wrap: normal; word-break: normal; }
+.preview-hero-category { position: absolute; right: 0; bottom: .4em; max-width: 16%; font: 600 clamp(8px, 1.1cqw, 11px)/1.3 var(--font-ui); letter-spacing: .01em; text-align: right; text-transform: uppercase; }
 .preview-copy { min-width: 0; padding: clamp(13px, 2.3cqw, 22px); border: 1px solid rgb(42 48 61 / 9%); border-radius: 16px; background: rgb(255 255 255 / 52%); }
 .theme-ink .preview-copy { border-color: rgb(255 255 255 / 10%); background: rgb(255 255 255 / 4%); }
 .preview-copy h3 { margin: 5px 0; font-size: clamp(16px, 2.5vw, 26px); font-weight: 500; line-height: 1; letter-spacing: -.04em; }
-.preview-hero-copy p { max-width: 50ch; margin: 16px 0 0; color: color-mix(in srgb, var(--preview-hero-text) 68%, transparent); font-size: clamp(10px, 1.5cqw, 14px); line-height: 1.48; white-space: pre-line; }
 .preview-copy p { max-height: 68px; margin: 10px 0 0; overflow: hidden; color: #656b77; font-size: 9px; line-height: 1.55; white-space: pre-line; }
 .theme-ink p { color: #c7cada; }
-.preview-hero-identity { min-width: 0; display: grid; grid-template-rows: auto auto; align-content: start; justify-items: end; gap: 14px; }
-.preview-hero-logo-stage { width: 90%; max-width: 230px; aspect-ratio: 1 / 1; align-self: start; display: grid; place-items: center; overflow: hidden; border: 1px dashed color-mix(in srgb, var(--preview-hero-text) 20%, transparent); border-radius: 18px; }
-.preview-hero-logo-stage > span { color: color-mix(in srgb, var(--preview-hero-text) 42%, transparent); font: 600 8px var(--font-mono); letter-spacing: .08em; }
-.preview-hero-logo { width: 100%; height: 100%; display: block; object-fit: contain; }
-.preview-hero-meta { width: fit-content; max-width: 90%; min-width: 0; justify-self: end; display: flex; align-items: center; justify-content: flex-end; gap: 9px; font: 600 8px var(--font-mono); letter-spacing: .035em; text-align: right; text-transform: uppercase; }
-.preview-hero-meta i { width: 3px; height: 3px; flex: 0 0 auto; border-radius: 50%; background: currentColor; opacity: .55; }
 .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption { grid-column: 1 / -1; }
 .preview-section-copy { display: grid; gap: 5px; }
 .inline-section-title { max-width: 92%; font: 500 clamp(17px, 3.2cqw, 30px)/1 var(--font-ui); letter-spacing: -.045em; }
@@ -332,11 +311,6 @@ function resizeWithKeyboard(direction: number) {
 .preview-hero-media figcaption { position: absolute; right: 14px; bottom: 14px; z-index: 3; max-width: 132px; padding: 13px; display: grid; border-radius: 14px; color: #171822; background: linear-gradient(135deg, #c2b4ff, #7bdfe2); box-shadow: 0 12px 28px rgb(27 31 48 / 20%); }
 .preview-hero-media figcaption b { font: 700 24px/1 var(--font-ui); }
 .preview-hero-media figcaption > .inline-edit { margin-top: 5px; font-size: 7px; }
-.preview-grid { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.preview-grid figure { position: relative; min-height: clamp(120px, 27cqw, 230px); margin: 0; display: grid; place-items: center; overflow: hidden; border: 6px solid #1c1e29; border-radius: clamp(14px, 2.5cqw, 24px); background: #e7ebf1; color: #798290; font: 7px var(--font-mono); box-shadow: 0 16px 32px rgb(25 28 42 / 17%); }
-.preview-grid img { width: 100%; height: 100%; object-fit: cover; }
-.preview-grid.preview-grid--phones { grid-template-columns: repeat(3, minmax(44px, 16cqw)); justify-content: space-evenly; align-items: start; gap: 8px; }
-.preview-grid.preview-grid--phones figure { min-height: 0; aspect-ratio: 1179 / 2556; border-width: 4px; border-radius: clamp(10px, 1.8cqw, 17px); }
 .preview-metrics { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); gap: 7px; }
 .preview-metrics div { min-height: 82px; padding: 12px; display: grid; align-content: center; border: 1px solid rgb(42 48 61 / 10%); border-radius: 14px; background: rgb(255 255 255 / 48%); }
 .theme-ink .preview-metrics div { border-color: rgb(255 255 255 / 12%); background: rgb(255 255 255 / 4%); }
@@ -474,9 +448,6 @@ blockquote small { display: block; margin-top: 12px; color: #778294; font: 9px v
 .preview-insight__facts { grid-column: 2; padding-top: 14px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; border-top: 1px solid rgb(255 255 255 / 12%); }
 .preview-insight__facts > div { display: grid; gap: 7px; color: #c7cada; font-size: var(--preview-type-caption); line-height: 1.45; }
 .preview-insight__facts .inline-eyebrow { color: #b9abff; }
-.preview-grid figure[data-frame='plain'] { border: 0; border-radius: 10px; }
-.preview-grid figure[data-frame='screen'] { border-width: 5px; border-radius: 16px; }
-.preview-grid figure[data-frame='device'] { border-width: 7px; border-radius: 24px; }
 .preview-metrics { gap: 8px; overflow: visible; border: 0; border-radius: 0; }
 .preview-metrics div { min-height: 94px; align-content: end; border: 1px solid rgb(42 48 61 / 9%); border-radius: 13px; background: rgb(126 106 232 / 6%); }
 .theme-ink .preview-metrics div { border-color: rgb(255 255 255 / 10%); background: rgb(255 255 255 / 5%); }
@@ -499,7 +470,21 @@ blockquote small { display: block; margin-top: 12px; color: #778294; font: 9px v
 .canvas-block:hover .canvas-block__resize, .canvas-block.selected .canvas-block__resize, .canvas-block.resizing .canvas-block__resize, .canvas-block__resize:focus-visible { opacity: 1; }
 .canvas-block__resize:hover span, .canvas-block__resize:focus-visible span, .canvas-block.resizing .canvas-block__resize span { opacity: 1; transform: translateX(0); }
 .canvas-block__resize:focus-visible { outline: 2px solid white; outline-offset: 2px; }
-@media (max-width: 640px) { .canvas-block__preview { grid-template-columns: 1fr; } .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, .preview-insight, blockquote, .preview-tags { grid-column: 1; } .preview-insight { grid-template-columns: 1fr; } .preview-insight > .inline-eyebrow, .preview-insight > h3, .preview-insight > p, .preview-insight__facts { grid-column: 1; } }
+@media (max-width: 640px) { .canvas-block__preview { grid-template-columns: 1fr; } .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-metrics, .preview-process, .preview-insight, blockquote, .preview-tags { grid-column: 1; } .preview-insight { grid-template-columns: 1fr; } .preview-insight > .inline-eyebrow, .preview-insight > h3, .preview-insight > p, .preview-insight__facts { grid-column: 1; } }
 @container (max-width: 520px) { .preview-challenge__problem, .preview-challenge__details > div { grid-template-columns: 1fr; gap: 7px; } }
-@container (max-width: 520px) { .canvas-block { grid-template-columns: 30px minmax(0,1fr); border-radius: 16px; } .canvas-block__rail { padding-top: 10px; border-radius: 15px 0 0 15px; } .canvas-block__header { padding: 7px 8px; } .canvas-block__tools button { width: 21px; } .canvas-block__preview { min-height: 110px; margin: 6px; padding: 16px; grid-template-columns: 1fr; gap: 14px; border-radius: 13px; } .canvas-block__preview--hero { min-height: 0; padding: 26px 16px 30px; display: block; border-radius: 0; } .preview-hero-layout { grid-template-columns: 1fr; gap: 30px; } .preview-hero-copy { gap: 54px; } .preview-hero-identity { justify-items: end; } .preview-hero-logo-stage { width: min(82%, 220px); } .preview-hero-meta { width: fit-content; max-width: min(82%, 220px); justify-content: flex-end; } .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-grid, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; } .preview-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .preview-hero-copy h3 { font-size: clamp(32px, 10cqw, 46px); } .preview-hero-media { min-height: clamp(300px, 110cqw, 480px); } .canvas-block__resize span { display: none; } }
+@container (max-width: 520px) {
+  .canvas-block { grid-template-columns: 30px minmax(0,1fr); border-radius: 16px; }
+  .canvas-block__rail { padding-top: 10px; border-radius: 15px 0 0 15px; }
+  .canvas-block__header { padding: 7px 8px; }
+  .canvas-block__tools button { width: 21px; }
+  .canvas-block__preview { min-height: 110px; margin: 6px; padding: 16px; grid-template-columns: 1fr; gap: 14px; border-radius: 13px; }
+  .canvas-block__preview--hero { min-height: 0; padding: 26px 16px 30px; display: block; border-radius: 0; }
+  .preview-hero-layout { min-height: 0; justify-content: flex-start; }
+  .preview-hero-project { margin-bottom: 20px; }
+  .preview-hero-layout h3 { max-width: 100%; font-size: clamp(28px, 9cqw, 42px); }
+  .preview-hero-category { position: static; max-width: none; margin-top: 0; padding-top: 28px; align-self: flex-start; text-align: left; }
+  .preview-copy--wide, .preview-media--wide, .preview-section-copy, .preview-caption, .preview-metrics, .preview-process, blockquote, .preview-tags { grid-column: 1; }
+  .preview-hero-media { min-height: clamp(300px, 110cqw, 480px); }
+  .canvas-block__resize span { display: none; }
+}
 </style>

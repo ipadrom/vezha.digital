@@ -1,5 +1,6 @@
 <template>
   <div ref="rootRef" class="vz-min vz-motion-ready" :data-theme="theme">
+    <CaseScrollThumb v-if="!showPreloader" :theme="theme" />
     <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
       <div class="vz-preloader__top">
         <span>{{ copy.preloader.loading }}</span>
@@ -173,6 +174,7 @@
 <script setup lang="ts">
 import LandingAbout from "~/components/landing/LandingAbout.vue";
 import LandingCases from "~/components/landing/LandingCases.vue";
+import CaseScrollThumb from "~/components/cases/CaseScrollThumb.vue";
 import type { IAdvantages } from "~/utils/interfaces/IAdvantages";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 import type { IServices } from "~/utils/interfaces/IServices";
@@ -3896,6 +3898,7 @@ const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");
 useHead(() => ({
   htmlAttrs: {
     lang: currentLocale.value,
+    class: "overlay-scrollbar-route",
   },
   title: copy.value.head.title,
   meta: [

@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { getCaseFallbacks } from "../utils/caseFallbacks.ts";
+import { blockLibrary } from "../utils/caseBuilder.ts";
 import { getWellnessCaseContent } from "../utils/wellnessCaseContent.ts";
 
 for (const locale of ["ru", "en"] as const) {
@@ -14,12 +15,9 @@ for (const locale of ["ru", "en"] as const) {
     assert.equal(wellness.sort_order, 0);
     assert.equal(wellness.metrics.length, 4);
     assert.ok(wellness.metrics.every((metric) => !metric.is_demo));
-    assert.equal(wellness.blocks.length, 18);
+    assert.equal(wellness.blocks.length, 16);
     assert.equal(wellness.blocks[0].content.logo_url, "/cases/wellness-app/training-mark.svg");
-    const phoneGalleries = wellness.blocks.filter((block) => block.type === "gallery");
-    assert.equal(phoneGalleries.length, 2);
-    assert.ok(phoneGalleries.every((block) => block.settings.layout === "phones"));
-    assert.ok(phoneGalleries.every((block) => block.content.items.length === 3));
+    assert.equal(wellness.blocks.filter((block) => block.type === "gallery").length, 0);
     assert.equal(wellness.blocks.filter((block) => block.type === "media_hero").length, 1);
     assert.equal(wellness.blocks.filter((block) => block.type === "video").length, 0);
     const mediaHero = wellness.blocks.find((block) => block.type === "media_hero");
@@ -100,13 +98,7 @@ for (const locale of ["ru", "en"] as const) {
       "/cases/wellness-app/progression-flow.gif",
       "/cases/wellness-app/nutrition-process-flow.gif",
       "/cases/wellness-app/workout-flow.gif",
-      "/cases/wellness-app/training-plan.jpg",
-      "/cases/wellness-app/training-active.jpg",
-      "/cases/wellness-app/training-rest.jpg",
       "/cases/wellness-app/nutrition-flow.gif",
-      "/cases/wellness-app/food-daily-menu.jpg",
-      "/cases/wellness-app/food-recipes.jpg",
-      "/cases/wellness-app/food-recipe-detail.jpg",
     ]) {
       assert.match(serialized, new RegExp(mediaUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
       assert.ok(readFileSync(`public${mediaUrl}`).byteLength > 0);
@@ -138,9 +130,13 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.match(header, /:data-nav-visible="isHeaderShown \? 'true' : 'false'"/);
   assert.match(header, /class="case-header-hover-zone"/);
   assert.match(header, /function queueHeaderHide\(delay = 820\)/);
+  assert.match(header, /Math\.max\(0, window\.scrollY\) <= 12/);
   assert.match(header, /queueHeaderHide\(220\)/);
-  assert.match(header, /Math\.abs\(delta\) < 6/);
-  assert.match(header, /isHeaderVisible\.value = delta < 0/);
+  assert.match(header, /headerLastScrollY = nextScrollY;\s*revealHeader\(\);\s*queueHeaderHide\(\);/s);
+  assert.doesNotMatch(header, /Math\.abs\(delta\) < 6|isHeaderVisible\.value = delta < 0/);
+  assert.doesNotMatch(header, /function queueHeaderHide\(delay = 820\)[\s\S]*?if \(!isDesktopHeaderViewport\(\)\) return;/s);
+  assert.match(header, /let headerWasDesktop: boolean \| null = null/);
+  assert.match(header, /isHeaderVisible\.value = headerLastScrollY <= 12 \|\| !isDesktop/);
   assert.match(header, /window\.addEventListener\("scroll", handleHeaderScroll, \{ passive: true \}\)/);
   assert.match(header, /window\.addEventListener\("resize", handleHeaderResize, \{ passive: true \}\)/);
   assert.doesNotMatch(header, /toggle-locale|case-header__locale|English version/);
@@ -182,30 +178,13 @@ test("case sections and the compact landing header share the 1240px container", 
   assert.match(landing, /border-radius:\s*999px/);
 });
 
-test("wellness phone galleries use a compact native scroll-snap rail on mobile", () => {
-  const css = readFileSync("assets/css/case-builder-public.css", "utf8");
-  const v2Css = readFileSync("assets/css/case-builder-v2.css", "utf8");
-  const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
+test("gallery blocks are removed from the wellness case and admin builder", () => {
   const preview = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
-  const mobileStart = css.indexOf("@media (max-width: 760px)");
-  const mobileEnd = css.indexOf("@media (max-width: 640px)", mobileStart);
-  const mobileCss = css.slice(mobileStart, mobileEnd);
+  const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
 
-  assert.ok(mobileStart >= 0 && mobileEnd > mobileStart);
-  assert.match(css, /\.builder-gallery--phones\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\);/s);
-  assert.match(mobileCss, /\.builder-gallery--phones\s*\{[^}]*grid-template-columns:\s*none;[^}]*grid-auto-flow:\s*column;[^}]*grid-auto-columns:\s*clamp\(236px,\s*82%,\s*330px\);/s);
-  assert.match(mobileCss, /\.builder-gallery--phones\s*\{[^}]*overflow-x:\s*auto;[^}]*overflow-y:\s*hidden;/s);
-  assert.match(mobileCss, /\.builder-gallery--phones\s*\{[^}]*scroll-snap-type:\s*x mandatory;[^}]*-webkit-overflow-scrolling:\s*touch;/s);
-  assert.match(mobileCss, /\.builder-gallery--phones figure\s*\{[^}]*scroll-snap-align:\s*start;/s);
-  assert.match(mobileCss, /\.builder-gallery--phones img\s*\{[^}]*box-sizing:\s*border-box;/s);
-  assert.match(renderer, /class="builder-gallery"\s+:class="`builder-gallery--\$\{block\.settings\.layout\}`"/s);
-  assert.match(renderer, /<figure v-for=[\s\S]*<figcaption v-if="item\.caption"/s);
-  assert.match(v2Css, /\.builder-block--layout-phones \.builder-heading,[\s\S]*width:\s*min\(100%,\s*77\.5rem\);/s);
-  assert.match(v2Css, /\.builder-block--layout-phones \.builder-gallery--phones\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*14rem\)\);/s);
-  assert.match(v2Css, /\.builder-block--layout-phones \.builder-gallery--phones img\s*\{[^}]*aspect-ratio:\s*1179\s*\/\s*2556;/s);
-  assert.match(v2Css, /@media\s*\(max-width:\s*760px\)[\s\S]*\.builder-block--layout-phones \.builder-gallery--phones\s*\{[^}]*grid-auto-columns:\s*clamp\(13\.125rem,\s*72%,\s*15\.625rem\);/s);
-  assert.match(preview, /preview-grid--\$\{block\.settings\.layout/);
-  assert.match(preview, /\.preview-grid\.preview-grid--phones[^}]*grid-template-columns:\s*repeat\(3,/s);
+  assert.equal(blockLibrary.some((item) => item.type === "gallery"), false);
+  assert.doesNotMatch(preview, /block\.type === ['"]gallery['"]|preview-grid/);
+  assert.doesNotMatch(inspector, /^\s*gallery:\s*\[/m);
 });
 
 test("service inclusions stay in a two-column grid", () => {
@@ -315,13 +294,16 @@ test("case system v2 shares typography, insight and editorial process across pub
   assert.doesNotMatch(css, /gradient\(/);
 });
 
-test("case metrics render as a responsive card row", () => {
+test("case metrics render as a responsive card row with a mobile swipe rail", () => {
   const css = readFileSync("assets/css/case-builder-v2.css", "utf8");
 
   assert.match(css, /\.builder-metrics\s*\{[^}]*grid-template-columns:\s*repeat\(4,[^}]*gap:\s*clamp\(/s);
   assert.match(css, /\.builder-metrics article,[\s\S]*border-radius:\s*var\(--case-card-radius\);[\s\S]*background:\s*var\(--case-v2-surface-soft\);/s);
   assert.match(css, /\.builder-metrics b\s*\{[^}]*margin-top:\s*auto;/s);
-  assert.match(css, /@container\s*\(max-width:\s*760px\)[\s\S]*\.builder-metrics,[\s\S]*repeat\(2,/s);
+  assert.match(css, /@container\s*\(max-width:\s*760px\)[\s\S]*\.builder-metrics,[\s\S]*grid-auto-flow:\s*column;[\s\S]*grid-auto-columns:\s*clamp\(15rem, 70cqw, 17rem\);/s);
+  assert.match(css, /@container\s*\(max-width:\s*760px\)[\s\S]*\.builder-metrics article:nth-child\(n\),[\s\S]*scroll-snap-align:\s*start;/s);
+  assert.match(css, /@container\s*\(max-width:\s*760px\)[\s\S]*overflow-x:\s*scroll;[\s\S]*scrollbar-width:\s*thin;/s);
+  assert.match(css, /\.builder-metrics::\-webkit-scrollbar\s*\{[^}]*display:\s*block;[^}]*height:\s*4px;/s);
 });
 
 test("case sections use a compact shared rhythm and the last open disclosure has no trailing rule", () => {
@@ -401,7 +383,7 @@ test("process media keeps natural proportions and places tags after photo, GIF o
   assert.match(library, /process:[\s\S]*video_url:\s*''[\s\S]*poster_url:\s*''[\s\S]*media_size:\s*'medium'/s);
 });
 
-test("mandatory case header is full-width, color-configurable and top-aligns copy with a square logo", () => {
+test("mandatory case header uses a compact mark, a large thesis and a 1240px-aligned category", () => {
   const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
   const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
   const canvas = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
@@ -411,12 +393,15 @@ test("mandatory case header is full-width, color-configurable and top-aligns cop
   assert.match(inspector, /hero_background/);
   assert.match(inspector, /hero_text/);
   assert.match(renderer, /builder-hero__layout/);
-  assert.match(renderer, /builder-hero__logo-stage/);
+  assert.match(renderer, /builder-hero__project/);
+  assert.match(renderer, /builder-hero__mark/);
+  assert.match(renderer, /builder-hero__category/);
   assert.match(renderer, /--case-hero-background/);
-  assert.match(css, /\.builder-hero__layout\s*\{[^}]*align-items:\s*start;/s);
-  assert.match(css, /\.builder-hero__logo-stage\s*\{[^}]*width:\s*90%;[^}]*aspect-ratio:\s*1\s*\/\s*1;/s);
-  assert.match(canvas, /preview-hero-logo-stage/);
-  assert.match(canvas, /\.preview-hero-logo-stage\s*\{[^}]*aspect-ratio:\s*1\s*\/\s*1;/s);
+  assert.match(css, /--builder-content-max:\s*1240px/);
+  assert.match(css, /\.builder-block--hero \.builder-block__inner\s*\{[^}]*calc\(\(100% - var\(--builder-content-max\)\) \/ 2\)/s);
+  assert.match(css, /\.builder-hero__category\s*\{[^}]*position:\s*absolute;[^}]*right:\s*0;/s);
+  assert.match(canvas, /preview-hero-mark/);
+  assert.match(canvas, /preview-hero-category/);
   assert.match(editor, /function enforceMandatoryHero\(\)/);
   assert.match(editor, /block\.type !== 'hero'/);
 });
@@ -469,21 +454,21 @@ test("builder headings use the same UI typography as the standard case pages", (
   const canvas = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
   const globalCss = readFileSync("assets/css/main.css", "utf8");
 
-  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
-  assert.match(css, /\.builder-hero__copy h1\s*\{[^}]*clamp\(44px,\s*5\.2cqw,\s*72px\)/s);
+  assert.match(css, /\.builder-hero__layout h1\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
+  assert.match(css, /\.builder-hero__layout h1\s*\{[^}]*clamp\(50px,\s*6\.1cqw,\s*82px\)/s);
   assert.match(css, /\.builder-heading h2\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
   assert.match(css, /\.builder-image-text__copy h2\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
   assert.match(css, /\.builder-block--next_case h2\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
-  assert.match(canvas, /\.preview-hero-copy h3\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
+  assert.match(canvas, /\.preview-hero-layout h3\s*\{[^}]*font:\s*500[^}]*var\(--font-ui\)/s);
   assert.match(canvas, /class="preview-hero-layout"/);
-  assert.match(canvas, /class="preview-hero-identity"/);
-  assert.match(canvas, /class="preview-hero-logo-stage"/);
-  assert.match(canvas, /class="preview-hero-meta"/);
+  assert.match(canvas, /class="preview-hero-project"/);
+  assert.match(canvas, /class="preview-hero-mark"/);
+  assert.match(canvas, /class="preview-hero-category"/);
   assert.match(canvas, /content\.items\?\.slice\(0, 5\)/);
-  assert.match(canvas, /\.preview-hero-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1\.3fr\)\s+minmax\(150px,\s*\.7fr\)/s);
+  assert.match(canvas, /\.preview-hero-layout\s*\{[^}]*position:\s*relative;[^}]*display:\s*flex;/s);
   assert.match(canvas, /linear-gradient\(135deg,\s*#c4b6ff,\s*#8dc8ff 55%,\s*#73dfd8\)/);
   assert.match(css, /\.builder-block__inner\s*\{[^}]*border-radius:\s*28px;/s);
-  assert.doesNotMatch(css, /\.builder-(?:hero__copy h1|heading h2|image-text__copy h2|block--next_case h2)\s*\{[^}]*var\(--font-epilepsy\)/s);
+  assert.doesNotMatch(css, /\.builder-(?:hero__layout h1|heading h2|image-text__copy h2|block--next_case h2)\s*\{[^}]*var\(--font-epilepsy\)/s);
   assert.doesNotMatch(globalCss, /Epilepsy Sans|--font-epilepsy/);
 });
 

@@ -185,14 +185,13 @@ const mapAccentPresets = [
 ]
 
 const fieldMap: Record<string, Field[]> = {
-  hero: [{ key: 'logo_url', label: 'Логотип проекта', media: true }, { key: 'eyebrow', label: 'Мини-текст' }, { key: 'title', label: 'Заголовок' }, { key: 'subtitle', label: 'Краткое описание', kind: 'textarea', rows: 3 }, { key: 'industry', label: 'Категория' }, { key: 'year', label: 'Дата / год' }],
+  hero: [{ key: 'logo_url', label: 'Иконка проекта', media: true }, { key: 'title', label: 'Название проекта' }, { key: 'subtitle', label: 'Главный тезис', kind: 'textarea', rows: 4 }, { key: 'industry', label: 'Категория' }],
   media_hero: [{ key: 'image_url', label: 'Изображение', media: true, accept: 'image/*' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'alt', label: 'Описание медиа' }, { key: 'caption', label: 'Подпись', kind: 'textarea', rows: 3 }, { key: 'autoplay', label: 'Автозапуск без звука', kind: 'checkbox' }, { key: 'loop', label: 'Зациклить видео', kind: 'checkbox' }, { key: 'muted', label: 'Без звука', kind: 'checkbox' }, { key: 'controls', label: 'Показывать управление', kind: 'checkbox' }],
   text: [{ key: 'kicker', label: 'Надстрочная метка' }, { key: 'eyebrow', label: 'Заголовок слева' }, { key: 'title', label: 'Лид справа' }, { key: 'body', label: 'Основной текст', kind: 'textarea', rows: 8 }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
   challenge_solution: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'challenge_label', label: 'Подпись задачи' }, { key: 'challenge', label: 'Задача', kind: 'textarea', rows: 6 }, { key: 'solution_label', label: 'Подпись решения' }, { key: 'solution', label: 'Решение', kind: 'textarea', rows: 6 }, { key: 'impact_label', label: 'Подпись эффекта' }, { key: 'impact', label: 'Эффект', kind: 'textarea', rows: 5 }],
   insight: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Ключевая формулировка' }, { key: 'statement', label: 'Суть решения', kind: 'textarea', rows: 5 }, { key: 'rationale_label', label: 'Подпись аргумента' }, { key: 'rationale', label: 'Почему принято', kind: 'textarea', rows: 4 }, { key: 'outcome_label', label: 'Подпись результата' }, { key: 'outcome', label: 'Что изменилось', kind: 'textarea', rows: 4 }, { key: 'image_url', label: 'Изображение', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt изображения' }],
   image: [{ key: 'image_url', label: 'Изображение', media: true }, { key: 'alt', label: 'Alt' }, { key: 'caption', label: 'Подпись', kind: 'textarea' }],
   image_text: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'body', label: 'Текст', kind: 'textarea', rows: 7 }, { key: 'image_url', label: 'Изображение', media: true }, { key: 'alt', label: 'Alt' }, { key: 'caption', label: 'Подпись' }],
-  gallery: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }],
   metrics: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'summary', label: 'Общий результат', kind: 'textarea' }],
   process: [{ key: 'eyebrow', label: 'Заголовок слева' }, { key: 'title', label: 'Лид справа' }, { key: 'summary', label: 'Вводный текст', kind: 'textarea', rows: 5 }],
   quote: [{ key: 'quote', label: 'Цитата', kind: 'textarea', rows: 7 }, { key: 'author', label: 'Автор' }, { key: 'role', label: 'Должность' }, { key: 'logo_url', label: 'Логотип', media: true }],
@@ -204,14 +203,13 @@ const fieldMap: Record<string, Field[]> = {
 }
 
 const itemFieldMap: Record<string, Field[]> = {
-  gallery: [{ key: 'image_url', label: 'Изображение', media: true }, { key: 'alt', label: 'Alt' }, { key: 'caption', label: 'Подпись', kind: 'textarea' }, { key: 'frame', label: 'Оформление', kind: 'select', defaultValue: 'auto', options: [{ value: 'auto', label: 'Автоматически' }, { value: 'plain', label: 'Без рамки' }, { value: 'screen', label: 'Экран' }, { value: 'device', label: 'Устройство' }] }],
   metrics: [{ key: 'value', label: 'Значение' }, { key: 'label', label: 'Подпись' }, { key: 'context', label: 'Контекст', kind: 'textarea' }],
   process: [{ key: 'title', label: 'Название' }, { key: 'description', label: 'Описание', kind: 'textarea' }, { key: 'image_url', label: 'Фото / GIF', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt фото / GIF' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'media_size', label: 'Размер медиа', kind: 'select', defaultValue: 'medium', options: [{ value: 'compact', label: 'Компактный' }, { value: 'medium', label: 'Средний' }, { value: 'full', label: 'Во всю ширину' }] }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
   results: [{ key: 'text', label: 'Вывод', kind: 'textarea', rows: 3 }],
   technologies: [{ key: 'label', label: 'Технология' }, { key: 'category', label: 'Категория' }],
 }
-const itemDefaults: Record<string, any> = { gallery: { image_url: '', alt: '', caption: '', frame: 'auto' }, metrics: { value: '', label: '', context: '' }, process: { title: '', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }, results: { text: '' }, technologies: { label: '', category: 'stack' } }
-const itemNames: Record<string, string> = { gallery: 'Изображение', metrics: 'Метрика', process: 'Этап', results: 'Вывод', technologies: 'Технология' }
+const itemDefaults: Record<string, any> = { metrics: { value: '', label: '', context: '' }, process: { title: '', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }, results: { text: '' }, technologies: { label: '', category: 'stack' } }
+const itemNames: Record<string, string> = { metrics: 'Метрика', process: 'Этап', results: 'Вывод', technologies: 'Технология' }
 const fields = computed(() => isFreeform.value ? [] : fieldMap[props.block.type] || [])
 const itemFields = computed(() => isFreeform.value ? [] : itemFieldMap[props.block.type] || [])
 const itemName = computed(() => itemNames[props.block.type] || 'Элемент')
@@ -220,7 +218,6 @@ const layouts = computed(() => isFreeform.value ? [{ value: 'freeform', label: '
   text: [{ value: 'overview', label: 'Обзор проекта' }, { value: 'editorial', label: 'Редакционная глава' }, { value: 'split', label: 'Две колонки' }, { value: 'lead', label: 'Крупная врезка' }],
   challenge_solution: [{ value: 'narrative', label: 'Заголовок слева, текст справа' }, { value: 'contrast', label: 'Контрастные главы' }],
   insight: [{ value: 'statement', label: 'Крупная формулировка' }, { value: 'media-right', label: 'Медиа справа' }],
-  gallery: [{ value: 'mosaic', label: 'Мозаика' }, { value: 'grid', label: 'Сетка' }, { value: 'strip', label: 'Лента' }, { value: 'phones', label: 'Экраны устройства' }],
   image_text: [{ value: 'image-right', label: 'Изображение справа' }, { value: 'image-left', label: 'Изображение слева' }],
   metrics: [{ value: 'cards', label: 'Карточки показателей' }, { value: 'grid', label: 'Сетка' }, { value: 'strip', label: 'Лента' }],
   process: [{ value: 'chapter', label: 'Глава кейса с раскрытиями' }, { value: 'story', label: 'Раздел с раскрытиями' }, { value: 'accordion', label: 'Компактный список' }],

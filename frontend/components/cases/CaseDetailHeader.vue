@@ -62,13 +62,14 @@
 defineProps<{ locale: "ru" | "en"; theme: "light" | "dark"; hasTechnical: boolean }>();
 defineEmits<{ "toggle-theme": [] }>();
 const isMenuOpen = ref(false);
-const isHeaderVisible = ref(false);
+const isHeaderVisible = ref(true);
 const isHeaderShown = computed(() => isHeaderVisible.value || isMenuOpen.value);
 let isHeaderZoneHovered = false;
 let isHeaderHovered = false;
 let isHeaderFocused = false;
 let headerIdleTimer: ReturnType<typeof setTimeout> | null = null;
 let headerLastScrollY = 0;
+let headerWasDesktop: boolean | null = null;
 
 function clearHeaderIdleTimer() {
   if (!headerIdleTimer) return;
@@ -86,8 +87,11 @@ function revealHeader() {
 }
 
 function queueHeaderHide(delay = 820) {
-  if (!isDesktopHeaderViewport()) return;
   clearHeaderIdleTimer();
+  if (Math.max(0, window.scrollY) <= 12) {
+    isHeaderVisible.value = true;
+    return;
+  }
   headerIdleTimer = window.setTimeout(() => {
     headerIdleTimer = null;
     if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused || isMenuOpen.value) return;
@@ -98,6 +102,12 @@ function queueHeaderHide(delay = 820) {
 function handleHeaderScroll() {
   const nextScrollY = Math.max(0, window.scrollY);
 
+  if (nextScrollY <= 12) {
+    headerLastScrollY = nextScrollY;
+    revealHeader();
+    return;
+  }
+
   if (isDesktopHeaderViewport()) {
     headerLastScrollY = nextScrollY;
     revealHeader();
@@ -105,17 +115,15 @@ function handleHeaderScroll() {
     return;
   }
 
-  if (isMenuOpen.value || nextScrollY <= 12) {
+  if (isMenuOpen.value) {
     headerLastScrollY = nextScrollY;
-    isHeaderVisible.value = true;
+    revealHeader();
     return;
   }
 
-  const delta = nextScrollY - headerLastScrollY;
-  if (Math.abs(delta) < 6) return;
-
-  isHeaderVisible.value = delta < 0;
   headerLastScrollY = nextScrollY;
+  revealHeader();
+  queueHeaderHide();
 }
 
 function handleHeaderZonePointerEnter() {
@@ -152,9 +160,13 @@ function handleHeaderFocusOut(event: FocusEvent) {
 }
 
 function handleHeaderResize() {
-  clearHeaderIdleTimer();
+  const isDesktop = isDesktopHeaderViewport();
   headerLastScrollY = Math.max(0, window.scrollY);
-  isHeaderVisible.value = !isDesktopHeaderViewport();
+  if (headerWasDesktop === isDesktop) return;
+
+  headerWasDesktop = isDesktop;
+  clearHeaderIdleTimer();
+  isHeaderVisible.value = headerLastScrollY <= 12 || !isDesktop;
 }
 
 onMounted(() => {

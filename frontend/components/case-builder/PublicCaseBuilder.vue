@@ -15,23 +15,14 @@
 
         <template v-else-if="block.type === 'hero'">
           <div class="builder-hero__layout">
-            <div class="builder-hero__copy">
-              <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
-              <div>
-                <h1>{{ block.content.title }}</h1>
-                <p v-if="block.content.subtitle">{{ block.content.subtitle }}</p>
-              </div>
+            <div class="builder-hero__project">
+              <span v-if="block.content.logo_url" class="builder-hero__mark">
+                <img :src="block.content.logo_url" alt="" />
+              </span>
+              <span>{{ block.content.title || block.content.eyebrow }}</span>
             </div>
-            <aside class="builder-hero__identity">
-              <div class="builder-hero__logo-stage">
-                <img v-if="block.content.logo_url" class="builder-hero__logo" :src="block.content.logo_url" :alt="`${block.content.title || ''} logo`" />
-              </div>
-              <div v-if="heroCategory(block) || block.content.year" class="builder-hero__meta" :aria-label="locale === 'ru' ? 'Категория и дата кейса' : 'Case category and date'">
-                <span v-if="heroCategory(block)">{{ heroCategory(block) }}</span>
-                <i v-if="heroCategory(block) && block.content.year" aria-hidden="true" />
-                <time v-if="block.content.year">{{ block.content.year }}</time>
-              </div>
-            </aside>
+            <h1>{{ block.content.subtitle || block.content.title }}</h1>
+            <p v-if="heroCategory(block)" class="builder-hero__category">{{ heroCategory(block) }}</p>
           </div>
         </template>
 

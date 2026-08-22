@@ -206,7 +206,6 @@ export const blockLibrary: Array<{
   { type: 'insight', label: 'Ключевое решение', description: 'Решение, аргумент и эффект', mark: '!' },
   { type: 'image', label: 'Крупное медиа', description: 'Полноразмерное фото или GIF между главами', mark: '□' },
   { type: 'image_text', label: 'Текст + изображение', description: 'Редакционная композиция', mark: '▤' },
-  { type: 'gallery', label: 'Медиалента', description: 'Последовательность экранов или кадров', mark: '▦' },
   { type: 'metrics', label: 'Показатели', description: 'Карточки с числами и контекстом', mark: '%' },
   { type: 'process', label: 'Раскрывающаяся глава', description: 'Нумерованные решения с медиа и результатами', mark: '→' },
   { type: 'quote', label: 'Цитата', description: 'Отзыв клиента', mark: '“' },

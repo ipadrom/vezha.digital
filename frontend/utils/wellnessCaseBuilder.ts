@@ -297,19 +297,6 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
       image_bleed: false,
     })),
 
-    block("workout-screens", "gallery", {
-      eyebrow: pick("Тренировка", "Workout"),
-      title: pick(
-        "План, активное действие и восстановление — без разрыва контекста.",
-        "Plan, active movement and recovery without breaking context.",
-      ),
-      items: [
-        { image_url: `${assets}/training-plan.jpg`, alt: pick("План тренировки", "Workout plan"), caption: pick("Последовательность блоков", "Gated block sequence") },
-        { image_url: `${assets}/training-active.jpg`, alt: pick("Активный силовой круг", "Active strength round"), caption: pick("Одно текущее упражнение", "One current exercise") },
-        { image_url: `${assets}/training-rest.jpg`, alt: pick("Таймер отдыха", "Rest timer"), caption: pick("Восстановление по реальному времени", "Wall-clock recovery") },
-      ],
-    }, 9, settings("ink", { width: "full", spacing: "large", layout: "phones" })),
-
     block("nutrition-copy", "text", {
       eyebrow: pick("Питание", "Nutrition"),
       title: pick(
@@ -336,19 +323,6 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
       desktop_span: 12,
       image_bleed: false,
     })),
-
-    block("nutrition-screens", "gallery", {
-      eyebrow: pick("Питание", "Nutrition"),
-      title: pick(
-        "От общего плана дня — к конкретной порции.",
-        "From the complete day to a specific serving.",
-      ),
-      items: [
-        { image_url: `${assets}/food-daily-menu.jpg`, alt: pick("Меню на день", "Daily menu"), caption: pick("Итог дня и каждого приёма пищи", "Daily and meal-level totals") },
-        { image_url: `${assets}/food-recipes.jpg`, alt: pick("Библиотека рецептов", "Recipe library"), caption: pick("Рецепты по роли в рационе", "Recipes by role in the diet") },
-        { image_url: `${assets}/food-recipe-detail.jpg`, alt: pick("Страница рецепта", "Recipe page"), caption: pick("Порции, ингредиенты и КБЖУ", "Servings, ingredients and macros") },
-      ],
-    }, 12, settings("ink", { width: "full", spacing: "large", layout: "phones" })),
 
     block("technologies", "technologies", {
       eyebrow: pick("Технологический контур", "Technology"),
@@ -413,17 +387,15 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
   const sourceProcess = byId("process");
   const processIntro = byId("workout-copy");
   const workoutVisual = byId("workout-visual");
-  const workoutScreens = byId("workout-screens");
   const nutritionProcess = byId("nutrition-copy");
   const nutritionVisual = byId("nutrition-visual");
-  const nutritionScreens = byId("nutrition-screens");
   const technologies = byId("technologies");
   const result = byId("result");
   const next = byId("next");
 
   if (
-    context && facts && challenge && challengeMedia && sourceProcess && processIntro && workoutVisual && workoutScreens
-    && nutritionProcess && nutritionVisual && nutritionScreens && technologies && result && next
+    context && facts && challenge && challengeMedia && sourceProcess && processIntro && workoutVisual
+    && nutritionProcess && nutritionVisual && technologies && result && next
   ) {
     const sourceItems = [...(sourceProcess.content.items || [])];
     const systemStep = sourceItems[0] || {};
@@ -549,13 +521,11 @@ export function getWellnessCaseBlocks(locale: WellnessLocale): IProjectBlock[] {
     workoutVisual.settings.surface = "plain";
     workoutVisual.settings.image_bleed = false;
     workoutVisual.sort_order = 8;
-    workoutScreens.sort_order = 9;
     nutritionVisual.settings.desktop_span = 12;
     nutritionVisual.settings.width = "wide";
     nutritionVisual.settings.surface = "plain";
     nutritionVisual.settings.image_bleed = false;
     nutritionVisual.sort_order = 12;
-    nutritionScreens.sort_order = 13;
 
     result.content.items = [
       { text: pick("Пользователь проходит тренировку без возврата к дашборду.", "The workout progresses without a return to a dashboard.") },
