@@ -124,8 +124,10 @@ test("case summary follows the title, facts, logo and action composition", () =>
   assert.match(component, /wellness-mark\.svg/);
   assert.match(css, /\.vz-cases__caption > \.vz-cases__meta-layout\s*\{[^}]*grid-template-columns:\s*minmax\(0, 0\.92fr\) minmax\(0, 1\.08fr\);/s);
   assert.match(css, /\.vz-cases__brand\s*\{[^}]*aspect-ratio:\s*1;[^}]*padding:\s*0;[^}]*overflow:\s*hidden;/s);
-  assert.match(css, /\.vz-cases__brand\s*\{[^}]*border:\s*0;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s);
+  assert.match(css, /\.vz-cases__brand\s*\{[^}]*border:\s*1px solid transparent;[^}]*border-radius:\s*25%;[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s);
   assert.match(css, /\.vz-cases__brand img\s*\{[^}]*object-fit:\s*cover;/s);
+  assert.match(css, /@media \(hover: hover\) and \(pointer: fine\)[\s\S]*?\.vz-cases__brand:hover\s*\{[^}]*border-color:\s*var\(--landing-card-hover-border\);[^}]*box-shadow:\s*var\(--landing-card-hover-shadow\);[^}]*transform:\s*translate3d\(0, -6px, 0\);/s);
+  assert.doesNotMatch(css, /\.vz-cases__brand:hover img\s*\{/s);
   assert.match(css, /\.vz-cases__fact dd\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
   assert.match(css, /\.vz-cases__stack-card strong\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
   assert.match(css, /\.vz-cases__fact dt,[\s\S]*?\.vz-cases__stack-card > span\s*\{[^}]*position:\s*absolute;[^}]*top:\s*10px;[^}]*left:\s*12px;[^}]*text-align:\s*left;/s);

@@ -658,6 +658,8 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(landing, /class="vz-nav-hover-zone"/);
   assert.match(landing, /function queueHeaderHide\(delay = 820\)/);
   assert.match(landing, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(isDesktopHeaderViewport\(\)\)[\s\S]*?if \(nextScrollY <= 12\)[\s\S]*?revealHeader\(\);[\s\S]*?queueHeaderHide\(\);/s);
+  assert.match(landing, /function isDesktopStackScrollLockActive\(\)[\s\S]*?document\.querySelector<HTMLElement>\("\[data-stack-section\]"\)[\s\S]*?rect\.top <= 1 && rect\.bottom >= window\.innerHeight - 1;/s);
+  assert.match(landing, /function revealHeader\(\)\s*\{\s*if \(isDesktopStackScrollLockActive\(\)\) \{[^}]*clearHeaderIdleTimer\(\);[^}]*isHeaderVisible\.value = false;/s);
   assert.doesNotMatch(landing, /isHeaderVisible\.value = delta < 0/);
   assert.match(landing, /function queueHeaderHide\(delay = 820\)[\s\S]*?headerIdleTimer = window\.setTimeout/s);
   assert.doesNotMatch(landing, /function queueHeaderHide\(delay = 820\)\s*\{\s*if \(!isDesktopHeaderViewport\(\)\) return;/s);
@@ -712,6 +714,18 @@ test("gives desktop service cards extra vertical capacity around a fixed center"
 
   assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-services__grid\s*\{[^}]*grid-template-rows:\s*clamp\(500px, 37vw, 560px\);/s);
   assert.match(css, /@media \(min-width: 1200px\)[\s\S]*?\.vz-service-caption\s*\{[^}]*height:\s*clamp\(528px, 37vw, 560px\);[^}]*align-self:\s*center;/s);
+});
+
+test("lifts the requested landing cards without the old grey outline glint", () => {
+  const about = readFileSync("components/landing/LandingAbout.vue", "utf8");
+  const css = readFileSync("assets/css/landing-redesign.css", "utf8");
+  const page = readFileSync("pages/index.vue", "utf8");
+
+  assert.match(about, /\.vz-about__intro:hover,[\s\S]*?\.vz-about__proof-reveal\[data-active="true"\]:hover\s*\{[^}]*box-shadow:\s*var\(--landing-card-hover-shadow\);[^}]*translate:\s*0 -6px;/s);
+  assert.match(css, /Requested landing cards use the full surface response[\s\S]*?:is\([\s\S]*?\.vz-about__intro,[\s\S]*?\.vz-about__proof-reveal,[\s\S]*?\.vz-service-caption,[\s\S]*?\.vz-client-card-slot[\s\S]*?\)::before\s*\{[^}]*display:\s*none;/s);
+  assert.match(css, /:is\(\.vz-service-caption, \.vz-client-card-slot\):hover\s*\{[^}]*box-shadow:\s*var\(--landing-card-hover-shadow\);[^}]*translate:\s*0 -6px;/s);
+  assert.match(page, /\.vz-client-card-slot\.is-height-ready\s*\{[^}]*height 280ms[^}]*translate var\(--motion-fast, 180ms\)[^}]*border-color var\(--motion-fast, 180ms\)[^}]*box-shadow var\(--motion-fast, 180ms\)/s);
+  assert.match(css, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?:is\(\.vz-service-caption, \.vz-client-card-slot\):hover\s*\{[^}]*translate:\s*none;/s);
 });
 
 test("sizes desktop service cards from their content while keeping the left edge fixed", () => {

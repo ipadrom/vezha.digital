@@ -519,7 +519,13 @@ onBeforeUnmount(() => {
   background: var(--landing-card-surface-north-east, var(--landing-card-surface, var(--bg)));
   box-shadow: var(--landing-card-shadow, 0 24px 54px -38px color-mix(in srgb, var(--ink) 38%, transparent));
   backdrop-filter: blur(18px) saturate(1.08);
-  transition: height 360ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  translate: 0 0;
+  transition:
+    height 360ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    translate var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    border-color var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
 .vz-about__step-stack {
@@ -1155,13 +1161,18 @@ onBeforeUnmount(() => {
   opacity: 0;
   clip-path: inset(0 66.666% 0 0);
   transform: rotateY(-16deg);
+  translate: 0 0;
   transform-origin: left center;
   backface-visibility: hidden;
   pointer-events: none;
   transition:
     opacity 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
     clip-path 250ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1)),
-    transform 250ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
+    transform 250ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1)),
+    translate var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    border-color var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
 .vz-about__proof-reveal[data-active="true"] {
@@ -1269,6 +1280,14 @@ onBeforeUnmount(() => {
 }
 
 @media (min-width: 901px) and (hover: hover) and (pointer: fine) {
+  .vz-about__intro:hover,
+  .vz-about__proof-reveal[data-active="true"]:hover {
+    border-color: var(--landing-card-hover-border);
+    box-shadow: var(--landing-card-hover-shadow);
+    filter: saturate(1.08);
+    translate: 0 -6px;
+  }
+
   .vz-about__proof-switcher button:hover {
     background-color: color-mix(in srgb, var(--ink) 5%, transparent);
     color: var(--ink);
@@ -1330,6 +1349,11 @@ onBeforeUnmount(() => {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .vz-about__intro:hover,
+  .vz-about__proof-reveal[data-active="true"]:hover {
+    translate: none;
+  }
+
   .vz-about__proof-reveal {
     clip-path: inset(0);
     transform: none;

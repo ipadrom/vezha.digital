@@ -916,7 +916,23 @@ function isDesktopHeaderViewport() {
   return window.matchMedia("(min-width: 901px)").matches;
 }
 
+function isDesktopStackScrollLockActive() {
+  if (!isDesktopHeaderViewport()) return false;
+
+  const stack = document.querySelector<HTMLElement>("[data-stack-section]");
+  if (!stack) return false;
+
+  const rect = stack.getBoundingClientRect();
+  return rect.top <= 1 && rect.bottom >= window.innerHeight - 1;
+}
+
 function revealHeader() {
+  if (isDesktopStackScrollLockActive()) {
+    clearHeaderIdleTimer();
+    isHeaderVisible.value = false;
+    return;
+  }
+
   clearHeaderIdleTimer();
   isHeaderVisible.value = true;
 }
@@ -5758,7 +5774,12 @@ useHead(() => ({
 
 .vz-client-card-slot.is-height-ready {
   height: var(--client-card-height);
-  transition: height 280ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
+  transition:
+    height 280ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1)),
+    translate var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    border-color var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
 }
 
 .vz-client-copy p {

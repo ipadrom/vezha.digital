@@ -313,7 +313,9 @@ test("case metrics render as a responsive card row with a mobile swipe rail", ()
   const css = readFileSync("assets/css/case-builder-v2.css", "utf8");
 
   assert.match(css, /\.builder-metrics\s*\{[^}]*grid-template-columns:\s*repeat\(4,[^}]*gap:\s*clamp\(/s);
-  assert.match(css, /\.builder-metrics article,[\s\S]*border-radius:\s*var\(--case-card-radius\);[\s\S]*background:\s*var\(--case-v2-surface-soft\);/s);
+  assert.match(css, /\.builder-metrics article,[\s\S]*border-radius:\s*22px;[\s\S]*background:\s*var\(--case-card-surface\);[\s\S]*box-shadow:\s*var\(--case-card-shadow\);[\s\S]*backdrop-filter:\s*blur\(18px\) saturate\(1\.08\);/s);
+  assert.match(css, /\.builder-metrics article:nth-child\(4n \+ 1\),[\s\S]*?background:\s*var\(--case-card-surface-north-east\);[\s\S]*\.builder-metrics article:nth-child\(4n \+ 4\),[\s\S]*?background:\s*var\(--case-card-surface-diagonal\);/s);
+  assert.match(css, /@media \(hover:\s*hover\) and \(pointer:\s*fine\)[\s\S]*\.builder-metrics article:hover,[\s\S]*transform:\s*translate3d\(0,\s*-6px,\s*0\);/s);
   assert.match(css, /\.builder-metrics b\s*\{[^}]*margin-top:\s*auto;/s);
   assert.match(css, /@container\s*\(max-width:\s*760px\)[\s\S]*\.builder-metrics,[\s\S]*grid-auto-flow:\s*column;[\s\S]*grid-auto-columns:\s*clamp\(15rem, 70cqw, 17rem\);/s);
   assert.match(css, /@container\s*\(max-width:\s*760px\)[\s\S]*\.builder-metrics article:nth-child\(n\),[\s\S]*scroll-snap-align:\s*start;/s);

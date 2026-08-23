@@ -3709,6 +3709,10 @@
   --landing-card-shadow:
     0 30px 82px -54px rgb(72 78 128 / 48%),
     inset 0 1px 0 rgb(255 255 255 / 88%);
+  --landing-card-hover-border: rgb(154 130 242 / 32%);
+  --landing-card-hover-shadow:
+    0 38px 88px -48px rgb(126 108 255 / 34%),
+    inset 0 1px 0 rgb(255 255 255 / 92%);
   --navbg: rgb(248 249 255 / 72%);
   background:
     radial-gradient(1050px 780px at 86% 3%, rgb(107 148 255 / 28%), transparent 70%),
@@ -3756,6 +3760,10 @@
   --landing-card-shadow:
     0 34px 92px -54px rgb(0 0 0 / 86%),
     inset 0 1px 0 rgb(255 255 255 / 10%);
+  --landing-card-hover-border: rgb(173 135 230 / 32%);
+  --landing-card-hover-shadow:
+    0 38px 88px -48px rgb(143 85 206 / 42%),
+    inset 0 1px 0 rgb(255 255 255 / 12%);
   --navbg: rgb(10 12 20 / 72%);
   background:
     radial-gradient(1050px 780px at 86% 3%, rgb(82 119 222 / 24%), transparent 70%),
@@ -4402,7 +4410,7 @@
 :is(
   .vz-about__intro,
   .vz-about__flow,
-  .vz-about__proof dl > div,
+  .vz-about__proof-reveal,
   .vz-service-caption,
   .vz-client-card-slot,
   .vz-contacts__inner,
@@ -4416,7 +4424,7 @@
 :is(
   .vz-about__intro,
   .vz-about__flow,
-  .vz-about__proof dl > div,
+  .vz-about__proof-reveal,
   .vz-service-caption,
   .vz-client-card-slot,
   .vz-contacts__inner,
@@ -4457,7 +4465,7 @@
   :is(
     .vz-about__intro,
     .vz-about__flow,
-    .vz-about__proof dl > div,
+    .vz-about__proof-reveal,
     .vz-service-caption,
     .vz-client-card-slot,
     .vz-contacts__inner,
@@ -4473,7 +4481,7 @@
   :is(
     .vz-about__intro,
     .vz-about__flow,
-    .vz-about__proof dl > div,
+    .vz-about__proof-reveal,
     .vz-service-caption,
     .vz-client-card-slot,
     .vz-contacts__inner,
@@ -4482,6 +4490,71 @@
   )::before,
   .vz-services__nav button::before {
     transition-duration: 125ms;
+  }
+}
+
+/* Requested landing cards use the full surface response instead of the old grey outline glint. */
+:is(
+  .vz-about__intro,
+  .vz-about__proof-reveal,
+  .vz-service-caption,
+  .vz-client-card-slot
+)::before {
+  display: none;
+}
+
+.vz-service-caption,
+.vz-client-card-slot {
+  translate: 0 0;
+  transition:
+    translate var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    border-color var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-service-caption[data-positioned="true"] {
+  transition:
+    width 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    min-height 420ms cubic-bezier(0.22, 1, 0.36, 1),
+    translate var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    border-color var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+.vz-client-card-slot.is-height-ready {
+  transition:
+    height 280ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1)),
+    translate var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    border-color var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    box-shadow var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    filter var(--motion-fast, 180ms) var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :is(.vz-service-caption, .vz-client-card-slot):hover {
+    border-color: var(--landing-card-hover-border);
+    box-shadow: var(--landing-card-hover-shadow);
+    filter: saturate(1.08);
+    translate: 0 -6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vz-service-caption,
+  .vz-service-caption[data-positioned="true"],
+  .vz-client-card-slot,
+  .vz-client-card-slot.is-height-ready {
+    transition:
+      border-color 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      box-shadow 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+      filter 125ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1));
+  }
+
+  :is(.vz-service-caption, .vz-client-card-slot):hover {
+    translate: none;
   }
 }
 
