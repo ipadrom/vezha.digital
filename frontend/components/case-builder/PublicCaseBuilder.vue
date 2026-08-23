@@ -122,11 +122,6 @@
           <figure><img v-if="block.content.image_url" :src="block.content.image_url" :alt="block.content.alt || ''" /><div v-else class="builder-placeholder">IMAGE</div><figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption></figure>
         </template>
 
-        <template v-else-if="block.type === 'gallery'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <div class="builder-gallery" :class="`builder-gallery--${block.settings.layout}`"><figure v-for="(item, index) in block.content.items" :key="`${item.image_url}-${index}`" :data-frame="item.frame && item.frame !== 'auto' ? item.frame : block.settings.layout === 'phones' ? 'device' : 'screen'" :data-od-id="`case-gallery-${block.id}-${index + 1}`"><img :src="item.image_url" :alt="item.alt || ''" loading="lazy" decoding="async" /><figcaption v-if="item.caption"><span>{{ String(index + 1).padStart(2, '0') }}</span>{{ item.caption }}</figcaption></figure></div>
-        </template>
-
         <template v-else-if="block.type === 'metrics'">
           <header v-if="block.settings.show_intro !== false && (block.content.eyebrow || block.content.title || block.content.summary)" class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2><p v-if="block.content.summary">{{ block.content.summary }}</p></header>
           <div class="builder-metrics"><article v-for="(item, index) in block.content.items" :key="index" :data-demo="item.is_demo ? 'true' : undefined" :data-od-id="`case-metric-${block.id}-${index + 1}`"><b>{{ item.value }}</b><span>{{ item.label }}</span><small v-if="item.context">{{ item.context }}</small></article></div>
@@ -287,7 +282,7 @@ const builderRoot = ref<HTMLElement | null>(null)
 const reduceMotion = ref(true)
 const allowAutoplay = ref(false)
 let motionQuery: MediaQueryList | null = null
-const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => {
+const orderedBlocks = computed(() => props.blocks.filter(block => block.type !== 'gallery').sort((a, b) => {
   if (a.type === 'hero' && b.type !== 'hero') return -1
   if (a.type !== 'hero' && b.type === 'hero') return 1
   return a.sort_order - b.sort_order

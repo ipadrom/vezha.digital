@@ -190,10 +190,15 @@ test("case sections and the compact landing header share the 1240px container", 
 test("gallery blocks are removed from the wellness case and admin builder", () => {
   const preview = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
   const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
+  const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
+  const editor = readFileSync("pages/admin/cases/[id]/index.vue", "utf8");
 
   assert.equal(blockLibrary.some((item) => item.type === "gallery"), false);
   assert.doesNotMatch(preview, /block\.type === ['"]gallery['"]|preview-grid/);
   assert.doesNotMatch(inspector, /^\s*gallery:\s*\[/m);
+  assert.doesNotMatch(renderer, /block\.type === ['"]gallery['"]|builder-gallery/);
+  assert.match(renderer, /filter\(block => block\.type !== 'gallery'\)/);
+  assert.match(editor, /document\.value\.blocks\.filter\(block => block\.type !== 'gallery'\)/);
 });
 
 test("service inclusions stay in a two-column grid", () => {
