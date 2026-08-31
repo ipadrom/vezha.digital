@@ -1,3 +1,7 @@
+> [!WARNING]
+> **Legacy document — do not use this as the current production runbook.**
+> It describes an older host/domain and manual deployment path and may contain historical credential-shaped examples. Do not copy or print those values. For the current intended flow, start with [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md#deployment), [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md), [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md#production-boundary), [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) and [`docker-compose.prod.yml`](docker-compose.prod.yml). Live server and reverse-proxy state still require separate verification.
+
 # Деплой VEZHA Digital на VPS
 
 Сайт будет доступен по адресу: `https://n1x9s.site/vezha/`
