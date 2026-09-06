@@ -94,6 +94,25 @@ Admin edits case document
 
 The case builder is an established product surface. New case formats should extend its block/schema system unless a separate architecture is explicitly approved.
 
+The `technologies` block supports `map`, `tags` and `contours` layouts. In `contours`,
+items with the same localized `group` form an outlined group, ordered by first
+appearance in the item list. Groups use two columns on larger screens and stack on
+small phones. Selecting a pill displays its `description` and `related_ids` in a
+side panel. Item `id` values are stable and language-independent; labels, roles,
+groups and descriptions are localized. Legacy items without IDs retain a
+deterministic index fallback. Icons use allowlisted keys from
+`frontend/utils/caseTechnologies.ts` and bundled SVGs, with a generic component
+fallback. The public page and admin canvas share `CaseTechnologyContours.vue`;
+the existing inspector edits these fields without a separate editor or API.
+
+The existing `challenge_solution` and `results` blocks also offer an opt-in `air`
+layout ("Текст и воздух"). `CaseEditorialAir.vue` is shared by the public page and
+the editable admin canvas. It keeps the section heading on the left, uses
+`solution_label` / `impact_label` as inline introductions to their paragraphs,
+and displays result items in an unnumbered two-column grid. Result items may
+include an optional `title` alongside `text`; older text-only items are unchanged.
+On narrow containers the layout stacks. Existing default layouts are preserved.
+
 ## Media tooling
 
 - `media/wellness-promo-remotion/` produces the Training product film and compact process/context animations.

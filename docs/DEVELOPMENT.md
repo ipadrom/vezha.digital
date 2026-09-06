@@ -17,6 +17,10 @@ docker compose -f docker-compose.dev.yml up --build
 
 The development topology runs the frontend, backend, PostgreSQL and MinIO. Backend and frontend source directories are mounted for reload.
 
+### Windows workstation: Docker startup recovery
+
+If the workstation has `%LOCALAPPDATA%\DockerStartup\Start-DockerDesktop.ps1`, use that local launcher (or its Docker Desktop desktop shortcut) when Docker is stopped. A direct `docker desktop start` bypasses its stale-socket recovery. The helper preserves the two runtime socket directories as timestamped backups and leaves containers, volumes, WSL disks and settings intact. It refuses to change files while Desktop is running; quit a failed Desktop instance first. The helper's README describes its checks and shortcut rollback. This is a workstation workaround for AF_UNIX error 1920, not a repository dependency or a Docker factory reset.
+
 ## Backend
 
 ```bash

@@ -12,6 +12,7 @@
     >
       <div class="builder-block__inner">
         <CaseFreeformBlock v-if="block.settings.layout === 'freeform' && block.type !== 'hero'" :content="block.content" :settings="block.settings" />
+        <CaseEditorialAir v-else-if="block.settings.layout === 'air' && (block.type === 'challenge_solution' || block.type === 'results')" :kind="block.type" :content="block.content" :block-id="block.id" />
 
         <template v-else-if="block.type === 'hero'">
           <div class="builder-hero__layout">
@@ -69,7 +70,7 @@
               <h2>{{ block.content.eyebrow }}</h2>
             </header>
             <div class="builder-challenge__copy">
-              <p class="builder-challenge__lead">{{ block.content.title }}</p>
+              <p v-if="block.content.title" class="builder-challenge__lead">{{ block.content.title }}</p>
               <div class="builder-challenge__problem">
                 <span>{{ block.content.challenge_label }}</span>
                 <p>{{ block.content.challenge }}</p>
@@ -128,17 +129,12 @@
         </template>
 
         <template v-else-if="block.type === 'process'">
-          <header v-if="block.settings.layout === 'chapter'" class="builder-heading builder-process-chapter" :data-od-id="`case-heading-${block.id}`">
+          <header class="builder-heading builder-process-chapter" :data-od-id="`case-heading-${block.id}`">
             <h3>{{ block.content.eyebrow }}</h3>
             <div class="builder-process-chapter__copy">
               <p v-if="block.content.title" class="builder-process-chapter__lead">{{ block.content.title }}</p>
               <p v-if="block.content.summary" class="builder-process-chapter__summary">{{ block.content.summary }}</p>
             </div>
-          </header>
-          <header v-else class="builder-heading" :data-od-id="`case-heading-${block.id}`">
-            <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
-            <h2>{{ block.content.title }}</h2>
-            <p v-if="block.content.summary">{{ block.content.summary }}</p>
           </header>
           <ol class="builder-process" :data-mode="processDisclosureMode(block)">
             <li v-for="(item, index) in block.content.items" :key="index" :class="{ 'is-open': isProcessOpen(block, index), 'is-active': isProcessActive(block, index) }">
@@ -161,16 +157,20 @@
                 :aria-hidden="!isProcessOpen(block, index)"
               >
                 <div>
-                  <div class="builder-process__content" :class="{ 'builder-process__content--text-only': !item.image_url && !item.video_url }">
+                  <div class="builder-process__content" :class="{ 'builder-process__content--text-only': !processHasMedia(item) }">
                     <div class="builder-process__copy">
                       <p v-if="item.description">{{ item.description }}</p>
                     </div>
-                    <div v-if="item.image_url || item.video_url" class="builder-process__media" :data-size="processMediaSize(item)">
+                    <div v-if="processHasMedia(item)" class="builder-process__media" :data-size="processMediaSize(item)">
                       <img v-if="item.image_url" :src="item.image_url" :alt="item.image_alt || ''" loading="lazy" decoding="async" />
                       <video v-if="item.video_url" controls playsinline preload="metadata" :poster="item.poster_url || undefined" :aria-label="item.title || undefined">
                         <source :src="item.video_url" />
                         {{ locale === 'ru' ? 'Ваш браузер не поддерживает видео.' : 'Your browser does not support video.' }}
                       </video>
+                      <div v-if="!item.image_url && !item.video_url" class="builder-placeholder builder-process__placeholder">
+                        <b>{{ item.media_type === 'video' ? 'VIDEO' : 'IMAGE' }}</b>
+                        <span v-if="item.media_note">{{ item.media_note }}</span>
+                      </div>
                     </div>
                     <div v-if="contentTags(item).length" class="builder-process__tags" :aria-label="locale === 'ru' ? 'Результаты этапа' : 'Stage deliverables'">
                       <span v-for="tag in contentTags(item)" :key="tag"><i aria-hidden="true" />{{ tag }}</span>
@@ -187,7 +187,8 @@
         </template>
 
         <template v-else-if="block.type === 'technologies'">
-          <CaseTechnologyMap v-if="block.settings.layout === 'map'" :content="block.content" :settings="block.settings" />
+        <CaseTechnologyContours v-if="block.settings.layout === 'contours'" :content="block.content" :settings="block.settings" :locale="locale" />
+        <CaseTechnologyMap v-else-if="block.settings.layout === 'map'" :content="block.content" :settings="block.settings" />
           <template v-else>
             <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2><p v-if="block.content.summary">{{ block.content.summary }}</p></header>
             <div class="builder-tech"><span v-for="(item, index) in block.content.items" :key="index"><small>{{ item.category }}</small>{{ item.label }}</span></div>
@@ -195,13 +196,66 @@
         </template>
 
         <template v-else-if="block.type === 'video'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <figure class="builder-video"><video v-if="block.content.video_url" controls playsinline preload="metadata" :poster="block.content.poster_url || undefined"><source :src="block.content.video_url" /></video><div v-else class="builder-placeholder">VIDEO</div><figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption></figure>
+          <header v-if="block.content.eyebrow || block.content.title" class="builder-heading"><span v-if="block.content.eyebrow" class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2 v-if="block.content.title">{{ block.content.title }}</h2></header>
+          <figure class="builder-video" :class="{ 'builder-video--ambient': block.content.controls === false }">
+            <video
+              v-if="block.content.video_url"
+              :autoplay="allowAutoplay && block.content.autoplay === true"
+              :loop="block.content.loop === true"
+              :muted="block.content.muted !== false"
+              :controls="block.content.controls !== false"
+              :poster="block.content.poster_url || undefined"
+              :aria-label="block.content.title || block.content.caption || undefined"
+              playsinline
+              preload="metadata"
+            >
+              <source :src="block.content.video_url" />
+            </video>
+            <div v-else class="builder-placeholder">VIDEO</div>
+            <figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption>
+          </figure>
         </template>
 
         <template v-else-if="block.type === 'comparison'">
-          <header class="builder-heading"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2></header>
-          <div class="builder-comparison"><figure><img v-if="block.content.before_url" :src="block.content.before_url" :alt="block.content.before_alt || ''" /><div v-else class="builder-placeholder">BEFORE</div><figcaption>{{ block.content.before_label }}</figcaption></figure><figure><img v-if="block.content.after_url" :src="block.content.after_url" :alt="block.content.after_alt || ''" /><div v-else class="builder-placeholder">AFTER</div><figcaption>{{ block.content.after_label }}</figcaption></figure></div>
+          <header v-if="block.content.eyebrow || block.content.title" class="builder-heading"><span v-if="block.content.eyebrow" class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2 v-if="block.content.title">{{ block.content.title }}</h2></header>
+          <div class="builder-comparison">
+            <figure>
+              <video
+                v-if="block.content.before_media_type === 'video' && block.content.before_video_url"
+                :autoplay="allowAutoplay && block.content.autoplay === true"
+                :loop="block.content.loop === true"
+                :muted="block.content.muted !== false"
+                :controls="Boolean(block.content.controls) || reduceMotion"
+                :poster="block.content.before_poster_url || undefined"
+                :aria-label="block.content.before_alt || block.content.before_label || undefined"
+                playsinline
+                preload="metadata"
+              >
+                <source :src="block.content.before_video_url" />
+              </video>
+              <img v-else-if="block.content.before_media_type !== 'video' && block.content.before_url" :src="block.content.before_url" :alt="block.content.before_alt || ''" />
+              <div v-else class="builder-placeholder">{{ block.content.before_media_type === 'video' ? 'VIDEO' : 'IMAGE' }}</div>
+              <figcaption v-if="block.content.before_label">{{ block.content.before_label }}</figcaption>
+            </figure>
+            <figure>
+              <video
+                v-if="block.content.after_media_type === 'video' && block.content.after_video_url"
+                :autoplay="allowAutoplay && block.content.autoplay === true"
+                :loop="block.content.loop === true"
+                :muted="block.content.muted !== false"
+                :controls="Boolean(block.content.controls) || reduceMotion"
+                :poster="block.content.after_poster_url || undefined"
+                :aria-label="block.content.after_alt || block.content.after_label || undefined"
+                playsinline
+                preload="metadata"
+              >
+                <source :src="block.content.after_video_url" />
+              </video>
+              <img v-else-if="block.content.after_media_type !== 'video' && block.content.after_url" :src="block.content.after_url" :alt="block.content.after_alt || ''" />
+              <div v-else class="builder-placeholder">{{ block.content.after_media_type === 'video' ? 'VIDEO' : 'IMAGE' }}</div>
+              <figcaption v-if="block.content.after_label">{{ block.content.after_label }}</figcaption>
+            </figure>
+          </div>
         </template>
 
         <template v-else-if="block.type === 'results'">
@@ -274,6 +328,8 @@
 
 <script setup lang="ts">
 import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
+import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'
+import CaseEditorialAir from '~/components/case-builder/CaseEditorialAir.vue'
 import CaseFreeformBlock from '~/components/case-builder/CaseFreeformBlock.vue'
 import { caseHeroColorDefaults, normalizeHexColor, type CaseLocale, type PublicBuilderBlock } from '~/utils/caseBuilder'
 import type { IProjects } from '~/utils/interfaces/IProjects'
@@ -282,7 +338,7 @@ const builderRoot = ref<HTMLElement | null>(null)
 const reduceMotion = ref(true)
 const allowAutoplay = ref(false)
 let motionQuery: MediaQueryList | null = null
-const orderedBlocks = computed(() => props.blocks.filter(block => block.type !== 'gallery').sort((a, b) => {
+const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => {
   if (a.type === 'hero' && b.type !== 'hero') return -1
   if (a.type !== 'hero' && b.type === 'hero') return 1
   return a.sort_order - b.sort_order
@@ -297,6 +353,10 @@ const blockClasses = (block: PublicBuilderBlock) => [
   `builder-block--space-${block.settings.spacing || 'normal'}`,
   `builder-block--align-${block.settings.alignment || 'left'}`,
   `builder-block--layout-${block.settings.layout || 'default'}`,
+  ['landscape', 'square', 'portrait'].includes(String(block.settings.media_aspect || ''))
+    ? `builder-block--media-${block.settings.media_aspect}`
+    : '',
+  block.settings.caption_position === 'below' ? 'builder-block--caption-below' : '',
   block.settings.surface === 'plain' ? 'builder-block--plain' : 'builder-block--card',
   block.type === 'image' && block.settings.image_bleed ? 'builder-block--image-bleed' : '',
 ]
@@ -351,12 +411,15 @@ const processMediaSize = (item: Record<string, any>): 'compact' | 'medium' | 'fu
   const size = String(item.media_size || '')
   return size === 'compact' || size === 'full' ? size : 'medium'
 }
+const processHasMedia = (item: Record<string, any>): boolean => Boolean(
+  item.image_url || item.video_url || item.media_type === 'image' || item.media_type === 'video',
+)
 const syncMediaMotion = async () => {
   const shouldReduce = Boolean(motionQuery?.matches)
   reduceMotion.value = shouldReduce
   allowAutoplay.value = !shouldReduce
   await nextTick()
-  builderRoot.value?.querySelectorAll<HTMLVideoElement>('.builder-media-hero video').forEach((video) => {
+  builderRoot.value?.querySelectorAll<HTMLVideoElement>('.builder-media-hero video, .builder-video video, .builder-comparison video').forEach((video) => {
     if (shouldReduce) video.pause()
     else if (video.autoplay) void video.play().catch(() => undefined)
   })

@@ -5,6 +5,7 @@ from uuid import uuid4
 
 from app.models import Project, ProjectBlock
 from app.schemas.case_builder import (
+    DEPRECATED_BLOCK_TYPES,
     CaseBlockInput,
     CaseBlockResponse,
     CaseDocumentResponse,
@@ -105,36 +106,22 @@ def legacy_blocks(project: Project) -> list[CaseBlockInput]:
             )
         )
 
-    if project.gallery:
+    for item in sorted(project.gallery, key=lambda gallery_item: gallery_item.sort_order):
         blocks.append(
             CaseBlockInput(
                 id=uuid4(),
-                type="gallery",
+                type="image",
                 content_ru={
-                    "eyebrow": "Интерфейс",
-                    "title": "Продукт в деталях",
-                    "items": [
-                        {
-                            "image_url": item.image_url,
-                            "alt": _value(item.alt_ru),
-                            "caption": _value(item.caption_ru),
-                        }
-                        for item in project.gallery
-                    ],
+                    "image_url": item.image_url,
+                    "alt": _value(item.alt_ru),
+                    "caption": _value(item.caption_ru),
                 },
                 content_en={
-                    "eyebrow": "Interface",
-                    "title": "Product in detail",
-                    "items": [
-                        {
-                            "image_url": item.image_url,
-                            "alt": _value(item.alt_en),
-                            "caption": _value(item.caption_en),
-                        }
-                        for item in project.gallery
-                    ],
+                    "image_url": item.image_url,
+                    "alt": _value(item.alt_en),
+                    "caption": _value(item.caption_en),
                 },
-                settings={"theme": "soft", "width": "wide", "layout": "mosaic"},
+                settings={"theme": "soft", "width": "wide", "layout": "default"},
                 sort_order=len(blocks),
             )
         )
@@ -248,8 +235,17 @@ def project_blocks(project: Project) -> list[CaseBlockInput]:
                 is_visible=block.is_visible,
             )
             for block in project.blocks
+            if block.type not in DEPRECATED_BLOCK_TYPES
         ]
     return legacy_blocks(project)
+
+
+def restored_blocks(snapshot_blocks: list[dict[str, Any]]) -> list[CaseBlockInput]:
+    return [
+        CaseBlockInput.model_validate(block)
+        for block in snapshot_blocks
+        if block.get("type") not in DEPRECATED_BLOCK_TYPES
+    ]
 
 
 def block_snapshot(blocks: list[CaseBlockInput]) -> list[dict[str, Any]]:

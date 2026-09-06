@@ -19,6 +19,9 @@
         <span>{{ field.label }}</span>
         <AdminMediaInput v-if="field.media" :model-value="content[field.key] || ''" :accept="field.accept" @update:model-value="setContent(field.key, $event)" />
         <input v-else-if="field.kind === 'checkbox'" type="checkbox" :checked="Boolean(content[field.key])" @change="setContentBoolean(field.key, $event)" />
+        <select v-else-if="field.kind === 'select'" :value="content[field.key] || field.defaultValue || ''" @change="setContent(field.key, valueOf($event))">
+          <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}</option>
+        </select>
         <input v-else-if="field.kind === 'tags'" :value="tagsValue(content[field.key])" placeholder="Продуктовый дизайн, Nuxt, FastAPI" @input="setContent(field.key, parseTags(valueOf($event)))" />
         <textarea v-else-if="field.kind === 'textarea'" :value="content[field.key] || ''" :rows="field.rows || 4" @input="setContent(field.key, valueOf($event))" />
         <input v-else :value="content[field.key] || ''" :type="field.kind || 'text'" @input="setContent(field.key, valueOf($event))" />
@@ -39,7 +42,8 @@
 
       <p v-if="block.type === 'technologies' && block.settings.layout === 'map'" class="inspector-hint">Название меняется прямо в узле. Чтобы расставить элементы, тяните карточки по схеме; линии перестроятся сами.</p>
 
-      <div v-if="block.type === 'technologies' && block.settings.layout === 'map'" class="map-color-settings">
+      <p v-if="block.type === 'technologies' && block.settings.layout === 'contours'" class="inspector-hint">Одинаковое название контура объединяет плашки. Контуры идут в две колонки по порядку первого появления. Нажмите на технологию в холсте, чтобы увидеть описание.</p>
+      <div v-if="block.type === 'technologies' && ['map', 'contours'].includes(block.settings.layout)" class="map-color-settings">
         <div class="map-color-settings__grid">
           <label v-for="color in mapColorFields" :key="color.key">
             <span>{{ color.label }}</span>
@@ -64,9 +68,16 @@
             <select v-else-if="field.kind === 'select'" :value="item[field.key] || field.defaultValue || ''" @change="setItem(index, field.key, valueOf($event))">
               <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}</option>
             </select>
-            <textarea v-else-if="field.kind === 'textarea'" :value="item[field.key] || ''" rows="2" @input="setItem(index, field.key, valueOf($event))" />
+            <textarea v-else-if="field.kind === 'textarea'" :value="item[field.key] || ''" :rows="field.rows || 2" @input="setItem(index, field.key, valueOf($event))" />
             <input v-else :value="item[field.key] || ''" @input="setItem(index, field.key, valueOf($event))" />
           </label>
+          <fieldset v-if="block.type === 'technologies' && block.settings.layout === 'contours'" class="technology-relations">
+            <legend>Связанные технологии</legend>
+            <label v-for="other in relationOptions.filter(node => node.index !== index)" :key="other.id">
+              <input type="checkbox" :checked="(item.related_ids || []).includes(other.id)" @change="toggleTechnologyRelation(index, other.id, checkedOf($event))" />
+              <span>{{ other.label || 'Без названия' }}</span>
+            </label>
+          </fieldset>
         </div>
         <button class="inspector-add" type="button" @click="addItem">+ Добавить {{ itemName.toLowerCase() }}</button>
       </template>
@@ -106,6 +117,21 @@
       <label v-if="block.type === 'image'" class="surface-toggle">
         <span><b>Изображение во всю карточку</b><small>Убирает внутренние поля и заполняет фото всю высоту карточки, включая высоту соседнего блока.</small></span>
         <input type="checkbox" :checked="Boolean(block.settings.image_bleed)" @change="setSetting('image_bleed', checkedOf($event))" />
+      </label>
+      <label v-if="['image', 'video', 'comparison'].includes(block.type)">
+        <span>Пропорции медиа</span>
+        <select :value="String(block.settings.media_aspect || 'landscape')" @change="setSetting('media_aspect', valueOf($event))">
+          <option value="landscape">Горизонтальные · 16:9</option>
+          <option value="square">Квадратные · 1:1</option>
+          <option value="portrait">Вертикальные · 4:5</option>
+        </select>
+      </label>
+      <label v-if="block.type === 'comparison'">
+        <span>Расположение подписей</span>
+        <select :value="String(block.settings.caption_position || 'overlay')" @change="setSetting('caption_position', valueOf($event))">
+          <option value="overlay">Поверх медиа</option>
+          <option value="below">Под медиа</option>
+        </select>
       </label>
       <label v-if="block.type !== 'hero'" class="surface-toggle">
         <span><b>Карточка блока</b><small>Отключите, чтобы контент лежал прямо на фоне страницы.</small></span>
@@ -147,7 +173,8 @@
 <script setup lang="ts">
 import AdminMediaInput from '~/components/admin/cases/AdminMediaInput.vue'
 import type { CaseBlock, CaseElementType, CaseFreeformElement, CaseLocale } from '~/utils/caseBuilder'
-import { blockLabel, caseHeroColorDefaults, deepClone, normalizeHexColor, technologyMapColorDefaults } from '~/utils/caseBuilder'
+import { blockLabel, caseBlockLayoutOptions, caseHeroColorDefaults, deepClone, normalizeHexColor, technologyMapColorDefaults } from '~/utils/caseBuilder'
+import { technologyIcons, technologyId } from '~/utils/caseTechnologies'
 
 type Field = { key: string; label: string; kind?: string; rows?: number; media?: boolean; accept?: string; defaultValue?: string; options?: Array<{ value: string; label: string }> }
 type GridViewport = 'desktop' | 'tablet' | 'mobile'
@@ -196,35 +223,59 @@ const fieldMap: Record<string, Field[]> = {
   process: [{ key: 'eyebrow', label: 'Заголовок слева' }, { key: 'title', label: 'Лид справа' }, { key: 'summary', label: 'Вводный текст', kind: 'textarea', rows: 5 }],
   quote: [{ key: 'quote', label: 'Цитата', kind: 'textarea', rows: 7 }, { key: 'author', label: 'Автор' }, { key: 'role', label: 'Должность' }, { key: 'logo_url', label: 'Логотип', media: true }],
   technologies: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'summary', label: 'Описание', kind: 'textarea' }],
-  video: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true }, { key: 'caption', label: 'Подпись' }],
-  comparison: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'before_url', label: 'До', media: true }, { key: 'before_alt', label: 'Alt до' }, { key: 'before_label', label: 'Подпись до' }, { key: 'after_url', label: 'После', media: true }, { key: 'after_alt', label: 'Alt после' }, { key: 'after_label', label: 'Подпись после' }],
+  video: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true }, { key: 'caption', label: 'Подпись' }, { key: 'autoplay', label: 'Автозапуск без звука', kind: 'checkbox' }, { key: 'loop', label: 'Зациклить видео', kind: 'checkbox' }, { key: 'muted', label: 'Без звука', kind: 'checkbox' }, { key: 'controls', label: 'Показывать управление', kind: 'checkbox' }],
+  comparison: [
+    { key: 'eyebrow', label: 'Метка' },
+    { key: 'title', label: 'Заголовок' },
+    { key: 'before_media_type', label: 'Первое медиа', kind: 'select', defaultValue: 'image', options: [{ value: 'image', label: 'Изображение' }, { value: 'video', label: 'Видео' }] },
+    { key: 'before_url', label: 'Первое изображение', media: true, accept: 'image/*' },
+    { key: 'before_video_url', label: 'Первое видео', media: true, accept: 'video/mp4,video/webm' },
+    { key: 'before_poster_url', label: 'Постер первого видео', media: true, accept: 'image/*' },
+    { key: 'before_alt', label: 'Alt первого медиа' },
+    { key: 'before_label', label: 'Подпись первого медиа', kind: 'textarea', rows: 3 },
+    { key: 'after_media_type', label: 'Второе медиа', kind: 'select', defaultValue: 'image', options: [{ value: 'image', label: 'Изображение' }, { value: 'video', label: 'Видео' }] },
+    { key: 'after_url', label: 'Второе изображение', media: true, accept: 'image/*' },
+    { key: 'after_video_url', label: 'Второе видео', media: true, accept: 'video/mp4,video/webm' },
+    { key: 'after_poster_url', label: 'Постер второго видео', media: true, accept: 'image/*' },
+    { key: 'after_alt', label: 'Alt второго медиа' },
+    { key: 'after_label', label: 'Подпись второго медиа', kind: 'textarea', rows: 3 },
+    { key: 'autoplay', label: 'Автозапуск без звука', kind: 'checkbox' },
+    { key: 'loop', label: 'Зациклить видео', kind: 'checkbox' },
+    { key: 'muted', label: 'Без звука', kind: 'checkbox' },
+    { key: 'controls', label: 'Показывать управление', kind: 'checkbox' },
+  ],
   results: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'body', label: 'Итог', kind: 'textarea', rows: 7 }, { key: 'link_url', label: 'Ссылка', kind: 'url' }, { key: 'link_label', label: 'Текст ссылки' }],
   next_case: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'case_slug', label: 'Slug следующего кейса' }, { key: 'cta_label', label: 'Текст ссылки' }],
 }
 
 const itemFieldMap: Record<string, Field[]> = {
   metrics: [{ key: 'value', label: 'Значение' }, { key: 'label', label: 'Подпись' }, { key: 'context', label: 'Контекст', kind: 'textarea' }],
-  process: [{ key: 'title', label: 'Название' }, { key: 'description', label: 'Описание', kind: 'textarea' }, { key: 'image_url', label: 'Фото / GIF', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt фото / GIF' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'media_size', label: 'Размер медиа', kind: 'select', defaultValue: 'medium', options: [{ value: 'compact', label: 'Компактный' }, { value: 'medium', label: 'Средний' }, { value: 'full', label: 'Во всю ширину' }] }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
+  process: [{ key: 'title', label: 'Название' }, { key: 'description', label: 'Описание', kind: 'textarea' }, { key: 'media_type', label: 'Плейсхолдер медиа', kind: 'select', defaultValue: 'none', options: [{ value: 'none', label: 'Без медиа' }, { value: 'image', label: 'Фото / GIF' }, { value: 'video', label: 'Видео' }] }, { key: 'media_note', label: 'Что должно быть в медиа', kind: 'textarea', rows: 3 }, { key: 'image_url', label: 'Фото / GIF', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt фото / GIF' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'media_size', label: 'Размер медиа', kind: 'select', defaultValue: 'medium', options: [{ value: 'compact', label: 'Компактный' }, { value: 'medium', label: 'Средний' }, { value: 'full', label: 'Во всю ширину' }] }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
   results: [{ key: 'text', label: 'Вывод', kind: 'textarea', rows: 3 }],
-  technologies: [{ key: 'label', label: 'Технология' }, { key: 'category', label: 'Категория' }],
+  technologies: [
+    { key: 'label', label: 'Технология' }, { key: 'category', label: 'Роль над названием' },
+    { key: 'icon', label: 'Иконка', kind: 'select', options: [{ value: '', label: 'Компонент по умолчанию' }, ...technologyIcons] },
+  ],
 }
-const itemDefaults: Record<string, any> = { metrics: { value: '', label: '', context: '' }, process: { title: '', description: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }, results: { text: '' }, technologies: { label: '', category: 'stack' } }
+const itemDefaults: Record<string, any> = { metrics: { value: '', label: '', context: '' }, process: { title: '', description: '', media_type: 'none', media_note: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }, results: { text: '' }, technologies: { label: '', category: 'stack' } }
 const itemNames: Record<string, string> = { metrics: 'Метрика', process: 'Этап', results: 'Вывод', technologies: 'Технология' }
-const fields = computed(() => isFreeform.value ? [] : fieldMap[props.block.type] || [])
-const itemFields = computed(() => isFreeform.value ? [] : itemFieldMap[props.block.type] || [])
+const fields = computed(() => {
+  const base = isFreeform.value ? [] : fieldMap[props.block.type] || []
+  if (props.block.settings.layout !== 'air') return base
+  const labels: Record<string, string> = { title: 'Вводный абзац', solution_label: 'Выделенное начало решения', impact_label: 'Выделенное начало эффекта' }
+  return base.filter(field => field.key !== 'challenge_label').map(field => ({ ...field, label: labels[field.key] || field.label }))
+})
+const itemFields = computed<Field[]>(() => {
+  if (isFreeform.value) return []
+  const fields = itemFieldMap[props.block.type] || []
+  if (props.block.type === 'results' && props.block.settings.layout === 'air') return [{ key: 'title', label: 'Краткий итог' }, ...fields]
+  return props.block.type === 'technologies' && props.block.settings.layout === 'contours'
+    ? [...fields, { key: 'group', label: 'Контур' }, { key: 'description', label: 'Описание справа', kind: 'textarea', rows: 5 }]
+    : fields
+})
+const relationOptions = computed(() => items.value.map((node, index) => ({ id: technologyId(node, index), label: node.label, index })))
 const itemName = computed(() => itemNames[props.block.type] || 'Элемент')
-const layouts = computed(() => isFreeform.value ? [{ value: 'freeform', label: 'Свободная композиция' }] : ({
-  media_hero: [{ value: 'media-16x9', label: 'Кино / 16:9' }, { value: 'media-3x2', label: 'Фото / 3:2' }, { value: 'media-natural', label: 'Исходные пропорции' }],
-  text: [{ value: 'overview', label: 'Обзор проекта' }, { value: 'editorial', label: 'Редакционная глава' }, { value: 'split', label: 'Две колонки' }, { value: 'lead', label: 'Крупная врезка' }],
-  challenge_solution: [{ value: 'narrative', label: 'Заголовок слева, текст справа' }, { value: 'contrast', label: 'Контрастные главы' }],
-  insight: [{ value: 'statement', label: 'Крупная формулировка' }, { value: 'media-right', label: 'Медиа справа' }],
-  image_text: [{ value: 'image-right', label: 'Изображение справа' }, { value: 'image-left', label: 'Изображение слева' }],
-  metrics: [{ value: 'cards', label: 'Карточки показателей' }, { value: 'grid', label: 'Сетка' }, { value: 'strip', label: 'Лента' }],
-  process: [{ value: 'chapter', label: 'Глава кейса с раскрытиями' }, { value: 'story', label: 'Раздел с раскрытиями' }, { value: 'accordion', label: 'Компактный список' }],
-  results: [{ value: 'statement', label: 'Крупный вывод' }, { value: 'panel', label: 'Компактная панель' }],
-  comparison: [{ value: 'side-by-side', label: 'Рядом' }, { value: 'stacked', label: 'Друг под другом' }],
-  technologies: [{ value: 'map', label: 'Карта связей' }, { value: 'tags', label: 'Карточки' }],
-}[props.block.type] || [{ value: 'default', label: 'Стандартная' }]))
+const layouts = computed(() => isFreeform.value ? [{ value: 'freeform', label: 'Свободная композиция' }] : caseBlockLayoutOptions[props.block.type])
 
 function update(mutator: (copy: CaseBlock) => void) { const copy = deepClone(props.block); mutator(copy); emit('change', copy) }
 function setContent(field: string, value: unknown) { update(copy => { copy[key.value][field] = value }) }
@@ -282,12 +333,36 @@ function addItem() {
     copy.content_en.items ||= []
     const fallbackPositions = [{ x: 18, y: 20 }, { x: 82, y: 20 }, { x: 28, y: 78 }, { x: 72, y: 78 }, { x: 16, y: 49 }, { x: 84, y: 49 }, { x: 38, y: 18 }, { x: 62, y: 82 }]
     const base = structuredClone(itemDefaults[copy.type])
-    if (copy.type === 'technologies') Object.assign(base, fallbackPositions[copy.content_ru.items.length % fallbackPositions.length])
+    if (copy.type === 'technologies') Object.assign(base, { id: crypto.randomUUID(), icon: 'blocks', group: '', description: '', related_ids: [] }, fallbackPositions[copy.content_ru.items.length % fallbackPositions.length])
     copy.content_ru.items.push(structuredClone(base))
     copy.content_en.items.push(structuredClone(base))
   })
 }
-function removeItem(index: number) { update(copy => { copy.content_ru.items?.splice(index, 1); copy.content_en.items?.splice(index, 1) }) }
+function ensureTechnologyIds(copy: CaseBlock) {
+  for (const localeKey of ['content_ru', 'content_en'] as const) {
+    for (const [index, item] of (copy[localeKey].items || []).entries()) item.id ||= technologyId(item, index)
+  }
+}
+function toggleTechnologyRelation(index: number, id: string, enabled: boolean) {
+  update(copy => {
+    ensureTechnologyIds(copy)
+    const item = copy[key.value].items[index]
+    const related = new Set<string>(item.related_ids || [])
+    if (enabled) related.add(id)
+    else related.delete(id)
+    item.related_ids = [...related]
+  })
+}
+function removeItem(index: number) {
+  update(copy => {
+    if (copy.type === 'technologies') ensureTechnologyIds(copy)
+    for (const localeKey of ['content_ru', 'content_en'] as const) {
+      const id = copy[localeKey].items?.[index]?.id
+      copy[localeKey].items?.splice(index, 1)
+      if (copy.type === 'technologies') for (const item of copy[localeKey].items || []) item.related_ids = (item.related_ids || []).filter((relatedId: string) => relatedId !== id)
+    }
+  })
+}
 function setItem(index: number, field: string, value: unknown) { update(copy => { copy[key.value].items[index][field] = value }) }
 const tagsValue = (value: unknown) => Array.isArray(value) ? value.join(', ') : String(value || '')
 const parseTags = (value: string) => value.split(',').map(tag => tag.trim()).filter(Boolean)
@@ -295,6 +370,10 @@ const parseTags = (value: string) => value.split(',').map(tag => tag.trim()).fil
 
 <style scoped src="~/assets/css/admin-case-inspector.css"></style>
 <style scoped>
+.technology-relations { margin: 12px 0 0; padding: 10px; border: 1px solid var(--studio-line); border-radius: 10px; }
+.technology-relations legend { color: var(--studio-muted); font-size: 11px; padding: 0 4px; }
+.technology-relations label { display: flex; align-items: center; gap: 8px; }
+.technology-relations input { width: 16px; height: 16px; accent-color: var(--studio-blue); }
 .freeform-element-card { border-color: color-mix(in srgb, var(--studio-blue) 24%, var(--studio-line)); }
 .hero-color-settings { margin: 4px 0 10px; padding: 10px; border: 1px solid var(--studio-line); border-radius: 10px; background: #f7f8fb; }
 .hero-color-settings .inspector-hint { margin: 0 0 10px; }

@@ -7,6 +7,7 @@ import pytest
 from pydantic import ValidationError
 
 from app.schemas.case_builder import CaseBlockInput, CaseDocumentUpdate, CaseMeta
+from app.services.case_builder import restored_blocks
 from app.services.projects import serialize_project_detail, serialize_project_summary
 
 
@@ -22,6 +23,24 @@ def load_wellness_migration():
 def load_pluto_structure_migration():
     path = Path(__file__).parents[1] / "alembic/versions/u1j2k3l4m5n6_pluto_case_structure.py"
     spec = spec_from_file_location("pluto_case_structure_migration", path)
+    assert spec and spec.loader
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_legacy_cleanup_migration():
+    path = Path(__file__).parents[1] / "alembic/versions/v2k3l4m5n6o7_remove_legacy_case_blocks.py"
+    spec = spec_from_file_location("legacy_case_cleanup_migration", path)
+    assert spec and spec.loader
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_zagorulko_story_migration():
+    path = Path(__file__).parents[1] / "alembic/versions/w3l4m5n6o7p8_zagorulko_orders_story.py"
+    spec = spec_from_file_location("zagorulko_orders_story_migration", path)
     assert spec and spec.loader
     module = module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -89,16 +108,17 @@ def test_block_document_validates_nested_builder_content() -> None:
         meta=CaseMeta(slug="signal-app"),
         blocks=[
             CaseBlockInput(
-                type="gallery",
-                content_ru={"items": [{"image_url": "/one.webp", "alt": "Экран"}]},
-                content_en={"items": [{"image_url": "/one.webp", "alt": "Screen"}]},
+                type="metrics",
+                content_ru={"items": [{"value": "3", "label": "сценария"}]},
+                content_en={"items": [{"value": "3", "label": "workflows"}]},
             )
         ],
     )
 
-    assert document.blocks[0].content_ru["items"][0]["caption"] == ""
+    assert document.blocks[0].content_ru["items"][0]["context"] == ""
     assert document.blocks[0].settings.theme == "paper"
     assert document.blocks[0].settings.surface == "card"
+    assert document.blocks[0].settings.layout == "cards"
     assert document.blocks[0].settings.desktop_span == 12
     assert document.blocks[0].settings.mobile_start == 0
 
@@ -131,21 +151,68 @@ def test_insight_preserves_decision_rationale_and_outcome() -> None:
     assert block.settings.layout == "statement"
 
 
-def test_gallery_frame_defaults_and_rejects_unknown_values() -> None:
-    block = CaseBlockInput(
-        type="gallery",
-        content_ru={"items": [{"image_url": "/one.webp", "frame": "device"}]},
-        content_en={"items": [{"image_url": "/one.webp"}]},
-    )
-
-    assert block.content_ru["items"][0]["frame"] == "device"
-    assert block.content_en["items"][0]["frame"] == "auto"
-
+def test_deprecated_gallery_block_is_rejected() -> None:
     with pytest.raises(ValidationError):
         CaseBlockInput(
             type="gallery",
-            content_ru={"items": [{"image_url": "/one.webp", "frame": "floating"}]},
+            content_ru={"items": [{"image_url": "/one.webp"}]},
             content_en={"items": []},
+        )
+
+
+@pytest.mark.parametrize(
+    ("block_type", "legacy_layout", "canonical_layout"),
+    [
+        ("hero", "default", "case-header"),
+        ("hero", "editorial", "case-header"),
+        ("media_hero", "default", "media-16x9"),
+        ("media_hero", "media", "media-16x9"),
+        ("media_hero", "cinematic", "media-16x9"),
+        ("text", "default", "editorial"),
+        ("challenge_solution", "default", "narrative"),
+        ("challenge_solution", "split", "narrative"),
+        ("challenge_solution", "contrast", "narrative"),
+        ("insight", "default", "statement"),
+        ("image", "figure", "default"),
+        ("image_text", "default", "image-right"),
+        ("metrics", "default", "cards"),
+        ("metrics", "grid", "cards"),
+        ("metrics", "strip", "cards"),
+        ("process", "default", "chapter"),
+        ("process", "stacked", "chapter"),
+        ("process", "story", "chapter"),
+        ("process", "accordion", "chapter"),
+        ("technologies", "default", "map"),
+        ("video", "cinematic", "default"),
+        ("comparison", "default", "side-by-side"),
+        ("results", "default", "statement"),
+        ("results", "list", "statement"),
+        ("results", "panel", "statement"),
+        ("custom", "default", "freeform"),
+    ],
+)
+def test_legacy_layouts_are_normalized_to_supported_variants(
+    block_type: str,
+    legacy_layout: str,
+    canonical_layout: str,
+) -> None:
+    block = CaseBlockInput(
+        type=block_type,
+        content_ru={},
+        content_en={},
+        settings={"layout": legacy_layout},
+    )
+
+    assert block.settings.layout == canonical_layout
+
+
+def test_unknown_layout_is_rejected() -> None:
+    with pytest.raises(ValidationError):
+        CaseBlockInput(
+            type="process",
+            content_ru={"items": []},
+            content_en={"items": []},
+            settings={"layout": "experimental"},
         )
 
 
@@ -159,6 +226,7 @@ def test_process_disclosure_settings_allow_single_or_multiple_open_items() -> No
 
     assert block.settings.disclosure_mode == "multiple"
     assert block.settings.open_first is True
+    assert block.settings.layout == "chapter"
 
     with pytest.raises(ValidationError):
         CaseBlockInput(
@@ -271,6 +339,27 @@ def test_media_hero_validates_full_width_image_or_video_content() -> None:
     assert block.settings.width == "full"
 
 
+def test_video_block_preserves_playback_preferences() -> None:
+    block = CaseBlockInput(
+        type="video",
+        content_ru={
+            "video_url": "/case/network.mp4",
+            "autoplay": True,
+            "loop": True,
+            "muted": True,
+            "controls": False,
+        },
+        content_en={"video_url": "/case/network.mp4"},
+    )
+
+    assert block.content_ru["autoplay"] is True
+    assert block.content_ru["loop"] is True
+    assert block.content_ru["muted"] is True
+    assert block.content_ru["controls"] is False
+    assert block.content_en["autoplay"] is False
+    assert block.content_en["controls"] is True
+
+
 def test_process_preserves_disclosure_media_tags_and_plain_surface() -> None:
     block = CaseBlockInput(
         type="process",
@@ -329,19 +418,21 @@ def test_custom_block_preserves_freeform_elements_and_responsive_geometry() -> N
 
 def test_wellness_import_is_a_complete_bilingual_builder_document() -> None:
     migration = load_wellness_migration()
+    cleanup = load_legacy_cleanup_migration()
+    source_blocks = migration._blocks()
     document = CaseDocumentUpdate(
         meta=migration._meta(),
-        blocks=migration._blocks(),
+        blocks=cleanup._normalize_blocks(source_blocks),
     )
 
     assert document.meta.slug == "wellness-app"
-    assert len(document.blocks) == 13
+    assert len(document.blocks) == 11
     assert document.blocks[0].content_ru["title"] == "WELLNESS APP"
     assert document.blocks[0].content_en["title"] == "WELLNESS APP"
     assert document.blocks[0].content_ru["device_screen_url"].endswith("screen-timer.png")
     assert document.blocks[0].content_ru["logo_url"].endswith("wellness-mark.svg")
     assert document.blocks[0].content_ru["metric_value"] == "2×1"
-    assert [block.type for block in document.blocks].count("gallery") == 2
+    assert [block.type for block in document.blocks].count("gallery") == 0
     assert [block.type for block in document.blocks].count("media_hero") == 1
     assert [block.type for block in document.blocks].count("video") == 0
     assert document.blocks[2].content_ru["video_url"].endswith("wellness-promo.mp4")
@@ -350,10 +441,15 @@ def test_wellness_import_is_a_complete_bilingual_builder_document() -> None:
     assert all(block.content_ru != block.content_en for block in document.blocks[1:10])
     assert document.blocks[1].settings.anchor == "story"
     assert document.blocks[3].settings.anchor == "evidence"
-    assert document.blocks[10].settings.anchor == "technical"
+    technical = next(
+        block
+        for block in document.blocks
+        if getattr(block.settings, "anchor", None) == "technical"
+    )
+    assert technical.type == "technologies"
     assert all("is_demo" not in item for item in document.blocks[3].content_ru["items"])
 
-    serialized = str(migration._blocks())
+    serialized = str(source_blocks)
     for filename in (
         "hero-hand-device-v2.png",
         "screen-workout-home.png",
@@ -370,6 +466,7 @@ def test_wellness_import_is_a_complete_bilingual_builder_document() -> None:
 
 def test_pluto_structure_preserves_media_and_builds_three_closed_chapters() -> None:
     migration = load_pluto_structure_migration()
+    cleanup = load_legacy_cleanup_migration()
     block_types = [
         "hero",
         "media_hero",
@@ -479,7 +576,10 @@ def test_pluto_structure_preserves_media_and_builds_three_closed_chapters() -> N
     assert all(block["settings"]["layout"] == "chapter" for block in chapters)
     assert all(block["settings"]["disclosure_mode"] == "multiple" for block in chapters)
     assert all(block["settings"]["open_first"] is False for block in chapters)
-    assert all(CaseBlockInput.model_validate(block) for block in composed)
+    normalized = cleanup._normalize_blocks(composed)
+    assert len(normalized) == 16
+    assert all(block["type"] != "gallery" for block in normalized)
+    assert all(CaseBlockInput.model_validate(block) for block in normalized)
 
     serialized = str(composed)
     for media_url in [
@@ -492,6 +592,237 @@ def test_pluto_structure_preserves_media_and_builds_three_closed_chapters() -> N
         *gallery_media,
     ]:
         assert media_url in serialized
+
+
+def test_cleanup_migration_removes_gallery_and_canonicalizes_layouts() -> None:
+    cleanup = load_legacy_cleanup_migration()
+    blocks = [
+        {
+            "id": str(uuid4()),
+            "type": "gallery",
+            "content_ru": {"items": []},
+            "content_en": {"items": []},
+            "settings": {"layout": "grid"},
+            "sort_order": 1,
+            "is_visible": True,
+        },
+        {
+            "id": str(uuid4()),
+            "type": "process",
+            "content_ru": {"items": []},
+            "content_en": {"items": []},
+            "settings": {"layout": "story"},
+            "sort_order": 4,
+            "is_visible": True,
+        },
+        {
+            "id": str(uuid4()),
+            "type": "results",
+            "content_ru": {"items": []},
+            "content_en": {"items": []},
+            "settings": {"layout": "panel"},
+            "sort_order": 9,
+            "is_visible": True,
+        },
+    ]
+
+    normalized = cleanup._normalize_blocks(blocks)
+
+    assert [block["type"] for block in normalized] == ["process", "results"]
+    assert [block["settings"]["layout"] for block in normalized] == ["chapter", "statement"]
+    assert [block["sort_order"] for block in normalized] == [0, 1]
+
+
+def test_revision_restore_drops_deprecated_blocks_and_normalizes_layouts() -> None:
+    restored = restored_blocks(
+        [
+            {
+                "type": "gallery",
+                "content_ru": {"items": []},
+                "content_en": {"items": []},
+                "settings": {"layout": "grid"},
+            },
+            {
+                "type": "process",
+                "content_ru": {"items": []},
+                "content_en": {"items": []},
+                "settings": {"layout": "story"},
+            },
+        ]
+    )
+
+    assert [block.type for block in restored] == ["process"]
+    assert restored[0].settings.layout == "chapter"
+
+
+def test_zagorulko_story_is_a_bilingual_three_task_document() -> None:
+    migration = load_zagorulko_story_migration()
+    blocks = migration._story_blocks()
+    document = CaseDocumentUpdate(meta=migration._meta(), blocks=blocks)
+
+    assert document.meta.name_ru == "Автоматизация рабочих процессов ИП Загорулько"
+    prose_types = {"text", "challenge_solution", "process", "results"}
+    for block in document.blocks:
+        if block.type not in prose_types:
+            continue
+        for content in (block.content_ru, block.content_en):
+            assert content["eyebrow"]
+            if block.id == migration._uuid("about"):
+                assert content["title"]
+            else:
+                assert content["title"] == ""
+                assert content.get("body") or content.get("challenge") or content.get("summary")
+    assert [block.type for block in document.blocks] == [
+        "hero",
+        "text",
+        "challenge_solution",
+        "image",
+        "text",
+        "process",
+        "comparison",
+        "results",
+        "technologies",
+        "challenge_solution",
+        "video",
+        "process",
+        "comparison",
+        "results",
+        "technologies",
+        "challenge_solution",
+        "image",
+        "process",
+        "technologies",
+        "image",
+        "results",
+        "technologies",
+    ]
+    by_name = {
+        name: next(block for block in document.blocks if block.id == migration._uuid(name))
+        for name in (
+            "recognition-flow",
+            "recognition-media-pair",
+            "crew-input",
+            "crew-algorithm",
+            "crew-media-pair",
+            "crew-stack",
+            "finance-flow",
+            "finance-system-map",
+            "finance-stack",
+        )
+    }
+    for name, stage_count in (
+        ("recognition-flow", 3),
+        ("crew-algorithm", 4),
+        ("finance-flow", 3),
+    ):
+        for content in (by_name[name].content_ru, by_name[name].content_en):
+            assert content["eyebrow"]
+            assert content["title"] == ""
+            assert content["summary"]
+            assert len(content["items"]) == stage_count
+            for item in content["items"]:
+                paragraphs = item["description"].split("\n\n")
+                assert len(paragraphs) >= 2
+                assert all(paragraph.strip() for paragraph in paragraphs)
+        assert all(
+            item["media_type"] in {"image", "video"} and item["media_note"]
+            for item in by_name[name].content_ru["items"]
+        )
+        assert all(
+            item["media_type"] in {"image", "video"} and item["media_note"]
+            for item in by_name[name].content_en["items"]
+        )
+    for name in ("recognition-media-pair", "crew-input", "crew-media-pair"):
+        for content in (by_name[name].content_ru, by_name[name].content_en):
+            assert content["eyebrow"] == ""
+            assert content["title"] == ""
+    for name in ("recognition-media-pair", "crew-media-pair"):
+        media_pair = by_name[name]
+        assert media_pair.type == "comparison"
+        assert media_pair.settings.layout == "side-by-side"
+        assert media_pair.settings.model_dump()["media_aspect"] == "portrait"
+        assert media_pair.settings.model_dump()["caption_position"] == "below"
+        assert media_pair.content_ru["before_media_type"] == "video"
+        assert media_pair.content_ru["after_media_type"] == "image"
+        assert media_pair.content_ru["autoplay"] is True
+        assert media_pair.content_ru["loop"] is True
+        assert media_pair.content_ru["muted"] is True
+        assert media_pair.content_ru["controls"] is False
+    assert by_name["crew-stack"].settings.layout == "map"
+    assert by_name["finance-stack"].settings.layout == "map"
+    assert by_name["finance-system-map"].settings.model_dump()["map_background"] == "#F5F6FB"
+    assert all(block.type != "media_hero" for block in document.blocks)
+    assert sum(block.type == "image" for block in document.blocks) == 3
+    assert sum(block.type == "video" for block in document.blocks) == 1
+    assert sum(block.type == "comparison" for block in document.blocks) == 2
+    assert all(
+        block.content_ru["autoplay"] is True
+        and block.content_ru["loop"] is True
+        and block.content_ru["muted"] is True
+        and block.content_ru["controls"] is False
+        for block in document.blocks
+        if block.type == "video"
+    )
+    assert all(
+        block.settings.width == "wide"
+        for block in document.blocks
+        if block.type in {"image", "video"}
+    )
+    assert by_name["crew-input"].content_ru["video_url"].endswith(
+        "crew-network-graph.mp4"
+    )
+    assert by_name["crew-input"].content_ru["autoplay"] is True
+    assert by_name["crew-input"].content_ru["loop"] is True
+    assert by_name["crew-input"].content_ru["muted"] is True
+    assert by_name["crew-input"].content_ru["controls"] is False
+
+    serialized_ru = str([block.content_ru for block in document.blocks])
+    serialized_en = str([block.content_en for block in document.blocks])
+    assert "специально обезличены" in serialized_ru
+    assert "ФОТО 1 · ИСХОДНЫЙ ЗАКАЗ" in serialized_ru
+    assert "ВИДЕО · ПРОЦЕСС РАСПОЗНАВАНИЯ" in serialized_ru
+    assert "ФОТО · РЕЗУЛЬТАТ" in serialized_ru
+    assert "Yandex Vision OCR" in serialized_ru
+    assert "GREEN-API" in serialized_ru
+    assert "50–60 человек" in serialized_ru
+    assert "40 воспроизводимых перестроений" in serialized_ru
+    assert "ВИДЕОВИЗУАЛИЗАЦИЯ · КАРТА СВЯЗЕЙ" in serialized_ru
+    assert "Три бригадира показаны как опорные узлы" in serialized_ru
+    assert "Числа на линиях" in serialized_ru
+    assert "вручную перетаскивает одного участника" not in serialized_ru
+    assert "ФОТО · ГОТОВЫЕ БРИГАДЫ" in serialized_ru
+    assert "Через две недели те же заказы нужны уже для расчётов" in serialized_ru
+    assert "ФОТО 6 · ИСХОДНЫЕ СООБЩЕНИЯ" in serialized_ru
+    assert "ФОТО 7 · ГОТОВЫЙ ПЕРИОД" in serialized_ru
+    assert "заказ получает отдельный статус и не участвует в начислениях" in serialized_ru
+    assert "Google Apps Script" in serialized_ru
+    assert "deliberately anonymised" in serialized_en
+    assert "ГБУ" not in serialized_ru
+    assert "Ритуал" not in serialized_ru
+    assert "Михаил" not in serialized_ru
+    assert "Misha Sheets" not in serialized_ru
+    assert "Crew Assignment" not in serialized_ru
+
+
+def test_zagorulko_russian_copy_has_no_dash_or_colon_separators() -> None:
+    migration = load_zagorulko_story_migration()
+
+    def check_copy(value: object, path: str) -> None:
+        if isinstance(value, dict):
+            for key, child in value.items():
+                if not key.endswith("_url"):
+                    check_copy(child, f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                check_copy(child, f"{path}[{index}]")
+        elif isinstance(value, str):
+            assert not any(separator in value for separator in ("—", ":", " – ", " - ")), path
+
+    for block in migration._story_blocks():
+        check_copy(block["content_ru"], str(block["id"]))
+    for key, value in migration._meta().items():
+        if key.endswith("_ru"):
+            check_copy(value, f"meta.{key}")
 
 
 def test_public_serializer_reads_only_published_snapshot() -> None:

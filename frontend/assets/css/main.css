@@ -1,5 +1,5 @@
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700;800&family=Pixelify+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Onest:wght@400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -27,7 +27,6 @@ html[data-vezha-theme="light"] {
   --shadow: rgba(28, 29, 33, 0.12);
   --font-ui: 'Onest', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
-  --font-pixel: 'Pixelify Sans', monospace;
   --font-inter: 'Onest', system-ui, sans-serif;
   /* Shared VEZHA type scale: landing roles plus quieter editorial case roles. */
   --type-display: clamp(2.5rem, 1.25rem + 4.375vw, 6.5rem);

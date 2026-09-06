@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import { getCaseFallbacks } from "../utils/caseFallbacks.ts";
-import { blockLibrary } from "../utils/caseBuilder.ts";
+import { blockLibrary, caseBlockLayoutOptions, defaultCaseBlockLayouts } from "../utils/caseBuilder.ts";
 import { getWellnessCaseContent } from "../utils/wellnessCaseContent.ts";
 
 for (const locale of ["ru", "en"] as const) {
@@ -187,18 +187,32 @@ test("case sections and the compact landing header share the 1240px container", 
   assert.match(landing, /border-radius:\s*999px/);
 });
 
-test("gallery blocks are removed from the wellness case and admin builder", () => {
+test("deprecated case blocks and layouts are absent from the builder", () => {
   const preview = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
   const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
   const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
   const editor = readFileSync("pages/admin/cases/[id]/index.vue", "utf8");
+  const builder = readFileSync("utils/caseBuilder.ts", "utf8");
+  const publicCss = readFileSync("assets/css/case-builder-public.css", "utf8");
+  const systemCss = readFileSync("assets/css/case-builder-v2.css", "utf8");
 
   assert.equal(blockLibrary.some((item) => item.type === "gallery"), false);
+  assert.doesNotMatch(builder, /\| ['"]gallery['"]|^\s*gallery:\s*\[/m);
   assert.doesNotMatch(preview, /block\.type === ['"]gallery['"]|preview-grid/);
   assert.doesNotMatch(inspector, /^\s*gallery:\s*\[/m);
   assert.doesNotMatch(renderer, /block\.type === ['"]gallery['"]|builder-gallery/);
-  assert.match(renderer, /filter\(block => block\.type !== 'gallery'\)/);
-  assert.match(editor, /document\.value\.blocks\.filter\(block => block\.type !== 'gallery'\)/);
+  assert.doesNotMatch(renderer, /block\.type !== ['"]gallery['"]/);
+  assert.doesNotMatch(editor, /block\.type !== ['"]gallery['"]/);
+  assert.doesNotMatch(renderer, /block\.settings\.layout === ['"]chapter['"]/);
+  assert.doesNotMatch(publicCss, /builder-gallery|builder-duo|layout-cinematic|layout-phones/);
+  assert.doesNotMatch(systemCss, /builder-gallery|layout-phones/);
+  assert.match(inspector, /caseBlockLayoutOptions\[props\.block\.type\]/);
+  assert.deepEqual(caseBlockLayoutOptions.challenge_solution.map((item) => item.value), ["narrative", "air"]);
+  assert.deepEqual(caseBlockLayoutOptions.metrics.map((item) => item.value), ["cards"]);
+  assert.deepEqual(caseBlockLayoutOptions.process.map((item) => item.value), ["chapter"]);
+  assert.deepEqual(caseBlockLayoutOptions.results.map((item) => item.value), ["statement", "air"]);
+  assert.equal(defaultCaseBlockLayouts.process, "chapter");
+  assert.equal(defaultCaseBlockLayouts.results, "statement");
 });
 
 test("service inclusions stay in a two-column grid", () => {
@@ -232,7 +246,7 @@ test("all pages and landing controls use native scrolling", () => {
   assert.match(cases, /tabList\.scrollTo\(\{[^}]*behavior:\s*"auto"/s);
 });
 
-test("media hero is editable and rendered with reduced-motion controls", () => {
+test("case videos expose autoplay, loop and control settings", () => {
   const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
   const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
   const library = readFileSync("utils/caseBuilder.ts", "utf8");
@@ -242,13 +256,21 @@ test("media hero is editable and rendered with reduced-motion controls", () => {
   assert.match(inspector, /media_hero:\s*\[/);
   assert.match(inspector, /key:\s*'video_url'/);
   assert.match(renderer, /block\.type === 'media_hero'/);
+  assert.match(renderer, /block\.type === 'video'/);
+  assert.match(renderer, /'builder-video--ambient': block\.content\.controls === false/);
   assert.match(renderer, /allowAutoplay/);
   assert.match(renderer, /video\.play\(\)/);
+  assert.match(renderer, /block\.content\.autoplay === true/);
+  assert.match(renderer, /block\.content\.loop === true/);
+  assert.match(renderer, /block\.content\.controls !== false/);
+  assert.match(inspector, /video:\s*\[[^\]]*key: 'autoplay'[^\]]*key: 'loop'[^\]]*key: 'muted'[^\]]*key: 'controls'/s);
   assert.match(renderer, /prefers-reduced-motion:\s*reduce/);
   assert.match(css, /\.builder-block--media_hero\.builder-block--full \.builder-media-hero\s*\{[^}]*border-radius:\s*0;/s);
   assert.match(css, /\.builder-media-hero > img,[\s\S]*\.builder-media-hero > video\s*\{[^}]*width:\s*100%;[^}]*height:\s*auto;[^}]*object-fit:\s*contain;/s);
   assert.doesNotMatch(css, /height:\s*min\(56\.25vw,\s*calc\(100svh - 96px\)\)/);
   assert.doesNotMatch(css, /\.builder-block--layout-media-(?:16x9|3x2) \.builder-media-hero > (?:img|video)/);
+  assert.match(css, /\.builder-video--ambient video\s*\{[^}]*object-fit:\s*contain;[^}]*background:\s*#fff;/s);
+  assert.doesNotMatch(css, /\.builder-video--ambient video\s*\{[^}]*border-radius:\s*0;/s);
 });
 
 test("case system v2 shares typography, insight and editorial process across public and admin", () => {
@@ -264,13 +286,13 @@ test("case system v2 shares typography, insight and editorial process across pub
   assert.match(inspector, /key: 'poster_url'.*media: true/s);
   assert.match(inspector, /key: 'tags'.*kind: 'tags'/s);
   assert.match(inspector, /insight:\s*\[/);
-  assert.match(inspector, /value: 'media-right'.*Медиа справа/s);
+  assert.match(library, /value: 'media-right'.*Медиа справа/s);
   assert.match(inspector, /setSetting\('disclosure_mode'/);
   assert.match(inspector, /setSetting\('open_first'/);
-  assert.match(inspector, /value: 'chapter'.*Глава кейса с раскрытиями/s);
+  assert.match(library, /value: 'chapter'.*Глава кейса с раскрытиями/s);
   assert.match(inspector, /results: \[\{ key: 'text'/);
-  assert.match(inspector, /value: 'overview'.*Обзор проекта/s);
-  assert.match(inspector, /value: 'cards'.*Карточки показателей/s);
+  assert.match(library, /value: 'overview'.*Обзор проекта/s);
+  assert.match(library, /value: 'cards'.*Карточки показателей/s);
   assert.match(inspector, /setSetting\('show_intro'/);
   assert.match(preview, /block\.type === 'insight'/);
   assert.match(preview, /preview-insight__facts/);
@@ -360,13 +382,14 @@ test("challenge blocks keep the reference-led left heading and right narrative",
   const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
   const inspector = readFileSync("components/admin/cases/CaseBlockInspector.vue", "utf8");
   const preview = readFileSync("components/admin/cases/CaseBlockCanvasCard.vue", "utf8");
+  const library = readFileSync("utils/caseBuilder.ts", "utf8");
   const css = readFileSync("assets/css/case-builder-v2.css", "utf8");
 
   assert.match(renderer, /block\.content\.impact/);
   assert.match(renderer, /class="builder-challenge"/);
   assert.match(renderer, /builder-challenge__heading[\s\S]*builder-challenge__copy/);
   assert.match(inspector, /key: 'impact_label'.*key: 'impact'/s);
-  assert.match(inspector, /value: 'narrative'.*Заголовок слева, текст справа/s);
+  assert.match(library, /value: 'narrative'.*Заголовок слева, текст справа/s);
   assert.match(preview, /preview-challenge__heading[\s\S]*preview-challenge__copy/);
   assert.match(css, /\.builder-challenge\s*\{[^}]*grid-template-columns:\s*var\(--case-editorial-grid\)/s);
   assert.match(css, /\.builder-challenge__problem,[\s\S]*grid-template-columns:\s*minmax\(8rem, 0\.42fr\) minmax\(0, 1\.58fr\)/s);
@@ -421,6 +444,15 @@ test("mandatory case header uses a compact mark, a large thesis and a 1240px-ali
   assert.match(canvas, /preview-hero-category/);
   assert.match(editor, /function enforceMandatoryHero\(\)/);
   assert.match(editor, /block\.type !== 'hero'/);
+});
+
+test("media blocks omit empty heading containers without removing captions", () => {
+  const renderer = readFileSync("components/case-builder/PublicCaseBuilder.vue", "utf8");
+  for (const type of ["video", "comparison"]) {
+    const template = renderer.split(`block.type === '${type}'`)[1].split("</template>")[0];
+    assert.match(template, /<header v-if="block\.content\.eyebrow \|\| block\.content\.title" class="builder-heading">/);
+    assert.match(template, /<figcaption v-if=/);
+  }
 });
 
 test("single images can bleed across the full equal-height card", () => {
@@ -486,7 +518,7 @@ test("builder headings use the same UI typography as the standard case pages", (
   assert.match(canvas, /linear-gradient\(135deg,\s*#c4b6ff,\s*#8dc8ff 55%,\s*#73dfd8\)/);
   assert.match(css, /\.builder-block__inner\s*\{[^}]*border-radius:\s*28px;/s);
   assert.doesNotMatch(css, /\.builder-(?:hero__layout h1|heading h2|image-text__copy h2|block--next_case h2)\s*\{[^}]*var\(--font-epilepsy\)/s);
-  assert.doesNotMatch(globalCss, /Epilepsy Sans|--font-epilepsy/);
+  assert.doesNotMatch(globalCss, /Epilepsy Sans|Pixelify Sans|--font-(?:epilepsy|pixel)/);
 });
 
 test("landing and case pages share one global typography source", () => {

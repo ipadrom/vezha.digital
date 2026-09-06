@@ -37,7 +37,8 @@
         @pointercancel.stop="finishNodeMove"
       >
         <span class="technology-map-editor__node-index">{{ item.category || String(nodeIndex + 1).padStart(2, '0') }}</span>
-        <i class="technology-map-editor__node-mark" aria-hidden="true" />
+        <CaseTechnologyIcon v-if="item.icon" class="technology-map-editor__node-mark technology-map-editor__node-mark--icon" :name="item.icon" />
+        <i v-else class="technology-map-editor__node-mark" aria-hidden="true" />
         <CaseInlineEdit
           :model-value="item.label"
           placeholder="Technology"
@@ -62,10 +63,11 @@
 
 <script setup lang="ts">
 import CaseInlineEdit from '~/components/admin/cases/CaseInlineEdit.vue'
+import CaseTechnologyIcon from '~/components/case-builder/CaseTechnologyIcon.vue'
 import type { CaseBlockSettings, CaseContentEdit } from '~/utils/caseBuilder'
 import { technologyMapStyle } from '~/utils/caseBuilder'
 
-type TechnologyNode = { label?: string; category?: string; x?: number | null; y?: number | null }
+type TechnologyNode = { label?: string; category?: string; icon?: string; x?: number | null; y?: number | null }
 type NodePosition = { x: number; y: number }
 type DragState = { index: number; pointerId: number; target: HTMLElement; bounds: DOMRect; position: NodePosition }
 
@@ -164,6 +166,7 @@ function nudgeNode(index: number, deltaX: number, deltaY: number) {
 .technology-map-editor__node.active { z-index: 5; cursor: grabbing; }
 .technology-map-editor__node-index { position: absolute; left: 42px; top: 7px; color: rgba(var(--tech-map-text-rgb),.52); font: 650 6px/1 var(--font-mono); letter-spacing: .1em; text-transform: uppercase; }
 .technology-map-editor__node-mark { width: 24px; height: 24px; border-radius: 50%; background: linear-gradient(145deg,rgba(var(--tech-map-accent-rgb),.94),#62d8e4); }
+.technology-map-editor__node-mark--icon { --technology-icon-size: 24px; background: transparent; }
 .technology-map-editor__node > .inline-edit { min-width: 0; padding-top: 7px; font: 620 10px/1.1 var(--font-ui); letter-spacing: -.01em; text-align: left; text-transform: none; }
 .technology-map-editor__node button { position: absolute; right: 3px; top: 3px; width: 20px; height: 16px; padding: 0; display: flex; align-items: center; justify-content: center; gap: 2px; border: 0; color: #7c8595; background: transparent; cursor: grab; }
 .technology-map-editor__node button i { width: 2px; height: 8px; border-radius: 2px; background: currentColor; }

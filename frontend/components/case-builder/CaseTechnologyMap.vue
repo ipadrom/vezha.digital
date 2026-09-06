@@ -23,7 +23,8 @@
         class="case-technology-map__node"
         :style="nodeStyle(item, index)"
       >
-        <i aria-hidden="true" />
+        <CaseTechnologyIcon v-if="item.icon" class="case-technology-map__node-mark" :name="item.icon" />
+        <i v-else aria-hidden="true" />
         <span><small>{{ item.category || String(index + 1).padStart(2, '0') }}</small><b>{{ item.label }}</b></span>
       </div>
     </div>
@@ -34,8 +35,9 @@
 <script setup lang="ts">
 import type { CaseBlockSettings } from '~/utils/caseBuilder'
 import { technologyMapStyle } from '~/utils/caseBuilder'
+import CaseTechnologyIcon from './CaseTechnologyIcon.vue'
 
-type TechnologyNode = { label?: string; category?: string; x?: number | null; y?: number | null }
+type TechnologyNode = { label?: string; category?: string; icon?: string; x?: number | null; y?: number | null }
 type NodePosition = { x: number; y: number }
 
 const props = defineProps<{ content: Record<string, any>; settings: CaseBlockSettings }>()
@@ -176,6 +178,7 @@ function nodeStyle(item: TechnologyNode, index: number) {
   background: linear-gradient(145deg, rgba(var(--tech-map-accent-rgb), .92), #62d8e4);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .58);
 }
+.case-technology-map__node-mark { --technology-icon-size: 28px; }
 
 .case-technology-map__node > span {
   min-width: 0;

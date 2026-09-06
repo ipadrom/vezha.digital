@@ -154,7 +154,6 @@
 .builder-block:not(.builder-block--hero, .builder-block--media_hero) .builder-eyebrow,
 .builder-challenge__problem > span,
 .builder-challenge__details dt,
-.builder-gallery figcaption,
 .builder-process__trigger > span,
 .builder-insight__fact dt {
   font: 650 var(--case-type-label)/1.35 var(--font-mono);
@@ -789,6 +788,25 @@
   line-height: 1.58;
 }
 
+/* GBU narrative follows the same reading style as its process disclosures. */
+.case-page[data-case-slug="gbu-process-automation"] .builder-case :is(
+  .builder-editorial .builder-prose,
+  .builder-process-chapter__summary,
+  .builder-results__body .builder-prose,
+  .builder-results-list p,
+  .case-air .case-air__copy p
+) {
+  color: var(--case-v2-fg);
+  font: 400 var(--case-type-lead)/1.58 var(--font-ui);
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+}
+
+.case-page[data-case-slug="gbu-process-automation"] .builder-case .case-air__benefits strong {
+  font-size: inherit;
+  line-height: inherit;
+}
+
 .builder-process__media > img,
 .builder-process__media > video {
   border: var(--case-rule);
@@ -918,93 +936,6 @@
 
 .builder-image-text__copy p {
   max-width: 58ch;
-}
-
-.builder-gallery {
-  gap: clamp(1rem, 2cqw, 1.75rem);
-}
-
-.builder-block--gallery.builder-block--full > .builder-block__inner {
-  border-inline: 0;
-  border-radius: 0;
-}
-
-.builder-gallery:not(.builder-gallery--phones) figure {
-  overflow: visible;
-  border-radius: 0;
-  background: transparent;
-}
-
-.builder-gallery figure[data-frame="screen"] img {
-  box-sizing: border-box;
-  border: 0.375rem solid oklch(0.13 0.012 270);
-  border-radius: 1.5rem;
-  background: oklch(0.13 0.012 270);
-}
-
-.builder-gallery figure[data-frame="device"] img,
-.builder-gallery--phones figure[data-frame="device"] img {
-  box-sizing: border-box;
-  border: 0.5rem solid oklch(0.11 0.01 270);
-  border-radius: 2.125rem;
-  background: oklch(0.11 0.01 270);
-  box-shadow: 0 2rem 4.5rem -2.75rem oklch(0.06 0.015 270 / 0.9);
-}
-
-.builder-gallery figure[data-frame="plain"] img,
-.builder-gallery--phones figure[data-frame="plain"] img {
-  border: 0;
-  border-radius: 0.75rem;
-  background: transparent;
-  box-shadow: none;
-}
-
-.builder-gallery figcaption,
-.builder-gallery--phones figcaption {
-  padding-top: 1rem;
-  color: var(--case-v2-muted);
-  font-size: var(--case-type-caption);
-  line-height: 1.45;
-  letter-spacing: 0.045em;
-}
-
-.builder-block--ink .builder-gallery figcaption {
-  color: oklch(0.78 0.015 270);
-}
-
-/* Compact device gallery */
-@container (min-width: 761px) {
-  .builder-block--layout-phones > .builder-block__inner {
-    padding-block: clamp(3.5rem, 3.35rem + 0.6cqw, 4rem);
-  }
-
-  .builder-block--layout-phones .builder-heading,
-  .builder-block--layout-phones .builder-gallery--phones {
-    width: min(100%, 77.5rem);
-    margin-inline: auto;
-  }
-
-  .builder-block--layout-phones .builder-heading {
-    margin-bottom: clamp(2.5rem, 3.5cqw, 4rem);
-  }
-
-  .builder-block--layout-phones .builder-gallery--phones {
-    grid-template-columns: repeat(3, minmax(0, 14rem));
-    justify-content: center;
-    column-gap: clamp(2rem, 6cqw, 8rem);
-  }
-
-  .builder-block--layout-phones .builder-gallery--phones figure,
-  .builder-block--layout-phones .builder-gallery--phones img,
-  .builder-block--layout-phones .builder-gallery--phones figcaption {
-    width: 100%;
-  }
-
-  .builder-block--layout-phones .builder-gallery--phones img {
-    aspect-ratio: 1179 / 2556;
-    max-height: none;
-    object-fit: cover;
-  }
 }
 
 /* Outcome */
@@ -1220,14 +1151,6 @@
   .builder-heading {
     gap: 1rem;
     margin-bottom: 2.25rem;
-  }
-
-  .builder-block--layout-phones > .builder-block__inner {
-    padding-block: 3rem;
-  }
-
-  .builder-block--layout-phones .builder-gallery--phones {
-    grid-auto-columns: clamp(13.125rem, 72%, 15.625rem);
   }
 
   .builder-heading h2,

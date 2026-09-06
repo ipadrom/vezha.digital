@@ -13,7 +13,6 @@ BlockType = Literal[
     "insight",
     "image",
     "image_text",
-    "gallery",
     "metrics",
     "process",
     "quote",
@@ -24,6 +23,90 @@ BlockType = Literal[
     "next_case",
     "custom",
 ]
+
+DEPRECATED_BLOCK_TYPES = {"gallery"}
+
+DEFAULT_BLOCK_LAYOUTS: dict[str, str] = {
+    "hero": "case-header",
+    "media_hero": "media-16x9",
+    "text": "editorial",
+    "challenge_solution": "narrative",
+    "insight": "statement",
+    "image": "default",
+    "image_text": "image-right",
+    "metrics": "cards",
+    "process": "chapter",
+    "quote": "default",
+    "technologies": "map",
+    "video": "default",
+    "comparison": "side-by-side",
+    "results": "statement",
+    "next_case": "default",
+    "custom": "freeform",
+}
+
+SUPPORTED_BLOCK_LAYOUTS: dict[str, set[str]] = {
+    "hero": {"case-header"},
+    "media_hero": {"media-16x9", "media-3x2", "media-natural"},
+    "text": {"overview", "editorial", "split", "lead"},
+    "challenge_solution": {"narrative", "air"},
+    "insight": {"statement", "media-right"},
+    "image": {"default"},
+    "image_text": {"image-right", "image-left"},
+    "metrics": {"cards"},
+    "process": {"chapter"},
+    "quote": {"default"},
+    "technologies": {"map", "contours", "tags"},
+    "video": {"default"},
+    "comparison": {"side-by-side", "stacked"},
+    "results": {"statement", "air"},
+    "next_case": {"default"},
+    "custom": {"freeform"},
+}
+
+LEGACY_BLOCK_LAYOUT_ALIASES: dict[str, dict[str, str]] = {
+    "hero": {"default": "case-header", "editorial": "case-header"},
+    "media_hero": {
+        "default": "media-16x9",
+        "media": "media-16x9",
+        "cinematic": "media-16x9",
+    },
+    "text": {"default": "editorial"},
+    "challenge_solution": {
+        "default": "narrative",
+        "split": "narrative",
+        "contrast": "narrative",
+    },
+    "insight": {"default": "statement"},
+    "image": {"figure": "default"},
+    "image_text": {"default": "image-right"},
+    "metrics": {"default": "cards", "grid": "cards", "strip": "cards"},
+    "process": {
+        "default": "chapter",
+        "stacked": "chapter",
+        "story": "chapter",
+        "accordion": "chapter",
+    },
+    "technologies": {"default": "map"},
+    "video": {"cinematic": "default"},
+    "comparison": {"default": "side-by-side"},
+    "results": {
+        "default": "statement",
+        "list": "statement",
+        "panel": "statement",
+    },
+    "custom": {"default": "freeform"},
+}
+
+
+def canonical_block_layout(block_type: str, layout: object) -> str:
+    value = str(layout or "default")
+    if value == "freeform" and block_type != "hero":
+        return value
+    value = LEGACY_BLOCK_LAYOUT_ALIASES.get(block_type, {}).get(value, value)
+    if value not in SUPPORTED_BLOCK_LAYOUTS.get(block_type, {"default"}):
+        raise ValueError(f"Unsupported layout '{value}' for block type '{block_type}'")
+    return value
 
 
 class FlexibleContent(BaseModel):
@@ -100,19 +183,6 @@ class ImageTextContent(TextContent):
     caption: str = ""
 
 
-class GalleryItem(FlexibleContent):
-    image_url: str = ""
-    alt: str = ""
-    caption: str = ""
-    frame: Literal["auto", "plain", "screen", "device"] = "auto"
-
-
-class GalleryContent(FlexibleContent):
-    eyebrow: str = ""
-    title: str = ""
-    items: list[GalleryItem] = Field(default_factory=list)
-
-
 class MetricItem(FlexibleContent):
     value: str = ""
     label: str = ""
@@ -129,6 +199,8 @@ class MetricsContent(FlexibleContent):
 class ProcessItem(FlexibleContent):
     title: str = ""
     description: str = ""
+    media_type: Literal["none", "image", "video"] = "none"
+    media_note: str = ""
     image_url: str = ""
     image_alt: str = ""
     video_url: str = ""
@@ -152,8 +224,13 @@ class QuoteContent(FlexibleContent):
 
 
 class TechnologyItem(FlexibleContent):
+    id: str = Field(default="", max_length=80)
     label: str = ""
     category: str = "stack"
+    group: str = Field(default="", max_length=120)
+    description: str = Field(default="", max_length=4000)
+    icon: str = Field(default="", max_length=80)
+    related_ids: list[str] = Field(default_factory=list, max_length=80)
     x: float | None = Field(default=None, ge=0, le=100)
     y: float | None = Field(default=None, ge=0, le=100)
 
@@ -171,17 +248,31 @@ class VideoContent(FlexibleContent):
     video_url: str = ""
     poster_url: str = ""
     caption: str = ""
+    autoplay: bool = False
+    loop: bool = False
+    muted: bool = True
+    controls: bool = True
 
 
 class ComparisonContent(FlexibleContent):
     eyebrow: str = ""
     title: str = ""
+    before_media_type: Literal["image", "video"] = "image"
     before_url: str = ""
+    before_video_url: str = ""
+    before_poster_url: str = ""
     before_alt: str = ""
     before_label: str = ""
+    after_media_type: Literal["image", "video"] = "image"
     after_url: str = ""
+    after_video_url: str = ""
+    after_poster_url: str = ""
     after_alt: str = ""
     after_label: str = ""
+    autoplay: bool = False
+    loop: bool = False
+    muted: bool = True
+    controls: bool = True
 
 
 class ResultItem(FlexibleContent):
@@ -214,7 +305,6 @@ BLOCK_CONTENT_MODELS: dict[str, type[BaseModel]] = {
     "insight": InsightContent,
     "image": ImageContent,
     "image_text": ImageTextContent,
-    "gallery": GalleryContent,
     "metrics": MetricsContent,
     "process": ProcessContent,
     "quote": QuoteContent,
@@ -270,6 +360,7 @@ class CaseBlockInput(BaseModel):
         content_model = BLOCK_CONTENT_MODELS[self.type]
         self.content_ru = content_model.model_validate(self.content_ru).model_dump()
         self.content_en = content_model.model_validate(self.content_en).model_dump()
+        self.settings.layout = canonical_block_layout(self.type, self.settings.layout)
         return self
 
 

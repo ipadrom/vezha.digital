@@ -2,7 +2,11 @@ from collections.abc import Iterable
 from typing import Any
 
 from app.models import ProjectGalleryItem, ProjectMetric, ProjectTechnology
-from app.schemas.case_builder import CaseBlockPublic
+from app.schemas.case_builder import (
+    DEPRECATED_BLOCK_TYPES,
+    CaseBlockPublic,
+    canonical_block_layout,
+)
 from app.schemas.project import (
     ProjectDetailPublic,
     ProjectGalleryInput,
@@ -42,17 +46,23 @@ def _snapshot_content(block: dict[str, Any], lang: str) -> dict[str, Any]:
 def _published_blocks(project: Any, lang: str) -> list[CaseBlockPublic]:
     if not project.published_data:
         return []
-    return [
-        CaseBlockPublic(
-            id=str(block.get("id", "")),
-            type=block["type"],
-            content=_snapshot_content(block, lang),
-            settings=block.get("settings", {}),
-            sort_order=block.get("sort_order", index),
+    result: list[CaseBlockPublic] = []
+    for index, block in enumerate(project.published_data.get("blocks", [])):
+        block_type = block.get("type")
+        if not block.get("is_visible", True) or block_type in DEPRECATED_BLOCK_TYPES:
+            continue
+        settings = dict(block.get("settings") or {})
+        settings["layout"] = canonical_block_layout(block_type, settings.get("layout"))
+        result.append(
+            CaseBlockPublic(
+                id=str(block.get("id", "")),
+                type=block_type,
+                content=_snapshot_content(block, lang),
+                settings=settings,
+                sort_order=block.get("sort_order", index),
+            )
         )
-        for index, block in enumerate(project.published_data.get("blocks", []))
-        if block.get("is_visible", True)
-    ]
+    return result
 
 
 def _snapshot_metrics(blocks: list[CaseBlockPublic]) -> list[ProjectMetricPublic]:
@@ -122,7 +132,6 @@ def serialize_project_detail(project: Any, lang: str) -> ProjectDetailPublic:
         )
         metrics_block = next((item for item in blocks if item.type == "metrics"), None)
         quote_block = next((item for item in blocks if item.type == "quote"), None)
-        gallery_block = next((item for item in blocks if item.type == "gallery"), None)
         technology_block = next(
             (item for item in blocks if item.type == "technologies"), None
         )
@@ -136,17 +145,7 @@ def serialize_project_detail(project: Any, lang: str) -> ProjectDetailPublic:
             result_summary=metrics_block.content.get("summary") if metrics_block else None,
             testimonial=quote_block.content.get("quote") if quote_block else None,
             testimonial_author=quote_block.content.get("author") if quote_block else None,
-            gallery=[
-                ProjectGalleryPublic(
-                    image_url=item.get("image_url", ""),
-                    alt=item.get("alt", ""),
-                    caption=item.get("caption") or None,
-                    sort_order=index,
-                )
-                for index, item in enumerate(
-                    gallery_block.content.get("items", []) if gallery_block else []
-                )
-            ],
+            gallery=[],
             technologies=[
                 ProjectTechnologyPublic(
                     label=item.get("label", ""),

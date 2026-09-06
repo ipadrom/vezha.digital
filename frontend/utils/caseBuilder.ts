@@ -8,7 +8,6 @@ export type CaseBlockType =
   | 'insight'
   | 'image'
   | 'image_text'
-  | 'gallery'
   | 'metrics'
   | 'process'
   | 'quote'
@@ -217,6 +216,68 @@ export const blockLibrary: Array<{
   { type: 'custom', label: 'Свободный блок', description: 'Композиция из отдельных элементов', mark: '✦' },
 ]
 
+export type CaseBlockLayoutOption = { value: string; label: string }
+
+export const caseBlockLayoutOptions: Record<CaseBlockType, CaseBlockLayoutOption[]> = {
+  hero: [{ value: 'case-header', label: 'Шапка кейса' }],
+  media_hero: [
+    { value: 'media-16x9', label: 'Кино / 16:9' },
+    { value: 'media-3x2', label: 'Фото / 3:2' },
+    { value: 'media-natural', label: 'Исходные пропорции' },
+  ],
+  text: [
+    { value: 'overview', label: 'Обзор проекта' },
+    { value: 'editorial', label: 'Редакционная глава' },
+    { value: 'split', label: 'Две колонки' },
+    { value: 'lead', label: 'Крупная врезка' },
+  ],
+  challenge_solution: [{ value: 'narrative', label: 'Заголовок слева, текст справа' }, { value: 'air', label: 'Текст и воздух' }],
+  insight: [
+    { value: 'statement', label: 'Крупная формулировка' },
+    { value: 'media-right', label: 'Медиа справа' },
+  ],
+  image: [{ value: 'default', label: 'Стандартная' }],
+  image_text: [
+    { value: 'image-right', label: 'Изображение справа' },
+    { value: 'image-left', label: 'Изображение слева' },
+  ],
+  metrics: [{ value: 'cards', label: 'Карточки показателей' }],
+  process: [{ value: 'chapter', label: 'Глава кейса с раскрытиями' }],
+  quote: [{ value: 'default', label: 'Стандартная' }],
+  technologies: [
+    { value: 'map', label: 'Карта связей' },
+    { value: 'contours', label: 'Контуры с описанием справа' },
+    { value: 'tags', label: 'Карточки' },
+  ],
+  video: [{ value: 'default', label: 'Стандартная' }],
+  comparison: [
+    { value: 'side-by-side', label: 'Рядом' },
+    { value: 'stacked', label: 'Друг под другом' },
+  ],
+  results: [{ value: 'statement', label: 'Крупный вывод' }, { value: 'air', label: 'Текст и воздух' }],
+  next_case: [{ value: 'default', label: 'Стандартная' }],
+  custom: [{ value: 'freeform', label: 'Свободная композиция' }],
+}
+
+export const defaultCaseBlockLayouts: Record<CaseBlockType, string> = {
+  hero: 'case-header',
+  media_hero: 'media-16x9',
+  text: 'editorial',
+  challenge_solution: 'narrative',
+  insight: 'statement',
+  image: 'default',
+  image_text: 'image-right',
+  metrics: 'cards',
+  process: 'chapter',
+  quote: 'default',
+  technologies: 'map',
+  video: 'default',
+  comparison: 'side-by-side',
+  results: 'statement',
+  next_case: 'default',
+  custom: 'freeform',
+}
+
 const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<string, any>]> = {
   hero: [
     { logo_url: '', eyebrow: 'Кейс', title: 'Название проекта', subtitle: '', type_label: '', industry: '', timeline: '', year: '', image_url: '', image_alt: '', device_screen_url: '', metric_value: '', metric_label: '' },
@@ -245,10 +306,6 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
   image_text: [
     { eyebrow: 'Детали', title: 'Заголовок раздела', body: '', image_url: '', alt: '', caption: '' },
     { eyebrow: 'Details', title: 'Section title', body: '', image_url: '', alt: '', caption: '' },
-  ],
-  gallery: [
-    { eyebrow: 'Интерфейс', title: 'Продукт в деталях', items: [] },
-    { eyebrow: 'Interface', title: 'Product in detail', items: [] },
   ],
   metrics: [
     { eyebrow: 'Результат', title: 'Что изменилось', summary: '', items: [] },
@@ -291,12 +348,12 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
     },
   ],
   video: [
-    { eyebrow: 'Демонстрация', title: 'Продукт в действии', video_url: '', poster_url: '', caption: '' },
-    { eyebrow: 'Demo', title: 'Product in action', video_url: '', poster_url: '', caption: '' },
+    { eyebrow: 'Демонстрация', title: 'Продукт в действии', video_url: '', poster_url: '', caption: '', autoplay: false, loop: false, muted: true, controls: true },
+    { eyebrow: 'Demo', title: 'Product in action', video_url: '', poster_url: '', caption: '', autoplay: false, loop: false, muted: true, controls: true },
   ],
   comparison: [
-    { eyebrow: 'Сравнение', title: 'До и после', before_url: '', before_alt: '', before_label: 'До', after_url: '', after_alt: '', after_label: 'После' },
-    { eyebrow: 'Comparison', title: 'Before and after', before_url: '', before_alt: '', before_label: 'Before', after_url: '', after_alt: '', after_label: 'After' },
+    { eyebrow: 'Сравнение', title: 'До и после', before_media_type: 'image', before_url: '', before_video_url: '', before_poster_url: '', before_alt: '', before_label: 'До', after_media_type: 'image', after_url: '', after_video_url: '', after_poster_url: '', after_alt: '', after_label: 'После', autoplay: false, loop: false, muted: true, controls: true },
+    { eyebrow: 'Comparison', title: 'Before and after', before_media_type: 'image', before_url: '', before_video_url: '', before_poster_url: '', before_alt: '', before_label: 'Before', after_media_type: 'image', after_url: '', after_video_url: '', after_poster_url: '', after_alt: '', after_label: 'After', autoplay: false, loop: false, muted: true, controls: true },
   ],
   results: [
     { eyebrow: 'Итог', title: 'Результат проекта', body: '', items: [], link_url: '', link_label: 'Открыть продукт' },
@@ -388,7 +445,11 @@ export const convertBlockToFreeform = (block: CaseBlock): CaseBlock => {
 
   addText('eyebrow', 'eyebrow')
   addText('heading', 'title')
-  for (const key of ['subtitle', 'body', 'summary', 'challenge', 'solution', 'impact', 'statement', 'rationale', 'outcome', 'quote']) addText('text', key)
+  for (const key of ['subtitle', 'body', 'summary', 'challenge', 'solution', 'impact', 'statement', 'rationale', 'outcome', 'quote']) {
+    if (block.settings.layout === 'air' && ['solution', 'impact'].includes(key) && (ru[key] || en[key])) {
+      add('text', { text: [ru[`${key}_label`], ru[key]].filter(Boolean).join(' ') }, { text: [en[`${key}_label`], en[key]].filter(Boolean).join(' ') })
+    } else addText('text', key)
+  }
 
   const imagePairs = [
     ['image_url', block.type === 'media_hero' ? 'alt' : 'image_alt'],
@@ -411,7 +472,8 @@ export const convertBlockToFreeform = (block: CaseBlock): CaseBlock => {
   const enItems = Array.isArray(en.items) ? en.items : []
   ruItems.forEach((item: Record<string, any>, index: number) => {
     const translated = enItems[index] || {}
-    if (item.video_url || translated.video_url) add('video', { url: item.video_url || '', poster: item.poster_url || '' }, { url: translated.video_url || '', poster: translated.poster_url || '' })
+    if (block.settings.layout === 'air' && block.type === 'results') add('text', { text: [item.title, item.text].filter(Boolean).join('\n') }, { text: [translated.title, translated.text].filter(Boolean).join('\n') })
+    else if (item.video_url || translated.video_url) add('video', { url: item.video_url || '', poster: item.poster_url || '' }, { url: translated.video_url || '', poster: translated.poster_url || '' })
     else if (item.image_url || translated.image_url) add('image', { url: item.image_url || '', alt: item.image_alt || item.alt || '' }, { url: translated.image_url || '', alt: translated.image_alt || translated.alt || '' })
     else if (item.value || translated.value) add('metric', { value: item.value || '', label: item.label || '' }, { value: translated.value || '', label: translated.label || '' })
     else if (item.title || item.label || translated.title || translated.label) add('text', { text: item.title || item.label || '' }, { text: translated.title || translated.label || '' })
@@ -444,9 +506,9 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
     settings: {
       theme: ['hero', 'media_hero', 'insight'].includes(type) ? 'ink' : type === 'technologies' ? 'soft' : type === 'next_case' ? 'signal' : 'paper',
       surface: ['text', 'image', 'metrics', 'challenge_solution', 'process', 'results'].includes(type) ? 'plain' : 'card',
-      width: type === 'hero' ? 'full' : ['media_hero', 'text', 'image', 'gallery', 'metrics', 'process', 'results', 'technologies', 'next_case', 'insight'].includes(type) ? 'wide' : 'standard',
+      width: type === 'hero' ? 'full' : ['media_hero', 'text', 'image', 'metrics', 'process', 'results', 'technologies', 'next_case', 'insight'].includes(type) ? 'wide' : 'standard',
       spacing: ['hero', 'text', 'process', 'results', 'next_case', 'insight'].includes(type) ? 'large' : ['image', 'technologies', 'media_hero'].includes(type) ? 'compact' : 'normal',
-      layout: type === 'hero' ? 'case-header' : type === 'custom' ? 'freeform' : type === 'gallery' ? 'mosaic' : type === 'technologies' ? 'map' : type === 'media_hero' ? 'media-16x9' : type === 'text' ? 'editorial' : type === 'metrics' ? 'cards' : type === 'challenge_solution' ? 'narrative' : type === 'process' ? 'chapter' : type === 'insight' || type === 'results' ? 'statement' : 'default',
+      layout: defaultCaseBlockLayouts[type],
       alignment: 'left',
       desktop_span: 12,
       desktop_start: 0,

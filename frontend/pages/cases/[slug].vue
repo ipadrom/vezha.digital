@@ -1,5 +1,5 @@
 <template>
-  <div class="case-page" :data-theme="theme">
+  <div class="case-page" :data-theme="theme" :data-case-slug="slug">
     <CaseScrollThumb :theme="theme" />
     <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-theme="toggleTheme" />
 

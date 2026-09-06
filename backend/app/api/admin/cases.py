@@ -8,7 +8,6 @@ from sqlalchemy.orm import selectinload
 from app.core.deps import CurrentAdmin, DbSession
 from app.models import Project, ProjectRevision
 from app.schemas import (
-    CaseBlockInput,
     CaseCreate,
     CaseDocumentResponse,
     CaseDocumentUpdate,
@@ -23,6 +22,7 @@ from app.services.case_builder import (
     draft_snapshot,
     project_blocks,
     replace_blocks,
+    restored_blocks,
     summary_response,
 )
 
@@ -201,7 +201,7 @@ async def restore_revision(
     project.updated_at = datetime.utcnow()
     replace_blocks(
         project,
-        [CaseBlockInput.model_validate(block) for block in revision.snapshot["blocks"]],
+        restored_blocks(revision.snapshot["blocks"]),
     )
     await db.commit()
     return document_response(await _get_case(project.id, db))

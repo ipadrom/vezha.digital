@@ -42,7 +42,6 @@ export default {
       fontFamily: {
         sans: ['JetBrains Mono', 'monospace'],
         mono: ['JetBrains Mono', 'monospace'],
-        pixel: ['Pixelify Sans', 'monospace'],
       },
       animation: {
         'glitch': 'glitch 0.3s linear',

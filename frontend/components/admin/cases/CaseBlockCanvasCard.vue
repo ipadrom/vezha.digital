@@ -24,6 +24,11 @@
         @change="$emit('element-change', $event)"
         @geometry="$emit('element-geometry', $event)"
       />
+      <CaseEditorialAir v-else-if="block.settings.layout === 'air' && (block.type === 'challenge_solution' || block.type === 'results')" :kind="block.type" :content="content" :block-id="block.id">
+        <template #field="{ path, value, label }">
+          <CaseInlineEdit class="air-inline-edit" :model-value="value" :label="label" :placeholder="label" multiline @focus="$emit('select')" @update:model-value="edit(path, $event)" />
+        </template>
+      </CaseEditorialAir>
       <template v-else-if="block.type === 'hero'">
         <div class="preview-hero-layout">
           <div class="preview-hero-project">
@@ -119,8 +124,9 @@
         </div>
       </template>
       <template v-else-if="block.type === 'technologies'">
+        <CaseTechnologyContours v-if="block.settings.layout === 'contours'" :content="content" :settings="block.settings" :locale="locale" />
         <CaseTechnologyMapEditor
-          v-if="block.settings.layout === 'map'"
+          v-else-if="block.settings.layout === 'map'"
           :content="content"
           :settings="block.settings"
           @focus="$emit('select')"
@@ -152,6 +158,8 @@
 <script setup lang="ts">
 import CaseInlineEdit from '~/components/admin/cases/CaseInlineEdit.vue'
 import CaseTechnologyMapEditor from '~/components/admin/cases/CaseTechnologyMapEditor.vue'
+import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'
+import CaseEditorialAir from '~/components/case-builder/CaseEditorialAir.vue'
 import CaseFreeformCanvas from '~/components/admin/cases/CaseFreeformCanvas.vue'
 import type { CaseBlock, CaseContentEdit, CaseElementBox, CaseElementType, CaseLocale, CaseViewport } from '~/utils/caseBuilder'
 import { blockLabel, blockTitle, caseHeroColorDefaults, normalizeHexColor } from '~/utils/caseBuilder'
@@ -353,6 +361,7 @@ blockquote small { display: block; margin-top: 12px; color: #778294; font: 9px v
   gap: 14px;
 }
 .preview-process-layout,
+.air-inline-edit { display: inline; }
 .preview-results-layout { align-content: start; }
 .preview-process-layout .preview-process,
 .preview-results-layout .preview-results { grid-column: auto; }

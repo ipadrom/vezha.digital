@@ -134,12 +134,8 @@ watch(document, () => {
 
 onMounted(async () => {
   let addedMandatoryHero = false
-  let removedLegacyGalleries = false
   try {
     document.value = await getCase(String(route.params.id))
-    const blockCount = document.value.blocks.length
-    document.value.blocks = document.value.blocks.filter(block => block.type !== 'gallery')
-    removedLegacyGalleries = document.value.blocks.length !== blockCount
     addedMandatoryHero = enforceMandatoryHero()
     selectedId.value = document.value.blocks[0]?.id || null
     captureHistory()
@@ -147,7 +143,7 @@ onMounted(async () => {
   } catch (cause) { loadError.value = cause instanceof Error ? cause.message : 'Кейс не найден' }
   finally {
     loading.value = false
-    if (addedMandatoryHero || removedLegacyGalleries) {
+    if (addedMandatoryHero) {
       dirty.value = true
       saveTimer = setTimeout(saveNow, 400)
     }
