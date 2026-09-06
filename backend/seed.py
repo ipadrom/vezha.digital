@@ -10,7 +10,6 @@ from app.models import (
     AboutSection,
     Advantage,
     ClientType,
-    Project,
     Service,
     ServiceExample,
     ServiceFeature,
@@ -26,7 +25,7 @@ load_dotenv()
 
 
 async def clear_database(session):
-    """Clear all tables before seeding."""
+    """Reset landing reference data, preserving authored projects and cases."""
     print("Clearing existing data...")
     # Delete child records first (foreign key constraints)
     await session.execute(WorkStagePoint.__table__.delete())
@@ -36,7 +35,6 @@ async def clear_database(session):
     # Delete parent records
     await session.execute(TechStack.__table__.delete())
     await session.execute(WorkStage.__table__.delete())
-    await session.execute(Project.__table__.delete())
     await session.execute(Service.__table__.delete())
     await session.execute(Advantage.__table__.delete())
     await session.execute(ClientType.__table__.delete())
@@ -470,76 +468,6 @@ async def seed_about_sections(session):
     session.add_all(sections)
 
 
-async def seed_projects(session):
-    projects = [
-        Project(
-            type_ru="Telegram Mini App",
-            type_en="Telegram Mini App",
-            name_ru="Меню ресторана",
-            name_en="Restaurant Menu",
-            description_ru="Интерактивное меню с корзиной, оплатой и интеграцией с системой доставки. Клиенты могут просматривать блюда, добавлять в корзину, оплачивать через Telegram Payments и отслеживать статус заказа.",
-            description_en="Interactive menu with cart, payment and delivery system integration. Customers can browse dishes, add to cart, pay via Telegram Payments and track order status.",
-            image_url="https://placehold.co/600x400/2563eb/ffffff?text=Restaurant+Menu",
-            project_url="https://t.me/restaurant_menu_bot",
-            sort_order=0,
-        ),
-        Project(
-            type_ru="Веб-сайт",
-            type_en="Website",
-            name_ru="Корпоративный сайт",
-            name_en="Corporate Website",
-            description_ru="Современный корпоративный сайт для IT-компании с разделами о услугах, кейсах, команде и блогом. Адаптивный дизайн, SEO-оптимизация, форма обратной связи.",
-            description_en="Modern corporate website for IT company with sections about services, cases, team and blog. Responsive design, SEO optimization, contact form.",
-            image_url="https://placehold.co/600x400/059669/ffffff?text=Corporate+Site",
-            project_url="https://example-corp.com",
-            sort_order=1,
-        ),
-        Project(
-            type_ru="Telegram бот",
-            type_en="Telegram Bot",
-            name_ru="Бот записи на услуги",
-            name_en="Service Booking Bot",
-            description_ru="Автоматизация записи клиентов в салон красоты. Выбор мастера, услуги, времени, напоминания о записи, интеграция с календарем и CRM-системой.",
-            description_en="Automation of client booking in beauty salon. Master selection, service, time, appointment reminders, calendar and CRM integration.",
-            image_url="https://placehold.co/600x400/dc2626/ffffff?text=Booking+Bot",
-            project_url="https://t.me/beauty_booking_bot",
-            sort_order=2,
-        ),
-        Project(
-            type_ru="Интернет-магазин",
-            type_en="E-commerce",
-            name_ru="Магазин электроники",
-            name_en="Electronics Store",
-            description_ru="Полнофункциональный интернет-магазин электроники с каталогом, фильтрами, корзиной, личным кабинетом, интеграцией оплаты и доставки. Админ-панель для управления товарами и заказами.",
-            description_en="Full-featured electronics online store with catalog, filters, cart, personal account, payment and delivery integration. Admin panel for product and order management.",
-            image_url="https://placehold.co/600x400/7c3aed/ffffff?text=Electronics+Store",
-            project_url="https://example-electronics.com",
-            sort_order=3,
-        ),
-        Project(
-            type_ru="AI решение",
-            type_en="AI Solution",
-            name_ru="AI-ассистент для поддержки",
-            name_en="AI Support Assistant",
-            description_ru="Интеллектуальный помощник на базе GPT для автоматизации клиентской поддержки. Отвечает на вопросы, помогает с заказами, передает сложные случаи операторам.",
-            description_en="Intelligent GPT-based assistant for customer support automation. Answers questions, helps with orders, transfers complex cases to operators.",
-            image_url="https://placehold.co/600x400/ea580c/ffffff?text=AI+Assistant",
-            project_url="https://t.me/ai_support_bot",
-            sort_order=4,
-        ),
-        Project(
-            type_ru="Корпоративная система",
-            type_en="Enterprise System",
-            name_ru="CRM-система",
-            name_en="CRM System",
-            description_ru="Кастомная CRM-система для управления клиентами, сделками и задачами. Воронка продаж, автоматизация процессов, интеграция с email и мессенджерами, аналитика.",
-            description_en="Custom CRM system for managing customers, deals and tasks. Sales funnel, process automation, email and messenger integration, analytics.",
-            image_url="https://placehold.co/600x400/0891b2/ffffff?text=CRM+System",
-            project_url="https://example-crm.com",
-            sort_order=5,
-        ),
-    ]
-    session.add_all(projects)
 
 
 async def upload_tech_icons():
@@ -882,9 +810,6 @@ async def main():
 
         print("Seeding about sections...")
         await seed_about_sections(session)
-
-        print("Seeding projects...")
-        await seed_projects(session)
 
         print("Seeding tech stack...")
         await seed_tech_stack(session)

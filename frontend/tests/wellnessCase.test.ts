@@ -7,6 +7,12 @@ import { getCaseFallbacks } from "../utils/caseFallbacks.ts";
 import { blockLibrary, caseBlockLayoutOptions, defaultCaseBlockLayouts } from "../utils/caseBuilder.ts";
 import { getWellnessCaseContent } from "../utils/wellnessCaseContent.ts";
 
+test("API failures never restore fictional portfolio cases", () => {
+  for (const locale of ["ru", "en"] as const) {
+    assert.deepEqual(getCaseFallbacks(locale).map((project) => project.slug), ["wellness-app"]);
+  }
+});
+
 for (const locale of ["ru", "en"] as const) {
   test(`WELLNESS APP is localized and anonymized for ${locale}`, () => {
     const wellness = getCaseFallbacks(locale).find((item) => item.slug === "wellness-app");

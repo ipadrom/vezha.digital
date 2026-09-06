@@ -94,6 +94,12 @@ Admin edits case document
 
 The case builder is an established product surface. New case formats should extend its block/schema system unless a separate architecture is explicitly approved.
 
+The portfolio contains authored projects only. `seed.py` neither creates demo
+projects nor clears existing cases, and frontend fallbacks must not invent work.
+Retired seed cases are removed from `projects` and its child tables; their original
+rows are retained in `retired_demo_case_backups` for manual recovery and are not
+exposed by the public API or admin case list. Media storage is not deleted.
+
 The `technologies` block supports `map`, `tags` and `contours` layouts. In `contours`,
 items with the same localized `group` form an outlined group, ordered by first
 appearance in the item list. Groups use two columns on larger screens and stack on
