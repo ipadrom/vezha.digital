@@ -321,6 +321,22 @@ const labels = computed(() => props.locale === "ru" ? {
 .artifact-device--food { right: 5%; bottom: -18%; width: 28%; aspect-ratio: 390 / 844; transform: rotate(1.2deg); }
 
 .case-artifact__cover { display: block; width: 100%; height: 100%; object-fit: cover; }
+.case-artifact:is(.case-artifact--process-automation, .case-artifact--gbu-process-automation) {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: auto;
+  align-self: center;
+  background: transparent;
+}
+.case-artifact:is(.case-artifact--process-automation, .case-artifact--gbu-process-automation)::before,
+.case-artifact:is(.case-artifact--process-automation, .case-artifact--gbu-process-automation)::after,
+.case-artifact:is(.case-artifact--process-automation, .case-artifact--gbu-process-automation) .case-artifact__index {
+  display: none;
+}
+.case-artifact:is(.case-artifact--process-automation, .case-artifact--gbu-process-automation) .case-artifact__cover {
+  height: auto;
+  object-fit: contain;
+}
 .case-artifact--ssag { background: #f2f8f5; }
 .case-artifact--ssag::before,
 .case-artifact--ssag::after,
