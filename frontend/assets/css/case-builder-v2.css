@@ -788,8 +788,8 @@
   line-height: 1.58;
 }
 
-/* GBU narrative follows the same reading style as its process disclosures. */
-.case-page[data-case-slug="gbu-process-automation"] .builder-case :is(
+/* Case narratives share the reading style used by process disclosures. */
+.case-page .builder-case :is(
   .builder-editorial .builder-prose,
   .builder-process-chapter__summary,
   .builder-results__body .builder-prose,
@@ -802,7 +802,7 @@
   text-wrap: pretty;
 }
 
-.case-page[data-case-slug="gbu-process-automation"] .builder-case .case-air__benefits strong {
+.case-page .builder-case .case-air__benefits strong {
   font-size: inherit;
   line-height: inherit;
 }
