@@ -1144,6 +1144,20 @@
     --case-section-space: clamp(2.25rem, 8vw, 2.75rem);
   }
 
+  .builder-block--media_hero.builder-block--wide {
+    grid-column: 1 / -1;
+    margin-inline: calc(-1 * var(--builder-inline-pad));
+  }
+
+  .builder-block.builder-block--media_hero.builder-block--wide > .builder-block__inner {
+    padding: 0;
+    border-radius: 0;
+  }
+
+  .builder-block--media_hero.builder-block--wide .builder-media-hero {
+    border-radius: 0;
+  }
+
   .builder-block:not(.builder-block--hero, .builder-block--media_hero, .builder-block--next_case) {
     margin-block: 0.5rem;
   }
