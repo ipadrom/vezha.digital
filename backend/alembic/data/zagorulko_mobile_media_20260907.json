@@ -1,0 +1,232 @@
+{
+  "slug": "gbu-process-automation",
+  "meta": {
+    "image_url": "/cases/gbu-process-automation/zagorulko-work-center-cover.png",
+    "cover_image_url": "/cases/gbu-process-automation/zagorulko-work-center-cover.png",
+    "seo_image_url": "/cases/gbu-process-automation/zagorulko-work-center-cover.png",
+    "name_ru": "Автоматизация рабочих процессов ИП Загорулько",
+    "name_en": "Workflow automation for Zagorulko",
+    "seo_title_ru": "Автоматизация рабочих процессов ИП Загорулько",
+    "seo_title_en": "Workflow automation for Zagorulko"
+  },
+  "hero_logo": "/cases/gbu-process-automation/mobile/work-center-logo.svg",
+  "cover_block": {
+    "id": "d38a1d06-ff06-5ec9-a709-b59397d2af90",
+    "type": "media_hero",
+    "is_visible": true,
+    "sort_order": 1,
+    "settings": {
+      "theme": "paper",
+      "surface": "plain",
+      "width": "wide",
+      "spacing": "normal",
+      "layout": "media-natural",
+      "alignment": "center",
+      "desktop_span": 12,
+      "desktop_start": 0,
+      "tablet_span": 12,
+      "tablet_start": 0,
+      "mobile_span": 12,
+      "mobile_start": 0
+    },
+    "content_ru": {
+      "image_url": "/cases/gbu-process-automation/zagorulko-work-center-cover.png",
+      "image_alt": "ИП Загорулько — рабочий центр: обработка заказов и распределение бригад на телефоне"
+    },
+    "content_en": {
+      "image_url": "/cases/gbu-process-automation/zagorulko-work-center-cover.png",
+      "image_alt": "Zagorulko — work center: order processing and mobile crew assignment"
+    }
+  },
+  "blocks": {
+    "3884cc0b-5432-5080-8a68-549b046dbd5c": {
+      "content_ru": {
+        "image_url": "/cases/gbu-process-automation/mobile/demo-orders.png",
+        "alt": "Учебная таблица с тремя заказами",
+        "caption": "Исходная таблица для демонстрации. Все имена, учреждения и заказы вымышлены."
+      },
+      "content_en": {
+        "image_url": "/cases/gbu-process-automation/mobile/demo-orders.png",
+        "alt": "Synthetic source table with three orders",
+        "caption": "Demonstration source table. All names, institutions and orders are fictional."
+      }
+    },
+    "3f1d741c-0ab2-5a56-add0-a84c8b23f40e": {
+      "items": {
+        "0": {
+          "shared": {
+            "media_type": "video",
+            "media_layout": "phone",
+            "media_size": "compact",
+            "video_url": "/cases/gbu-process-automation/mobile/01-recognition-edit.mp4",
+            "poster_url": "/cases/gbu-process-automation/mobile/03-recognized-order.png"
+          },
+          "ru": {
+            "media_caption": "Мобильная запись: загрузка таблицы, обработка и правка времени. Ответ OCR демонстрационный; поля и итоговый текст обновляет приложение."
+          },
+          "en": {
+            "media_caption": "Mobile recording: table upload, processing and time correction. The OCR response is mocked; fields and formatted output are updated by the app."
+          }
+        },
+        "1": {
+          "shared": {
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "compact",
+            "image_url": "/cases/gbu-process-automation/mobile/03-recognized-order.png",
+            "secondary_image_url": "/cases/gbu-process-automation/mobile/04-edited-result.png"
+          },
+          "ru": {
+            "image_alt": "Распознанный заказ с редактируемыми полями",
+            "secondary_image_alt": "Результат после изменения времени на 09:15",
+            "media_caption": "Распознанный заказ и результат после ручной правки времени. Данные вымышленные."
+          },
+          "en": {
+            "image_alt": "Recognized order with editable fields",
+            "secondary_image_alt": "Formatted output after changing the time to 09:15",
+            "media_caption": "Recognized order and output after a manual time correction. Synthetic data."
+          }
+        },
+        "2": {
+          "shared": {
+            "media_type": "video",
+            "media_layout": "phone",
+            "media_size": "compact",
+            "video_url": "/cases/gbu-process-automation/mobile/03-shorten-orders.mp4",
+            "poster_url": "/cases/gbu-process-automation/mobile/11-ready-messages.png"
+          },
+          "ru": {
+            "title": "Подготовить сообщения для MAX",
+            "description": "Сотрудник вставляет заказы с назначенными бригадирами, а приложение сокращает их до отдельных сообщений и сортирует по времени. В каждом сообщении остаются необходимые для этого формата сведения: время, фамилия и бригадир.\n\nГотовый текст можно скопировать по одному заказу или целиком. На записи показаны сокращение трёх вымышленных заказов и копирование первого сообщения; отправка в рабочий чат не выполняется.",
+            "media_caption": "Подготовка и копирование сообщений на телефоне. Демонстрация не включает реальную доставку в MAX."
+          },
+          "en": {
+            "title": "Prepare messages for MAX",
+            "description": "The employee pastes orders with assigned crew leaders. The app shortens them into individual messages and sorts them by time, keeping the time, surname and crew leader required by this format.\n\nThe employee can copy one message or the entire list. The recording shows three fictional orders being shortened and the first message copied; no workplace messages are sent.",
+            "media_caption": "Preparing and copying messages on a phone. The recording does not demonstrate live MAX delivery."
+          }
+        }
+      }
+    },
+    "5db977d0-4a69-5bbf-a151-b8d8737cd33d": {
+      "settings": {
+        "media_aspect": "phone",
+        "caption_position": "below"
+      },
+      "shared": {
+        "before_media_type": "video",
+        "before_video_url": "/cases/gbu-process-automation/mobile/01-recognition-edit.mp4",
+        "before_poster_url": "/cases/gbu-process-automation/mobile/03-recognized-order.png",
+        "after_media_type": "image",
+        "after_url": "/cases/gbu-process-automation/mobile/11-ready-messages.png",
+        "autoplay": false,
+        "controls": true
+      },
+      "content_ru": {
+        "before_label": "Загрузка и правка заказа · демонстрационный OCR",
+        "after_label": "Готовые короткие сообщения в приложении",
+        "after_alt": "Три вымышленных заказа, сокращённые для MAX"
+      },
+      "content_en": {
+        "before_label": "Order upload and editing · mocked OCR",
+        "after_label": "Ready-to-copy short messages in the app",
+        "after_alt": "Three fictional orders shortened for MAX"
+      }
+    },
+    "1cddfd62-8bdd-5d6e-a4c4-67e51a1aa760": {
+      "items": {
+        "0": {
+          "shared": {
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "compact",
+            "image_url": "/cases/gbu-process-automation/mobile/05-roster.png"
+          },
+          "ru": {
+            "image_alt": "Состав на день из 18 вымышленных участников",
+            "media_caption": "Список сотрудников в мобильном интерфейсе. Все фамилии вымышлены."
+          },
+          "en": {
+            "image_alt": "Daily roster of 18 fictional participants",
+            "media_caption": "Employee roster in the mobile interface. All names are fictional."
+          }
+        },
+        "1": {
+          "shared": {
+            "media_type": "video",
+            "media_size": "medium",
+            "video_url": "/cases/gbu-process-automation/crew-network-graph.mp4",
+            "poster_url": "/cases/gbu-process-automation/crew-network-graph-poster.jpg"
+          },
+          "ru": {
+            "media_caption": "Концептуальная визуализация связей. Узлы и значения условны; это не запись интерфейса."
+          },
+          "en": {
+            "media_caption": "Conceptual relationship visualization. Nodes and values are illustrative, not a UI recording."
+          }
+        },
+        "2": {
+          "shared": {
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "compact",
+            "image_url": "/cases/gbu-process-automation/mobile/06-crews-result.png"
+          },
+          "ru": {
+            "image_alt": "Четыре бригады и резерв после локального расчёта",
+            "media_caption": "Реальный расчёт на вымышленном составе: четыре бригады по четыре человека и два участника в резерве."
+          },
+          "en": {
+            "image_alt": "Four crews and a reserve after a local calculation",
+            "media_caption": "Actual calculation using a synthetic roster: four crews of four and two reserve participants."
+          }
+        },
+        "3": {
+          "shared": {
+            "media_type": "video",
+            "media_layout": "phone",
+            "media_size": "compact",
+            "video_url": "/cases/gbu-process-automation/mobile/02-crews-touch-drag.mp4",
+            "poster_url": "/cases/gbu-process-automation/mobile/07-touch-drag.png"
+          },
+          "ru": {
+            "media_caption": "Создание четвёрок, два перетаскивания касанием, закрепление и пересборка. Закреплённая бригада сохраняет состав."
+          },
+          "en": {
+            "media_caption": "Crew generation, two touch drag operations, locking and rebuilding. The locked crew retains its members."
+          }
+        }
+      }
+    },
+    "36589002-d349-5e82-ad57-2109acdd61f4": {
+      "settings": {
+        "media_aspect": "phone",
+        "caption_position": "below"
+      },
+      "shared": {
+        "before_media_type": "video",
+        "before_video_url": "/cases/gbu-process-automation/mobile/02-crews-touch-drag.mp4",
+        "before_poster_url": "/cases/gbu-process-automation/mobile/07-touch-drag.png",
+        "after_media_type": "image",
+        "after_url": "/cases/gbu-process-automation/mobile/09-rebuilt-crews.png",
+        "autoplay": false,
+        "controls": true
+      },
+      "content_ru": {
+        "before_label": "Перетаскивание, закрепление и пересборка",
+        "after_label": "Готовый состав после пересборки",
+        "after_alt": "Бригады после пересборки вокруг закреплённого состава"
+      },
+      "content_en": {
+        "before_label": "Drag, lock and rebuild",
+        "after_label": "Crews after rebuilding",
+        "after_alt": "Crews rebuilt around locked members"
+      }
+    }
+  },
+  "project_id": "4810c91e-8c5d-589e-8ec3-2259a1ff7cfa",
+  "hero_titles": {
+    "ru": "ИП Загорулько",
+    "en": "Zagorulko"
+  }
+}

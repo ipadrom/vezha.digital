@@ -99,6 +99,11 @@ The existing `image_url` remains the first image; optional `secondary_image_url`
 and `secondary_image_alt` add a second screenshot beside it. Each image links to
 its full-resolution source. Default media layouts and existing cases are unchanged.
 
+The phone layout also limits portrait process videos to 248 CSS pixels. Process
+items can show a `media_caption` below their media; `media_note` remains a
+placeholder production brief. Comparison blocks can opt into
+`settings.media_aspect: "phone"` for two compact, uncropped mobile screens.
+
 The portfolio contains authored projects only. `seed.py` neither creates demo
 projects nor clears existing cases, and frontend fallbacks must not invent work.
 Retired seed cases are removed from `projects` and its child tables; their original

@@ -201,6 +201,7 @@ class ProcessItem(FlexibleContent):
     description: str = ""
     media_type: Literal["none", "image", "video"] = "none"
     media_note: str = ""
+    media_caption: str = ""
     image_url: str = ""
     image_alt: str = ""
     media_layout: Literal["default", "phone"] = "default"

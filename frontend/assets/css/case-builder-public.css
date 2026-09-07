@@ -869,6 +869,34 @@
   border-radius: 14px;
 }
 
+.builder-process__media[data-layout="phone"] > video {
+  width: min(100%, 248px);
+  height: auto;
+  justify-self: center;
+  object-fit: contain;
+}
+
+.builder-process__media-caption {
+  max-width: 44ch;
+  margin: 0;
+  justify-self: center;
+  color: var(--case-faint);
+  font: 400 12px/1.5 var(--font-ui);
+}
+
+.builder-block--media-phone .builder-comparison {
+  grid-template-columns: repeat(2, minmax(0, 248px));
+  justify-content: center;
+  gap: clamp(16px, 3vw, 40px);
+}
+
+.builder-block--media-phone .builder-comparison :is(img, video) {
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
 .builder-process__tags {
   grid-column: 1 / -1;
   margin-top: 0;

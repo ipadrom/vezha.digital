@@ -124,6 +124,7 @@
           <option value="landscape">Горизонтальные · 16:9</option>
           <option value="square">Квадратные · 1:1</option>
           <option value="portrait">Вертикальные · 4:5</option>
+          <option v-if="block.type === 'comparison'" value="phone">Мобильные экраны · компактно</option>
         </select>
       </label>
       <label v-if="block.type === 'comparison'">
@@ -250,7 +251,7 @@ const fieldMap: Record<string, Field[]> = {
 
 const itemFieldMap: Record<string, Field[]> = {
   metrics: [{ key: 'value', label: 'Значение' }, { key: 'label', label: 'Подпись' }, { key: 'context', label: 'Контекст', kind: 'textarea' }],
-  process: [{ key: 'title', label: 'Название' }, { key: 'description', label: 'Описание', kind: 'textarea' }, { key: 'media_type', label: 'Плейсхолдер медиа', kind: 'select', defaultValue: 'none', options: [{ value: 'none', label: 'Без медиа' }, { value: 'image', label: 'Фото / GIF' }, { value: 'video', label: 'Видео' }] }, { key: 'media_note', label: 'Что должно быть в медиа', kind: 'textarea', rows: 3 }, { key: 'image_url', label: 'Фото / GIF', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt фото / GIF' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'media_size', label: 'Размер медиа', kind: 'select', defaultValue: 'medium', options: [{ value: 'compact', label: 'Компактный' }, { value: 'medium', label: 'Средний' }, { value: 'full', label: 'Во всю ширину' }] }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
+  process: [{ key: 'title', label: 'Название' }, { key: 'description', label: 'Описание', kind: 'textarea' }, { key: 'media_type', label: 'Плейсхолдер медиа', kind: 'select', defaultValue: 'none', options: [{ value: 'none', label: 'Без медиа' }, { value: 'image', label: 'Фото / GIF' }, { value: 'video', label: 'Видео' }] }, { key: 'media_note', label: 'Что должно быть в медиа', kind: 'textarea', rows: 3 }, { key: 'media_caption', label: 'Подпись под медиа', kind: 'textarea', rows: 3 }, { key: 'media_layout', label: 'Формат экрана', kind: 'select', defaultValue: 'default', options: [{ value: 'default', label: 'Обычный' }, { value: 'phone', label: 'Телефон · компактно' }] }, { key: 'image_url', label: 'Фото / GIF', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt фото / GIF' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'media_size', label: 'Размер медиа', kind: 'select', defaultValue: 'medium', options: [{ value: 'compact', label: 'Компактный' }, { value: 'medium', label: 'Средний' }, { value: 'full', label: 'Во всю ширину' }] }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
   results: [{ key: 'text', label: 'Вывод', kind: 'textarea', rows: 3 }],
   technologies: [
     { key: 'label', label: 'Технология' }, { key: 'category', label: 'Роль над названием' },

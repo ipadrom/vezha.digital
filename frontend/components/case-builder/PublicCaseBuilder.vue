@@ -161,7 +161,7 @@
                     <div class="builder-process__copy">
                       <p v-if="item.description">{{ item.description }}</p>
                     </div>
-                    <div v-if="processHasMedia(item)" class="builder-process__media" :data-size="processMediaSize(item)">
+                    <div v-if="processHasMedia(item)" class="builder-process__media" :data-size="processMediaSize(item)" :data-layout="item.media_layout">
                       <div v-if="item.image_url && item.media_layout === 'phone'" class="builder-process__phones" :class="{ 'builder-process__phones--pair': item.secondary_image_url }">
                         <a :href="item.image_url" target="_blank" rel="noopener" :aria-label="locale === 'ru' ? 'Открыть скриншот: ' + (item.image_alt || item.title) : 'Open screenshot: ' + (item.image_alt || item.title)">
                           <img :src="item.image_url" :alt="item.image_alt || ''" loading="lazy" decoding="async" />
@@ -175,6 +175,7 @@
                         <source :src="item.video_url" />
                         {{ locale === 'ru' ? 'Ваш браузер не поддерживает видео.' : 'Your browser does not support video.' }}
                       </video>
+                      <p v-if="item.media_caption" class="builder-process__media-caption">{{ item.media_caption }}</p>
                       <div v-if="!item.image_url && !item.video_url" class="builder-placeholder builder-process__placeholder">
                         <b>{{ item.media_type === 'video' ? 'VIDEO' : 'IMAGE' }}</b>
                         <span v-if="item.media_note">{{ item.media_note }}</span>
@@ -361,7 +362,7 @@ const blockClasses = (block: PublicBuilderBlock) => [
   `builder-block--space-${block.settings.spacing || 'normal'}`,
   `builder-block--align-${block.settings.alignment || 'left'}`,
   `builder-block--layout-${block.settings.layout || 'default'}`,
-  ['landscape', 'square', 'portrait'].includes(String(block.settings.media_aspect || ''))
+  ['landscape', 'square', 'portrait', 'phone'].includes(String(block.settings.media_aspect || ''))
     ? `builder-block--media-${block.settings.media_aspect}`
     : '',
   block.settings.caption_position === 'below' ? 'builder-block--caption-below' : '',
