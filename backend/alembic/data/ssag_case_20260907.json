@@ -1,0 +1,526 @@
+{
+  "meta": {
+    "slug": "ssag",
+    "name_ru": "SSAG — карта помощи и SOS-кнопка",
+    "name_en": "SSAG — help map and SOS button",
+    "type_ru": "Мобильное приложение",
+    "type_en": "Mobile application",
+    "description_ru": "Android-приложение с картой мест помощи в Казани и SMS-оповещением близких.",
+    "description_en": "An Android app with a Kazan help map and SMS alerts to loved ones.",
+    "subtitle_ru": "Карта помощи и тревожное SMS в одном приложении",
+    "subtitle_en": "A help map and an emergency text in one app",
+    "industry_ru": "Мобильное приложение",
+    "industry_en": "Mobile application",
+    "timeline_ru": "Android / Kotlin",
+    "timeline_en": "Android / Kotlin",
+    "year": "2026",
+    "image_url": "/cases/ssag/ssag-cover-map-sos-button.png",
+    "cover_image_url": "/cases/ssag/ssag-cover-map-sos-button.png",
+    "is_featured": true,
+    "sort_order": 1,
+    "seo_title_ru": "SSAG — разработка Android-приложения с картой и SOS",
+    "seo_title_en": "SSAG — Android help map and SOS app",
+    "seo_noindex": true
+  },
+  "blocks": [
+    {
+      "type": "hero",
+      "content_ru": {
+        "title": "SSAG",
+        "subtitle": "Помогли связать карту помощи и тревожное SMS в одном приложении.",
+        "industry": "Мобильное приложение",
+        "type_label": "Android / Kotlin"
+      },
+      "content_en": {
+        "title": "SSAG",
+        "subtitle": "A help map and an emergency text, together in one app.",
+        "industry": "Mobile application",
+        "type_label": "Android / Kotlin"
+      },
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "full",
+        "spacing": "large",
+        "layout": "case-header",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0
+      },
+      "sort_order": 0,
+      "is_visible": true
+    },
+    {
+      "type": "media_hero",
+      "content_ru": {
+        "image_url": "/cases/ssag/ssag-devices.png",
+        "alt": "SSAG: карта мест помощи в Казани и экран SOS"
+      },
+      "content_en": {
+        "image_url": "/cases/ssag/ssag-devices.png",
+        "alt": "SSAG: the Kazan help map and SOS screen"
+      },
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "full",
+        "spacing": "compact",
+        "layout": "media-3x2",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0
+      },
+      "sort_order": 1,
+      "is_visible": true
+    },
+    {
+      "type": "text",
+      "content_ru": {
+        "eyebrow": "О проекте",
+        "title": "Найти место, куда можно обратиться, и быстро сообщить близким, что случилось.",
+        "body": "SSAG — Android-приложение с картой мест помощи в Казани и SMS-оповещением доверенных контактов. Мы собрали эти сценарии в одном интерфейсе: карта остаётся под рукой, а для тревоги есть отдельная крупная кнопка.\n\nВ текущем прототипе — 52 места с адресами и расписанием, три типа тревоги и до трёх получателей. Контакты в визуальных примерах вымышлены."
+      },
+      "content_en": {
+        "eyebrow": "About the project",
+        "title": "Find somewhere to turn to, and quickly let loved ones know what happened.",
+        "body": "SSAG is an Android app combining a map of places to seek help in Kazan with SMS alerts to trusted contacts. We brought both flows into one interface: a map within reach and a dedicated, prominent SOS button.\n\nThe current prototype includes 52 places with addresses and opening hours, three alert types and up to three recipients. Contacts in the visual examples are fictional."
+      },
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "overview",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0,
+        "anchor": "story"
+      },
+      "sort_order": 2,
+      "is_visible": true
+    },
+    {
+      "type": "challenge_solution",
+      "content_ru": {
+        "eyebrow": "Задача",
+        "title": "В тревожный момент не должно быть необходимости составлять сообщение с нуля.",
+        "challenge": "Нужно заранее выбрать, кому сообщить о случившемся, а затем передать тип тревоги и ссылку на местоположение. При этом случайное нажатие не должно сразу запускать отправку.",
+        "solution_label": "Мы разделили подготовку и действие:",
+        "solution": "контакты и тип тревоги настраиваются заранее, текст SMS можно проверить, а на главном экране остаётся SOS.",
+        "impact_label": "После нажатия есть пять секунд,",
+        "impact": "чтобы отменить тревогу. Обычный сценарий передаёт подготовленное сообщение в системный SMS-сервис Android."
+      },
+      "content_en": {
+        "eyebrow": "The task",
+        "title": "An urgent moment should not require writing a message from scratch.",
+        "challenge": "Users need to choose whom to notify in advance, then share the alert type and a location link. An accidental tap should not immediately send a message.",
+        "solution_label": "We separated preparation from action:",
+        "solution": "contacts and the alert type are set in advance, the SMS can be previewed, and the main screen keeps the SOS action prominent.",
+        "impact_label": "A five-second countdown",
+        "impact": "allows cancellation. The regular flow then passes the prepared message to Android’s SMS service."
+      },
+      "settings": {
+        "theme": "soft",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "air",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0
+      },
+      "sort_order": 3,
+      "is_visible": true
+    },
+    {
+      "type": "process",
+      "content_ru": {
+        "eyebrow": "Как работает SSAG",
+        "summary": "Четыре экрана — от подготовки контактов до тревоги. Скриншоты сняты в эмуляторе приложения.",
+        "items": [
+          {
+            "title": "Выбрать близких",
+            "description": "В настройках можно добавить до трёх доверенных контактов. Имена помогают проверить получателей перед тревогой; данные сохраняются на устройстве.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/contacts.png",
+            "image_alt": "Настройки SSAG с вымышленными российскими номерами",
+            "media_size": "full",
+            "media_layout": "phone"
+          },
+          {
+            "title": "Посмотреть места на карте",
+            "description": "52 места из согласованного списка нанесены на карту Казани. В карточке — адрес, расписание на неделю и выделенные часы на сегодня. Из неё можно открыть место в Яндекс Картах.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/map.png",
+            "image_alt": "Карта Казани со всеми местами помощи",
+            "media_size": "full",
+            "media_layout": "phone",
+            "secondary_image_url": "/cases/ssag/screens/place-card.png",
+            "secondary_image_alt": "Карточка места с адресом и расписанием"
+          },
+          {
+            "title": "Проверить текст тревоги",
+            "description": "Нападение, пожар или проблемы со здоровьем — выбранный тип сразу отражается в предпросмотре. При обычной отправке вместо заполнителей в ссылку подставляются полученные координаты.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/message-preview.png",
+            "image_alt": "Типы тревоги и предпросмотр SMS",
+            "media_size": "full",
+            "media_layout": "phone"
+          },
+          {
+            "title": "Нажать SOS и при необходимости отменить",
+            "description": "Крупная кнопка запускает пятисекундный отсчёт. Пока он идёт, тревогу можно отменить. Получателю предназначено обычное SMS с типом тревоги и ссылкой на карту.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/countdown.png",
+            "image_alt": "Отсчёт с кнопкой отмены тревоги",
+            "media_size": "full",
+            "media_layout": "phone"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "How SSAG works",
+        "summary": "Four screens, from contact setup to an alert. Captured from the app running in an emulator.",
+        "items": [
+          {
+            "title": "Choose trusted contacts",
+            "description": "Settings support up to three contacts. Names help users check recipients before an alert; the data is stored on the device.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/contacts.png",
+            "image_alt": "SSAG settings with fictional Russian-format numbers",
+            "media_size": "full",
+            "media_layout": "phone"
+          },
+          {
+            "title": "Explore the map",
+            "description": "The Kazan map contains 52 places from the agreed list. Each detail sheet shows an address, the weekly schedule and highlighted hours for today, with a link to Yandex Maps.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/map.png",
+            "image_alt": "Kazan map with all help locations",
+            "media_size": "full",
+            "media_layout": "phone",
+            "secondary_image_url": "/cases/ssag/screens/place-card.png",
+            "secondary_image_alt": "Place details with address and hours"
+          },
+          {
+            "title": "Preview the alert",
+            "description": "Assault, fire or a health emergency: the selected type appears immediately in the preview. During regular sending, acquired coordinates replace the placeholders in the link.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/message-preview.png",
+            "image_alt": "Alert types and SMS preview",
+            "media_size": "full",
+            "media_layout": "phone"
+          },
+          {
+            "title": "Press SOS, with time to cancel",
+            "description": "The large button starts a five-second countdown. The alert can be cancelled before it ends. The recipient is intended to receive a regular SMS with the alert type and a map link.",
+            "media_type": "image",
+            "image_url": "/cases/ssag/screens/countdown.png",
+            "image_alt": "The alert countdown and cancel button",
+            "media_size": "full",
+            "media_layout": "phone"
+          }
+        ]
+      },
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0,
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "sort_order": 4,
+      "is_visible": true
+    },
+    {
+      "type": "image",
+      "content_ru": {
+        "image_url": "/cases/ssag/ssag-received-message.png",
+        "alt": "Вид от первого лица: телефон в руке с SMS о тревоге от мамы",
+        "caption": "Сообщение у получателя. Постановочный мокап с вымышленным контактом и примером координат."
+      },
+      "content_en": {
+        "image_url": "/cases/ssag/ssag-received-message.png",
+        "alt": "First-person view of a phone receiving an emergency text from Mom",
+        "caption": "The recipient’s view. A staged mockup with a fictional contact and example coordinates."
+      },
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "default",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0,
+        "anchor": "evidence"
+      },
+      "sort_order": 5,
+      "is_visible": true
+    },
+    {
+      "type": "results",
+      "content_ru": {
+        "eyebrow": "Что получилось",
+        "body": "Собрали работающий Android-прототип, в котором карта, подготовка контактов и тревога связаны в один короткий сценарий.",
+        "items": [
+          {
+            "title": "Карта и адреса.",
+            "text": " Места в Казани доступны на карте и в списке; в карточках виден график работы."
+          },
+          {
+            "title": "Подготовленное сообщение.",
+            "text": " Тип тревоги и ссылка на местоположение собираются по единому шаблону."
+          },
+          {
+            "title": "Время на отмену.",
+            "text": " Пятисекундный отсчёт позволяет остановить случайно начатую тревогу."
+          }
+        ],
+        "title": "",
+        "tags": []
+      },
+      "content_en": {
+        "eyebrow": "The result",
+        "body": "A working Android prototype that connects the map, contact preparation and an alert in one short flow.",
+        "items": [
+          {
+            "title": "A map and addresses.",
+            "text": " Places in Kazan are available on the map and in a list, with opening hours in their detail sheets."
+          },
+          {
+            "title": "A prepared message.",
+            "text": " The alert type and location link use one shared message template."
+          },
+          {
+            "title": "Time to cancel.",
+            "text": " A five-second countdown lets users stop an accidental alert."
+          }
+        ],
+        "title": "",
+        "tags": []
+      },
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "air",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0
+      },
+      "sort_order": 6,
+      "is_visible": true
+    },
+    {
+      "type": "technologies",
+      "content_ru": {
+        "eyebrow": "Как устроено",
+        "title": "Android-приложение без собственного сервера",
+        "summary": "Kotlin и Jetpack Compose отвечают за интерфейс, MapKit — за карту, системные сервисы Android — за геолокацию и SMS. Это прототип: работа в реальных экстренных ситуациях и доставка сообщений ещё требуют проверки.",
+        "items": [
+          {
+            "id": "kotlin",
+            "label": "Kotlin",
+            "icon": "kotlin",
+            "group": "Приложение",
+            "category": "Логика",
+            "description": "Связывает настройки, состояние тревоги, пятисекундный отсчёт и единый формат сообщения.",
+            "related_ids": [
+              "compose",
+              "sms"
+            ]
+          },
+          {
+            "id": "compose",
+            "label": "Jetpack Compose",
+            "icon": "smartphone",
+            "group": "Приложение",
+            "category": "Интерфейс",
+            "description": "Экраны карты, настроек и SOS; адаптивная компоновка и светлая и тёмная темы.",
+            "related_ids": [
+              "kotlin",
+              "mapkit"
+            ]
+          },
+          {
+            "id": "mapkit",
+            "label": "Yandex MapKit",
+            "icon": "map",
+            "group": "Карта",
+            "category": "Места помощи",
+            "description": "Показывает карту Казани и маркеры 52 мест из встроенного JSON-набора.",
+            "related_ids": [
+              "compose",
+              "location"
+            ]
+          },
+          {
+            "id": "location",
+            "label": "Location Services",
+            "icon": "map-pin",
+            "group": "Устройство",
+            "category": "Координаты",
+            "description": "Предоставляет местоположение для обычного сценария тревоги. Обработка недоступных и устаревших координат требует проверки перед выпуском.",
+            "related_ids": [
+              "mapkit",
+              "sms"
+            ]
+          },
+          {
+            "id": "sms",
+            "label": "Android SMS",
+            "icon": "message-circle",
+            "group": "Устройство",
+            "category": "Оповещение",
+            "description": "Передаёт сообщение в SMS-сервис Android. Передача в API не равна подтверждённой доставке получателю.",
+            "related_ids": [
+              "kotlin",
+              "location"
+            ]
+          },
+          {
+            "id": "prefs",
+            "label": "SharedPreferences",
+            "icon": "database",
+            "group": "Данные",
+            "category": "Настройки",
+            "description": "Хранит контакты и выбранный тип тревоги локально на устройстве.",
+            "related_ids": [
+              "kotlin"
+            ]
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Under the hood",
+        "title": "An Android app without a dedicated backend",
+        "summary": "Kotlin and Jetpack Compose power the interface, MapKit provides the map, and Android services provide location and SMS. This remains a prototype: real emergency use and message delivery still need verification.",
+        "items": [
+          {
+            "id": "kotlin",
+            "label": "Kotlin",
+            "icon": "kotlin",
+            "group": "Application",
+            "category": "Logic",
+            "description": "Connects settings, alert states, the five-second countdown and the shared message formatter.",
+            "related_ids": [
+              "compose",
+              "sms"
+            ]
+          },
+          {
+            "id": "compose",
+            "label": "Jetpack Compose",
+            "icon": "smartphone",
+            "group": "Application",
+            "category": "Interface",
+            "description": "Map, settings and SOS screens with adaptive layouts and light and dark themes.",
+            "related_ids": [
+              "kotlin",
+              "mapkit"
+            ]
+          },
+          {
+            "id": "mapkit",
+            "label": "Yandex MapKit",
+            "icon": "map",
+            "group": "Map",
+            "category": "Places",
+            "description": "Displays Kazan and 52 places from the bundled JSON dataset.",
+            "related_ids": [
+              "compose",
+              "location"
+            ]
+          },
+          {
+            "id": "location",
+            "label": "Location Services",
+            "icon": "map-pin",
+            "group": "Device",
+            "category": "Coordinates",
+            "description": "Provides location for the regular alert flow. Missing and stale location handling needs verification before release.",
+            "related_ids": [
+              "mapkit",
+              "sms"
+            ]
+          },
+          {
+            "id": "sms",
+            "label": "Android SMS",
+            "icon": "message-circle",
+            "group": "Device",
+            "category": "Alerts",
+            "description": "Passes the message to Android’s SMS service. API acceptance does not confirm delivery to a recipient.",
+            "related_ids": [
+              "kotlin",
+              "location"
+            ]
+          },
+          {
+            "id": "prefs",
+            "label": "SharedPreferences",
+            "icon": "database",
+            "group": "Data",
+            "category": "Settings",
+            "description": "Stores contacts and the selected alert type locally.",
+            "related_ids": [
+              "kotlin"
+            ]
+          }
+        ]
+      },
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "contours",
+        "alignment": "left",
+        "desktop_span": 12,
+        "desktop_start": 0,
+        "tablet_span": 12,
+        "tablet_start": 0,
+        "mobile_span": 12,
+        "mobile_start": 0,
+        "anchor": "technical"
+      },
+      "sort_order": 7,
+      "is_visible": true
+    }
+  ]
+}

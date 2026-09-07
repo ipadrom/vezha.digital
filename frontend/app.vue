@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout :name="layout">
-    <NuxtPage :page-key="route => route.fullPath" />
+    <NuxtPage :page-key="route => route.fullPath.split('#')[0]" />
   </NuxtLayout>
 </template>
 

@@ -836,6 +836,39 @@
   background: #10131a;
 }
 
+.builder-process__phones {
+  display: grid;
+  grid-template-columns: minmax(0, 248px);
+  justify-content: center;
+  gap: clamp(12px, 2vw, 24px);
+  width: 100%;
+  align-items: start;
+}
+
+.builder-process__phones--pair {
+  grid-template-columns: repeat(2, minmax(0, 248px));
+  column-gap: clamp(16px, 3vw, 40px);
+}
+
+.builder-process__phones a {
+  display: block;
+  min-width: 0;
+  border-radius: 14px;
+}
+
+.builder-process__phones a:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 5px;
+}
+
+.builder-process__phones img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: var(--case-rule, 1px solid #d9dce2);
+  border-radius: 14px;
+}
+
 .builder-process__tags {
   grid-column: 1 / -1;
   margin-top: 0;

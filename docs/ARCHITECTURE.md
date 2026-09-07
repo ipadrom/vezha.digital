@@ -94,6 +94,11 @@ Admin edits case document
 
 The case builder is an established product surface. New case formats should extend its block/schema system unless a separate architecture is explicitly approved.
 
+Process items can opt into `media_layout: "phone"` for compact portrait screenshots.
+The existing `image_url` remains the first image; optional `secondary_image_url`
+and `secondary_image_alt` add a second screenshot beside it. Each image links to
+its full-resolution source. Default media layouts and existing cases are unchanged.
+
 The portfolio contains authored projects only. `seed.py` neither creates demo
 projects nor clears existing cases, and frontend fallbacks must not invent work.
 Retired seed cases are removed from `projects` and its child tables; their original

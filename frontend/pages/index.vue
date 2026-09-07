@@ -3448,7 +3448,7 @@ function restoreInitialHashPosition() {
     requestAnimationFrame(() => {
       const target = document.getElementById(targetId);
       if (!target) return;
-      window.scrollTo(0, target.getBoundingClientRect().top + window.scrollY);
+      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY, behavior: "instant" });
     });
   });
 }

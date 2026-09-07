@@ -162,7 +162,15 @@
                       <p v-if="item.description">{{ item.description }}</p>
                     </div>
                     <div v-if="processHasMedia(item)" class="builder-process__media" :data-size="processMediaSize(item)">
-                      <img v-if="item.image_url" :src="item.image_url" :alt="item.image_alt || ''" loading="lazy" decoding="async" />
+                      <div v-if="item.image_url && item.media_layout === 'phone'" class="builder-process__phones" :class="{ 'builder-process__phones--pair': item.secondary_image_url }">
+                        <a :href="item.image_url" target="_blank" rel="noopener" :aria-label="locale === 'ru' ? 'Открыть скриншот: ' + (item.image_alt || item.title) : 'Open screenshot: ' + (item.image_alt || item.title)">
+                          <img :src="item.image_url" :alt="item.image_alt || ''" loading="lazy" decoding="async" />
+                        </a>
+                        <a v-if="item.secondary_image_url" :href="item.secondary_image_url" target="_blank" rel="noopener" :aria-label="locale === 'ru' ? 'Открыть скриншот: ' + (item.secondary_image_alt || item.title) : 'Open screenshot: ' + (item.secondary_image_alt || item.title)">
+                          <img :src="item.secondary_image_url" :alt="item.secondary_image_alt || ''" loading="lazy" decoding="async" />
+                        </a>
+                      </div>
+                      <img v-else-if="item.image_url" :src="item.image_url" :alt="item.image_alt || ''" loading="lazy" decoding="async" />
                       <video v-if="item.video_url" controls playsinline preload="metadata" :poster="item.poster_url || undefined" :aria-label="item.title || undefined">
                         <source :src="item.video_url" />
                         {{ locale === 'ru' ? 'Ваш браузер не поддерживает видео.' : 'Your browser does not support video.' }}

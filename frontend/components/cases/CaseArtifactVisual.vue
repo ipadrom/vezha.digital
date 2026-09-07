@@ -321,6 +321,11 @@ const labels = computed(() => props.locale === "ru" ? {
 .artifact-device--food { right: 5%; bottom: -18%; width: 28%; aspect-ratio: 390 / 844; transform: rotate(1.2deg); }
 
 .case-artifact__cover { display: block; width: 100%; height: 100%; object-fit: cover; }
+.case-artifact--ssag { background: #f2f8f5; }
+.case-artifact--ssag::before,
+.case-artifact--ssag::after,
+.case-artifact--ssag .case-artifact__index { display: none; }
+.case-artifact--ssag .case-artifact__cover { object-fit: cover; }
 
 .artifact-menu-phone {
   position: absolute;
@@ -421,7 +426,7 @@ const labels = computed(() => props.locale === "ru" ? {
 
 @media (max-width: 900px) {
   .case-artifact { min-height: 0; aspect-ratio: 4 / 5; border-radius: 18px; }
-  .case-artifact--wellness-app { aspect-ratio: 16 / 9; }
+  .case-artifact--wellness-app, .case-artifact--ssag { aspect-ratio: 16 / 9; }
   .case-artifact__index { top: 2%; right: 1%; font-size: clamp(130px, 42vw, 220px); }
   .case-artifact__wellness-video {
     height: 100%;
