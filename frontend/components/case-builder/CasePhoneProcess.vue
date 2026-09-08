@@ -18,7 +18,7 @@
                 type="button"
                 class="builder-process__trigger phone-process__trigger"
                 :aria-expanded="activeIndex === index"
-                :aria-controls="isCompact ? mobilePanelId : panelId(index)"
+                :aria-controls="panelId(index)"
                 :data-od-id="`case-process-${block.id}-${index + 1}`"
                 @click="selectStep(index)"
               >
@@ -63,14 +63,9 @@
             <button type="button" :aria-pressed="secondaryScreen" @click="secondaryScreen = true">{{ activeItem.secondary_image_label || (locale === 'ru' ? 'Экран 2' : 'Screen 2') }}</button>
           </div>
           <p v-else>{{ String(activeIndex + 1).padStart(2, '0') }} / {{ String(items.length).padStart(2, '0') }}<span class="phone-process__caption-title"> — {{ activeItem.title }}</span></p>
-          <p v-if="activeItem.media_caption" class="phone-process__media-caption">{{ activeItem.media_caption }}</p>
+          <p v-if="activeItem.media_caption">{{ activeItem.media_caption }}</p>
         </figcaption>
       </figure>
-      <div v-if="activeItem" :id="mobilePanelId" class="phone-process__mobile-copy" role="region" :aria-labelledby="`${panelId(activeIndex)}-trigger`">
-        <h4>{{ activeItem.title }}</h4>
-        <p v-if="activeItem.description" class="phone-process__description">{{ activeItem.description }}</p>
-        <p v-if="activeItem.media_caption" class="phone-process__mobile-caption">{{ activeItem.media_caption }}</p>
-      </div>
     </div>
   </div>
 </template>
@@ -87,10 +82,8 @@ const items = computed<Record<string, any>[]>(() => props.block.content.items ||
 const activeItem = computed(() => items.value[activeIndex.value])
 const accordionHeight = ref(0)
 const panelHeights = ref<number[]>([])
-const isCompact = ref(false)
 const summary = computed(() => String(props.block.content.summary || '').trim())
 const panelId = (index: number) => `phone-process-${props.block.id}-${index}`
-const mobilePanelId = computed(() => `phone-process-${props.block.id}-mobile`)
 const screenUrl = (item: Record<string, any>) => secondaryScreen.value && item.secondary_image_url ? item.secondary_image_url : item.image_url
 const screenAlt = (item: Record<string, any>) => (secondaryScreen.value && item.secondary_image_url ? item.secondary_image_alt : item.image_alt) || item.title
 
@@ -103,7 +96,6 @@ function selectStep(index: number) {
 
 function measureAccordion() {
   if (!root.value) return
-  isCompact.value = root.value.clientWidth <= 600
   const triggers = [...root.value.querySelectorAll<HTMLElement>('.phone-process__trigger')]
   const panels = [...root.value.querySelectorAll<HTMLElement>('.phone-process__copy-inner')]
   // Closed panels remain measurable but are absent from reading/focus order.
@@ -208,8 +200,7 @@ onBeforeUnmount(() => {
 }
 .phone-process__copy-inner { width: 100%; box-sizing: border-box; padding: 0.25rem 0 1.25rem; }
 .is-active .phone-process__copy { visibility: visible; opacity: 1; pointer-events: auto; transition-delay: 0s; }
-.phone-process__copy p, .phone-process__description { max-width: 58ch; margin: 0; color: var(--case-v2-fg); font: 400 var(--case-type-lead)/1.58 var(--font-ui); letter-spacing: -0.012em; text-wrap: pretty; white-space: pre-line; }
-.phone-process__mobile-copy { display: none; }
+.phone-process__copy p { max-width: 58ch; margin: 0; color: var(--case-v2-fg); font: 400 var(--case-type-lead)/1.58 var(--font-ui); letter-spacing: -0.012em; text-wrap: pretty; white-space: pre-line; }
 .phone-process__preview {
   grid-column: 1;
   grid-row: 1;
@@ -267,13 +258,6 @@ onBeforeUnmount(() => {
 }
 
 @container phone-process (max-width: 600px) {
-  .phone-process__layout { row-gap: 1.5rem; }
-  .phone-process__steps { min-height: 0; }
-  .phone-process__copy, .phone-process__media-caption { display: none; }
-  .phone-process__mobile-copy { display: grid; grid-column: 1 / -1; grid-row: 2; min-width: 0; gap: 0.75rem; padding-top: 1.25rem; border-top: var(--case-rule); }
-  .phone-process__mobile-copy h4 { margin: 0; color: var(--case-v2-fg); font: 540 var(--case-type-lead)/1.35 var(--font-ui); letter-spacing: -0.022em; }
-  .phone-process__description { overflow-wrap: anywhere; }
-  .phone-process__mobile-caption { margin: 0.25rem 0 0; color: var(--case-v2-muted); font: 400 var(--case-type-caption)/1.5 var(--font-ui); white-space: pre-line; }
   .phone-process .phone-process__steps .phone-process__trigger {
     grid-template-columns: minmax(0, 1fr) 1.75rem;
     gap: 0.25rem 0.375rem;

@@ -2,6 +2,7 @@ from copy import deepcopy
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
+import pytest
 import sqlalchemy as sa
 
 from app.schemas.case_builder import CaseBlockInput
@@ -11,6 +12,13 @@ spec = spec_from_file_location(
 )
 migration = module_from_spec(spec)
 spec.loader.exec_module(migration)
+
+ssag_spec = spec_from_file_location(
+    "ssag_phone_showcase",
+    Path(__file__).parents[1] / "alembic/versions/h4w5x6y7z8a9_ssag_phone_showcase.py",
+)
+ssag_migration = module_from_spec(ssag_spec)
+ssag_spec.loader.exec_module(ssag_migration)
 
 
 def block(text="Draft only"):
@@ -59,7 +67,19 @@ def test_patch_is_scoped_idempotent_and_does_not_mutate_input():
     assert migration.patch_block(value, "gbu-process-automation") == value
 
 
-def test_migration_keeps_public_and_draft_separate_and_creates_one_revision():
+@pytest.mark.parametrize(
+    "target,slug", [(migration, "gbu-process-automation"), (ssag_migration, "ssag")]
+)
+def test_migration_keeps_public_and_draft_separate_and_creates_one_revision(target, slug):
+    def make_block(text="Draft only"):
+        value = block(text)
+        if slug == "ssag":
+            value["id"] = "independent-import-" + text
+            value["content_ru"]["items"] = [
+                {"title": text, "image_url": url} for url in sorted(ssag_migration.SCREENS)
+            ]
+        return value
+
     schema = sa.MetaData()
     projects = sa.Table(
         "projects",
@@ -91,7 +111,7 @@ def test_migration_keeps_public_and_draft_separate_and_creates_one_revision():
         sa.Column("created_at", sa.DateTime),
     )
     engine = sa.create_engine("sqlite://")
-    public = {"meta": {"slug": "gbu-process-automation"}, "blocks": [block("Published text")]}
+    public = {"meta": {"slug": slug}, "blocks": [make_block("Published text")]}
     other = block("Unrelated algorithm")
     other["id"] = "other-block"
     schema.create_all(engine)
@@ -99,17 +119,17 @@ def test_migration_keeps_public_and_draft_separate_and_creates_one_revision():
         connection.execute(
             projects.insert().values(
                 id="project",
-                slug="gbu-process-automation",
+                slug=slug,
                 draft_data={"name_ru": "Unpublished name"},
                 published_data=public,
             )
         )
-        connection.execute(blocks.insert().values(project_id="project", **block()))
+        connection.execute(blocks.insert().values(project_id="project", **make_block()))
         connection.execute(blocks.insert().values(project_id="project", **other))
-        migration.upgrade_cases(connection)
+        target.upgrade_cases(connection)
         saved = connection.execute(sa.select(projects)).mappings().one()
         draft = (
-            connection.execute(sa.select(blocks).where(blocks.c.id == block()["id"]))
+            connection.execute(sa.select(blocks).where(blocks.c.id == make_block()["id"]))
             .mappings()
             .one()
         )
@@ -126,8 +146,34 @@ def test_migration_keeps_public_and_draft_separate_and_creates_one_revision():
             ).scalar()
             == other["settings"]
         )
-        migration.upgrade_cases(connection)
+        target.upgrade_cases(connection)
         assert connection.execute(sa.select(sa.func.count()).select_from(revisions)).scalar() == 1
+
+
+def test_ssag_followup_matches_screens_and_preserves_custom_layouts_and_copy():
+    value = block()
+    value["id"] = "another-import-id"
+    value["content_ru"] = {
+        "summary": "Авторский текст. Скриншоты сняты в эмуляторе приложения.",
+        "items": [
+            {"image_url": url, "image_label": "Авторская подпись"}
+            for url in sorted(ssag_migration.SCREENS)
+        ],
+    }
+    before = deepcopy(value)
+    updated = ssag_migration.patch_block(value)
+    assert updated["settings"]["layout"] == "phone-showcase"
+    assert updated["content_ru"]["summary"] == "Авторский текст."
+    assert all(
+        item["image_label"] == "Авторская подпись" for item in updated["content_ru"]["items"]
+    )
+    assert value == before
+    assert ssag_migration.patch_block(updated) == updated
+    value["settings"]["layout"] = "freeform"
+    assert ssag_migration.patch_block(value) == value
+    value["settings"]["layout"] = "chapter"
+    value["content_ru"]["items"].pop()
+    assert ssag_migration.patch_block(value) == value
 
 
 def test_algorithm_converts_for_both_slugs_without_changing_media():

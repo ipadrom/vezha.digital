@@ -98,14 +98,16 @@ The process block offers two compositions: the existing `chapter` and
 `phone-showcase` ("Список с телефоном"), also available as a separate library
 preset. The public renderer and admin canvas share the same interactive
 component. The latter always opens one step and switches its image or video on
-click. On small phones, the screen and step titles retain two equal columns;
-the selected description and media caption appear below at full width, and step numbers are hidden.
+click. On small phones, the screen and accordion retain two equal columns;
+the selected description expands inside its step and step numbers are hidden.
 Image pairs use editable `image_label` / `secondary_image_label` controls;
 videos have controls and are reset when switching steps. Existing media fields
 and the case save/publish/revision APIs are reused. Ordinary chapters keep their
 current disclosure settings. Migration `g3v4w5x6y7z8` opts SSAG and the Zagorulko
 app walkthrough and algorithm sections into this composition, patching draft blocks and published
 snapshots separately without publishing other draft changes.
+Follow-up migration `h4w5x6y7z8a9` recognizes the SSAG walkthrough by its complete
+screen set, because independently imported cases have different block UUIDs.
 
 Process items can opt into `media_layout: "phone"` for compact portrait screenshots.
 The existing `image_url` remains the first image; optional `secondary_image_url`
