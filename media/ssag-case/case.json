@@ -152,7 +152,7 @@
       "type": "process",
       "content_ru": {
         "eyebrow": "Как работает SSAG",
-        "summary": "Четыре экрана — от подготовки контактов до тревоги. Скриншоты сняты в эмуляторе приложения.",
+        "summary": "Четыре экрана — от подготовки контактов до тревоги.",
         "items": [
           {
             "title": "Выбрать близких",
@@ -172,7 +172,9 @@
             "media_size": "full",
             "media_layout": "phone",
             "secondary_image_url": "/cases/ssag/screens/place-card.png",
-            "secondary_image_alt": "Карточка места с адресом и расписанием"
+            "secondary_image_alt": "Карточка места с адресом и расписанием",
+            "image_label": "Карта",
+            "secondary_image_label": "Карточка места"
           },
           {
             "title": "Проверить текст тревоги",
@@ -196,7 +198,7 @@
       },
       "content_en": {
         "eyebrow": "How SSAG works",
-        "summary": "Four screens, from contact setup to an alert. Captured from the app running in an emulator.",
+        "summary": "Four screens, from contact setup to an alert.",
         "items": [
           {
             "title": "Choose trusted contacts",
@@ -216,7 +218,9 @@
             "media_size": "full",
             "media_layout": "phone",
             "secondary_image_url": "/cases/ssag/screens/place-card.png",
-            "secondary_image_alt": "Place details with address and hours"
+            "secondary_image_alt": "Place details with address and hours",
+            "image_label": "Map",
+            "secondary_image_label": "Place details"
           },
           {
             "title": "Preview the alert",
@@ -243,7 +247,7 @@
         "surface": "plain",
         "width": "wide",
         "spacing": "large",
-        "layout": "chapter",
+        "layout": "phone-showcase",
         "alignment": "left",
         "desktop_span": 12,
         "desktop_start": 0,

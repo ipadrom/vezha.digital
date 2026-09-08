@@ -128,6 +128,8 @@
           <div class="builder-metrics"><article v-for="(item, index) in block.content.items" :key="index" :data-demo="item.is_demo ? 'true' : undefined" :data-od-id="`case-metric-${block.id}-${index + 1}`"><b>{{ item.value }}</b><span>{{ item.label }}</span><small v-if="item.context">{{ item.context }}</small></article></div>
         </template>
 
+        <CasePhoneProcess v-else-if="block.type === 'process' && block.settings.layout === 'phone-showcase'" :block="block" :locale="locale" />
+
         <template v-else-if="block.type === 'process'">
           <header class="builder-heading builder-process-chapter" :data-od-id="`case-heading-${block.id}`">
             <h3>{{ block.content.eyebrow }}</h3>
@@ -340,6 +342,7 @@ import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
 import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'
 import CaseEditorialAir from '~/components/case-builder/CaseEditorialAir.vue'
 import CaseFreeformBlock from '~/components/case-builder/CaseFreeformBlock.vue'
+import CasePhoneProcess from '~/components/case-builder/CasePhoneProcess.vue'
 import { caseHeroColorDefaults, normalizeHexColor, type CaseLocale, type PublicBuilderBlock } from '~/utils/caseBuilder'
 import type { IProjects } from '~/utils/interfaces/IProjects'
 const props = defineProps<{ blocks: PublicBuilderBlock[]; locale: CaseLocale; relatedProjects?: IProjects[] }>()

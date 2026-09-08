@@ -54,7 +54,7 @@ SUPPORTED_BLOCK_LAYOUTS: dict[str, set[str]] = {
     "image": {"default"},
     "image_text": {"image-right", "image-left"},
     "metrics": {"cards"},
-    "process": {"chapter"},
+    "process": {"chapter", "phone-showcase"},
     "quote": {"default"},
     "technologies": {"map", "contours", "tags"},
     "video": {"default"},
@@ -205,6 +205,8 @@ class ProcessItem(FlexibleContent):
     image_url: str = ""
     image_alt: str = ""
     media_layout: Literal["default", "phone"] = "default"
+    image_label: str = ""
+    secondary_image_label: str = ""
     secondary_image_url: str = ""
     secondary_image_alt: str = ""
     video_url: str = ""

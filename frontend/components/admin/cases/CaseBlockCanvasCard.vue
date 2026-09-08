@@ -2,7 +2,7 @@
   <article ref="cardElement" class="canvas-block" :class="[{ selected, hidden: !block.is_visible, resizing: liveSpan !== null, 'surface-plain': block.settings.surface === 'plain' }, `theme-${block.settings.theme}`]" :style="gridStyle" :data-od-id="`case-admin-block-${block.type}-${block.id}`" tabindex="0" @click="$emit('select')" @keydown.enter.self="$emit('select')">
     <div class="canvas-block__rail"><span>{{ String(index + 1).padStart(2, '0') }}</span><i /></div>
     <header class="canvas-block__header">
-      <div><small>{{ blockLabel(block.type) }}</small><b>{{ blockTitle(block, locale) }}</b></div>
+      <div><small>{{ blockLabel(block.type, block.settings.layout) }}</small><b>{{ blockTitle(block, locale) }}</b></div>
       <div class="canvas-block__tools">
         <button v-if="block.type !== 'hero' && block.settings.layout !== 'freeform'" type="button" title="Разобрать в свободную композицию" @click.stop="$emit('convert')">✦</button>
         <button v-if="block.type !== 'hero'" type="button" :title="block.is_visible ? 'Скрыть' : 'Показать'" @click.stop="$emit('toggle')">{{ block.is_visible ? '◉' : '○' }}</button>
@@ -29,6 +29,9 @@
           <CaseInlineEdit class="air-inline-edit" :model-value="value" :label="label" :placeholder="label" multiline @focus="$emit('select')" @update:model-value="edit(path, $event)" />
         </template>
       </CaseEditorialAir>
+      <div v-else-if="block.type === 'process' && block.settings.layout === 'phone-showcase'" class="canvas-phone-process">
+        <PublicCaseBuilder :blocks="[{ id: block.id, type: block.type, settings: block.settings, sort_order: block.sort_order, content }]" :locale="locale" />
+      </div>
       <template v-else-if="block.type === 'hero'">
         <div class="preview-hero-layout">
           <div class="preview-hero-project">
@@ -159,6 +162,7 @@
 import CaseInlineEdit from '~/components/admin/cases/CaseInlineEdit.vue'
 import CaseTechnologyMapEditor from '~/components/admin/cases/CaseTechnologyMapEditor.vue'
 import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'
+import PublicCaseBuilder from '~/components/case-builder/PublicCaseBuilder.vue'
 import CaseEditorialAir from '~/components/case-builder/CaseEditorialAir.vue'
 import CaseFreeformCanvas from '~/components/admin/cases/CaseFreeformCanvas.vue'
 import type { CaseBlock, CaseContentEdit, CaseElementBox, CaseElementType, CaseLocale, CaseViewport } from '~/utils/caseBuilder'
@@ -246,6 +250,10 @@ function resizeWithKeyboard(direction: number) {
 </script>
 
 <style scoped>
+.canvas-phone-process { grid-column: 1 / -1; min-width: 0; }
+.canvas-phone-process :deep(.builder-case) { padding: 0; background: transparent; gap: 0; }
+.canvas-phone-process :deep(.builder-block) { margin: 0; }
+.canvas-phone-process :deep(.builder-block.builder-block--process > .builder-block__inner) { padding: 1rem; }
 .canvas-block {
   position: relative;
   min-width: 0;

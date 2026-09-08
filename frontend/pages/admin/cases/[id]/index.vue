@@ -30,10 +30,10 @@
         <div class="outline-heading"><span>Структура</span><small>{{ document.blocks.length }}</small></div>
         <nav class="outline-list">
           <button v-for="(block, index) in document.blocks" :key="block.id" type="button" :class="{ active: selectedId === block.id, muted: !block.is_visible }" @click="selectedId = block.id">
-            <span>{{ String(index + 1).padStart(2, '0') }}</span><div><b>{{ blockLabel(block.type) }}</b><small>{{ blockTitle(block, locale) }}</small></div><i>{{ block.type === 'hero' ? '●' : '⠿' }}</i>
+            <span>{{ String(index + 1).padStart(2, '0') }}</span><div><b>{{ blockLabel(block.type, block.settings.layout) }}</b><small>{{ blockTitle(block, locale) }}</small></div><i>{{ block.type === 'hero' ? '●' : '⠿' }}</i>
           </button>
         </nav>
-        <div class="block-library"><div class="outline-heading"><span>Добавить блок</span></div><button v-for="item in blockLibrary" :key="item.type" type="button" :disabled="item.type === 'hero' && document.blocks.some(block => block.type === 'hero')" @click="addBlock(item.type)"><span>{{ item.mark }}</span><div><b>{{ item.label }}</b><small>{{ item.type === 'hero' && document.blocks.some(block => block.type === 'hero') ? 'Обязательная шапка уже добавлена' : item.description }}</small></div></button></div>
+        <div class="block-library"><div class="outline-heading"><span>Добавить блок</span></div><button v-for="item in blockLibrary" :key="`${item.type}-${item.layout || 'default'}`" type="button" :disabled="item.type === 'hero' && document.blocks.some(block => block.type === 'hero')" @click="addBlock(item.type, item.layout)"><span>{{ item.mark }}</span><div><b>{{ item.label }}</b><small>{{ item.type === 'hero' && document.blocks.some(block => block.type === 'hero') ? 'Обязательная шапка уже добавлена' : item.description }}</small></div></button></div>
       </aside>
 
       <main class="editor-canvas">
@@ -225,13 +225,13 @@ async function hide() {
   finally { nextTick(() => { applying.value = false }) }
 }
 
-function addBlock(type: CaseBlockType) {
+function addBlock(type: CaseBlockType, layout?: string) {
   if (!document.value) return
   if (type === 'hero' && document.value.blocks.some(block => block.type === 'hero')) {
     showNotice('error', 'В кейсе уже есть обязательная шапка')
     return
   }
-  const block = createCaseBlock(type)
+  const block = createCaseBlock(type, layout)
   const selectedIndex = document.value.blocks.findIndex(item => item.id === selectedId.value)
   const insertAt = selectedIndex >= 0 ? selectedIndex + 1 : document.value.blocks.length
   document.value.blocks.splice(insertAt, 0, block)

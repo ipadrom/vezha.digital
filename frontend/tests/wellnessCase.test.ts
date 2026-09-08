@@ -215,7 +215,7 @@ test("deprecated case blocks and layouts are absent from the builder", () => {
   assert.match(inspector, /caseBlockLayoutOptions\[props\.block\.type\]/);
   assert.deepEqual(caseBlockLayoutOptions.challenge_solution.map((item) => item.value), ["narrative", "air"]);
   assert.deepEqual(caseBlockLayoutOptions.metrics.map((item) => item.value), ["cards"]);
-  assert.deepEqual(caseBlockLayoutOptions.process.map((item) => item.value), ["chapter"]);
+  assert.deepEqual(caseBlockLayoutOptions.process.map((item) => item.value), ["chapter", "phone-showcase"]);
   assert.deepEqual(caseBlockLayoutOptions.results.map((item) => item.value), ["statement", "air"]);
   assert.equal(defaultCaseBlockLayouts.process, "chapter");
   assert.equal(defaultCaseBlockLayouts.results, "statement");

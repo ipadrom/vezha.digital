@@ -1,6 +1,6 @@
 <template>
   <div class="inspector-form">
-    <header><span>BLOCK / {{ block.type.toUpperCase() }}</span><h2>{{ blockLabel(block.type) }}</h2></header>
+    <header><span>BLOCK / {{ block.type.toUpperCase() }}</span><h2>{{ blockLabel(block.type, block.settings.layout) }}</h2></header>
 
     <details open>
       <summary>Контент {{ locale.toUpperCase() }}</summary>
@@ -148,7 +148,8 @@
         <span><b>Показывать вводный заголовок</b><small>Отключите, если карточки показателей продолжают предыдущий обзор проекта.</small></span>
         <input type="checkbox" :checked="block.settings.show_intro !== false" @change="setSetting('show_intro', checkedOf($event))" />
       </label>
-      <template v-if="block.type === 'process'">
+      <p v-if="block.type === 'process' && block.settings.layout === 'phone-showcase'" class="inspector-hint">Один этап открыт всегда. Его изображение или видео показывается слева. Контент и медиа каждого этапа редактируются выше; на телефонах сохраняются две колонки.</p>
+      <template v-if="block.type === 'process' && block.settings.layout !== 'phone-showcase'">
         <label>
           <span>Поведение списка</span>
           <select :value="block.settings.disclosure_mode || 'multiple'" @change="setSetting('disclosure_mode', valueOf($event))">
@@ -251,7 +252,7 @@ const fieldMap: Record<string, Field[]> = {
 
 const itemFieldMap: Record<string, Field[]> = {
   metrics: [{ key: 'value', label: 'Значение' }, { key: 'label', label: 'Подпись' }, { key: 'context', label: 'Контекст', kind: 'textarea' }],
-  process: [{ key: 'title', label: 'Название' }, { key: 'description', label: 'Описание', kind: 'textarea' }, { key: 'media_type', label: 'Плейсхолдер медиа', kind: 'select', defaultValue: 'none', options: [{ value: 'none', label: 'Без медиа' }, { value: 'image', label: 'Фото / GIF' }, { value: 'video', label: 'Видео' }] }, { key: 'media_note', label: 'Что должно быть в медиа', kind: 'textarea', rows: 3 }, { key: 'media_caption', label: 'Подпись под медиа', kind: 'textarea', rows: 3 }, { key: 'media_layout', label: 'Формат экрана', kind: 'select', defaultValue: 'default', options: [{ value: 'default', label: 'Обычный' }, { value: 'phone', label: 'Телефон · компактно' }] }, { key: 'image_url', label: 'Фото / GIF', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt фото / GIF' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'media_size', label: 'Размер медиа', kind: 'select', defaultValue: 'medium', options: [{ value: 'compact', label: 'Компактный' }, { value: 'medium', label: 'Средний' }, { value: 'full', label: 'Во всю ширину' }] }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
+  process: [{ key: 'title', label: 'Название' }, { key: 'description', label: 'Описание', kind: 'textarea' }, { key: 'media_type', label: 'Плейсхолдер медиа', kind: 'select', defaultValue: 'none', options: [{ value: 'none', label: 'Без медиа' }, { value: 'image', label: 'Фото / GIF' }, { value: 'video', label: 'Видео' }] }, { key: 'media_note', label: 'Что должно быть в медиа', kind: 'textarea', rows: 3 }, { key: 'media_caption', label: 'Подпись под медиа', kind: 'textarea', rows: 3 }, { key: 'media_layout', label: 'Формат экрана', kind: 'select', defaultValue: 'default', options: [{ value: 'default', label: 'Обычный' }, { value: 'phone', label: 'Телефон · компактно' }] }, { key: 'image_url', label: 'Фото / GIF', media: true, accept: 'image/*' }, { key: 'image_alt', label: 'Alt фото / GIF' }, { key: 'image_label', label: 'Название первого экрана' }, { key: 'secondary_image_url', label: 'Второй экран (необязательно)', media: true, accept: 'image/*' }, { key: 'secondary_image_alt', label: 'Alt второго экрана' }, { key: 'secondary_image_label', label: 'Название второго экрана' }, { key: 'video_url', label: 'Видео', media: true, accept: 'video/mp4,video/webm' }, { key: 'poster_url', label: 'Обложка видео', media: true, accept: 'image/*' }, { key: 'media_size', label: 'Размер медиа', kind: 'select', defaultValue: 'medium', options: [{ value: 'compact', label: 'Компактный' }, { value: 'medium', label: 'Средний' }, { value: 'full', label: 'Во всю ширину' }] }, { key: 'tags', label: 'Теги через запятую', kind: 'tags' }],
   results: [{ key: 'text', label: 'Вывод', kind: 'textarea', rows: 3 }],
   technologies: [
     { key: 'label', label: 'Технология' }, { key: 'category', label: 'Роль над названием' },
@@ -269,6 +270,9 @@ const fields = computed(() => {
 const itemFields = computed<Field[]>(() => {
   if (isFreeform.value) return []
   const fields = itemFieldMap[props.block.type] || []
+  if (props.block.type === 'process' && props.block.settings.layout === 'phone-showcase') {
+    return fields.filter(field => !['media_type', 'media_note', 'media_layout', 'media_size', 'tags'].includes(field.key))
+  }
   if (props.block.type === 'results' && props.block.settings.layout === 'air') return [{ key: 'title', label: 'Краткий итог' }, ...fields]
   return props.block.type === 'technologies' && props.block.settings.layout === 'contours'
     ? [...fields, { key: 'group', label: 'Контур' }, { key: 'description', label: 'Описание справа', kind: 'textarea', rows: 5 }]

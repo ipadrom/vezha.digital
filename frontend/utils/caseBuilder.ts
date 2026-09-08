@@ -197,6 +197,7 @@ export const blockLibrary: Array<{
   label: string
   description: string
   mark: string
+  layout?: string
 }> = [
   { type: 'hero', label: 'Обложка', description: 'Первый экран и ключевая метрика', mark: 'H' },
   { type: 'media_hero', label: 'Медиа-хиро', description: 'Фото или видео на всю ширину', mark: '◫' },
@@ -207,6 +208,7 @@ export const blockLibrary: Array<{
   { type: 'image_text', label: 'Текст + изображение', description: 'Редакционная композиция', mark: '▤' },
   { type: 'metrics', label: 'Показатели', description: 'Карточки с числами и контекстом', mark: '%' },
   { type: 'process', label: 'Раскрывающаяся глава', description: 'Нумерованные решения с медиа и результатами', mark: '→' },
+  { type: 'process', layout: 'phone-showcase', label: 'Список с телефоном', description: 'Аккордеон и сменяемый экран приложения: фото или видео', mark: '▯' },
   { type: 'quote', label: 'Цитата', description: 'Отзыв клиента', mark: '“' },
   { type: 'technologies', label: 'Технологии', description: 'Стек и интеграции', mark: '</>' },
   { type: 'video', label: 'Видео', description: 'Демонстрация продукта', mark: '▶' },
@@ -242,7 +244,7 @@ export const caseBlockLayoutOptions: Record<CaseBlockType, CaseBlockLayoutOption
     { value: 'image-left', label: 'Изображение слева' },
   ],
   metrics: [{ value: 'cards', label: 'Карточки показателей' }],
-  process: [{ value: 'chapter', label: 'Глава кейса с раскрытиями' }],
+  process: [{ value: 'chapter', label: 'Глава кейса с раскрытиями' }, { value: 'phone-showcase', label: 'Список с телефоном' }],
   quote: [{ value: 'default', label: 'Стандартная' }],
   technologies: [
     { value: 'map', label: 'Карта связей' },
@@ -496,7 +498,7 @@ export const convertBlockToFreeform = (block: CaseBlock): CaseBlock => {
   }
 }
 
-export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
+export const createCaseBlock = (type: CaseBlockType, layout?: string): CaseBlock => {
   const defaults = localizedDefaults[type]
   return {
     id: newId(),
@@ -508,7 +510,7 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
       surface: ['text', 'image', 'metrics', 'challenge_solution', 'process', 'results'].includes(type) ? 'plain' : 'card',
       width: type === 'hero' ? 'full' : ['media_hero', 'text', 'image', 'metrics', 'process', 'results', 'technologies', 'next_case', 'insight'].includes(type) ? 'wide' : 'standard',
       spacing: ['hero', 'text', 'process', 'results', 'next_case', 'insight'].includes(type) ? 'large' : ['image', 'technologies', 'media_hero'].includes(type) ? 'compact' : 'normal',
-      layout: defaultCaseBlockLayouts[type],
+      layout: layout && caseBlockLayoutOptions[type].some(option => option.value === layout) ? layout : defaultCaseBlockLayouts[type],
       alignment: 'left',
       desktop_span: 12,
       desktop_start: 0,
@@ -533,6 +535,7 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
       ...(type === 'process' ? {
         disclosure_mode: 'multiple',
         open_first: false,
+        ...(layout === 'phone-showcase' ? { disclosure_mode: 'single' as const, open_first: true } : {}),
       } : {}),
       ...(type === 'metrics' ? {
         show_intro: true,
@@ -543,7 +546,7 @@ export const createCaseBlock = (type: CaseBlockType): CaseBlock => {
   }
 }
 
-export const blockLabel = (type: CaseBlockType) => blockLibrary.find(item => item.type === type)?.label || type
+export const blockLabel = (type: CaseBlockType, layout?: string) => blockLibrary.find(item => item.type === type && item.layout === layout)?.label || blockLibrary.find(item => item.type === type)?.label || type
 
 export const blockTitle = (block: CaseBlock, locale: CaseLocale) => {
   const content = locale === 'ru' ? block.content_ru : block.content_en
