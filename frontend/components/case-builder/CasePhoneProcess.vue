@@ -20,7 +20,7 @@
                 :aria-expanded="activeIndex === index"
                 :aria-controls="panelId(index)"
                 :data-od-id="`case-process-${block.id}-${index + 1}`"
-                @click="selectStep(index)"
+                @click="selectStep(index, $event)"
               >
                 <span class="phone-process__number">{{ String(index + 1).padStart(2, '0') }}</span>
                 <b>{{ item.title }}</b>
@@ -43,24 +43,30 @@
         </li>
       </ol>
       <figure v-if="activeItem" class="phone-process__preview" :aria-label="activeItem.title">
-        <div v-if="activeItem.video_url" class="phone-process__screen">
-          <video :key="`${block.id}-${activeIndex}-${activeItem.video_url}`" :src="activeItem.video_url" :poster="activeItem.poster_url || undefined" :aria-label="activeItem.title" controls playsinline preload="metadata" />
+        <div class="phone-process__media" :data-instant="instantScreenChange">
+          <Transition name="phone-screen" @before-enter="restoreScreen" @before-leave="retireScreen" @leave-cancelled="restoreScreen">
+            <div :key="screenKey" class="phone-process__frame">
+              <div v-if="activeItem.video_url" class="phone-process__screen">
+                <video :key="`${block.id}-${activeIndex}-${activeItem.video_url}`" :src="activeItem.video_url" :poster="activeItem.poster_url || undefined" :aria-label="activeItem.title" controls playsinline preload="metadata" />
+              </div>
+              <a
+                v-else-if="activeItem.image_url"
+                class="phone-process__screen"
+                :href="screenUrl(activeItem)"
+                target="_blank"
+                rel="noopener"
+                :aria-label="`${locale === 'ru' ? 'Открыть скриншот' : 'Open screenshot'}: ${screenAlt(activeItem)}`"
+              >
+                <img :src="screenUrl(activeItem)" :alt="screenAlt(activeItem)" width="1440" height="3200" decoding="async" />
+              </a>
+              <div v-else class="phone-process__screen phone-process__empty">{{ locale === 'ru' ? 'Экран пока не добавлен' : 'No screen added yet' }}</div>
+            </div>
+          </Transition>
         </div>
-        <a
-          v-else-if="activeItem.image_url"
-          class="phone-process__screen"
-          :href="screenUrl(activeItem)"
-          target="_blank"
-          rel="noopener"
-          :aria-label="`${locale === 'ru' ? 'Открыть скриншот' : 'Open screenshot'}: ${screenAlt(activeItem)}`"
-        >
-          <img :src="screenUrl(activeItem)" :alt="screenAlt(activeItem)" width="1440" height="3200" decoding="async" />
-        </a>
-        <div v-else class="phone-process__screen phone-process__empty">{{ locale === 'ru' ? 'Экран пока не добавлен' : 'No screen added yet' }}</div>
         <figcaption class="phone-process__caption">
           <div v-if="!activeItem.video_url && activeItem.image_url && activeItem.secondary_image_url" class="phone-process__views" :aria-label="locale === 'ru' ? 'Экран приложения' : 'App screen'" role="group">
-            <button type="button" :aria-pressed="!secondaryScreen" @click="secondaryScreen = false">{{ activeItem.image_label || (locale === 'ru' ? 'Экран 1' : 'Screen 1') }}</button>
-            <button type="button" :aria-pressed="secondaryScreen" @click="secondaryScreen = true">{{ activeItem.secondary_image_label || (locale === 'ru' ? 'Экран 2' : 'Screen 2') }}</button>
+            <button type="button" :aria-pressed="!secondaryScreen" @click="selectScreen(false, $event)">{{ activeItem.image_label || (locale === 'ru' ? 'Экран 1' : 'Screen 1') }}</button>
+            <button type="button" :aria-pressed="secondaryScreen" @click="selectScreen(true, $event)">{{ activeItem.secondary_image_label || (locale === 'ru' ? 'Экран 2' : 'Screen 2') }}</button>
           </div>
           <p v-else>{{ String(activeIndex + 1).padStart(2, '0') }} / {{ String(items.length).padStart(2, '0') }}<span class="phone-process__caption-title"> — {{ activeItem.title }}</span></p>
           <p v-if="activeItem.media_caption">{{ activeItem.media_caption }}</p>
@@ -78,6 +84,7 @@ const props = defineProps<{ block: PublicBuilderBlock; locale: CaseLocale }>()
 const root = ref<HTMLElement | null>(null)
 const activeIndex = ref(0)
 const secondaryScreen = ref(false)
+const instantScreenChange = ref(false)
 const items = computed<Record<string, any>[]>(() => props.block.content.items || [])
 const activeItem = computed(() => items.value[activeIndex.value])
 const accordionHeight = ref(0)
@@ -86,12 +93,31 @@ const summary = computed(() => String(props.block.content.summary || '').trim())
 const panelId = (index: number) => `phone-process-${props.block.id}-${index}`
 const screenUrl = (item: Record<string, any>) => secondaryScreen.value && item.secondary_image_url ? item.secondary_image_url : item.image_url
 const screenAlt = (item: Record<string, any>) => (secondaryScreen.value && item.secondary_image_url ? item.secondary_image_alt : item.image_alt) || item.title
+const screenKey = computed(() => `${props.block.id}-${activeIndex.value}-${activeItem.value?.video_url || (activeItem.value && screenUrl(activeItem.value)) || 'empty'}`)
 
 let sizeObserver: ResizeObserver | null = null
 let preloadObserver: IntersectionObserver | null = null
 
-function selectStep(index: number) {
+function selectStep(index: number, event: MouseEvent) {
+  instantScreenChange.value = event.detail === 0
   activeIndex.value = index
+}
+
+function selectScreen(secondary: boolean, event: MouseEvent) {
+  instantScreenChange.value = event.detail === 0
+  secondaryScreen.value = secondary
+}
+
+function retireScreen(element: Element) {
+  // The outgoing frame can overlap visually, but must stop playback and input.
+  element.setAttribute('aria-hidden', 'true')
+  element.setAttribute('inert', '')
+  element.querySelector('video')?.pause()
+}
+
+function restoreScreen(element: Element) {
+  element.removeAttribute('aria-hidden')
+  element.removeAttribute('inert')
 }
 
 function measureAccordion() {
@@ -211,12 +237,18 @@ onBeforeUnmount(() => {
   min-width: 0;
   margin: 0;
 }
-.phone-process__screen {
-  display: block;
+.phone-process__media {
+  display: grid;
+  isolation: isolate;
   /* Centre the phone in the heading column and keep the whole section compact. */
   width: min(90%, 308px, calc(40.5svh - 6.48rem));
   max-width: 100%;
   justify-self: center;
+}
+.phone-process__frame { grid-area: 1 / 1; align-self: start; min-width: 0; }
+.phone-process__screen {
+  display: block;
+  width: 100%;
   border-radius: 1rem;
 }
 .phone-process__screen img,
@@ -247,7 +279,7 @@ onBeforeUnmount(() => {
   .phone-process .phone-process__trigger > .phone-process__number { transform: none; }
   .phone-process__copy-inner { padding: 0 0 1rem; }
   .phone-process__preview { padding-bottom: 0; }
-  .phone-process__screen { width: min(100%, 18rem); }
+  .phone-process__media { width: min(100%, 18rem); }
   .phone-process__screen img, .phone-process__screen video { max-height: none; }
 }
 
@@ -276,6 +308,20 @@ onBeforeUnmount(() => {
   .phone-process__views { gap: 0.375rem; }
   .phone-process__views button { width: 100%; padding: 0.375rem 0.25rem; font-size: 0.75rem; line-height: 1.35; }
 }
+
+@container phone-process (min-width: 960px) {
+  @media (hover: hover) and (pointer: fine) {
+    .phone-screen-enter-active, .phone-screen-leave-active { transition: opacity 200ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)), transform 240ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)); }
+    .phone-screen-enter-active { z-index: 1; }
+    .phone-screen-leave-active { pointer-events: none; }
+    .phone-screen-enter-from, .phone-screen-leave-to { opacity: 0; transform: translateY(1.5%); }
+    @media (prefers-reduced-motion: reduce) {
+      .phone-screen-enter-active, .phone-screen-leave-active { transition: opacity 100ms ease; }
+      .phone-screen-enter-from, .phone-screen-leave-to { transform: none; }
+    }
+  }
+}
+.phone-process__media[data-instant="true"] > .phone-process__frame { transition: none; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
   .phone-process__copy { transition: opacity 100ms ease; }
