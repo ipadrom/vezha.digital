@@ -643,6 +643,15 @@
 }
 
 /* Process as an editorial sequence */
+.builder-block--layout-phone-showcase { container-type: inline-size; container-name: phone-showcase-block; }
+.builder-block--layout-phone-showcase .builder-phone-mobile { display: none; }
+@container phone-showcase-block (max-width: 760px) {
+  .builder-block--layout-phone-showcase .builder-phone-desktop { display: none; }
+  .builder-block--layout-phone-showcase .builder-phone-mobile { display: grid; grid-column: 1 / -1; }
+  .builder-block--layout-phone-showcase .builder-phone-mobile .builder-process__trigger { grid-template-columns: minmax(0, 1fr) 2.5rem; }
+  .builder-block--layout-phone-showcase .builder-phone-mobile .builder-process__trigger > span { display: none; }
+}
+
 .builder-block--process > .builder-block__inner {
   display: grid;
   grid-template-columns: var(--case-editorial-grid);

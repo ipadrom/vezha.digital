@@ -148,7 +148,7 @@
         <span><b>Показывать вводный заголовок</b><small>Отключите, если карточки показателей продолжают предыдущий обзор проекта.</small></span>
         <input type="checkbox" :checked="block.settings.show_intro !== false" @change="setSetting('show_intro', checkedOf($event))" />
       </label>
-      <p v-if="block.type === 'process' && block.settings.layout === 'phone-showcase'" class="inspector-hint">Один этап открыт всегда. Его изображение или видео показывается слева. Контент и медиа каждого этапа редактируются выше; на телефонах сохраняются две колонки.</p>
+      <p v-if="block.type === 'process' && block.settings.layout === 'phone-showcase'" class="inspector-hint">На десктопе экран слева меняется при выборе этапа справа. На мобильном — обычный аккордеон: текст и медиа под раскрытым пунктом. Контент и медиа каждого этапа редактируются выше.</p>
       <template v-if="block.type === 'process' && block.settings.layout !== 'phone-showcase'">
         <label>
           <span>Поведение списка</span>

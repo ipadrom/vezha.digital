@@ -98,8 +98,9 @@ The process block offers two compositions: the existing `chapter` and
 `phone-showcase` ("Список с телефоном"), also available as a separate library
 preset. The public renderer and admin canvas share the same interactive
 component. The latter always opens one step and switches its image or video on
-click. On small phones, the screen and accordion retain two equal columns;
-the selected description expands inside its step and step numbers are hidden.
+click. Below 760px of block width, the public renderer and admin preview use
+the ordinary full-width process accordion, with text and media inside each
+expanded step and step numbers hidden. The separate phone preview is hidden.
 Image pairs use editable `image_label` / `secondary_image_label` controls;
 videos have controls and are reset when switching steps. Existing media fields
 and the case save/publish/revision APIs are reused. Ordinary chapters keep their

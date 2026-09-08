@@ -128,17 +128,16 @@
           <div class="builder-metrics"><article v-for="(item, index) in block.content.items" :key="index" :data-demo="item.is_demo ? 'true' : undefined" :data-od-id="`case-metric-${block.id}-${index + 1}`"><b>{{ item.value }}</b><span>{{ item.label }}</span><small v-if="item.context">{{ item.context }}</small></article></div>
         </template>
 
-        <CasePhoneProcess v-else-if="block.type === 'process' && block.settings.layout === 'phone-showcase'" :block="block" :locale="locale" />
-
         <template v-else-if="block.type === 'process'">
-          <header class="builder-heading builder-process-chapter" :data-od-id="`case-heading-${block.id}`">
+          <CasePhoneProcess v-if="block.settings.layout === 'phone-showcase'" class="builder-phone-desktop" :block="block" :locale="locale" />
+          <header class="builder-heading builder-process-chapter" :class="{ 'builder-phone-mobile': block.settings.layout === 'phone-showcase' }" :data-od-id="`case-heading-${block.id}`">
             <h3>{{ block.content.eyebrow }}</h3>
             <div class="builder-process-chapter__copy">
               <p v-if="block.content.title" class="builder-process-chapter__lead">{{ block.content.title }}</p>
               <p v-if="block.content.summary" class="builder-process-chapter__summary">{{ block.content.summary }}</p>
             </div>
           </header>
-          <ol class="builder-process" :data-mode="processDisclosureMode(block)">
+          <ol class="builder-process" :class="{ 'builder-phone-mobile': block.settings.layout === 'phone-showcase' }" :data-mode="processDisclosureMode(block)">
             <li v-for="(item, index) in block.content.items" :key="index" :class="{ 'is-open': isProcessOpen(block, index), 'is-active': isProcessActive(block, index) }">
               <button
                 class="builder-process__trigger"
