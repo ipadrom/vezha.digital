@@ -648,7 +648,9 @@
 @container phone-showcase-block (max-width: 760px) {
   .builder-block--layout-phone-showcase .builder-phone-desktop { display: none; }
   .builder-block--layout-phone-showcase .builder-phone-mobile { display: grid; grid-column: 1 / -1; }
-  .builder-block--layout-phone-showcase .builder-phone-mobile .builder-process__trigger { grid-template-columns: minmax(0, 1fr) 2.5rem; }
+  .builder-block--process.builder-block--layout-phone-showcase .builder-phone-mobile .builder-process__trigger { grid-template-columns: minmax(0, 1fr) 2.5rem; }
+  .builder-block--layout-phone-showcase .builder-phone-mobile .builder-process__trigger > b { grid-column: 1; grid-row: 1; }
+  .builder-block--layout-phone-showcase .builder-phone-mobile .builder-process__trigger > i { grid-column: 2; grid-row: 1; justify-self: end; }
   .builder-block--layout-phone-showcase .builder-phone-mobile .builder-process__trigger > span { display: none; }
 }
 
