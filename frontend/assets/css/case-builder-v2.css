@@ -1219,6 +1219,16 @@
     padding-inline: var(--case-content-gutter);
   }
 
+  /* Give the whole mobile accordion the heading's gutter, rather than
+     insetting only its description and leaving the rows edge to edge. */
+  .builder-block--layout-phone-showcase .builder-phone-mobile.builder-process {
+    margin-inline: var(--case-content-gutter);
+  }
+
+  .builder-block--layout-phone-showcase .builder-phone-mobile :is(.builder-process__copy, .builder-process__tags) {
+    padding-inline: 0;
+  }
+
   .builder-process__tags > span {
     min-height: 2.75rem;
   }
