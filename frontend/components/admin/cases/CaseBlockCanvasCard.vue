@@ -471,6 +471,9 @@ blockquote small { display: block; margin-top: 12px; color: #778294; font: 9px v
 .preview-metrics b { font-size: clamp(22px, 3.3cqw, 30px); }
 .preview-metrics > div > .inline-edit { font-size: var(--preview-type-caption); }
 .preview-process { gap: 0; border-top: 1px solid rgb(42 48 61 / 12%); }
+.preview-process-layout { --preview-type-body: var(--type-editorial-lead); }
+.preview-process-layout .preview-process-summary { max-height: none; font-weight: 400; line-height: 1.58; }
+.preview-process li > .inline-edit { font-weight: 540; line-height: 1.28; white-space: normal; overflow-wrap: anywhere; }
 .preview-process li { min-height: 48px; padding: 10px 5px; display: grid; grid-template-columns: 32px minmax(0, 1fr) 28px; gap: 8px; border-bottom: 1px solid rgb(42 48 61 / 12%); border-radius: 0; color: inherit; background: transparent; box-shadow: none; font-size: var(--preview-type-body); }
 .preview-process li.is-open { color: #7865ed; }
 .theme-ink .preview-process { border-color: rgb(255 255 255 / 12%); }
