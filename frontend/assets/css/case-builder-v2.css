@@ -43,7 +43,7 @@
     inset 0 1px 0 rgb(255 255 255 / 88%);
   --case-type-section: var(--type-editorial-section);
   --case-type-subhead: var(--type-editorial-subhead);
-  --case-type-disclosure: var(--type-editorial-disclosure);
+  --case-type-disclosure: var(--type-editorial-lead);
   --case-type-lead: var(--type-editorial-lead);
   --case-type-body: var(--type-editorial-body);
   --case-type-caption: var(--type-caption);

@@ -297,7 +297,7 @@ onBeforeUnmount(() => {
     padding-block: 0.75rem;
   }
   .phone-process .phone-process__trigger > .phone-process__number { display: none; }
-  .phone-process .phone-process__trigger > b { grid-column: 1; grid-row: 1; font-size: 0.875rem; line-height: 1.35; letter-spacing: -0.015em; overflow-wrap: anywhere; }
+  .phone-process .phone-process__trigger > b { grid-column: 1; grid-row: 1; line-height: 1.35; letter-spacing: -0.015em; overflow-wrap: anywhere; }
   .phone-process .phone-process__trigger > i { grid-column: 2; grid-row: 1; width: 1.75rem; height: 1.75rem; }
   .phone-process__copy-inner { padding: 0 0 1rem; }
   .phone-process__copy p { overflow-wrap: anywhere; }
