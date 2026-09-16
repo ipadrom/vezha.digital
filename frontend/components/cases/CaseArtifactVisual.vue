@@ -119,7 +119,15 @@ const props = withDefaults(defineProps<{
 });
 
 const safeSlug = computed(() => props.project.slug || "project");
-const imageUrl = computed(() => props.project.cover_image_url || props.project.image_url || "");
+const imageUrl = computed(() => {
+  const source = props.project.cover_image_url || props.project.image_url || "";
+  // This bundled cover was replaced in place; refresh previously cached copies.
+  const cover = "/cases/gbu-process-automation/zagorulko-work-center-cover.png";
+  if (source.split(/[?#]/)[0] !== cover) return source;
+  const url = new URL(source, "https://vezha.digital");
+  url.searchParams.set("v", "a1e06f4");
+  return `${url.pathname}${url.search}${url.hash}`;
+});
 const caption = computed(() => props.locale === "ru"
   ? `Интерфейсные артефакты проекта ${props.project.name}`
   : `Product interface artifacts for ${props.project.name}`);
