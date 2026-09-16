@@ -123,7 +123,13 @@
         <div class="preview-overview__heading"><h3><CaseInlineEdit :model-value="content.eyebrow" placeholder="Результат" label="Заголовок слева" @focus="$emit('select')" @update:model-value="edit(['eyebrow'], $event)" /></h3></div>
         <div class="preview-overview__copy preview-results-layout">
           <strong><CaseInlineEdit :model-value="content.title" placeholder="Заголовок результата" label="Лид справа" multiline @focus="$emit('select')" @update:model-value="edit(['title'], $event)" /></strong>
-          <ol class="preview-results"><li v-for="(item, resultIndex) in content.items?.slice(0, 5)" :key="resultIndex"><span>{{ String(resultIndex + 1).padStart(2, '0') }}</span><CaseInlineEdit :model-value="item.text" placeholder="Вывод" label="Вывод" multiline @focus="$emit('select')" @update:model-value="edit(['items', resultIndex, 'text'], $event)" /></li><li v-if="!content.items?.length"><span>01</span>Добавьте выводы справа</li></ol>
+          <ul class="preview-results" role="list">
+            <li v-for="(item, resultIndex) in content.items" :key="resultIndex">
+              <CaseResultCheck />
+              <CaseInlineEdit :model-value="typeof item === 'string' ? item : item.text" placeholder="Вывод" label="Вывод" multiline @focus="$emit('select')" @update:model-value="edit(typeof item === 'string' ? ['items', resultIndex] : ['items', resultIndex, 'text'], $event)" />
+            </li>
+            <li v-if="!content.items?.length" class="preview-results__empty">Добавьте выводы справа</li>
+          </ul>
         </div>
       </template>
       <template v-else-if="block.type === 'technologies'">
@@ -163,6 +169,7 @@ import CaseInlineEdit from '~/components/admin/cases/CaseInlineEdit.vue'
 import CaseTechnologyMapEditor from '~/components/admin/cases/CaseTechnologyMapEditor.vue'
 import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'
 import PublicCaseBuilder from '~/components/case-builder/PublicCaseBuilder.vue'
+import CaseResultCheck from '~/components/case-builder/CaseResultCheck.vue'
 import CaseEditorialAir from '~/components/case-builder/CaseEditorialAir.vue'
 import CaseFreeformCanvas from '~/components/admin/cases/CaseFreeformCanvas.vue'
 import type { CaseBlock, CaseContentEdit, CaseElementBox, CaseElementType, CaseLocale, CaseViewport } from '~/utils/caseBuilder'
@@ -397,27 +404,18 @@ blockquote small { display: block; margin-top: 12px; color: #778294; font: 9px v
   margin: 0;
   padding: 0;
   display: grid;
+  gap: 1.5rem;
   list-style: none;
-  border-top: 1px solid rgb(42 48 61 / 12%);
 }
 .preview-results li {
-  min-height: 52px;
-  padding: 11px 5px;
   display: grid;
-  grid-template-columns: 34px minmax(0, 1fr);
+  grid-template-columns: 1.15rem minmax(0, 1fr);
   align-items: start;
-  gap: 8px;
-  border-bottom: 1px solid rgb(42 48 61 / 12%);
+  gap: 12px;
   font-size: var(--preview-type-body);
-  line-height: 1.4;
+  line-height: 1.52;
 }
-.preview-results li > span {
-  padding-top: 2px;
-  color: #7865ed;
-  font: var(--preview-type-label) var(--font-mono);
-}
-.theme-ink .preview-results,
-.theme-ink .preview-results li { border-color: rgb(255 255 255 / 12%); }
+.preview-results li.preview-results__empty { grid-template-columns: minmax(0, 1fr); }
 .preview-overview__tags {
   display: flex;
   flex-wrap: wrap;

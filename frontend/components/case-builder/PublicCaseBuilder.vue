@@ -276,9 +276,9 @@
             <div class="builder-results__body">
               <p v-if="block.content.eyebrow && block.content.title" class="builder-results__lead">{{ block.content.title }}</p>
               <p v-if="block.content.body" class="builder-prose">{{ block.content.body }}</p>
-              <ul v-if="resultItems(block).length" class="builder-results-list">
+              <ul v-if="resultItems(block).length" class="builder-results-list" role="list">
                 <li v-for="(item, index) in resultItems(block)" :key="`${item}-${index}`" :data-od-id="`case-result-${block.id}-${index + 1}`">
-                  <span>{{ String(index + 1).padStart(2, '0') }}</span>
+                  <CaseResultCheck />
                   <p>{{ item }}</p>
                 </li>
               </ul>
@@ -337,6 +337,7 @@
 </template>
 
 <script setup lang="ts">
+import CaseResultCheck from './CaseResultCheck.vue'
 import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
 import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'
 import CaseEditorialAir from '~/components/case-builder/CaseEditorialAir.vue'

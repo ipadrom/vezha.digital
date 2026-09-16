@@ -20,8 +20,9 @@
           <p v-if="content.body" class="case-air__lead"><slot name="field" :path="['body']" :value="content.body" label="Итог">{{ content.body }}</slot></p>
           <ul v-if="items.length" class="case-air__benefits" role="list">
             <li v-for="(item, index) in items" :key="index" :data-od-id="`case-result-${blockId}-${index + 1}`">
+              <CaseResultCheck />
+              <strong v-if="item.title"><slot name="field" :path="['items', index, 'title']" :value="item.title" label="Краткий итог">{{ item.title }}</slot></strong>
               <p>
-                <strong v-if="item.title"><slot name="field" :path="['items', index, 'title']" :value="item.title" label="Краткий итог">{{ item.title }}</slot></strong>
                 <slot name="field" :path="['items', index, 'text']" :value="item.text" label="Пояснение итога">{{ item.text }}</slot>
               </p>
             </li>
@@ -34,6 +35,7 @@
 </template>
 
 <script setup lang="ts">
+import CaseResultCheck from './CaseResultCheck.vue'
 defineSlots<{
   field?: (props: { path: Array<string | number>; value: string; label: string }) => any
 }>()
@@ -54,8 +56,10 @@ const items = computed(() => Array.isArray(props.content.items)
 .case-air p.case-air__lead { color: inherit; font-size: var(--case-type-body, 18px); line-height: 1.65; }
 .case-air strong { color: inherit; font-weight: 560; }
 .case-air__benefits { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; list-style: none; padding: 32px 0 0; margin: 0; border-top: 1px solid var(--case-v2-border, color-mix(in srgb, currentColor 18%, transparent)); }
-.case-air__benefits p { font-size: clamp(.9rem, .85rem + .2cqw, 1.05rem); line-height: 1.65; }
-.case-air__benefits strong { display: block; margin-bottom: 10px; font-size: var(--case-type-body, 16px); line-height: 1.4; }
+.case-air__benefits li { display: grid; grid-template-columns: 1.15rem minmax(0, 1fr); column-gap: 12px; row-gap: 10px; align-items: center; }
+.case-air__benefits :deep(.case-result-check) { grid-column: 1; grid-row: 1; margin-top: 0; }
+.case-air__benefits p { grid-column: 2; font-size: clamp(.9rem, .85rem + .2cqw, 1.05rem); line-height: 1.65; }
+.case-air__benefits strong { grid-column: 2; grid-row: 1; display: block; font-size: var(--case-type-body, 16px); line-height: 1.4; }
 @container case-air (max-width: 760px) {
   .case-air__layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .case-air h2 { max-width: none; }

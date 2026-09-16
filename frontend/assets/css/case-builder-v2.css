@@ -810,8 +810,12 @@
 }
 
 .case-page .builder-case .case-air__benefits strong {
-  font-size: inherit;
-  line-height: inherit;
+  font-size: var(--case-type-lead);
+  line-height: 1.58;
+  letter-spacing: -0.012em;
+  text-wrap: pretty;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
 }
 
 .builder-process__media > img,
@@ -986,28 +990,19 @@
 }
 
 .builder-results-list {
+  display: grid;
+  gap: 1.5rem;
   width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid color-mix(in oklch, currentColor 22%, transparent);
 }
 
 .builder-results-list li {
-  min-height: clamp(5rem, 8cqw, 6.5rem);
-  padding: 1.35rem 0;
   display: grid;
-  grid-template-columns: clamp(2.75rem, 5cqw, 4.5rem) minmax(0, 1fr);
+  grid-template-columns: 1.15rem minmax(0, 1fr);
   align-items: start;
-  gap: 1rem;
-  border-bottom: 1px solid color-mix(in oklch, currentColor 22%, transparent);
-}
-
-.builder-results-list span {
-  padding-top: 0.35rem;
-  color: var(--case-v2-fg);
-  font: 650 var(--case-type-label)/1 var(--font-mono);
-  letter-spacing: 0.08em;
+  gap: 12px;
 }
 
 .builder-results-list p {
