@@ -59,7 +59,7 @@ const items = computed(() => Array.isArray(props.content.items)
 .case-air__benefits li { display: grid; grid-template-columns: 1.15rem minmax(0, 1fr); column-gap: 12px; row-gap: 10px; align-content: start; align-items: start; }
 .case-air__benefits :deep(.case-result-check) { grid-column: 1; grid-row: 1; align-self: center; margin-top: 0; }
 .case-air__benefits p { grid-column: 2; font-size: clamp(.9rem, .85rem + .2cqw, 1.05rem); line-height: 1.65; }
-.case-air__benefits strong { grid-column: 2; grid-row: 1; display: block; font-size: var(--case-type-body, 16px); line-height: 1.4; }
+.case-air__benefits strong { grid-column: 2; grid-row: 1; display: block; font-size: var(--case-type-body, 16px); line-height: 1.4; white-space: pre-line; }
 @container case-air (max-width: 760px) {
   .case-air__layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .case-air h2 { max-width: none; }

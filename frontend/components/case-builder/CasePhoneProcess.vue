@@ -47,7 +47,7 @@
           <Transition name="phone-screen" @before-enter="restoreScreen" @before-leave="retireScreen" @leave-cancelled="restoreScreen">
             <div :key="screenKey" class="phone-process__frame">
               <div v-if="activeItem.video_url" class="phone-process__screen">
-                <video :key="`${block.id}-${activeIndex}-${activeItem.video_url}`" :src="activeItem.video_url" :poster="activeItem.poster_url || undefined" :aria-label="activeItem.title" controls playsinline preload="metadata" />
+                <video :key="`${block.id}-${activeIndex}-${activeItem.video_url}`" :src="activeItem.video_url" :poster="activeItem.poster_url || undefined" :aria-label="activeItem.title" :autoplay="allowAutoplay" muted loop playsinline :controls="false" disablepictureinpicture disableremoteplayback @contextmenu.prevent preload="metadata" />
               </div>
               <a
                 v-else-if="activeItem.image_url"
@@ -80,7 +80,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import type { CaseLocale, PublicBuilderBlock } from '~/utils/caseBuilder'
 
-const props = defineProps<{ block: PublicBuilderBlock; locale: CaseLocale }>()
+const props = defineProps<{ block: PublicBuilderBlock; locale: CaseLocale; allowAutoplay?: boolean }>()
 const root = ref<HTMLElement | null>(null)
 const activeIndex = ref(0)
 const secondaryScreen = ref(false)

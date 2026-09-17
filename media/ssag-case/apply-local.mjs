@@ -31,7 +31,7 @@ const updated = {
   blocks: doc.blocks.map(block => {
     const change = patch.blocks[block.type];
     if (!change) return block;
-    const next = { ...block };
+    const next = { ...block, settings: { ...block.settings, ...change.settings } };
     for (const locale of ['ru', 'en']) {
       const key = `content_${locale}`;
       next[key] = { ...block[key], ...change[key] };

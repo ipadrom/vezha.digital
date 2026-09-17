@@ -129,7 +129,7 @@
         </template>
 
         <template v-else-if="block.type === 'process'">
-          <CasePhoneProcess v-if="block.settings.layout === 'phone-showcase'" class="builder-phone-desktop" :block="block" :locale="locale" />
+          <CasePhoneProcess v-if="block.settings.layout === 'phone-showcase'" class="builder-phone-desktop" :block="block" :locale="locale" :allow-autoplay="allowAutoplay" />
           <header class="builder-heading builder-process-chapter" :class="{ 'builder-phone-mobile': block.settings.layout === 'phone-showcase' }" :data-od-id="`case-heading-${block.id}`">
             <h3>{{ block.content.eyebrow }}</h3>
             <div class="builder-process-chapter__copy">
@@ -172,7 +172,7 @@
                         </a>
                       </div>
                       <img v-else-if="item.image_url" :src="item.image_url" :alt="item.image_alt || ''" loading="lazy" decoding="async" />
-                      <video v-if="item.video_url" controls playsinline preload="metadata" :poster="item.poster_url || undefined" :aria-label="item.title || undefined">
+                      <video v-if="item.video_url" :autoplay="allowAutoplay" muted loop playsinline :controls="false" disablepictureinpicture disableremoteplayback @contextmenu.prevent preload="metadata" :poster="item.poster_url || undefined" :aria-label="item.title || undefined">
                         <source :src="item.video_url" />
                         {{ locale === 'ru' ? 'Ваш браузер не поддерживает видео.' : 'Your browser does not support video.' }}
                       </video>
@@ -431,7 +431,7 @@ const syncMediaMotion = async () => {
   reduceMotion.value = shouldReduce
   allowAutoplay.value = !shouldReduce
   await nextTick()
-  builderRoot.value?.querySelectorAll<HTMLVideoElement>('.builder-media-hero video, .builder-video video, .builder-comparison video').forEach((video) => {
+  builderRoot.value?.querySelectorAll<HTMLVideoElement>('.builder-media-hero video, .builder-video video, .builder-comparison video, .builder-process__media video, .phone-process__screen video').forEach((video) => {
     if (shouldReduce) video.pause()
     else if (video.autoplay) void video.play().catch(() => undefined)
   })

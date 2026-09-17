@@ -11,6 +11,10 @@
   },
   "blocks": {
     "hero": {
+      "settings": {
+        "hero_background": "#fffbf4",
+        "hero_text": "#004e54"
+      },
       "content_ru": {
         "subtitle": "Разработали для заказчика MVP приложения с картой помощи и SOS.",
         "logo_url": "/cases/ssag/2026-09/logo-transparent.png"
