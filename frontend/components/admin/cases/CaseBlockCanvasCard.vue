@@ -311,6 +311,7 @@ function resizeWithKeyboard(direction: number) {
 .preview-hero-layout { position: relative; min-height: 0; display: flex; flex-direction: column; justify-content: flex-start; }
 .preview-hero-project { width: fit-content; display: flex; align-items: center; gap: clamp(9px, 1.5cqw, 14px); margin-bottom: clamp(20px, 3cqw, 34px); font-size: clamp(13px, 2cqw, 18px); font-weight: 500; letter-spacing: -.02em; }
 .preview-hero-mark { width: clamp(32px, 5cqw, 44px); aspect-ratio: 1; flex: 0 0 auto; display: grid; place-items: center; overflow: hidden; border-radius: clamp(8px, 1.2cqw, 11px); color: color-mix(in srgb, var(--preview-hero-background) 70%, transparent); background: color-mix(in srgb, var(--preview-hero-text) 88%, transparent); font: 600 7px var(--font-mono); }
+.preview-hero-mark:has(img) { background: transparent; border-radius: 0; }
 .preview-hero-mark img { width: 100%; height: 100%; display: block; object-fit: contain; }
 .preview-hero-layout h3 { max-width: min(82%, 720px); margin: 0; font: 500 clamp(30px, 5.5cqw, 56px)/.98 var(--font-ui); letter-spacing: -.045em; overflow-wrap: normal; word-break: normal; }
 .preview-hero-category { position: absolute; right: 0; bottom: .4em; max-width: 16%; font: 600 clamp(8px, 1.1cqw, 11px)/1.3 var(--font-ui); letter-spacing: .01em; text-align: right; text-transform: uppercase; }

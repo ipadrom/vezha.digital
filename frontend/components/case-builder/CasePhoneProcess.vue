@@ -68,7 +68,7 @@
             <button type="button" :aria-pressed="!secondaryScreen" @click="selectScreen(false, $event)">{{ activeItem.image_label || (locale === 'ru' ? 'Экран 1' : 'Screen 1') }}</button>
             <button type="button" :aria-pressed="secondaryScreen" @click="selectScreen(true, $event)">{{ activeItem.secondary_image_label || (locale === 'ru' ? 'Экран 2' : 'Screen 2') }}</button>
           </div>
-          <p v-else>{{ String(activeIndex + 1).padStart(2, '0') }} / {{ String(items.length).padStart(2, '0') }}<span class="phone-process__caption-title"> — {{ activeItem.title }}</span></p>
+          <p v-else class="phone-process__caption-title">{{ activeItem.image_label || activeItem.title }}</p>
           <p v-if="activeItem.media_caption">{{ activeItem.media_caption }}</p>
         </figcaption>
       </figure>
@@ -264,9 +264,28 @@ onBeforeUnmount(() => {
 .phone-process__empty { aspect-ratio: 9 / 20; display: grid; place-items: center; padding: 1rem; border: var(--case-rule); color: var(--case-v2-muted); text-align: center; font-size: var(--case-type-caption); }
 .phone-process__caption { min-height: 3rem; width: 100%; text-align: center; color: var(--case-v2-muted); font: 500 var(--case-type-caption)/1.5 var(--font-ui); }
 .phone-process__caption p { margin: 0; }
-.phone-process__views { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
-.phone-process__views button { min-height: 2.75rem; padding: 0.5rem 1rem; border: var(--case-rule); border-radius: 0.75rem; background: transparent; color: var(--case-v2-fg); font: inherit; cursor: pointer; }
-.phone-process__views button[aria-pressed="true"] { background: var(--case-v2-accent-soft); border-color: var(--case-v2-accent); }
+.phone-process__caption-title { display: grid; place-items: center; box-sizing: border-box; min-height: 2.75rem; padding: 0.625rem 0.875rem; border-bottom: 2px solid transparent; font: 500 var(--case-type-caption)/1.4 var(--font-ui); letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.phone-process__views { display: flex; justify-content: center; max-width: 100%; border-bottom: var(--case-rule); }
+.phone-process__views button {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 2.75rem;
+  margin-bottom: -1px;
+  padding: 0.625rem 0.875rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  background: transparent;
+  color: var(--case-v2-muted);
+  font: 500 var(--case-type-caption)/1.4 var(--font-ui);
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.phone-process__views button[aria-pressed="true"] { color: var(--case-v2-accent); border-bottom-color: currentColor; }
+@media (hover: hover) and (pointer: fine) {
+  .phone-process__views button:hover { color: var(--case-v2-accent); }
+}
 .phone-process :is(button, a):focus-visible { outline: 2px solid var(--case-v2-focus); outline-offset: 5px; }
 
 @container phone-process (max-width: 959px) {
@@ -304,9 +323,9 @@ onBeforeUnmount(() => {
   .phone-process__preview { gap: 0.5rem; }
   .phone-process__screen { border-radius: 0.625rem; }
   .phone-process__caption { min-height: 0; font-size: 0.75rem; }
-  .phone-process__caption-title { display: none; }
-  .phone-process__views { gap: 0.375rem; }
-  .phone-process__views button { width: 100%; padding: 0.375rem 0.25rem; font-size: 0.75rem; line-height: 1.35; }
+  .phone-process__caption-title { padding: 0.375rem 0.25rem; font-size: 0.75rem; line-height: 1.35; }
+  .phone-process__views { width: 100%; }
+  .phone-process__views button { padding: 0.375rem 0.25rem; font-size: 0.75rem; line-height: 1.35; }
 }
 
 @container phone-process (min-width: 960px) {

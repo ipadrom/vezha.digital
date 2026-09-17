@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "description_ru": "Заказчик обратился к нам за разработкой MVP SSAG для Android: с картой мест помощи в Казани и SOS-оповещением близких.",
+    "description_en": "A client commissioned us to build the SSAG Android MVP, with a map of places to seek help in Kazan and SOS texts to trusted contacts.",
+    "subtitle_ru": "Разработка MVP приложения с картой помощи и SOS",
+    "subtitle_en": "Building a help map and SOS app MVP for a client",
+    "image_url": "/cases/ssag/2026-09/cover-editorial.svg",
+    "cover_image_url": "/cases/ssag/2026-09/cover-editorial.svg",
+    "seo_description_ru": "Разработка MVP SSAG для заказчика: Android-приложение с картой мест помощи, ручным выбором точки и SMS-тревогой для близких.",
+    "seo_description_en": "Developing the SSAG MVP for a client: an Android help map, manual location selection and SMS alerts to trusted contacts."
+  },
+  "blocks": {
+    "hero": {
+      "content_ru": {
+        "subtitle": "Разработали для заказчика MVP приложения с картой помощи и SOS.",
+        "logo_url": "/cases/ssag/2026-09/logo-transparent.png"
+      },
+      "content_en": {
+        "subtitle": "Building a help map and SOS app MVP for a client.",
+        "logo_url": "/cases/ssag/2026-09/logo-transparent.png"
+      }
+    },
+    "media_hero": {
+      "content_ru": {
+        "image_url": "/cases/ssag/2026-09/cover-editorial.svg",
+        "alt": "SSAG — Android MVP: логотип приложения, карта мест помощи и экран SOS",
+        "caption": ""
+      },
+      "content_en": {
+        "image_url": "/cases/ssag/2026-09/cover-editorial.svg",
+        "alt": "SSAG — Android MVP: app logo, help map and SOS screen",
+        "caption": ""
+      }
+    },
+    "text": {
+      "content_ru": {
+        "eyebrow": "О проекте",
+        "title": "К нам обратился заказчик с задачей разработать MVP мобильного приложения SSAG.",
+        "body": "Идея — помочь человеку найти место, куда можно обратиться за помощью, и сообщить близким о случившемся. Для первой версии требовались карта Казани с адресами и расписанием, список контактов и кнопка SOS с отправкой SMS.\n\nМы реализовали эти функции в приложении для Android: добавили 52 места на карту, настройки получателей и типов тревоги, определение местоположения и ручной выбор точки. Ниже показываем, что вошло в MVP и как это работает."
+      },
+      "content_en": {
+        "eyebrow": "About the project",
+        "title": "A client came to us to develop the MVP of SSAG, a mobile app.",
+        "body": "The idea was to help people find a place to seek help and let their contacts know what happened. The first version needed a map of Kazan with addresses and opening hours, a contact list and an SOS button that sends SMS alerts.\n\nWe implemented these features for Android: 52 places on the map, recipient and emergency settings, device location and manual point selection. Below are the features we built for the MVP and how they work."
+      }
+    },
+    "challenge_solution": {
+      "content_ru": {
+        "eyebrow": "Задача разработки",
+        "title": "",
+        "challenge": "Нам нужно было продумать весь путь от настройки контактов до отправки тревоги. Получателей и тип сообщения пользователь выбирает заранее. На экране SOS мы вывели эти настройки рядом с кнопкой, чтобы их можно было проверить перед нажатием.",
+        "solution_label": "Пять секунд на отмену.",
+        "solution": "После нажатия начинается отсчёт. Если кнопку задели случайно, отправку ещё можно остановить.",
+        "impact_label": "Место можно указать самому.",
+        "impact": "Если телефон определяет его неверно, пользователь выбирает точку на карте. В SMS будет указано, что место выбрано вручную. Если координат нет, сообщение уйдёт без ссылки на карту."
+      },
+      "content_en": {
+        "eyebrow": "Development task",
+        "title": "",
+        "challenge": "We needed to design the full flow from setting up contacts to sending an alert. Users choose recipients and an emergency type in advance. We placed these settings next to the SOS button so they can check them before pressing it.",
+        "solution_label": "Five seconds to cancel.",
+        "solution": "Pressing SOS starts a countdown, giving users time to stop an accidental alert.",
+        "impact_label": "Users can choose their location.",
+        "impact": "If the phone gets it wrong, users can select a point on the map. The SMS identifies it as a manually chosen location. If no coordinates are available, the message goes without a map link."
+      }
+    },
+    "process": {
+      "content_ru": {
+        "eyebrow": "Что реализовали",
+        "title": "",
+        "summary": "Для MVP разработали карту мест помощи, настройки контактов и отправку SOS по SMS.",
+        "items": [
+          {
+            "title": "Контакты для оповещения",
+            "description": "Сделали форму для трёх получателей: имя, номер и проверка формата перед сохранением. Контакты хранятся на устройстве и отображаются на экране SOS.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/contacts.png",
+            "image_alt": "Настройки SSAG с двумя вымышленными контактами"
+          },
+          {
+            "title": "Карта и карточки мест",
+            "description": "Подключили Yandex MapKit и нанесли на карту 52 места в Казани. Добавили список и карточки с адресом, недельным расписанием и переходом в Яндекс Карты. Сегодняшний день выделили в графике.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/map.png",
+            "image_alt": "Карта мест помощи в Казани",
+            "image_label": "Карта",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/place-card.png",
+            "secondary_image_alt": "Карточка места с адресом и расписанием",
+            "secondary_image_label": "Карточка места"
+          },
+          {
+            "title": "Геолокация и ручной выбор точки",
+            "description": "Реализовали определение местоположения и выбор точки вручную. Выбранная точка используется в следующей тревоге, а в SMS указываются источник и время позиции. Если координат нет, сообщение составляется без ссылки на карту.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/location-picker.png",
+            "image_alt": "Выбор местоположения под центральной меткой",
+            "image_label": "Выбор точки",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/location-selected.png",
+            "secondary_image_alt": "Подтверждённое место для следующего SOS",
+            "secondary_image_label": "Точка выбрана"
+          },
+          {
+            "title": "Типы тревоги и текст SMS",
+            "description": "Добавили три типа тревоги: нападение, пожар и проблемы со здоровьем. Для каждого подготовили текст сообщения. Предпросмотр и отправка используют один шаблон, чтобы текст в настройках соответствовал выбранному типу тревоги.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/alert-types.png",
+            "image_alt": "Три типа тревоги в настройках SSAG",
+            "image_label": "Тип тревоги",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/message-preview.png",
+            "secondary_image_alt": "Предпросмотр SMS о пожаре",
+            "secondary_image_label": "Текст SMS"
+          },
+          {
+            "title": "SOS с отсчётом и отменой",
+            "description": "Сделали экран SOS с получателями и типом тревоги. Кнопка запускает пятисекундный отсчёт с возможностью отмены, затем приложение передаёт SMS на отправку. При повороте экрана отсчёт продолжается без повторного запуска тревоги.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/sos.png",
+            "image_alt": "Кнопка SOS, тип тревоги и получатели",
+            "image_label": "SOS",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/countdown.png",
+            "secondary_image_alt": "Отсчёт перед тревогой с кнопкой отмены",
+            "secondary_image_label": "Отсчёт"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "What we built",
+        "title": "",
+        "summary": "For the MVP, we developed a help map, contact settings and SMS alerts.",
+        "items": [
+          {
+            "title": "Emergency contacts",
+            "description": "We built a form for up to three recipients, with names, phone numbers and format validation before saving. Contacts are stored on the device and shown on the SOS screen.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/contacts.png",
+            "image_alt": "SSAG settings with two fictional contacts"
+          },
+          {
+            "title": "Map and place details",
+            "description": "We integrated Yandex MapKit and added 52 places in Kazan. We built a list and detail sheets with addresses, weekly opening hours and links to Yandex Maps, highlighting the current day in each schedule.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/map.png",
+            "image_alt": "Map of places to seek help in Kazan",
+            "image_label": "Map",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/place-card.png",
+            "secondary_image_alt": "Place address and opening hours",
+            "secondary_image_label": "Place details"
+          },
+          {
+            "title": "Location and manual point selection",
+            "description": "We implemented device location and manual point selection. A selected point is used for the next alert, with its source and timestamp included in the SMS. If no coordinates are available, the message is composed without a map link.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/location-picker.png",
+            "image_alt": "Selecting a location under the map pin",
+            "image_label": "Choose a point",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/location-selected.png",
+            "secondary_image_alt": "Confirmed location for the next SOS",
+            "secondary_image_label": "Point selected"
+          },
+          {
+            "title": "Emergency types and SMS text",
+            "description": "We added three emergency types: assault, fire and a health emergency, each with its own message text. Preview and sending share the same formatter so the text in settings matches the selected emergency type.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/alert-types.png",
+            "image_alt": "Three emergency types in SSAG settings",
+            "image_label": "Emergency type",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/message-preview.png",
+            "secondary_image_alt": "Preview of a fire alert text",
+            "secondary_image_label": "SMS preview"
+          },
+          {
+            "title": "SOS countdown and cancellation",
+            "description": "We built an SOS screen showing recipients and the emergency type. Pressing the button starts a five-second countdown with an option to cancel, then passes the SMS to the phone for sending. Rotating the screen preserves the countdown without starting another alert.",
+            "media_type": "image",
+            "media_layout": "phone",
+            "media_size": "full",
+            "image_url": "/cases/ssag/2026-09/screens/sos.png",
+            "image_alt": "SOS button, emergency type and recipients",
+            "image_label": "SOS",
+            "secondary_image_url": "/cases/ssag/2026-09/screens/countdown.png",
+            "secondary_image_alt": "Alert countdown with a cancel button",
+            "secondary_image_label": "Countdown"
+          }
+        ]
+      }
+    },
+    "image": {
+      "content_ru": {
+        "image_url": "/cases/ssag/2026-09/recipient-message.svg",
+        "alt": "Телефон в руке с SMS о тревоге от близкого человека — постановочный пример сообщения SSAG",
+        "caption": ""
+      },
+      "content_en": {
+        "image_url": "/cases/ssag/2026-09/recipient-message.svg",
+        "alt": "A phone held in a hand showing an emergency SMS from a loved one — a staged SSAG message example",
+        "caption": ""
+      }
+    },
+    "results": {
+      "content_ru": {
+        "eyebrow": "Технические решения",
+        "title": "",
+        "body": "В сценарии SOS отдельно проработали повторные действия, сбои геолокации и проверку отправки. Логику тревоги отделили от экранов приложения.",
+        "items": [
+          {
+            "title": "Защита от повторного запуска",
+            "text": "Состояние тревоги и отсчёт хранятся во ViewModel. Пересоздание экрана не запускает отправку заново, а во время отправки повторные действия блокируются."
+          },
+          {
+            "title": "Обработка сбоев геолокации",
+            "text": "Ограничили время ожидания GPS и добавили переход к последней доступной позиции. В SMS указываются её источник и давность; при отсутствии координат ссылка не формируется."
+          },
+          {
+            "title": "Приоритет ручной точки",
+            "text": "Выбранное пользователем место фиксируется в начале отсчёта — GPS его не заменяет. После завершения тревоги выбор сбрасывается, чтобы не попасть в следующее SOS случайно."
+          },
+          {
+            "title": "Проверка без реальной отправки",
+            "text": "Подготовили отдельную тестовую сборку. В ней можно пройти отсчёт, отмену и экран результата: сценарий завершается до обращения к сервисам GPS и SMS."
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Engineering decisions",
+        "title": "",
+        "body": "We addressed repeated actions, location failures and testing in the SOS flow, keeping alert logic separate from the app screens.",
+        "items": [
+          {
+            "title": "Preventing duplicate attempts",
+            "text": "A ViewModel holds the alert state and countdown. Recreating the screen does not restart sending, and further actions are blocked while an alert is being sent."
+          },
+          {
+            "title": "Handling location failures",
+            "text": "We limited GPS wait times and added fallback to the last available position. The SMS includes its source and age; when no coordinates are available, no map link is generated."
+          },
+          {
+            "title": "Preserving a manually chosen point",
+            "text": "The selected point is fixed when the countdown starts, so GPS cannot replace it. After the alert finishes, the selection is cleared to avoid accidental reuse in the next SOS."
+          },
+          {
+            "title": "Testing without sending messages",
+            "text": "We prepared a separate test build for the countdown, cancellation and result screens. The simulated alert returns before accessing GPS or SMS services."
+          }
+        ]
+      }
+    },
+    "technologies": {
+      "content_ru": {
+        "eyebrow": "Разработка",
+        "title": "Kotlin и Jetpack Compose",
+        "summary": "Карта работает на Yandex MapKit, геолокация — через Google Play Services. Для SMS используем сервис Android. Контакты и настройки хранятся на устройстве; отдельный сервер для приложения не понадобился."
+      },
+      "content_en": {
+        "eyebrow": "Development",
+        "title": "Kotlin and Jetpack Compose",
+        "summary": "Yandex MapKit provides the map and Google Play Services provides location. SMS uses Android's messaging service. Contacts and settings are stored on the device, with no separate backend."
+      }
+    }
+  },
+  "technology_descriptions": {
+    "ru": {
+      "kotlin": "Логика настроек и SOS: тип тревоги, отсчёт, отмена и подготовка сообщения. Состояние тревоги сохраняется при повороте экрана.",
+      "compose": "Карта, карточки мест, настройки и SOS. Адаптивная компоновка, светлая и тёмная темы.",
+      "mapkit": "Карта Казани с 52 местами помощи и ручным выбором точки для следующей тревоги.",
+      "location": "Запрашивает позицию телефона. В сообщение добавляются её источник, давность и предупреждения о точности.",
+      "sms": "Передаёт текст в SmsManager. Экран результата сообщает о передаче на отправку; подтверждение доставки от оператора не отслеживается.",
+      "prefs": "Сохраняет контакты, тип тревоги и настройки на устройстве."
+    },
+    "en": {
+      "kotlin": "Settings and SOS logic: emergency type, countdown, cancellation and message formatting. Alert state survives screen rotation.",
+      "compose": "Map, place details, settings and SOS screens with adaptive layouts and light and dark themes.",
+      "mapkit": "The Kazan map with 52 places to seek help and manual point selection for the next alert.",
+      "location": "Requests the phone's position and adds its source, age and accuracy warnings to the message.",
+      "sms": "Passes the text to SmsManager. The result reports acceptance for sending; carrier delivery confirmation is not tracked.",
+      "prefs": "Stores contacts, the emergency type and preferences on the device."
+    }
+  }
+}
