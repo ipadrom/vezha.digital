@@ -42,7 +42,10 @@
             >
               <source :src="block.content.video_url" />
             </video>
-            <img v-else-if="block.content.image_url" :src="block.content.image_url" :alt="block.content.alt || ''" decoding="async" />
+            <picture v-else-if="block.content.image_url">
+              <source v-if="mobileCaseCover(block.content.image_url)" media="(max-width: 767px)" :srcset="mobileCaseCover(block.content.image_url)" type="image/webp" />
+              <img :src="block.content.image_url" :alt="block.content.alt || ''" decoding="async" />
+            </picture>
             <div v-else class="builder-placeholder">MEDIA HERO</div>
             <figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption>
           </figure>
@@ -337,6 +340,7 @@
 </template>
 
 <script setup lang="ts">
+import { mobileCaseCover } from '~/utils/caseCoverMedia'
 import CaseResultCheck from './CaseResultCheck.vue'
 import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
 import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'

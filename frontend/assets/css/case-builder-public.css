@@ -334,6 +334,8 @@
   background: transparent;
 }
 
+.builder-media-hero > picture { display: block; }
+.builder-media-hero > picture > img,
 .builder-media-hero > img,
 .builder-media-hero > video {
   width: 100%;

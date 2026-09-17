@@ -18,14 +18,16 @@
       </video>
     </div>
 
-    <img
-      v-else-if="imageUrl"
+    <picture v-else-if="imageUrl" class="case-artifact__picture">
+      <source v-if="mobileCaseCover(imageUrl)" media="(max-width: 767px)" :srcset="mobileCaseCover(imageUrl)" type="image/webp" />
+      <img
       class="case-artifact__cover"
       :src="imageUrl"
       alt=""
       aria-hidden="true"
       loading="lazy"
-    />
+      />
+    </picture>
 
     <div v-else-if="safeSlug === 'restaurant-menu'" class="case-artifact__menu" aria-hidden="true">
       <article class="artifact-menu-phone artifact-menu-phone--catalog">
@@ -107,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+import { mobileCaseCover } from '~/utils/caseCoverMedia'
 import type { IProjects } from "~/utils/interfaces/IProjects";
 
 const props = withDefaults(defineProps<{
@@ -328,6 +331,7 @@ const labels = computed(() => props.locale === "ru" ? {
 .artifact-device--session { top: 3.5%; left: 50%; z-index: 2; width: 31%; aspect-ratio: 390 / 844; transform: translateX(-50%); }
 .artifact-device--food { right: 5%; bottom: -18%; width: 28%; aspect-ratio: 390 / 844; transform: rotate(1.2deg); }
 
+.case-artifact__picture { display: block; width: 100%; height: 100%; }
 .case-artifact__cover { display: block; width: 100%; height: 100%; object-fit: cover; }
 .case-artifact:is(.case-artifact--process-automation, .case-artifact--gbu-process-automation) {
   height: auto;
