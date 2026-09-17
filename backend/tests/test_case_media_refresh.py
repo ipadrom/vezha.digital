@@ -1,6 +1,7 @@
 from copy import deepcopy
 from pathlib import Path
 
+import pytest
 import sqlalchemy as sa
 from test_ssag_refresh import load, release
 
@@ -31,7 +32,14 @@ def test_approved_document_and_assets():
     check(doc)
 
 
-def test_scoped_migration_backups_and_idempotence():
+@pytest.mark.parametrize(
+    "migration,slug",
+    [
+        (refresh, "gbu-process-automation"),
+        (load("l8a9b0c1d2e3_*"), "process-automation"),
+    ],
+)
+def test_scoped_migration_backups_and_idempotence(migration, slug):
     schema = sa.MetaData()
     projects = sa.Table(
         "projects",
@@ -69,14 +77,14 @@ def test_scoped_migration_backups_and_idempotence():
     old = release.load_document()
     for index, block in enumerate(old["blocks"]):
         block["id"] = f"old-block-{index}"
-    old["meta"]["slug"] = "gbu-process-automation"
+    old["meta"]["slug"] = slug
     old["meta"]["status"] = "hidden"
     draft_meta = {**old["meta"], "subtitle_ru": "Unpublished previous text"}
     with engine.begin() as db:
         db.execute(
             projects.insert().values(
                 id="gbu",
-                slug="gbu-process-automation",
+                slug=slug,
                 status="hidden",
                 draft_data=draft_meta,
                 published_data=old,
@@ -85,9 +93,11 @@ def test_scoped_migration_backups_and_idempotence():
         for block in old["blocks"]:
             db.execute(blocks.insert().values(project_id="gbu", **block))
         db.execute(projects.insert().values(id="other", slug="unrelated", status="draft"))
-        refresh.upgrade_cases(db)
+        migration.upgrade_cases(db)
         updated = db.execute(sa.select(projects).where(projects.c.id == "gbu")).mappings().one()
         assert updated["status"] == "hidden"
+        assert updated["slug"] == slug
+        assert updated["published_data"]["meta"]["slug"] == slug
         assert len(updated["published_data"]["blocks"]) == 9
         assert updated["cover_image_url"].endswith("cover-work-center.svg")
         assert db.execute(sa.select(sa.func.count()).select_from(blocks)).scalar() == 9
@@ -99,7 +109,7 @@ def test_scoped_migration_backups_and_idempotence():
         assert snapshots[0] == old
         assert snapshots[1]["meta"] == draft_meta
         assert snapshots[-1] == updated["published_data"]
-        refresh.upgrade_cases(db)
+        migration.upgrade_cases(db)
         assert db.execute(sa.select(sa.func.count()).select_from(revisions)).scalar() == len(
             snapshots
         )
