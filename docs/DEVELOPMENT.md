@@ -66,6 +66,8 @@ The root Makefile still uses npm. This is a known inconsistency, not permission 
 
 Frontend tests use Node's test runner but have no canonical package script. Run only the relevant existing test file using the Node version configured for the project, and record the exact command in the handoff. Do not claim the whole frontend suite passed unless every test file was run.
 
+During `nuxt dev`, the public API client sends browser requests through the frontend's `/api` proxy. Nitro forwards them to `NUXT_PUBLIC_API_URL` (default `http://localhost:8000`), so alternate local preview ports do not require backend CORS changes. Production requests continue to use the configured API URL directly.
+
 ## Remotion
 
 Each Remotion directory is an independent npm package. Use its README and package scripts. Rendered `out/` files are local deliverables and are ignored by Git.

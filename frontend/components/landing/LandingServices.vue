@@ -41,9 +41,9 @@
               </button>
             </div>
 
-            <div class="vz-cases__case-nav vz-services__case-nav">
+            <div class="vz-services__case-nav">
               <div
-                class="vz-cases__tabs vz-services__mobile-tabs"
+                class="vz-services__mobile-tabs"
                 role="tablist"
                 :aria-label="copy.navAria"
                 aria-orientation="horizontal"
@@ -68,7 +68,7 @@
                 </button>
               </div>
 
-              <div class="vz-cases__mobile-controls" :aria-label="copy.navAria">
+              <div class="vz-services__mobile-controls" :aria-label="copy.navAria">
                 <button type="button" :aria-label="copy.previousAria" @click="move(-1, false, true)">
                   <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
                 </button>

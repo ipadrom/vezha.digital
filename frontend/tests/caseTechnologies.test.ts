@@ -54,16 +54,13 @@ test('technology transitions observe natural content and respect keyboard and re
   assert.doesNotMatch(component, /transition:\s*all|scale\(0\)/)
 })
 
-test('technology contours keep the selected explanation beside the cards on mobile', () => {
+test('technology contours put readable mobile details below scrollable labeled groups', () => {
   const component = readFileSync('components/case-builder/CaseTechnologyContours.vue', 'utf8')
   const mobileRules = component.slice(component.indexOf('@container technology-contours (max-width: 680px)'))
-  assert.match(mobileRules, /grid-template-columns:\s*minmax\(0, 1fr\) minmax\(128px, \.72fr\)/)
-  assert.match(mobileRules, /border-left:\s*1px solid var\(--technology-rule\)/)
-  assert.doesNotMatch(mobileRules, /\.technology-contours__layout\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\);/)
-  assert.match(mobileRules, /\.technology-contours__nodes\s*\{\s*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/)
-  assert.match(mobileRules, /\.technology-contours__pill-copy\s*\{\s*display:\s*none/)
-  assert.match(mobileRules, /grid-template-columns:\s*minmax\(112px, \.78fr\) minmax\(0, 1\.22fr\)/)
-  assert.match(mobileRules, /aspect-ratio:\s*1/)
-  assert.match(mobileRules, /border-radius:\s*50%/)
+  assert.match(mobileRules, /\.technology-contours__layout\s*\{\s*grid-template-columns:\s*minmax\(0, 1fr\);/)
+  assert.match(mobileRules, /grid-auto-flow:\s*column/)
+  assert.match(mobileRules, /overflow-x:\s*auto/)
+  assert.match(mobileRules, /border-top:\s*1px solid var\(--technology-rule\)/)
+  assert.doesNotMatch(mobileRules, /\.technology-contours__pill-copy\s*\{\s*display:\s*none/)
   assert.match(component, /:aria-label="node\.label"/)
 })

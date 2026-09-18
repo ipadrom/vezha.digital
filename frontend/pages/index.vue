@@ -3125,13 +3125,13 @@ function animateHeroNegative(now: number) {
   const frame = clampValue(elapsedMs / 16.67, 0, 2);
   heroFxLastFrame = now;
   const bounds = getHeroLiquidBounds(hero, rect);
-  const radius = clampValue(Math.min(bounds.width * 0.16, bounds.height * 0.46, rect.width * 0.105), 76, 148);
+  const isMobileHeroFx = window.innerWidth <= 900;
+  const radius = clampValue(Math.min(bounds.width * 0.16, bounds.height * 0.46, rect.width * 0.105), 76, 148) * (isMobileHeroFx ? 0.67 : 1);
   const centerInset = Math.min(radius * 0.14, bounds.width * 0.18, bounds.height * 0.18);
   const minCenterX = Math.min(bounds.left + centerInset, bounds.right);
   const maxCenterX = Math.max(bounds.right - centerInset, minCenterX);
   const minCenterY = Math.min(bounds.top + centerInset, bounds.bottom);
-  const maxCenterY = Math.max(bounds.bottom - centerInset, minCenterY);
-  const isMobileHeroFx = window.innerWidth <= 900;
+  const maxCenterY = Math.max(isMobileHeroFx ? bounds.top + radius * 0.45 : bounds.bottom - centerInset, minCenterY);
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   if (isMobileHeroFx) {
@@ -4015,9 +4015,13 @@ useHead(() => ({
   opacity: 0.2;
 }
 
-.vz-min[data-theme="dark"] .vz-stack__sphere {
+.vz-min[data-theme="dark"] .vz-stack__sphere canvas {
   filter: invert(1);
   opacity: 0.5;
+}
+
+.vz-min[data-theme="dark"] .vz-stack__sphere-label {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.18);
 }
 
 .vz-min ::selection {

@@ -2136,10 +2136,120 @@
 }
 
 
-/* The mobile services navigator is the cases navigator, reused without restyling. */
+/* Keep the service navigator independent of the case carousel. */
 .vz-services .vz-services__case-nav {
   display: none;
   --cases-accent: #30c8f2;
+}
+
+.vz-services__mobile-tabs {
+  grid-column: 2;
+  grid-row: 1;
+  display: flex;
+  gap: 22px;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 5px;
+  overflow-x: auto;
+  scroll-padding-inline: 20px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  overscroll-behavior-inline: contain;
+}
+
+.vz-services__mobile-tabs::-webkit-scrollbar { display: none; }
+.vz-services__mobile-tabs::after {
+  content: "";
+  flex: 0 0 var(--vz-tabs-trailing-space, 0px);
+  pointer-events: none;
+}
+
+.vz-services__mobile-tabs button {
+  position: relative;
+  display: grid;
+  grid-template-columns: 24px minmax(110px, auto) 8px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 8px 0 6px;
+  border: 0;
+  border-bottom: 1px solid var(--border-2);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ink);
+  white-space: nowrap;
+  text-align: left;
+  scroll-snap-align: start;
+  cursor: pointer;
+}
+
+.vz-services__mobile-tabs button::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  bottom: -1px;
+  left: 0;
+  height: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  background: currentColor;
+  transition: transform 250ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
+}
+.vz-services__mobile-tabs button span { color: var(--muted); font: 500 calc(var(--type-micro) + 1px)/1 var(--font-mono); font-variant-numeric: tabular-nums; }
+.vz-services__mobile-tabs button b { max-width: 190px; overflow: hidden; font: 500 12px/1.25 var(--font-ui); letter-spacing: .01em; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.vz-services__mobile-tabs button i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: scale(.4);
+  background: var(--cases-accent);
+  opacity: 0;
+  box-shadow: 0 0 18px rgba(48, 200, 242, .34);
+  transition: opacity 160ms var(--ease-out), transform 250ms var(--ease-in-out, cubic-bezier(0.77, 0, 0.175, 1));
+}
+.vz-services__mobile-tabs button[aria-selected="true"]::after { transform: scaleX(1); }
+.vz-services__mobile-tabs button[aria-selected="true"] i { transform: scale(1); opacity: 1; }
+.vz-services__mobile-controls {
+  grid-column: 1;
+  grid-row: 1;
+  display: inline-grid;
+  grid-template-columns: repeat(2, 44px);
+  gap: 0;
+  margin: 0;
+  padding: 3px;
+  border: 1px solid var(--landing-card-border, color-mix(in srgb, var(--ink) 8%, transparent));
+  border-radius: 999px;
+  background: var(--landing-card-surface-north-east, var(--landing-card-surface, var(--bg)));
+  box-shadow: 0 14px 34px -26px color-mix(in srgb, var(--ink) 46%, transparent);
+  backdrop-filter: blur(14px) saturate(1.08);
+}
+.vz-services__mobile-controls button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px 8px 8px 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+.vz-services__mobile-controls button:last-child { border-radius: 8px 999px 999px 8px; }
+.vz-services__mobile-controls button + button::before { content: ""; position: absolute; top: 9px; bottom: 9px; left: 0; width: 1px; background: color-mix(in srgb, var(--ink) 12%, transparent); }
+.vz-services__mobile-controls svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.vz-services__mobile-tabs button:focus-visible,
+.vz-services__mobile-controls button:focus-visible { outline: 2px solid var(--cases-accent); outline-offset: -3px; }
+
+@media (hover: hover) and (pointer: fine) {
+  .vz-services__mobile-controls button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vz-services__mobile-tabs button::after,
+  .vz-services__mobile-tabs button i { transition: none; }
 }
 
 @media (max-width: 900px) {
@@ -2158,6 +2268,10 @@
   .vz-services .vz-services__case-nav {
     display: grid;
     width: 100%;
+    min-width: 0;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
   }
 
   .vz-services .vz-services__stage {

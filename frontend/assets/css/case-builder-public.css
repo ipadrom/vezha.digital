@@ -259,6 +259,17 @@
   background: var(--case-hero-background);
 }
 
+/* Theme variants preserve each case's authored light header palette. */
+.case-page[data-theme="dark"][data-case-slug="ssag"] .builder-block--hero > .builder-block__inner {
+  --case-hero-background: #092c30;
+  --case-hero-text: #e9f4ee;
+}
+
+.case-page[data-theme="dark"][data-case-slug="gbu-process-automation"] .builder-block--hero > .builder-block__inner {
+  --case-hero-background: #111922;
+  --case-hero-text: #f0f2f8;
+}
+
 .builder-hero__layout {
   position: relative;
   min-height: 0;

@@ -9,8 +9,8 @@
     </header>
 
     <div v-if="activeCase" class="vz-cases__shell" role="region" aria-roledescription="carousel" :aria-label="copy.tabAria">
-      <div class="vz-cases__stage">
-        <Transition name="case-switch" mode="out-in">
+      <div class="vz-cases__stage" :data-direction="transitionDirection">
+        <Transition name="case-switch">
           <CaseArtifactVisual :key="activeCase.id" :project="activeCase" :index-label="two(activeIndex + 1)" :locale="currentLocale" />
         </Transition>
         <div v-if="cases.length > 1" class="vz-cases__controls" role="group" :aria-label="copy.tabAria" @keydown="onControlsKeydown">
@@ -60,10 +60,12 @@ const props = defineProps<{
 const { locale } = useI18n();
 const currentLocale = computed<"ru" | "en">(() => locale.value === "ru" ? "ru" : "en");
 const activeIndex = ref(0);
+const transitionDirection = ref<"next" | "previous">("next");
 const cases = computed(() => mergeFeaturedProjects(props.projects, props.fallback));
 const activeCase = computed(() => cases.value[activeIndex.value]);
 const two = (value: number) => String(value).padStart(2, "0");
 function move(direction: 1 | -1) {
+  transitionDirection.value = direction === 1 ? "next" : "previous";
   activeIndex.value = moveCaseIndex(activeIndex.value, direction, cases.value.length);
 }
 function onControlsKeydown(event: KeyboardEvent) {
@@ -72,6 +74,7 @@ function onControlsKeydown(event: KeyboardEvent) {
     move(event.key === "ArrowRight" ? 1 : -1);
   } else if (event.key === "Home" || event.key === "End") {
     event.preventDefault();
+    transitionDirection.value = event.key === "Home" ? "previous" : "next";
     activeIndex.value = event.key === "Home" ? 0 : Math.max(0, cases.value.length - 1);
   }
 }

@@ -20,7 +20,7 @@
       <div class="vz-hero__meta" data-hero-meta>
         <span v-for="item in copy.meta.filter(Boolean)" :key="item">{{ item }}</span>
       </div>
-      <div class="vz-hero__kicker">
+      <div class="vz-hero__kicker" :aria-hidden="!copy.kicker || undefined">
         <span>{{ copy.kicker }}</span>
       </div>
       <h1>
@@ -81,3 +81,41 @@ const negativeRef = ref<HTMLElement | null>(null);
 onMounted(() => emit("hero-ready", heroRef.value, negativeRef.value));
 onBeforeUnmount(() => emit("hero-ready", null, null));
 </script>
+
+<style scoped>
+/* Preserve the heading position when the secondary label is empty. */
+.vz-hero__kicker {
+  min-block-size: 1lh;
+}
+
+@media (max-width: 900px) {
+  .vz-hero__grid {
+    margin-top: 34px;
+  }
+
+  .vz-hero__actions {
+    width: 100%;
+    align-items: stretch;
+    justify-self: stretch;
+  }
+
+  .vz-hero__actions .vz-button {
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 54px;
+  }
+
+  .vz-hero__actions .vz-button-link {
+    align-self: center;
+  }
+
+  .vz-hero__stats {
+    margin-top: 32px;
+  }
+
+  .vz-hero__stats span {
+    font-size: clamp(11px, 3vw, 12px);
+    letter-spacing: 0.01em;
+  }
+}
+</style>

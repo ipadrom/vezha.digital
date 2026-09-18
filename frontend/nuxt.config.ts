@@ -1,6 +1,15 @@
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
+  nitro: {
+    devProxy: {
+      '/api': {
+        target: `${process.env.NUXT_PUBLIC_API_URL || 'http://localhost:8000'}/api`,
+        changeOrigin: true,
+      },
+    },
+  },
+
   vite: {
     server: {
       watch: process.env.NUXT_VITE_USE_POLLING === 'true'

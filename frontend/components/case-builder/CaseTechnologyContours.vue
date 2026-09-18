@@ -252,14 +252,27 @@ onBeforeUnmount(() => {
 }
 @container technology-contours (max-width: 680px) {
   .technology-contours__layout {
-    grid-template-columns: minmax(0, 1fr) minmax(128px, .72fr);
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
   }
-  .technology-contours__groups { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .technology-contours__groups {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 85%;
+    gap: 12px;
+    padding: 4px 4px 12px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-inline: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--technology-accent) var(--technology-rule);
+  }
+  .technology-contours fieldset { padding: 12px; scroll-snap-align: start; }
+  .technology-contours legend { font-size: 12px; }
+  .technology-contours__nodes { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .technology-contours__detail {
-    align-self: stretch;
-    padding: 2px 0 0 18px;
-    border-left: 1px solid var(--technology-rule);
+    padding: 22px 0 0;
+    border-top: 1px solid var(--technology-rule);
   }
   .technology-contours__hint { margin-top: 0; }
   .technology-contours__detail-heading {
@@ -268,41 +281,17 @@ onBeforeUnmount(() => {
     margin-bottom: 14px;
     --technology-icon-size: 36px;
   }
-  .technology-contours__detail-heading h4 { font-size: 16px; line-height: 1.25; }
-  .technology-contours__detail p { font-size: 12px; line-height: 1.6; }
+  .technology-contours__detail-heading h4 { font-size: 20px; line-height: 1.25; }
+  .technology-contours__detail p { font-size: 15px; line-height: 1.65; }
   .technology-contours__related { margin-top: 18px; padding-top: 14px; }
   .technology-contours__related button { min-height: 44px; font-size: 12px; }
-  .technology-contours__pill { grid-template-columns: 34px minmax(0, 1fr); --technology-icon-size: 34px; padding: 9px; }
-  .technology-contours__pill b { font-size: 13px; }
+  .technology-contours__pill { grid-template-columns: 30px minmax(0, 1fr); --technology-icon-size: 30px; min-height: 48px; padding: 8px 10px; border-radius: 12px; }
+  .technology-contours__pill b { font-size: 14px; }
+  .technology-contours__hint { padding-top: 20px; font-size: 12px; }
 }
 @container technology-contours (max-width: 430px) {
   .technology-contours__surface { padding: 20px 16px; border-radius: 20px; }
-  .technology-contours__layout {
-    grid-template-columns: minmax(112px, .78fr) minmax(0, 1.22fr);
-    gap: 12px;
-  }
-  .technology-contours fieldset { padding: 10px 6px; border-radius: 16px; }
-  .technology-contours legend { padding: 0 5px; font-size: 10px; }
-  .technology-contours__nodes { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-  .technology-contours__pill {
-    min-height: 0;
-    aspect-ratio: 1;
-    grid-template-columns: minmax(0, 1fr);
-    place-items: center;
-    padding: 7px;
-    border-radius: 50%;
-    --technology-icon-size: 28px;
-  }
-  .technology-contours__pill-copy { display: none; }
-  .technology-contours__detail { padding-left: 12px; }
-  .technology-contours__detail-heading {
-    grid-template-columns: 28px minmax(0, 1fr);
-    gap: 7px;
-    --technology-icon-size: 28px;
-  }
-  .technology-contours__detail-heading h4 { font-size: 14px; }
-  .technology-contours__detail p { font-size: 11px; line-height: 1.55; }
-  .technology-contours__hint { padding-top: 18px; font-size: 9px; }
+  .technology-contours fieldset { border-radius: 16px; }
   .technology-contours__intro { margin-bottom: 24px; }
 }
 </style>

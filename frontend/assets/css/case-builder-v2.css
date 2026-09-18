@@ -1216,11 +1216,11 @@
 
   /* Give the whole mobile accordion the heading's gutter, rather than
      insetting only its description and leaving the rows edge to edge. */
-  .builder-block--layout-phone-showcase .builder-phone-mobile.builder-process {
+  .builder-block--process .builder-process {
     margin-inline: var(--case-content-gutter);
   }
 
-  .builder-block--layout-phone-showcase .builder-phone-mobile :is(.builder-process__copy, .builder-process__tags) {
+  .builder-block--process .builder-process :is(.builder-process__copy, .builder-process__tags) {
     padding-inline: 0;
   }
 

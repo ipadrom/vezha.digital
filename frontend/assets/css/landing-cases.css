@@ -6,7 +6,7 @@
   padding: var(--section-space) 40px;
   border-top: 1px solid var(--border);
   background: var(--bg);
-  color: var(--text);
+  color: var(--ink);
   font-family: var(--font-ui);
 }
 
@@ -55,12 +55,12 @@
   justify-self: end;
   max-width: 390px;
   margin: 0 0 7px;
-  color: var(--text-2);
+  color: var(--text2);
   font-size: var(--type-body);
   line-height: 1.65;
 }
 
-.vz-cases__stage { position: relative; isolation: isolate; width: 100%; aspect-ratio: 16 / 9; }
+.vz-cases__stage { position: relative; isolation: isolate; overflow: hidden; border-radius: 20px; width: 100%; aspect-ratio: 16 / 9; }
 .vz-cases .vz-cases__shell .vz-cases__stage > .case-artifact {
   position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; aspect-ratio: auto;
   border: 0; border-radius: 20px; box-shadow: none;
@@ -91,20 +91,28 @@
 .vz-cases__summary { display: flex; align-items: center; justify-content: space-between; gap: 32px; margin-top: 24px; }
 .vz-cases__summary-copy { min-width: 0; }
 .vz-cases__summary h3 { margin: 0; max-width: 36ch; font-size: clamp(22px, 2.3vw, 32px); font-weight: 550; line-height: 1.18; letter-spacing: -.025em; text-wrap: pretty; overflow-wrap: anywhere; }
-.vz-cases__summary p { margin: 8px 0 0; color: var(--text-2); font-size: 15px; line-height: 1.5; }
+.vz-cases__summary p { margin: 8px 0 0; color: var(--text2); font-size: 15px; line-height: 1.5; }
 .vz-cases__open {
   display: inline-flex; align-items: center; justify-content: center; gap: 24px;
   flex-shrink: 0; min-width: 220px; min-height: 60px; padding: 16px 28px;
-  border-radius: 14px; background: #1d1e22; color: #fff; text-decoration: none;
+  border-radius: 14px; background: var(--ink); color: var(--bg); text-decoration: none;
   font-size: 17px; font-weight: 600; line-height: 1.3; transition: background-color 160ms ease;
 }
 .vz-cases__controls button:focus-visible, .vz-cases__open:focus-visible { outline: 2px solid var(--cases-accent); outline-offset: 4px; }
-.vz-cases__empty { padding-block: 48px; color: var(--text-2); }
-.case-switch-enter-active, .case-switch-leave-active { transition: opacity 160ms ease; }
-.case-switch-enter-from, .case-switch-leave-to { opacity: 0; }
+.vz-cases__empty { padding-block: 48px; color: var(--text2); }
+.case-switch-enter-active, .case-switch-leave-active {
+  transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out);
+  pointer-events: none;
+}
+.case-switch-enter-active { z-index: 2; }
+.case-switch-leave-active { z-index: 1; }
+.case-switch-enter-from { opacity: 0; transform: translateX(4%) scale(1.035); }
+.case-switch-leave-to { transform: translateX(-2%) scale(.985); }
+[data-direction="previous"] > .case-switch-enter-from { transform: translateX(-4%) scale(1.035); }
+[data-direction="previous"] > .case-switch-leave-to { transform: translateX(2%) scale(.985); }
 @media (hover: hover) and (pointer: fine) {
   .vz-cases__controls button:hover { background: color-mix(in srgb, var(--ink) 8%, transparent); }
-  .vz-cases__open:hover { background: #34353d; }
+  .vz-cases__open:hover { background: var(--btnhover); }
 }
 @media (max-width: 900px) {
   .vz-cases { padding-inline: 24px; }
@@ -112,6 +120,7 @@
   .vz-cases__heading > p { justify-self: start; max-width: 60ch; }
 }
 @media (max-width: 620px) {
+  .vz-cases__stage { border-radius: 14px; }
   .vz-cases { padding-inline: 16px; }
   .vz-cases .vz-cases__shell .vz-cases__stage > .case-artifact { border-radius: 14px; }
   .vz-cases__controls { top: 8px; right: 8px; gap: 0; padding: 0; }
@@ -122,5 +131,7 @@
   .vz-cases__open { min-width: 0; min-height: 54px; justify-content: space-between; padding-inline: 20px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .case-switch-enter-active, .case-switch-leave-active, .vz-cases__controls button, .vz-cases__open { transition: none; }
+  .case-switch-enter-active, .case-switch-leave-active { transition: opacity 160ms ease; }
+  .vz-cases__stage > .case-switch-enter-from, .vz-cases__stage > .case-switch-leave-to { transform: none; }
+  .vz-cases__controls button, .vz-cases__open { transition: none; }
 }
