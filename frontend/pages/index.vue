@@ -5380,6 +5380,14 @@ useHead(() => ({
   fill: currentColor;
 }
 
+.vz-min[data-theme="dark"] .vz-stack__sphere-label-icon[data-technology="Next.js"] svg {
+  /* The N is cut out of the filled disc; white behind it keeps the letter visible. */
+  color: #111318;
+  background: #fff;
+  border-radius: 50%;
+  outline: 1px solid #fff;
+}
+
 .vz-stack__sphere-label--core {
   min-width: 84px;
   height: 34px;

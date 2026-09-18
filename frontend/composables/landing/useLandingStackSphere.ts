@@ -337,6 +337,7 @@ export function useLandingStackSphere(options: UseLandingStackSphereOptions) {
 
         spec.element.className = "vz-stack__sphere-label";
         icon.className = "vz-stack__sphere-label-icon";
+        icon.dataset.technology = spec.label;
         icon.style.setProperty("--stack-tech-color", spec.color);
         svg.setAttribute("aria-hidden", "true");
         svg.setAttribute("focusable", "false");
