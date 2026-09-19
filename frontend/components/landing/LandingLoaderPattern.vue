@@ -17,7 +17,7 @@ function measureGlyphTop() {
   if (!row) return
   const context = document.createElement('canvas').getContext('2d')
   if (!context) return
-  context.font = `800 100px ${getComputedStyle(row).fontFamily}`
+  context.font = `700 100px ${getComputedStyle(row).fontFamily}`
   const metrics = context.measureText('VEZHA')
   const ascent = metrics.fontBoundingBoxAscent
   const descent = metrics.fontBoundingBoxDescent
@@ -56,6 +56,6 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <style scoped>
 .vz-preloader__pattern { position: absolute; overflow: hidden; color: #000; pointer-events: none; }
-.vz-preloader__row { position: relative; box-sizing: border-box; overflow: hidden; width: 100%; font-family: var(--font-ui); font-weight: 800; line-height: 1; }
+.vz-preloader__row { position: relative; box-sizing: border-box; overflow: hidden; width: 100%; font-family: var(--font-ui); font-weight: 700; line-height: 1; }
 .vz-preloader__letter { position: absolute; transform: none; display: block; text-align: center; }
 </style>

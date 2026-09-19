@@ -12,7 +12,7 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .vz-min .vz-hero + .vz-services { border-top: 0; }
 .vz-min .vz-preloader { justify-content: flex-end; padding: 8px; overflow: hidden; isolation: isolate; background: #fff; }
 .vz-preloader__pattern { position: absolute; inset: 0; overflow: hidden; color: #000; pointer-events: none; }
-.vz-preloader__row { position: relative; overflow: hidden; width: 100%; font-family: var(--font-ui); font-weight: 800; line-height: 1; }
+.vz-preloader__row { position: relative; overflow: hidden; width: 100%; font-family: var(--font-ui); font-weight: 700; line-height: 1; }
 .vz-preloader__letter { position: absolute; transform: none; display: block; text-align: center; }
 .vz-preloader__top, .vz-preloader__bottom { position: relative; z-index: 1; mix-blend-mode: difference; }
 .vz-preloader .vz-preloader__top, .vz-preloader .vz-preloader__count, .vz-preloader .vz-preloader__count span, .vz-preloader .vz-preloader__meta { color: #fff; }
