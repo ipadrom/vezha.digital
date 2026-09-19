@@ -2,18 +2,9 @@
   <div ref="rootRef" class="vz-min vz-motion-ready" :data-theme="theme">
     <CaseScrollThumb v-if="!showPreloader" :theme="theme" />
     <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
-      <div class="vz-preloader__pattern" aria-hidden="true"><div v-for="row in 18" :key="row" class="vz-preloader__row"><span v-for="word in 12" :key="word">VEZHA</span></div></div>
-      <div class="vz-preloader__top">
-        <span>{{ copy.preloader.loading }}</span>
-        <span>Vezha / Digital</span>
-      </div>
+      <LandingLoaderPattern :progress="introProgress" />
       <div class="vz-preloader__bottom">
-        <div class="vz-preloader__count"><span>{{ introProgress.toString().padStart(2, "0") }}</span><span>%</span></div>
-        <div class="vz-preloader__meta">
-          <template v-for="(item, index) in copy.preloader.meta.filter(Boolean)" :key="item">
-            <br v-if="index" />{{ item }}
-          </template>
-        </div>
+        <div class="vz-preloader__count"><span>{{ Math.floor(introProgress).toString().padStart(2, "0") }}</span><span>%</span></div>
       </div>
     </div>
 
@@ -177,6 +168,7 @@
 <script setup lang="ts">
 import LandingAbout from "~/components/landing/LandingAbout.vue";
 import LandingCases from "~/components/landing/LandingCases.vue";
+import LandingLoaderPattern from "~/components/landing/LandingLoaderPattern.vue";
 import CaseScrollThumb from "~/components/cases/CaseScrollThumb.vue";
 import type { IAdvantages } from "~/utils/interfaces/IAdvantages";
 import type { IProjects } from "~/utils/interfaces/IProjects";
@@ -3426,7 +3418,8 @@ function runPreloader(tasks: InitialLoadTask[]) {
   }
 
   const seen = sessionStorage.getItem("vz_loaded") === "1";
-  if (seen) {
+  const replayLoader = import.meta.dev && new URLSearchParams(window.location.search).get("loader") === "1";
+  if (seen && !replayLoader) {
     showPreloader.value = false;
     return;
   }
@@ -3465,10 +3458,10 @@ function runPreloader(tasks: InitialLoadTask[]) {
       return;
     }
 
-    const displayLimit = resourcesReady ? 99 : 94;
+    const displayLimit = resourcesReady ? 99.9 : 94;
     introProgress.value = Math.max(
       introProgress.value,
-      Math.min(displayLimit, Math.round(displayedProgress * 100)),
+      Math.min(displayLimit, displayedProgress * 100),
     );
     preloaderFrameId = requestAnimationFrame(step);
   };

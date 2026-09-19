@@ -68,6 +68,10 @@ Frontend tests use Node's test runner but have no canonical package script. Run 
 
 During `nuxt dev`, the public API client sends browser requests through the frontend's `/api` proxy. Nitro forwards them to `NUXT_PUBLIC_API_URL` (default `http://localhost:8000`), so alternate local preview ports do not require backend CORS changes. Production requests continue to use the configured API URL directly.
 
+### Local loader playground
+
+Run `node tools/loader-preview/server.mjs` from `frontend/` to open the standalone loader playground at `http://127.0.0.1:3002/`. It uses the site's `LandingLoaderPattern.vue` component with progress, font-size and spacing controls. Settings persist only in browser local storage; use the copy button to export them. Changes in the playground do not update the site's defaults. This tool is outside Nuxt's public routes and is not included in deployment.
+
 ## Remotion
 
 Each Remotion directory is an independent npm package. Use its README and package scripts. Rendered `out/` files are local deliverables and are ignored by Git.

@@ -9,12 +9,13 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .vz-footer__top a { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 0; color: var(--ink); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent); text-underline-offset: 5px; }
 .vz-footer__top a:focus-visible { outline: 2px solid currentColor; outline-offset: 5px; }
 .vz-footer__top a:hover { text-decoration-color: currentColor; }
-.vz-preloader { overflow: hidden; isolation: isolate; }
-.vz-preloader__pattern { position: absolute; inset: -20vh -50vw; display: flex; flex-direction: column; justify-content: flex-start; color: var(--ink); opacity: .12; pointer-events: none; animation: vz-loader-fall 5s linear infinite; }
-.vz-preloader__row { display: flex; flex: 0 0 12vh; align-items: center; gap: .22em; white-space: nowrap; font-size: clamp(64px, 10vh, 150px); font-weight: 700; line-height: 1; letter-spacing: -.04em; }
-.vz-preloader__row:nth-child(even) { translate: -1.6em 0; }
-.vz-preloader__top, .vz-preloader__bottom { position: relative; z-index: 1; }
-@keyframes vz-loader-fall { from { transform: translateY(-24vh); } to { transform: translateY(0); } }
+.vz-min .vz-hero + .vz-services { border-top: 0; }
+.vz-min .vz-preloader { justify-content: flex-end; padding: 8px; overflow: hidden; isolation: isolate; background: #fff; }
+.vz-preloader__pattern { position: absolute; inset: 0; overflow: hidden; color: #000; pointer-events: none; }
+.vz-preloader__row { position: relative; overflow: hidden; width: 100%; font-family: var(--font-ui); font-weight: 800; line-height: 1; }
+.vz-preloader__letter { position: absolute; transform: none; display: block; text-align: center; }
+.vz-preloader__top, .vz-preloader__bottom { position: relative; z-index: 1; mix-blend-mode: difference; }
+.vz-preloader .vz-preloader__top, .vz-preloader .vz-preloader__count, .vz-preloader .vz-preloader__count span, .vz-preloader .vz-preloader__meta { color: #fff; }
 @media (max-width: 900px) {
   .vz-min .vz-marquee { padding-block: 18px; }
   .vz-min .vz-marquee > div { gap: 0; }
@@ -74,7 +75,7 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
   .case-page .technology-contours__groups { mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 24px), transparent); padding-right: 24px; scroll-padding-inline: 12px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .vz-preloader__pattern, .vz-cases__summary h3, .vz-cases__summary p, .vz-cases__summary .vz-cases__open { animation: none; }
+  .vz-cases__summary h3, .vz-cases__summary p, .vz-cases__summary .vz-cases__open { animation: none; }
   .case-switch-enter-active, .case-switch-leave-active { transition: none; }
   .case-switch-enter-from, [data-direction="previous"] > .case-switch-enter-from, .case-switch-leave-to { opacity: 1; transform: none; clip-path: none; }
 }
