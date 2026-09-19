@@ -33,6 +33,14 @@ An external reverse proxy terminates public HTTP/TLS and routes requests to the 
 
 Local fallback case/content utilities exist so selected pages can render when API content is unavailable. They are not a second database and should not silently diverge from published content.
 
+### Related cases
+
+The case builder's `next_case` block is shown as **Другие проекты / More projects** in the studio. `CaseNavigation.vue` is the single renderer for cover cards on public case pages and the admin canvas; the old related-card layout is removed. Cases without a saved navigation block use the same renderer automatically. Opening such a case in the editor adds an editable default block to the in-memory document, persisted on the next save.
+
+Editors can set the heading, eyebrow, all-cases link label, cover-button label and up to three published cases in display order. Selection is shared between languages; text stays localized. The JSON content fields are `case_slugs` (up to three slugs), `card_cta_label`, `title`, `eyebrow` and `cta_label`. A missing `case_slugs` reads the legacy `case_slug`; an empty list enables automatic selection. Covers and names come from project records. The current case, duplicates and unavailable selections are excluded. The automatic list prioritizes featured projects, then sort order. Public fallback records are used only when fetching the project list fails, not when the API returns an empty list.
+
+No database migration is required: these settings use the existing block JSON and draft/publish flow. Saving a draft does not publish it.
+
 ## Backend and API
 
 `backend/app/main.py` creates the FastAPI application, CORS middleware, upload mount and routers.

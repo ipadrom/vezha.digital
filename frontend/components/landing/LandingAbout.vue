@@ -4,7 +4,7 @@
       <header class="vz-about__head">
         <div class="vz-about__title">
           <div class="vz-section-label">
-            <span>{{ copy.label }}</span><i>/</i><span data-secnum>01</span>
+            <span>{{ copy.label }}</span><i>/</i><span data-secnum>03</span>
           </div>
           <h2 :aria-label="copy.teamLead">
             <span class="vz-about__team-lead--desktop" aria-hidden="true">
@@ -86,7 +86,7 @@
             :aria-label="copy.replay"
             @click="$emit('replay')"
           >
-            {{ copy.replay }} <span aria-hidden="true">↻</span>
+            {{ copy.replay }} <span aria-hidden="true"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7v5h-5M20 12a8 8 0 1 0-2.34 5.66" /></svg></span>
           </button>
         </div>
 

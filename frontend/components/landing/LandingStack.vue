@@ -5,7 +5,7 @@
         <div class="vz-sec-head" data-sec-head>
           <div>
             <div class="vz-section-label">
-              <span>{{ copy.label }}</span><i>/</i><span data-secnum>02</span>
+              <span>{{ copy.label }}</span><i>/</i><span data-secnum>04</span>
             </div>
             <h2>{{ copy.title }}</h2>
           </div>

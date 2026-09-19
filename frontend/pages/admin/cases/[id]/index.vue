@@ -44,6 +44,7 @@
             v-for="(block, index) in document.blocks"
             :key="block.id"
             :block="block"
+            :current-slug="document.meta.slug"
             :locale="locale"
             :index="index"
             :selected="selectedId === block.id"
@@ -71,7 +72,7 @@
 
       <aside class="editor-inspector">
         <CaseMetaInspector v-if="selectedId === null" :meta="document.meta" :locale="locale" @change="document.meta = $event" />
-        <CaseBlockInspector v-else-if="selectedBlock" :block="selectedBlock" :locale="locale" @change="updateSelectedBlock" />
+        <CaseBlockInspector v-else-if="selectedBlock" :block="selectedBlock" :locale="locale" :current-slug="document.meta.slug" @change="updateSelectedBlock" />
       </aside>
     </template>
 

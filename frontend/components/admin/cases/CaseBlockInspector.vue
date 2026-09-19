@@ -15,6 +15,17 @@
           <template v-if="element.type === 'metric'"><label><span>Значение</span><input :value="element.value || ''" @input="setFreeformElement(index, 'value', valueOf($event))" /></label><label><span>Подпись</span><input :value="element.label || ''" @input="setFreeformElement(index, 'label', valueOf($event))" /></label></template>
         </div>
       </template>
+      <template v-if="block.type === 'next_case'">
+        <p class="inspector-hint">Выберите до трёх опубликованных кейсов в нужном порядке. Без выбора подборка формируется автоматически. Обложки и названия берутся из самих кейсов.</p>
+        <label v-for="slot in 3" :key="`related-${slot}`">
+          <span>Кейс {{ slot }}</span>
+          <select :value="selectedCaseSlugs[slot - 1] || ''" @change="setRelatedCase(slot - 1, valueOf($event))">
+            <option value="">Не выбран</option>
+            <option v-for="project in navigationCases.filter(item => item.slug !== currentSlug)" :key="project.id" :value="project.slug || ''" :disabled="selectedCaseSlugs.includes(project.slug || '') && selectedCaseSlugs[slot - 1] !== project.slug">{{ project.name }}</option>
+            <option v-if="selectedCaseSlugs[slot - 1] && !navigationCases.some(project => project.slug === selectedCaseSlugs[slot - 1])" :value="selectedCaseSlugs[slot - 1]">{{ selectedCaseSlugs[slot - 1] }} — недоступен</option>
+          </select>
+        </label>
+      </template>
       <label v-for="field in fields" :key="field.key">
         <span>{{ field.label }}</span>
         <AdminMediaInput v-if="field.media" :model-value="content[field.key] || ''" :accept="field.accept" @update:model-value="setContent(field.key, $event)" />
@@ -181,10 +192,22 @@ import { technologyIcons, technologyId } from '~/utils/caseTechnologies'
 type Field = { key: string; label: string; kind?: string; rows?: number; media?: boolean; accept?: string; defaultValue?: string; options?: Array<{ value: string; label: string }> }
 type GridViewport = 'desktop' | 'tablet' | 'mobile'
 type GridPosition = 'auto' | 'left' | 'center' | 'right'
-const props = defineProps<{ block: CaseBlock; locale: CaseLocale }>()
+const props = defineProps<{ block: CaseBlock; locale: CaseLocale; currentSlug?: string }>()
 const emit = defineEmits<{ change: [block: CaseBlock] }>()
 const key = computed<'content_ru' | 'content_en'>(() => props.locale === 'ru' ? 'content_ru' : 'content_en')
 const content = computed(() => props.block[key.value])
+const { data: navigationCases } = useNavigationCases(() => props.locale)
+const selectedCaseSlugs = computed<string[]>(() => Array.isArray(content.value.case_slugs) ? content.value.case_slugs : content.value.case_slug ? [content.value.case_slug] : [])
+function setRelatedCase(index: number, slug: string) {
+  const slugs = [...selectedCaseSlugs.value]
+  slugs[index] = slug
+  update(copy => {
+    for (const lang of ['content_ru', 'content_en'] as const) {
+      copy[lang].case_slugs = slugs.filter(Boolean)
+      copy[lang].case_slug = ''
+    }
+  })
+}
 const items = computed<any[]>(() => content.value.items || [])
 const isFreeform = computed(() => props.block.settings.layout === 'freeform')
 const freeformElements = computed<CaseFreeformElement[]>(() => Array.isArray(content.value.elements) ? content.value.elements : [])
@@ -247,7 +270,7 @@ const fieldMap: Record<string, Field[]> = {
     { key: 'controls', label: 'Показывать управление', kind: 'checkbox' },
   ],
   results: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'body', label: 'Итог', kind: 'textarea', rows: 7 }, { key: 'link_url', label: 'Ссылка', kind: 'url' }, { key: 'link_label', label: 'Текст ссылки' }],
-  next_case: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'case_slug', label: 'Slug следующего кейса' }, { key: 'cta_label', label: 'Текст ссылки' }],
+  next_case: [{ key: 'eyebrow', label: 'Метка' }, { key: 'title', label: 'Заголовок' }, { key: 'cta_label', label: 'Кнопка всех кейсов' }, { key: 'card_cta_label', label: 'Кнопка на обложке' }],
 }
 
 const itemFieldMap: Record<string, Field[]> = {

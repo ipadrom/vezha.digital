@@ -60,7 +60,7 @@
   line-height: 1.65;
 }
 
-.vz-cases__stage { position: relative; isolation: isolate; overflow: hidden; border-radius: 20px; width: 100%; aspect-ratio: 16 / 9; }
+.vz-cases__stage { --case-control-inset: 20px; position: relative; isolation: isolate; overflow: hidden; border-radius: 20px; width: 100%; aspect-ratio: 16 / 9; }
 .vz-cases .vz-cases__shell .vz-cases__stage > .case-artifact {
   position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; margin: 0; aspect-ratio: auto;
   border: 0; border-radius: 20px; box-shadow: none;
@@ -70,8 +70,24 @@
   display: block; width: 100%; height: 100%; object-fit: cover; object-position: center;
 }
 .vz-cases__stage .case-artifact__index { display: none; }
+.vz-cases__preview-link { position: absolute; inset: 0; z-index: 3; display: flex; align-items: flex-end; padding: clamp(20px, 3vw, 40px); padding-right: var(--case-control-inset); color: #fff; text-decoration: none; }
+.vz-cases__preview-link::before { content: ''; position: absolute; inset: 0; background: rgb(6 10 18 / 76%); opacity: 0; transition: opacity 280ms ease; }
+.vz-cases__preview-copy { position: relative; width: 100%; }
+.vz-cases__preview-details { opacity: 0; transform: translateY(10px); transition: opacity 220ms ease, transform 320ms cubic-bezier(.2,.7,.2,1); }
+.vz-cases__preview-type { display: block; width: 100%; margin: 0; padding: 0; text-align: left; text-indent: 0; color: #e0e4ed; font: 500 13px/1.4 var(--font-mono); letter-spacing: .06em; text-transform: uppercase; }
+.vz-cases__preview-copy h3 { max-width: 28ch; margin: 14px 0 22px; color: #fff; font: 540 clamp(32px, 3.6vw, 56px)/1.08 var(--font-ui); letter-spacing: -.03em; text-wrap: balance; }
+.vz-cases__preview-action { display: flex; width: fit-content; margin-left: auto; justify-content: center; align-items: center; gap: 12px; min-height: 56px; box-sizing: border-box; padding: 14px 24px; border: 1px solid rgb(255 255 255 / 14%); border-radius: 999px; background: #1c1d21; color: #fff; font: 600 20px/1.3 var(--font-ui); white-space: nowrap; transition: background-color 180ms ease; }
+.vz-cases__preview-action > span { text-decoration: none; }
+.vz-cases__preview-link:is(:hover, :focus-visible) .vz-cases__preview-action { background: #33353b; }
+.vz-cases__preview-action svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.vz-cases__preview-link:is(:hover, :focus-visible)::before { opacity: 1; }
+.vz-cases__preview-link:is(:hover, :focus-visible) .vz-cases__preview-details { opacity: 1; transform: none; }
+.vz-cases__preview-link:focus-visible { outline: 3px solid var(--cases-accent); outline-offset: -3px; }
+@media (prefers-reduced-motion: reduce) {
+  .vz-cases__preview-link::before, .vz-cases__preview-details, .vz-cases__preview-action { transition: none; transform: none; }
+}
 .vz-cases__controls {
-  position: absolute; z-index: 3; top: 20px; right: 20px;
+  position: absolute; z-index: 4; top: 20px; right: var(--case-control-inset);
   display: flex; align-items: center; gap: 4px; padding: 4px;
   border: 1px solid var(--landing-card-border, var(--border));
   border-radius: 999px;
@@ -120,10 +136,10 @@
   .vz-cases__heading > p { justify-self: start; max-width: 60ch; }
 }
 @media (max-width: 620px) {
-  .vz-cases__stage { border-radius: 14px; }
+  .vz-cases__stage { --case-control-inset: 8px; border-radius: 14px; }
   .vz-cases { padding-inline: 16px; }
   .vz-cases .vz-cases__shell .vz-cases__stage > .case-artifact { border-radius: 14px; }
-  .vz-cases__controls { top: 8px; right: 8px; gap: 0; padding: 0; }
+  .vz-cases__controls { top: 8px; right: var(--case-control-inset); gap: 0; padding: 0; }
   .vz-cases__controls button { width: 32px; height: 32px; }
   .vz-cases__controls svg { width: 16px; height: 16px; }
   .vz-cases__counter { min-width: 44px; font-size: 11px; }
@@ -134,4 +150,10 @@
   .case-switch-enter-active, .case-switch-leave-active { transition: opacity 160ms ease; }
   .vz-cases__stage > .case-switch-enter-from, .vz-cases__stage > .case-switch-leave-to { transform: none; }
   .vz-cases__controls button, .vz-cases__open { transition: none; }
+}
+
+.vz-cases__summary--touch { display: none; }
+@media (hover: none), (max-width: 767px) {
+  .vz-cases__preview-link { display: none; }
+  .vz-cases__summary--touch { display: flex; }
 }

@@ -3,7 +3,7 @@
     <header><NuxtLink :to="`/admin/cases/${route.params.id}`">← Вернуться в редактор</NuxtLink><span>ПРЕДПРОСМОТР ЧЕРНОВИКА</span><div><button v-for="value in (['ru','en'] as const)" :key="value" type="button" :class="{ active: locale === value }" @click="locale = value">{{ value.toUpperCase() }}</button></div></header>
     <div v-if="loading" class="preview-state">Загружаем предпросмотр…</div>
     <div v-else-if="error" class="preview-state">{{ error }}</div>
-    <PublicCaseBuilder v-else-if="document" :blocks="localizedBlocks(document.blocks, locale)" :locale="locale" />
+    <PublicCaseBuilder v-else-if="document" :blocks="localizedBlocks(document.blocks, locale)" :current-slug="document.meta.slug" :locale="locale" />
   </div>
 </template>
 

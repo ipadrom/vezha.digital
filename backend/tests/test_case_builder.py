@@ -850,3 +850,18 @@ def test_public_serializer_defaults_empty_project_type() -> None:
 
     assert serialize_project_summary(project, "ru").type == "Проект"
     assert serialize_project_summary(project, "en").type == "Project"
+
+
+def test_related_case_selection_survives_block_roundtrip():
+    block = CaseBlockInput(type="next_case", content_ru={"case_slugs": ["demo-b", "demo-a"], "card_cta_label": "View"})
+    restored = CaseBlockInput.model_validate(block.model_dump())
+    assert restored.content_ru["case_slugs"] == ["demo-b", "demo-a"]
+    assert restored.content_ru["card_cta_label"] == "View"
+
+
+def test_related_case_selection_limits_and_legacy_compatibility():
+    with pytest.raises(ValidationError):
+        CaseBlockInput(type="next_case", content_ru={"case_slugs": ["a", "b", "c", "d"]})
+    block = CaseBlockInput(type="next_case", content_ru={"case_slug": "legacy-demo"})
+    assert block.content_ru["case_slug"] == "legacy-demo"
+    assert block.content_ru["case_slugs"] is None

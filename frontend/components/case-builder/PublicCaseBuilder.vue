@@ -8,10 +8,11 @@
       :class="blockClasses(block)"
       :style="blockGridStyle(block)"
       :data-block="block.type"
+      :data-section-start="isSectionStart(block) ? 'true' : undefined"
       :data-od-id="`case-block-${block.type}-${block.id}`"
     >
       <div class="builder-block__inner">
-        <CaseFreeformBlock v-if="block.settings.layout === 'freeform' && block.type !== 'hero'" :content="block.content" :settings="block.settings" />
+        <CaseFreeformBlock v-if="block.settings.layout === 'freeform' && !['hero', 'next_case'].includes(block.type)" :content="block.content" :settings="block.settings" />
         <CaseEditorialAir v-else-if="block.settings.layout === 'air' && (block.type === 'challenge_solution' || block.type === 'results')" :kind="block.type" :content="block.content" :block-id="block.id" />
 
         <template v-else-if="block.type === 'hero'">
@@ -291,48 +292,7 @@
         </template>
 
         <template v-else-if="block.type === 'next_case'">
-          <div class="builder-next-shell">
-            <header class="builder-next-header">
-              <div>
-                <span class="builder-eyebrow">{{ block.content.eyebrow }}</span>
-                <h2>{{ block.content.title }}</h2>
-              </div>
-              <NuxtLink class="builder-next-link" :to="block.content.case_slug ? `/cases/${block.content.case_slug}` : '/#cases'">
-                {{ block.content.cta_label || (locale === 'ru' ? 'Открыть' : 'Open') }} <b>↗</b>
-              </NuxtLink>
-            </header>
-
-            <div v-if="relatedCases.length" class="builder-related-cases">
-              <NuxtLink
-                v-for="(project, index) in relatedCases"
-                :key="project.slug || project.id"
-                class="builder-related-card"
-                :to="`/cases/${project.slug}`"
-              >
-                <div class="builder-related-card__visual" :data-project="project.slug">
-                  <img
-                    v-if="project.cover_image_url || project.image_url"
-                    :src="project.cover_image_url || project.image_url || ''"
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <div v-else class="builder-related-card__mock" aria-hidden="true">
-                    <span>VEZHA / CASE {{ two(index + 1) }}</span>
-                    <div><i /><i /><i /><i /></div>
-                    <strong>{{ project.hero_metric_value || two(index + 1) }}</strong>
-                    <small>{{ project.hero_metric_label || project.industry }}</small>
-                  </div>
-                </div>
-                <div class="builder-related-card__copy">
-                  <div><span>{{ two(index + 1) }}</span><small>{{ project.type }}</small></div>
-                  <h3>{{ project.name }}</h3>
-                  <p>{{ project.description || project.subtitle }}</p>
-                  <b aria-hidden="true">↗</b>
-                </div>
-              </NuxtLink>
-            </div>
-          </div>
+          <CaseNavigation :content="block.content" :locale="locale" :related-projects="relatedProjects" :current-slug="currentSlug" />
         </template>
       </div>
     </section>
@@ -341,6 +301,7 @@
 
 <script setup lang="ts">
 import { mobileCaseCover } from '~/utils/caseCoverMedia'
+import CaseNavigation from '~/components/cases/CaseNavigation.vue'
 import CaseResultCheck from './CaseResultCheck.vue'
 import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
 import CaseTechnologyContours from '~/components/case-builder/CaseTechnologyContours.vue'
@@ -349,7 +310,7 @@ import CaseFreeformBlock from '~/components/case-builder/CaseFreeformBlock.vue'
 import CasePhoneProcess from '~/components/case-builder/CasePhoneProcess.vue'
 import { caseHeroColorDefaults, normalizeHexColor, type CaseLocale, type PublicBuilderBlock } from '~/utils/caseBuilder'
 import type { IProjects } from '~/utils/interfaces/IProjects'
-const props = defineProps<{ blocks: PublicBuilderBlock[]; locale: CaseLocale; relatedProjects?: IProjects[] }>()
+const props = defineProps<{ blocks: PublicBuilderBlock[]; locale: CaseLocale; relatedProjects?: IProjects[]; currentSlug?: string }>()
 const builderRoot = ref<HTMLElement | null>(null)
 const reduceMotion = ref(true)
 const allowAutoplay = ref(false)
@@ -359,8 +320,7 @@ const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => {
   if (a.type !== 'hero' && b.type === 'hero') return 1
   return a.sort_order - b.sort_order
 }))
-const relatedCases = computed(() => (props.relatedProjects || []).filter((project) => project.slug).slice(0, 3))
-const two = (value: number) => String(value).padStart(2, '0')
+const isSectionStart = (block: PublicBuilderBlock) => ['text', 'challenge_solution', 'insight', 'process', 'results', 'technologies', 'image_text', 'next_case'].includes(block.type) && block.settings.layout !== 'freeform' && (Number(block.settings.desktop_span) || 12) === 12
 const heroCategory = (block: PublicBuilderBlock) => String(block.content.industry || block.content.type_label || '').trim()
 const blockClasses = (block: PublicBuilderBlock) => [
   `builder-block--${block.type}`,

@@ -2,6 +2,7 @@
   <div ref="rootRef" class="vz-min vz-motion-ready" :data-theme="theme">
     <CaseScrollThumb v-if="!showPreloader" :theme="theme" />
     <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
+      <div class="vz-preloader__pattern" aria-hidden="true"><div v-for="row in 18" :key="row" class="vz-preloader__row"><span v-for="word in 12" :key="word">VEZHA</span></div></div>
       <div class="vz-preloader__top">
         <span>{{ copy.preloader.loading }}</span>
         <span>Vezha / Digital</span>
@@ -93,6 +94,8 @@
       >
         <div class="vz-negative-world vz-negative-world--page" data-negative-world="page"></div>
         <div class="vz-section-liquid__target" data-section-liquid-target hidden></div>
+        <div class="vz-section-liquid__target vz-section-liquid__target--gallery" data-gallery-liquid-target hidden></div>
+        <div class="vz-section-label vz-section-liquid__target vz-section-liquid__target--gallery" data-gallery-label-liquid-target hidden></div>
       </div>
     </Teleport>
 
@@ -104,6 +107,18 @@
       @pointer-move="updateHeroNegative"
       @pointer-leave="resetHeroNegative"
       @hero-ready="setHeroHosts"
+    />
+
+    <LandingServices
+      :services="displayServices"
+      :copy="copy.services"
+      @active-change="handleServiceActiveChange"
+    />
+
+    <LandingCases
+      :projects="projects"
+      :fallback="caseFallbacks"
+      :copy="casesCopy"
     />
 
     <LandingAbout
@@ -135,24 +150,12 @@
       @scene-ready="markStackSceneReady"
     />
 
-    <LandingServices
-      :services="displayServices"
-      :copy="copy.services"
-      @active-change="handleServiceActiveChange"
-    />
-
     <LandingClients
       v-model:active-index="activeClientSegment"
       :copy="copy.clients"
       :segments="clientSegments"
       @cube-ready="setClientCubeHost"
       @layout-change="updateClientCubePosition"
-    />
-
-    <LandingCases
-      :projects="projects"
-      :fallback="caseFallbacks"
-      :copy="casesCopy"
     />
 
     <LandingContacts :copy="copy.contacts" :contact-email="contactEmail" />
@@ -642,7 +645,8 @@ const navItems = computed(() => {
     href: "#cases",
     label: currentLocale.value === "ru" ? "Кейсы" : "Cases",
   });
-  return items;
+  const order = ["#hero", "#services", "#cases", "#about", "#stack", "#clients", "#contacts"];
+  return items.sort((a, b) => order.indexOf(a.href) - order.indexOf(b.href));
 });
 const footerNavItems = computed(() => navItems.value.filter((item) => item.href !== "#contacts"));
 const marqueeItems = computed(() => copy.value.marqueeItems);
@@ -2363,11 +2367,11 @@ function getSectionLiquidTargets() {
 
   const configs = [
     { key: "hero", selector: "#hero h1", section: "#hero" },
+    { key: "services", selector: "#services .vz-sec-head h2", section: "#services" },
+    { key: "cases", selector: "#cases .vz-cases__heading h2", section: "#cases" },
     { key: "about", selector: "#about .vz-about__head h2", section: "#about" },
     { key: "stack", selector: "#stack .vz-sec-head h2", section: "#stack" },
-    { key: "services", selector: "#services .vz-sec-head h2", section: "#services" },
     { key: "clients", selector: "#clients h2", section: "#clients" },
-    { key: "cases", selector: "#cases .vz-cases__heading h2", section: "#cases" },
     { key: "contacts", selector: "#contacts h2", section: "#contacts" },
     { key: "footer", selector: ".vz-footer__sign strong", section: ".vz-footer" },
   ];
@@ -2576,7 +2580,8 @@ function syncSectionLiquidGeometry(forceClone = false) {
 
   const activeTarget = targets.find(({ key }) => key === sectionLiquidState.lastTargetKey)
     ?? getInitialSectionLiquidTarget(targets);
-  commitSectionLiquidTarget(activeTarget, true);
+  if (forceClone || !sectionLiquidState.initialized) commitSectionLiquidTarget(activeTarget, true);
+  else syncCurrentSectionLiquidTarget(targets);
   updateNegativeWorldPositions();
   syncSectionLiquidTargetOverlay(getSectionLiquidTargets());
   startSectionLiquid();
@@ -2677,6 +2682,12 @@ function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
 
   const sourceText = target.element.querySelector<HTMLElement>("[data-reveal]")
     ?? target.element;
+  syncLiquidTextOverlay(sourceText, targetHost, target.key);
+}
+
+function syncLiquidTextOverlay(sourceText: HTMLElement, targetHost: HTMLElement, key: string) {
+  const overlay = sectionLiquidRef.value;
+  if (!overlay) return;
   const sourceRect = getLandingLayoutRect(sourceText);
   const overlayRect = getLandingLayoutRect(overlay);
   const sourceStyle = window.getComputedStyle(sourceText);
@@ -2684,7 +2695,7 @@ function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
   if (!text) return;
 
   const styleSignature = [
-    target.key,
+    key,
     text,
     sourceRect.width.toFixed(2),
     sourceStyle.fontFamily,
@@ -2694,6 +2705,8 @@ function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
     sourceStyle.lineHeight,
     sourceStyle.letterSpacing,
     sourceStyle.textAlign,
+    sourceStyle.display,
+    sourceStyle.gap,
     sourceStyle.textTransform,
     sourceStyle.whiteSpace,
     sourceStyle.wordBreak,
@@ -2710,6 +2723,11 @@ function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
     targetHost.style.lineHeight = sourceStyle.lineHeight;
     targetHost.style.letterSpacing = sourceStyle.letterSpacing;
     targetHost.style.textAlign = sourceStyle.textAlign;
+    targetHost.style.display = sourceStyle.display;
+    targetHost.style.gap = sourceStyle.gap;
+    targetHost.style.alignItems = sourceStyle.alignItems;
+    targetHost.style.justifyContent = sourceStyle.justifyContent;
+    targetHost.style.flexWrap = sourceStyle.flexWrap;
     targetHost.style.textTransform = sourceStyle.textTransform;
     targetHost.style.whiteSpace = sourceStyle.whiteSpace;
     targetHost.style.wordBreak = sourceStyle.wordBreak;
@@ -2729,7 +2747,25 @@ function syncMobileSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
   targetHost.style.transform = `translate3d(${formatStablePx(sourceRect.left - overlayRect.left)}, ${formatStablePx(sourceRect.top - overlayRect.top)}, 0)`;
 }
 
+function syncGalleryLiquidText() {
+  const copies = [
+    { source: "#cases .vz-cases__heading > p", host: "[data-gallery-liquid-target]", key: "cases-intro" },
+    { source: "#cases .vz-section-label", host: "[data-gallery-label-liquid-target]", key: "cases-label" },
+  ];
+  for (const copy of copies) {
+    const source = rootRef.value?.querySelector<HTMLElement>(copy.source);
+    const host = sectionLiquidRef.value?.querySelector<HTMLElement>(copy.host);
+    if (!host) continue;
+    host.hidden = true;
+    if (!source) continue;
+    const rect = source.getBoundingClientRect();
+    if (rect.bottom < 0 || rect.top > window.innerHeight) continue;
+    syncLiquidTextOverlay(source, host, copy.key);
+  }
+}
+
 function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
+  syncGalleryLiquidText();
   clearSectionLiquidTextAlignment();
   hideSectionLiquidTargetOverlay();
   if (!sectionLiquidState.lastTargetKey) return;
@@ -3914,7 +3950,8 @@ const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");
 useHead(() => ({
   htmlAttrs: {
     lang: currentLocale.value,
-    class: "overlay-scrollbar-route",
+    class: "landing-route overlay-scrollbar-route",
+    "data-theme": theme.value,
   },
   title: copy.value.head.title,
   meta: [
@@ -4787,8 +4824,28 @@ useHead(() => ({
   }
 }
 
+.vz-negative-world .vz-cases__heading > p,
+.vz-negative-world .vz-cases__heading .vz-section-label {
+  visibility: hidden;
+}
+
+.vz-section-liquid__target--gallery {
+  background: none;
+  color: #f7f9ff;
+  -webkit-text-fill-color: currentColor;
+}
+
+.vz-section-liquid__target--gallery :is(span, i) {
+  color: inherit;
+  -webkit-text-fill-color: currentColor;
+}
+
+.vz-section-liquid[data-theme="dark"] .vz-section-liquid__target--gallery {
+  color: #1c1d21;
+}
+
 .vz-section-liquid__target[hidden] {
-  display: none;
+  display: none !important;
 }
 
 .vz-negative-world {
@@ -6945,3 +7002,5 @@ useHead(() => ({
 }
 
 </style>
+
+<style src="~/assets/css/site-polish.css"></style>

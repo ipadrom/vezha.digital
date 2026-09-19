@@ -1,3 +1,4 @@
+import { createCaseBlock } from '~/utils/caseBuilder'
 import type { CaseDocument, CaseMeta, CaseRevision, CaseSummary, MediaAsset } from '~/utils/caseBuilder'
 
 export const useCaseAdmin = () => {
@@ -5,7 +6,15 @@ export const useCaseAdmin = () => {
   const config = useRuntimeConfig()
 
   const listCases = () => fetchWithAuth<CaseSummary[]>('/cases')
-  const getCase = (id: string) => fetchWithAuth<CaseDocument>(`/cases/${id}`)
+  const getCase = async (id: string) => {
+    const document = await fetchWithAuth<CaseDocument>(`/cases/${id}`)
+    if (!document.blocks.some(block => block.type === 'next_case')) {
+      const navigation = createCaseBlock('next_case')
+      navigation.sort_order = Math.max(-1, ...document.blocks.map(block => block.sort_order)) + 1
+      document.blocks.push(navigation)
+    }
+    return document
+  }
   const createCase = (meta?: Partial<CaseMeta>) => fetchWithAuth<CaseDocument>('/cases', {
     method: 'POST',
     body: JSON.stringify({ meta: meta || {} }),

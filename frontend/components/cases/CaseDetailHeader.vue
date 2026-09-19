@@ -1,4 +1,13 @@
 <template>
+  <svg class="case-glass-filter" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="case-header-refraction" x="-10%" y="-40%" width="120%" height="180%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="2" seed="8" result="glass-waves" />
+        <feGaussianBlur in="glass-waves" stdDeviation="2" result="glass-map" />
+        <feDisplacementMap in="SourceGraphic" in2="glass-map" scale="24" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </defs>
+  </svg>
   <div
     class="case-header-hover-zone"
     aria-hidden="true"
@@ -9,6 +18,7 @@
     class="case-header"
     :data-nav-visible="isHeaderShown ? 'true' : 'false'"
     :data-media-collision="isHeaderMediaColliding ? 'true' : undefined"
+    :data-scrolled="hasScrolled ? 'true' : 'false'"
     :style="headerStyle"
     :aria-hidden="isHeaderShown ? undefined : 'true'"
     :inert="isHeaderShown ? undefined : true"
@@ -67,6 +77,7 @@ const isMenuOpen = ref(false);
 const isHeaderVisible = ref(true);
 const headerInnerRef = ref<HTMLElement | null>(null);
 const headerMediaShift = ref(0);
+const hasScrolled = ref(false);
 const isHeaderMediaColliding = ref(false);
 const isHeaderMediaCovered = ref(false);
 const isHeaderShown = computed(() => isMenuOpen.value || (isHeaderVisible.value && !isHeaderMediaCovered.value));
@@ -89,6 +100,7 @@ function isDesktopHeaderViewport() {
 }
 
 function updateHeaderMediaCollision() {
+  hasScrolled.value = window.scrollY > 12;
   const headerInner = headerInnerRef.value;
   if (!headerInner || isMenuOpen.value) {
     headerMediaShift.value = 0;
@@ -99,7 +111,7 @@ function updateHeaderMediaCollision() {
 
   const headerTop = headerInner.offsetTop;
   const headerBottom = headerTop + headerInner.offsetHeight;
-  const video = Array.from(document.querySelectorAll<HTMLVideoElement>(".builder-media-hero > video"))
+  const video = Array.from(document.querySelectorAll<HTMLElement>(".builder-media-hero > video, .builder-media-hero > img, .builder-media-hero > picture > img"))
     .find((item) => {
       const rect = item.getBoundingClientRect();
       return rect.bottom > headerTop && rect.top < headerBottom;

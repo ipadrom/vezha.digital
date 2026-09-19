@@ -13,9 +13,9 @@
       </div>
     </header>
 
-    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--media-hero': block.type === 'media_hero', 'canvas-block__preview--freeform': block.settings.layout === 'freeform' && block.type !== 'hero', 'canvas-block__preview--image-bleed': block.type === 'image' && block.settings.image_bleed }">
+    <div class="canvas-block__preview" :class="{ 'canvas-block__preview--hero': block.type === 'hero', 'canvas-block__preview--media-hero': block.type === 'media_hero', 'canvas-block__preview--freeform': block.settings.layout === 'freeform' && !['hero', 'next_case'].includes(block.type), 'canvas-block__preview--image-bleed': block.type === 'image' && block.settings.image_bleed }">
       <CaseFreeformCanvas
-        v-if="block.settings.layout === 'freeform' && block.type !== 'hero'"
+        v-if="block.settings.layout === 'freeform' && !['hero', 'next_case'].includes(block.type)"
         :elements="content.elements || []"
         :viewport="viewport"
         :height="Number(block.settings[`freeform_height_${viewport}`]) || 620"
@@ -29,6 +29,9 @@
           <CaseInlineEdit class="air-inline-edit" :model-value="value" :label="label" :placeholder="label" multiline @focus="$emit('select')" @update:model-value="edit(path, $event)" />
         </template>
       </CaseEditorialAir>
+      <div v-else-if="block.type === 'next_case'" @click.prevent="$emit('select')">
+        <PublicCaseBuilder :blocks="[{ id: block.id, type: block.type, settings: block.settings, sort_order: block.sort_order, content }]" :locale="locale" :current-slug="currentSlug" />
+      </div>
       <div v-else-if="block.type === 'process' && block.settings.layout === 'phone-showcase'" class="canvas-phone-process">
         <PublicCaseBuilder :blocks="[{ id: block.id, type: block.type, settings: block.settings, sort_order: block.sort_order, content }]" :locale="locale" />
       </div>
@@ -174,7 +177,7 @@ import CaseEditorialAir from '~/components/case-builder/CaseEditorialAir.vue'
 import CaseFreeformCanvas from '~/components/admin/cases/CaseFreeformCanvas.vue'
 import type { CaseBlock, CaseContentEdit, CaseElementBox, CaseElementType, CaseLocale, CaseViewport } from '~/utils/caseBuilder'
 import { blockLabel, blockTitle, caseHeroColorDefaults, normalizeHexColor } from '~/utils/caseBuilder'
-const props = defineProps<{ block: CaseBlock; locale: CaseLocale; index: number; selected: boolean; viewport: 'desktop' | 'tablet' | 'mobile' }>()
+const props = defineProps<{ block: CaseBlock; locale: CaseLocale; currentSlug?: string; index: number; selected: boolean; viewport: 'desktop' | 'tablet' | 'mobile' }>()
 const emit = defineEmits<{
   select: []
   toggle: []

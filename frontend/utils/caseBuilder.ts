@@ -214,7 +214,7 @@ export const blockLibrary: Array<{
   { type: 'video', label: 'Видео', description: 'Демонстрация продукта', mark: '▶' },
   { type: 'comparison', label: 'До / после', description: 'Сравнение двух состояний', mark: '↔' },
   { type: 'results', label: 'Итог', description: 'Вывод и ссылка на продукт', mark: '✓' },
-  { type: 'next_case', label: 'Следующий кейс', description: 'Переход или заявка', mark: '↗' },
+  { type: 'next_case', label: 'Другие проекты', description: 'Карточки с обложками и выбором кейсов', mark: '↗' },
   { type: 'custom', label: 'Свободный блок', description: 'Композиция из отдельных элементов', mark: '✦' },
 ]
 
@@ -362,8 +362,8 @@ const localizedDefaults: Record<CaseBlockType, [Record<string, any>, Record<stri
     { eyebrow: 'Outcome', title: 'Project result', body: '', items: [], link_url: '', link_label: 'Open product' },
   ],
   next_case: [
-    { eyebrow: 'Дальше', title: 'Следующий кейс', case_slug: '', cta_label: 'Открыть' },
-    { eyebrow: 'Next', title: 'Next case', case_slug: '', cta_label: 'Open' },
+    { eyebrow: '', title: 'Другие проекты', case_slugs: [], cta_label: 'Все кейсы', card_cta_label: 'Смотреть кейс' },
+    { eyebrow: '', title: 'More projects', case_slugs: [], cta_label: 'All cases', card_cta_label: 'View case' },
   ],
   custom: [
     { title: 'Свободный блок', elements: [] },

@@ -5,21 +5,8 @@
     </div>
     <div
       class="vz-footer__cols"
-      :class="{ 'vz-footer__cols--without-base': !copy.base.some(Boolean) }"
       data-footer-cols
     >
-      <div>
-        <span>{{ copy.yearLabel }}</span>
-        <strong>2026</strong>
-      </div>
-      <div v-if="copy.base.some(Boolean)">
-        <span>{{ copy.baseLabel }}</span>
-        <p>
-          <template v-for="(item, index) in copy.base.filter(Boolean)" :key="item">
-            <br v-if="index" />{{ item }}
-          </template>
-        </p>
-      </div>
       <div>
         <span>{{ copy.contactLabel }}</span>
         <nav>

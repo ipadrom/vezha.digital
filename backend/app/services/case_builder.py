@@ -207,8 +207,8 @@ def legacy_blocks(project: Project) -> list[CaseBlockInput]:
         CaseBlockInput(
             id=uuid4(),
             type="next_case",
-            content_ru={"eyebrow": "Дальше", "title": "Следующий кейс", "cta_label": "Открыть"},
-            content_en={"eyebrow": "Next", "title": "Next case", "cta_label": "Open"},
+            content_ru={"title": "Другие проекты", "case_slugs": [], "cta_label": "Все кейсы", "card_cta_label": "Смотреть кейс"},
+            content_en={"title": "More projects", "case_slugs": [], "cta_label": "All cases", "card_cta_label": "View case"},
             settings={"theme": "signal", "width": "wide", "spacing": "large"},
             sort_order=len(blocks),
         )

@@ -295,7 +295,9 @@ class NextCaseContent(FlexibleContent):
     eyebrow: str = ""
     title: str = ""
     case_slug: str = ""
+    case_slugs: list[str] | None = Field(default=None, max_length=3)
     cta_label: str = ""
+    card_cta_label: str = ""
 
 
 class CustomContent(FlexibleContent):

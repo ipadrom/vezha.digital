@@ -2,7 +2,7 @@
   <section id="cases" class="vz-cases" aria-labelledby="cases-title">
     <header class="vz-cases__heading">
       <div class="vz-cases__title-block">
-        <div class="vz-section-label"><span>{{ copy.label }}</span><i>/</i><span>05</span></div>
+        <div class="vz-section-label"><span>{{ copy.label }}</span><i>/</i><span>02</span></div>
         <h2 id="cases-title"><span><span data-reveal>{{ copy.title }}</span></span></h2>
       </div>
       <p>{{ copy.intro }}</p>
@@ -13,6 +13,15 @@
         <Transition name="case-switch">
           <CaseArtifactVisual :key="activeCase.id" :project="activeCase" :index-label="two(activeIndex + 1)" :locale="currentLocale" />
         </Transition>
+        <NuxtLink class="vz-cases__preview-link" :to="`/cases/${activeCase.slug}`" :aria-label="`${copy.open}: ${activeCase.name}`">
+          <div :key="activeCase.id" id="case-summary" class="vz-cases__preview-copy" aria-live="polite" aria-atomic="true">
+            <div class="vz-cases__preview-details">
+            <span v-if="activeCase.type" class="vz-cases__preview-type">{{ activeCase.type }}</span>
+            <h3>{{ activeCase.name }}</h3>
+            </div>
+            <span class="vz-cases__preview-action"><span>{{ currentLocale === 'ru' ? 'Смотреть кейс' : 'View case' }}</span><svg aria-hidden="true" viewBox="0 0 20 20"><path d="M5 15 15 5M5 5h10v10" /></svg></span>
+          </div>
+        </NuxtLink>
         <div v-if="cases.length > 1" class="vz-cases__controls" role="group" :aria-label="copy.tabAria" @keydown="onControlsKeydown">
           <button type="button" aria-controls="case-summary" :aria-label="currentLocale === 'ru' ? 'Предыдущий кейс' : 'Previous case'" @click="move(-1)">
             <svg aria-hidden="true" viewBox="0 0 20 20"><path d="M9 5 4 10l5 5M4 10h12" /></svg>
@@ -23,7 +32,7 @@
           </button>
         </div>
       </div>
-      <footer id="case-summary" class="vz-cases__summary">
+      <footer class="vz-cases__summary vz-cases__summary--touch">
         <div class="vz-cases__summary-copy" aria-live="polite" aria-atomic="true">
           <h3>{{ activeCase.name }}</h3>
           <p v-if="activeCase.type">{{ activeCase.type }}</p>

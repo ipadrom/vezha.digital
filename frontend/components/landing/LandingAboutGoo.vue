@@ -29,6 +29,8 @@ const emit = defineEmits<{
 }>();
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
+let darkSurface = false;
+let themeObserver: MutationObserver | null = null;
 
 const LEG_COUNT = 7;
 const LAST_STEP_INDEX = LEG_COUNT - 1;
@@ -297,11 +299,11 @@ function drawRod(
   ctx.lineTo(from.x + (to.x - from.x) * growth, from.y + (to.y - from.y) * growth);
   ctx.lineWidth = 0.75 + weight * 0.7;
   if (highlighted) {
-    ctx.strokeStyle = `rgba(91, 154, 255, ${growth * 0.58})`;
+    ctx.strokeStyle = `rgba(${darkSurface ? "245, 247, 255" : "91, 154, 255"}, ${growth * 0.58})`;
     ctx.shadowColor = "rgba(113, 105, 245, 0.32)";
     ctx.shadowBlur = 5;
   } else {
-    ctx.strokeStyle = `rgba(29, 30, 34, ${growth * (0.11 + weight * 0.2)})`;
+    ctx.strokeStyle = `rgba(${darkSurface ? "235, 239, 250" : "29, 30, 34"}, ${growth * (darkSurface ? 0.25 + weight * 0.25 : 0.11 + weight * 0.2)})`;
     ctx.shadowBlur = 0;
   }
   ctx.stroke();
@@ -313,6 +315,7 @@ function reverseVisibility(progress: number, threshold: number) {
 }
 
 function drawScene(progress: number, now: number, settled = false, reversing = false) {
+  darkSurface = canvasRef.value?.closest("[data-theme]")?.getAttribute("data-theme") === "dark";
   if (!context || !width || !height) return;
   const ctx = context;
   ctx.clearRect(0, 0, width, height);
@@ -674,6 +677,11 @@ onMounted(async () => {
     reportSceneReady(false);
     return;
   }
+  const themeHost = canvas.closest("[data-theme]");
+  if (themeHost) {
+    themeObserver = new MutationObserver(() => drawScene(lastProgress, performance.now(), lastProgress >= 1));
+    themeObserver.observe(themeHost, { attributes: true, attributeFilter: ["data-theme"] });
+  }
   motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   mobileQuery = window.matchMedia("(max-width: 720px)");
   reducedMotion = motionQuery.matches;
@@ -708,6 +716,7 @@ onBeforeUnmount(() => {
   reportSceneReady(false);
   cancelAnimationFrame(frameId);
   resizeObserver?.disconnect();
+  themeObserver?.disconnect();
   visibilityObserver?.disconnect();
   motionQuery?.removeEventListener("change", onMotionPreference);
   mobileQuery?.removeEventListener("change", resizeCanvas);

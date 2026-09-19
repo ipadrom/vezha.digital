@@ -4,11 +4,13 @@
     <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-theme="toggleTheme" />
 
     <main v-if="project">
+      <CaseMediaViewer :locale="currentLocale">
       <PublicCaseBuilder
         v-if="project.blocks?.length"
         :blocks="project.blocks"
         :locale="currentLocale"
         :related-projects="relatedProjects"
+        :current-slug="slug"
       />
       <template v-else>
       <section class="case-hero">
@@ -41,17 +43,16 @@
       <CaseResults :summary="project.result_summary" :metrics="project.metrics" :testimonial="project.testimonial" :author="project.testimonial_author" :locale="currentLocale" />
       <CaseTechnicalModule :technologies="project.technologies" :project-type="project.type" :locale="currentLocale" />
       </template>
-
-      <section class="case-next">
-        <span>{{ currentLocale === "ru" ? "Следующее досье" : "Next dossier" }}</span>
-        <NuxtLink v-if="nextProject" :to="`/cases/${nextProject.slug}`"><small>{{ nextProject.type }}</small>{{ nextProject.name }} <b>↗</b></NuxtLink>
-      </section>
       </template>
+      <section v-if="!project.blocks?.some(block => block.type === 'next_case')" class="builder-case"><div class="builder-block builder-block--next_case"><div class="builder-block__inner"><CaseNavigation :content="{ title: currentLocale === 'ru' ? 'Другие проекты' : 'More projects', cta_label: currentLocale === 'ru' ? 'Все кейсы' : 'All cases' }" :locale="currentLocale" :related-projects="relatedProjects" :current-slug="slug" /></div></div></section>
+      </CaseMediaViewer>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
+import CaseMediaViewer from "~/components/cases/CaseMediaViewer.vue";
+import CaseNavigation from "~/components/cases/CaseNavigation.vue";
 import CaseDetailHeader from "~/components/cases/CaseDetailHeader.vue";
 import CaseGallery from "~/components/cases/CaseGallery.vue";
 import CaseResults from "~/components/cases/CaseResults.vue";
@@ -62,7 +63,6 @@ import WellnessCaseStudy from "~/components/cases/WellnessCaseStudy.vue";
 import PublicCaseBuilder from "~/components/case-builder/PublicCaseBuilder.vue";
 import type { IProjectDetail, IProjects } from "~/utils/interfaces/IProjects";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
-import { getNextProject } from "~/utils/landingCases";
 
 definePageMeta({ layout: false });
 const route = useRoute();
@@ -80,19 +80,7 @@ const fallbacks = computed(() => getCaseFallbacks(currentLocale.value));
 const project = ref<IProjectDetail | null>(null);
 const publicProjects = ref<IProjects[]>([]);
 const caseIndex = computed(() => Math.max(0, fallbacks.value.findIndex((item) => item.slug === project.value?.slug)));
-const nextProject = computed(() => project.value ? getNextProject(fallbacks.value, project.value.slug || "") : undefined);
-const relatedProjects = computed(() => {
-  const seen = new Set<string>();
-  return [...publicProjects.value, ...fallbacks.value]
-    .filter((item) => {
-      const itemSlug = item.slug || "";
-      if (!itemSlug || itemSlug === project.value?.slug || seen.has(itemSlug)) return false;
-      seen.add(itemSlug);
-      return true;
-    })
-    .sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || a.sort_order - b.sort_order)
-    .slice(0, 3);
-});
+const relatedProjects = computed(() => publicProjects.value.filter(item => item.slug !== slug.value));
 const two = (value: number) => String(value).padStart(2, "0");
 
 async function loadProject() {
@@ -102,7 +90,7 @@ async function loadProject() {
     getProjects(currentLocale.value),
   ]);
   project.value = projectResult.status === "fulfilled" ? projectResult.value : fallback;
-  publicProjects.value = projectsResult.status === "fulfilled" ? projectsResult.value : [];
+  publicProjects.value = projectsResult.status === "fulfilled" ? projectsResult.value : fallbacks.value;
   if (!project.value) throw createError({ statusCode: 404, statusMessage: "Case not found" });
   applySeo();
 }
@@ -127,3 +115,5 @@ onMounted(() => {
 </script>
 
 <style src="~/assets/css/case-detail.css"></style>
+
+<style src="~/assets/css/site-polish.css"></style>

@@ -5,7 +5,7 @@
         <div class="vz-section-label">
           <span>{{ copy.label }}</span>
           <i>/</i>
-          <span data-secnum>04</span>
+          <span data-secnum>05</span>
         </div>
         <h2 :aria-label="copy.title">
           <span aria-hidden="true">
