@@ -62,7 +62,7 @@
         <div class="vz-negative-world vz-negative-world--page" data-negative-world="page"></div>
         <div class="vz-section-liquid__target" data-section-liquid-target hidden></div>
         <div class="vz-section-liquid__target vz-section-liquid__target--gallery" data-gallery-liquid-target hidden></div>
-        <div class="vz-section-label vz-section-liquid__target vz-section-liquid__target--gallery" data-gallery-label-liquid-target hidden></div>
+        <div class="vz-section-label vz-section-liquid__target vz-section-liquid__target--gallery" data-section-label-liquid-target hidden></div>
       </div>
     </Teleport>
 
@@ -131,12 +131,6 @@
       :copy="copy.footer"
       :contact-email="contactEmail"
       :nav-items="footerNavItems"
-      :game="footerGame"
-      :game-status="footerGameStatus"
-      :game-score="footerGameScore"
-      :obstacles="footerObstacles"
-      @jump="jumpFooterDino"
-      @game-ready="setFooterGameHost"
     />
   </div>
 </template>
@@ -189,14 +183,6 @@ type ClientSegment = {
 type AboutFlowItem = {
   label: string;
   iconPaths: string[];
-};
-
-type FooterObstacle = {
-  id: number;
-  letter: string;
-  passed: boolean;
-  width: number;
-  x: number;
 };
 
 type HeroLiquidBounds = {
@@ -326,13 +312,6 @@ type LandingCopy = {
     signOff: string;
     navLabel: string;
     legal: string;
-    game: {
-      name: string;
-      aria: string;
-      ready: string;
-      running: string;
-      crash: string;
-    };
   };
   head: {
     title: string;
@@ -378,7 +357,6 @@ const aboutFlowRef = ref<HTMLElement | null>(null);
 const aboutLiquidRef = ref<HTMLElement | null>(null);
 const stackSphereRef = ref<HTMLElement | null>(null);
 const clientCubeRef = ref<HTMLElement | null>(null);
-const footerGameRef = ref<HTMLElement | null>(null);
 const preloaderRef = ref<HTMLElement | null>(null);
 const showPreloader = ref(true);
 const introProgress = ref(0);
@@ -399,8 +377,6 @@ let preloaderFrameId = 0;
 let preloaderExitTimer = 0;
 let preloaderRunToken = 0;
 let sectionLiquidRaf = 0;
-let sectionLiquidLastFrame = 0;
-let sectionLiquidIdleTimer = 0;
 let sectionLiquidResizeTimer = 0;
 let sectionLiquidLayoutRaf = 0;
 let sectionLiquidLayoutObserver: ResizeObserver | null = null;
@@ -413,16 +389,10 @@ let sectionLiquidStackLock: {
   x: number;
   y: number;
   radius: number;
+  headingAnimating: boolean;
   stickyBounds: { top: number; left: number; width: number; height: number } | null;
 } | null = null;
 let negativeStackSyncQueued = false;
-let footerGameRaf = 0;
-let footerGameLastFrame = 0;
-let footerGameLastScrollY = 0;
-let footerGameNextId = 0;
-let footerGameSpawnIn = 0;
-let footerGameStartBlockedUntil = 0;
-let footerGameNeedsReentry = false;
 let aboutLiquidCleanup: (() => void) | null = null;
 let aboutFlowResultTimer: ReturnType<typeof setTimeout> | null = null;
 let aboutFlowStepTimers: Array<ReturnType<typeof setTimeout>> = [];
@@ -472,28 +442,11 @@ const mobileHeroFxHorizontalTraversalMs = 24000;
 const mobileHeroFxVerticalTraversalMs = 18000;
 
 const sectionLiquidState = {
-  angle: -0.35,
-  arcX: 0,
-  arcY: 0,
-  currentX: 0,
-  currentY: 0,
   initialized: false,
-  journeyActive: false,
-  journeyBulgeX: 0,
-  journeyDuration: 1100,
-  journeyStartTime: 0,
-  journeyStartX: 0,
-  journeyStartY: 0,
   lastTargetKey: "",
-  lastX: 0,
-  lastY: 0,
-  radius: 104,
-  speed: 0,
   targetRadius: 104,
   targetX: 0,
   targetY: 0,
-  velocityX: 0,
-  velocityY: 0,
 };
 
 const services = ref<IServices[]>([]);
@@ -501,20 +454,6 @@ const projects = ref<IProjects[]>([]);
 const advantages = ref<IAdvantages[]>([]);
 const techStack = ref<ITechStack[]>([]);
 const settings = ref<ISettings | null>(null);
-const footerObstacles = ref<FooterObstacle[]>([]);
-
-const footerGameLetters = ["V", "E", "Z", "H", "A"];
-const footerGame = ref({
-  best: 0,
-  crashed: false,
-  dinoY: 0,
-  running: false,
-  score: 0,
-  speed: 3.6,
-  status: "READY",
-  velocityY: 0,
-});
-
 
 const devOpsTechNames = new Set(["docker", "nginx", "ci/cd", "ci cd", "linux", "kubernetes", "github actions", "gitlab ci"]);
 const replacedBackendTechNames = new Set(["python", "fastapi"]);
@@ -662,13 +601,6 @@ const displayStackGroups = computed<StackGroup[]>(() => {
 });
 
 const activeClient = computed(() => clientSegments.value[activeClientSegment.value] || clientSegments.value[0]);
-const footerGameScore = computed(() => Math.floor(footerGame.value.score).toString().padStart(4, "0"));
-const footerGameStatus = computed(() => {
-  if (footerGame.value.crashed) return copy.value.footer.game.crash;
-  if (footerGame.value.running) return copy.value.footer.game.running;
-  return copy.value.footer.game.ready;
-});
-
 const contactEmail = computed(() => settings.value?.contact_email || "contact@vezha.digital");
 
 function setAboutFlowHost(element: HTMLElement | null) {
@@ -682,10 +614,6 @@ function setHeroHosts(hero: HTMLElement | null, negative: HTMLElement | null) {
 
 function setClientCubeHost(element: HTMLElement | null) {
   clientCubeRef.value = element;
-}
-
-function setFooterGameHost(element: HTMLElement | null) {
-  footerGameRef.value = element;
 }
 
 function pickNextAboutProduct(): AboutFlowItem | null {
@@ -2165,173 +2093,6 @@ function getLandingLayoutViewport(element: Element | null = rootRef.value) {
   };
 }
 
-function getFooterGameTrack() {
-  return footerGameRef.value?.querySelector<HTMLElement>("[data-footer-game-track]") || null;
-}
-
-function isFooterGameVisible() {
-  const el = footerGameRef.value;
-  if (!el) return false;
-
-  const rect = el.getBoundingClientRect();
-  return rect.top < window.innerHeight && rect.bottom > 0;
-}
-
-function resetFooterGame() {
-  footerGame.value.crashed = false;
-  footerGame.value.dinoY = 0;
-  footerGame.value.score = 0;
-  footerGame.value.speed = 3.6;
-  footerGame.value.status = "READY";
-  footerGame.value.velocityY = 0;
-  footerObstacles.value = [];
-  footerGameSpawnIn = 420;
-}
-
-function stopFooterGameLoop() {
-  if (footerGameRaf) cancelAnimationFrame(footerGameRaf);
-  footerGameRaf = 0;
-  footerGameLastFrame = 0;
-}
-
-function startFooterGameLoop() {
-  if (footerGameRaf) return;
-
-  footerGameLastFrame = performance.now();
-  footerGameRaf = requestAnimationFrame(tickFooterGame);
-}
-
-function endFooterGame() {
-  if (!footerGame.value.running && !footerGameRaf && !footerObstacles.value.length && footerGame.value.score === 0) return;
-
-  stopFooterGameLoop();
-  resetFooterGame();
-}
-
-function endFooterGameFromScrollUp() {
-  footerGameStartBlockedUntil = performance.now() + 1100;
-  endFooterGame();
-}
-
-function startFooterGame() {
-  if (!footerGameRef.value || !isFooterGameVisible()) return;
-
-  if (footerGame.value.crashed) resetFooterGame();
-  if (!footerObstacles.value.length) footerGameSpawnIn = Math.max(footerGameSpawnIn, 420);
-
-  footerGame.value.running = true;
-  footerGame.value.status = "RUNNING";
-  startFooterGameLoop();
-}
-
-function crashFooterGame() {
-  footerGame.value.running = false;
-  footerGame.value.crashed = true;
-  footerGame.value.status = "CRASH";
-  footerGame.value.best = Math.max(footerGame.value.best, Math.floor(footerGame.value.score));
-  stopFooterGameLoop();
-}
-
-function spawnFooterObstacle(trackWidth: number) {
-  const letter = footerGameLetters[footerGameNextId % footerGameLetters.length];
-
-  footerObstacles.value.push({
-    id: footerGameNextId,
-    letter,
-    passed: false,
-    width: letter === "I" ? 34 : 58,
-    x: trackWidth + 54,
-  });
-
-  footerGameNextId += 1;
-  footerGameSpawnIn = 460 + Math.random() * 380;
-}
-
-function tickFooterGame(now: number) {
-  footerGameRaf = 0;
-  if (!footerGame.value.running) return;
-  if (!isFooterGameVisible()) {
-    endFooterGame();
-    return;
-  }
-
-  const track = getFooterGameTrack();
-  const trackWidth = track?.clientWidth || 900;
-  const delta = clampValue(now - footerGameLastFrame, 0, 34);
-  const frame = delta / 16.67;
-  footerGameLastFrame = now;
-
-  footerGame.value.speed = Math.min(8.6, footerGame.value.speed + 0.0019 * frame);
-  footerGame.value.score += 0.07 * frame;
-  footerGame.value.velocityY -= 0.82 * frame;
-  footerGame.value.dinoY += footerGame.value.velocityY * frame;
-
-  if (footerGame.value.dinoY <= 0) {
-    footerGame.value.dinoY = 0;
-    if (footerGame.value.velocityY < 0) footerGame.value.velocityY = 0;
-  }
-
-  footerGameSpawnIn -= footerGame.value.speed * frame;
-  if (footerGameSpawnIn <= 0) spawnFooterObstacle(trackWidth);
-
-  const dinoLeft = 74;
-  const dinoRight = 118;
-  const collisionHeight = 50;
-
-  footerObstacles.value.forEach((obstacle) => {
-    obstacle.x -= footerGame.value.speed * frame;
-
-    if (!obstacle.passed && obstacle.x + obstacle.width < dinoLeft) {
-      obstacle.passed = true;
-      footerGame.value.score += 8;
-    }
-
-    const overlapsX = obstacle.x < dinoRight && obstacle.x + obstacle.width > dinoLeft;
-    if (overlapsX && footerGame.value.dinoY < collisionHeight) crashFooterGame();
-  });
-
-  footerObstacles.value = footerObstacles.value.filter((obstacle) => obstacle.x > -96);
-
-  if (footerGame.value.running) footerGameRaf = requestAnimationFrame(tickFooterGame);
-}
-
-function jumpFooterDino() {
-  if (!isFooterGameVisible()) return;
-
-  if (footerGame.value.crashed) {
-    resetFooterGame();
-    startFooterGame();
-  } else if (!footerGame.value.running) {
-    startFooterGame();
-  }
-
-  if (footerGame.value.dinoY <= 1) footerGame.value.velocityY = 15.8;
-}
-
-function updateFooterGameFromScroll() {
-  const currentY = window.scrollY;
-  const delta = currentY - footerGameLastScrollY;
-  const visible = isFooterGameVisible();
-
-  if (!visible) {
-    endFooterGame();
-    footerGameNeedsReentry = false;
-    footerGameLastScrollY = currentY;
-    return;
-  }
-
-  if (delta < -1) {
-    footerGameNeedsReentry = true;
-    endFooterGameFromScrollUp();
-    footerGameLastScrollY = currentY;
-    return;
-  }
-
-  if (delta > 1 && !footerGameNeedsReentry && performance.now() > footerGameStartBlockedUntil) startFooterGame();
-
-  footerGameLastScrollY = currentY;
-}
-
 function getSectionLiquidTargets() {
   const root = rootRef.value;
   if (!root) return [];
@@ -2407,11 +2168,14 @@ function getStackLiquidScrollLock(targets: SectionLiquidTarget[]) {
   if (sectionLiquidState.lastTargetKey !== "stack") return null;
 
   const stackTarget = targets.find((target) => target.key === "stack");
-  if (
-    !stackTarget
-    || stackTarget.sectionRect.top > 0
-    || stackTarget.sectionRect.bottom < getLandingLayoutViewport(stackTarget.element).height
-  ) return null;
+  const sticky = stackTarget?.element.closest<HTMLElement>(".vz-sticky");
+  if (!stackTarget || !sticky) return null;
+
+  // The sticky panel can be taller than the viewport on short screens.
+  const stickyHeight = getLandingLayoutRect(sticky).height;
+  if (stackTarget.sectionRect.top > 0 || stackTarget.sectionRect.bottom < stickyHeight) {
+    return null;
+  }
 
   return stackTarget;
 }
@@ -2481,6 +2245,9 @@ function getNextSectionLiquidTarget(targets: SectionLiquidTarget[]) {
     return null;
   }
 
+  const currentTarget = targets.find((target) => target.key === sectionLiquidState.lastTargetKey);
+  if (currentTarget && isSectionLiquidTargetVisible(currentTarget)) return null;
+
   const fullyVisible = targets.filter((target) => (
     target.key !== sectionLiquidState.lastTargetKey &&
     isSectionLiquidTargetFullyVisible(target)
@@ -2504,17 +2271,6 @@ function syncCurrentSectionLiquidTarget(targets: SectionLiquidTarget[]) {
 
   const nextTargetX = currentTarget.rect.left + currentTarget.rect.width / 2;
   const nextTargetY = currentTarget.rect.top + currentTarget.rect.height / 2;
-  const deltaX = nextTargetX - sectionLiquidState.targetX;
-  const deltaY = nextTargetY - sectionLiquidState.targetY;
-
-  sectionLiquidState.currentX += deltaX;
-  sectionLiquidState.currentY += deltaY;
-  sectionLiquidState.lastX += deltaX;
-  sectionLiquidState.lastY += deltaY;
-  if (sectionLiquidState.journeyActive) {
-    sectionLiquidState.journeyStartX += deltaX;
-    sectionLiquidState.journeyStartY += deltaY;
-  }
   sectionLiquidState.targetX = nextTargetX;
   sectionLiquidState.targetY = nextTargetY;
   sectionLiquidState.targetRadius = getSectionLiquidRadius(currentTarget);
@@ -2551,7 +2307,7 @@ function syncSectionLiquidGeometry(forceClone = false) {
 
   const activeTarget = targets.find(({ key }) => key === sectionLiquidState.lastTargetKey)
     ?? getInitialSectionLiquidTarget(targets);
-  if (forceClone || !sectionLiquidState.initialized) commitSectionLiquidTarget(activeTarget, true);
+  if (forceClone || !sectionLiquidState.initialized) commitSectionLiquidTarget(activeTarget);
   else syncCurrentSectionLiquidTarget(targets);
   updateNegativeWorldPositions();
   syncSectionLiquidTargetOverlay(getSectionLiquidTargets());
@@ -2589,8 +2345,6 @@ function handleSectionLiquidResize() {
   const overlay = sectionLiquidRef.value;
   if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
   sectionLiquidRaf = 0;
-  if (sectionLiquidIdleTimer) window.clearTimeout(sectionLiquidIdleTimer);
-  sectionLiquidIdleTimer = 0;
   if (sectionLiquidResizeTimer) window.clearTimeout(sectionLiquidResizeTimer);
   if (sectionLiquidLayoutRaf) cancelAnimationFrame(sectionLiquidLayoutRaf);
   sectionLiquidLayoutRaf = 0;
@@ -2721,7 +2475,6 @@ function syncLiquidTextOverlay(sourceText: HTMLElement, targetHost: HTMLElement,
 function syncGalleryLiquidText() {
   const copies = [
     { source: "#cases .vz-cases__heading > p", host: "[data-gallery-liquid-target]", key: "cases-intro" },
-    { source: "#cases .vz-section-label", host: "[data-gallery-label-liquid-target]", key: "cases-label" },
   ];
   for (const copy of copies) {
     const source = rootRef.value?.querySelector<HTMLElement>(copy.source);
@@ -2735,7 +2488,37 @@ function syncGalleryLiquidText() {
   }
 }
 
+function syncSectionLiquidLabel() {
+  const host = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-section-label-liquid-target]");
+  if (!host) return;
+  host.hidden = true;
+  const key = sectionLiquidState.lastTargetKey;
+  if (!key || key === "hero" || key === "footer") return;
+  const source = rootRef.value?.querySelector<HTMLElement>(`#${key} .vz-section-label`);
+  if (!source) return;
+  syncLiquidTextOverlay(source, host, `${key}-label`);
+
+  // Match each label fragment to its live position, including wrapping and
+  // section-specific spacing that the full-page negative clone cannot share.
+  const sourceRect = getLandingLayoutRect(source);
+  Array.from(source.children).forEach((child, index) => {
+    const copy = host.children[index] as HTMLElement | undefined;
+    if (!(child instanceof HTMLElement) || !copy) return;
+    const rect = getLandingLayoutRect(child);
+    const style = getComputedStyle(child);
+    copy.style.position = "absolute";
+    copy.style.margin = "0";
+    copy.style.left = formatStablePx(rect.left - sourceRect.left);
+    copy.style.top = formatStablePx(rect.top - sourceRect.top);
+    copy.style.width = formatStablePx(rect.width);
+    copy.style.height = formatStablePx(rect.height);
+    copy.style.font = style.font;
+    copy.style.letterSpacing = style.letterSpacing;
+  });
+}
+
 function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
+  syncSectionLiquidLabel();
   syncGalleryLiquidText();
   clearSectionLiquidTextAlignment();
   hideSectionLiquidTargetOverlay();
@@ -2744,7 +2527,6 @@ function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
     syncMobileSectionLiquidTargetOverlay(targets);
     return;
   }
-  if (window.innerWidth > 900 && sectionLiquidState.lastTargetKey === "stack") return;
 
   const target = targets.find(({ key }) => key === sectionLiquidState.lastTargetKey);
   const cloneRoot = sectionLiquidRef.value?.querySelector<HTMLElement>(
@@ -2774,8 +2556,10 @@ function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
     ?? cloneTarget;
   const cloneSectionRect = getLandingLayoutRect(cloneSection);
 
-  cloneSection.style.translate = `${formatStablePx(target.sectionRect.left - cloneSectionRect.left)} ${formatStablePx(target.sectionRect.top - cloneSectionRect.top)}`;
-  cloneSection.dataset.liquidCloneAligned = "true";
+  if (target.key !== "stack") {
+    cloneSection.style.translate = `${formatStablePx(target.sectionRect.left - cloneSectionRect.left)} ${formatStablePx(target.sectionRect.top - cloneSectionRect.top)}`;
+    cloneSection.dataset.liquidCloneAligned = "true";
+  }
 
   const sourceRect = getLandingLayoutRect(sourceText);
   const cloneRect = getLandingLayoutRect(cloneText);
@@ -2784,77 +2568,32 @@ function syncSectionLiquidTargetOverlay(targets: SectionLiquidTarget[]) {
   cloneTarget.dataset.liquidTextAligned = "true";
 }
 
-function commitSectionLiquidTarget(target: SectionLiquidTarget, snap = false) {
-  const targetX = target.rect.left + target.rect.width / 2;
-  const targetY = target.rect.top + target.rect.height / 2;
-  const targetRadius = getSectionLiquidRadius(target);
-
-  if (snap || !sectionLiquidState.initialized) {
-    sectionLiquidState.currentX = targetX;
-    sectionLiquidState.currentY = targetY;
-    sectionLiquidState.lastX = targetX;
-    sectionLiquidState.lastY = targetY;
-    sectionLiquidState.arcX = 0;
-    sectionLiquidState.arcY = 0;
-    sectionLiquidState.radius = targetRadius;
-    sectionLiquidState.speed = 0;
-    sectionLiquidState.velocityX = 0;
-    sectionLiquidState.velocityY = 0;
-    sectionLiquidState.journeyActive = false;
-    sectionLiquidState.journeyBulgeX = 0;
-    sectionLiquidState.journeyStartTime = 0;
-    sectionLiquidState.journeyStartX = targetX;
-    sectionLiquidState.journeyStartY = targetY;
-    sectionLiquidState.initialized = true;
-  } else {
-    const dx = targetX - sectionLiquidState.currentX;
-    const dy = targetY - sectionLiquidState.currentY;
-    const distance = Math.max(1, Math.hypot(dx, dy));
-    const isMobile = window.innerWidth <= 900;
-    const layoutViewport = getLandingLayoutViewport(target.element);
-    const widestRadius = Math.max(sectionLiquidState.radius, targetRadius);
-    const offscreenClearance = isMobile
-      ? Math.max(28, layoutViewport.width * 0.065)
-      : Math.max(120, layoutViewport.width * 0.085);
-    const apexX = -(widestRadius + offscreenClearance);
-    const midpointX = (sectionLiquidState.currentX + targetX) / 2;
-
-    // A true sideways parabola: its midpoint sits fully beyond the left edge,
-    // then the mark returns to the next heading without crossing the content.
-    sectionLiquidState.journeyActive = true;
-    sectionLiquidState.journeyBulgeX = Math.max(0, midpointX - apexX);
-    sectionLiquidState.journeyDuration = clampValue(
-      980 + distance * (isMobile ? 0.82 : 0.72),
-      isMobile ? 1200 : 1300,
-      isMobile ? 1550 : 1650,
-    );
-    sectionLiquidState.journeyStartTime = performance.now();
-    sectionLiquidState.journeyStartX = sectionLiquidState.currentX;
-    sectionLiquidState.journeyStartY = sectionLiquidState.currentY;
-    sectionLiquidState.arcX = 0;
-    sectionLiquidState.arcY = 0;
-    sectionLiquidState.velocityX = 0;
-    sectionLiquidState.velocityY = 0;
-  }
-
+function commitSectionLiquidTarget(target: SectionLiquidTarget) {
+  const changed = target.key !== sectionLiquidState.lastTargetKey;
+  sectionLiquidState.initialized = true;
   sectionLiquidState.lastTargetKey = target.key;
-  sectionLiquidState.targetX = targetX;
-  sectionLiquidState.targetY = targetY;
-  sectionLiquidState.targetRadius = targetRadius;
+  sectionLiquidState.targetX = target.rect.left + target.rect.width / 2;
+  sectionLiquidState.targetY = target.rect.top + target.rect.height / 2;
+  sectionLiquidState.targetRadius = getSectionLiquidRadius(target);
+
+  // Reveal at the new heading; never interpolate the mark across the page.
+  const overlay = sectionLiquidRef.value;
+  if (overlay && changed) {
+    overlay.getAnimations().forEach((animation) => animation.cancel());
+    if (target.key !== "hero") {
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      overlay.animate([{ opacity: 0 }, { opacity: 1 }], {
+        duration: reduceMotion ? 200 : 1000,
+        easing: getComputedStyle(overlay).getPropertyValue("--ease-out").trim() || "cubic-bezier(0.23, 1, 0.32, 1)",
+      });
+    }
+  }
 }
 
 function startSectionLiquid() {
   if (!enableSectionLiquid) return;
   if (sectionLiquidResizeTimer) return;
-  if (sectionLiquidIdleTimer) {
-    window.clearTimeout(sectionLiquidIdleTimer);
-    sectionLiquidIdleTimer = 0;
-  }
   if (sectionLiquidRaf) return;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  if (reduceMotion) return;
-
-  sectionLiquidLastFrame = performance.now();
   sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
 }
 
@@ -2863,8 +2602,6 @@ function animateSectionLiquid(now: number) {
   const overlay = sectionLiquidRef.value;
   if (!overlay || !enableSectionLiquid) return;
 
-  const frame = clampValue((now - sectionLiquidLastFrame) / 16.67, 0, 2.4);
-  sectionLiquidLastFrame = now;
   updateSectionLiquidScrollDirection();
   const targets = getSectionLiquidTargets();
   const useStackScrollLock = window.innerWidth > 900;
@@ -2879,7 +2616,7 @@ function animateSectionLiquid(now: number) {
   }
 
   if (!sectionLiquidState.initialized) {
-    commitSectionLiquidTarget(getInitialSectionLiquidTarget(targets), true);
+    commitSectionLiquidTarget(getInitialSectionLiquidTarget(targets));
   } else {
     const nextTarget = getNextSectionLiquidTarget(targets);
     if (nextTarget) commitSectionLiquidTarget(nextTarget);
@@ -2896,15 +2633,20 @@ function animateSectionLiquid(now: number) {
 
   const stackScrollLock = getStackLiquidScrollLock(targets);
   if (stackScrollLock) {
-    if (!sectionLiquidStackLock) {
-      const sticky = rootRef.value?.querySelector<HTMLElement>(
-        "[data-stack-section] > .vz-sticky",
-      );
+    const sticky = stackScrollLock.element.closest<HTMLElement>(".vz-sticky");
+    const heading = stackScrollLock.element.closest<HTMLElement>(".vz-sec-head");
+    const headingAnimating = heading?.getAnimations({ subtree: true })
+      .some((animation) => animation.playState === "running") ?? false;
+
+    // Capture once per sticky interval. Only follow the heading while its
+    // entrance animation is running, including its final settled frame.
+    if (!sectionLiquidStackLock || headingAnimating || sectionLiquidStackLock.headingAnimating) {
       const stickyRect = sticky ? getLandingLayoutRect(sticky) : null;
       sectionLiquidStackLock = {
         x: stackScrollLock.rect.left + stackScrollLock.rect.width / 2,
         y: stackScrollLock.rect.top + stackScrollLock.rect.height / 2,
         radius: getSectionLiquidRadius(stackScrollLock),
+        headingAnimating,
         stickyBounds: stickyRect
           ? {
               top: stickyRect.top,
@@ -2919,153 +2661,41 @@ function animateSectionLiquid(now: number) {
     sectionLiquidState.targetX = sectionLiquidStackLock.x;
     sectionLiquidState.targetY = sectionLiquidStackLock.y;
     sectionLiquidState.targetRadius = sectionLiquidStackLock.radius;
-  } else if (sectionLiquidState.lastTargetKey === "stack") {
+  } else {
     sectionLiquidStackLock = null;
-  } else if (sectionLiquidState.lastTargetKey !== "stack") {
-    sectionLiquidStackLock = null;
+    syncCurrentSectionLiquidTarget(targets);
   }
 
   overlay.classList.toggle(
     "is-stack-active",
-    useStackScrollLock && sectionLiquidState.lastTargetKey === "stack",
+    useStackScrollLock && Boolean(sectionLiquidStackLock),
   );
   updateNegativeWorldPositions();
   syncSectionLiquidTargetOverlay(targets);
 
-  const targetX = sectionLiquidState.targetX;
-  const targetY = sectionLiquidState.targetY;
-  const targetRadius = sectionLiquidState.targetRadius;
-  if (sectionLiquidState.journeyActive) {
-    const progress = clampValue(
-      (now - sectionLiquidState.journeyStartTime) / sectionLiquidState.journeyDuration,
-      0,
-      1,
-    );
-    const travelProgress = progress * progress * progress * (progress * (progress * 6 - 15) + 10);
-    const parabolicEnvelope = 4 * travelProgress * (1 - travelProgress);
-    const nextX = sectionLiquidState.journeyStartX
-      + (targetX - sectionLiquidState.journeyStartX) * travelProgress
-      - sectionLiquidState.journeyBulgeX * parabolicEnvelope;
-    const nextY = sectionLiquidState.journeyStartY
-      + (targetY - sectionLiquidState.journeyStartY) * travelProgress;
-
-    sectionLiquidState.velocityX = nextX - sectionLiquidState.currentX;
-    sectionLiquidState.velocityY = nextY - sectionLiquidState.currentY;
-    sectionLiquidState.currentX = nextX;
-    sectionLiquidState.currentY = nextY;
-
-    if (progress >= 1) {
-      sectionLiquidState.journeyActive = false;
-      sectionLiquidState.currentX = targetX;
-      sectionLiquidState.currentY = targetY;
-      sectionLiquidState.velocityX = 0;
-      sectionLiquidState.velocityY = 0;
-    }
-  } else {
-    const directDistance = Math.hypot(targetX - sectionLiquidState.currentX, targetY - sectionLiquidState.currentY);
-    const landing = clampValue(1 - directDistance / 180, 0, 1);
-    const steerX = targetX + sectionLiquidState.arcX * (1 - landing * 0.72) - sectionLiquidState.currentX;
-    const steerY = targetY + sectionLiquidState.arcY * (1 - landing * 0.86) - sectionLiquidState.currentY;
-    const horizontalDamping = 0.82 - landing * 0.08;
-    const verticalDamping = 0.76 - landing * 0.1;
-
-    sectionLiquidState.velocityX += steerX * (0.012 + (1 - landing) * 0.002) * frame;
-    sectionLiquidState.velocityY += steerY * (0.009 + (1 - landing) * 0.002) * frame;
-    sectionLiquidState.velocityX *= Math.pow(horizontalDamping, frame);
-    sectionLiquidState.velocityY *= Math.pow(verticalDamping, frame);
-    sectionLiquidState.velocityY = clampValue(sectionLiquidState.velocityY, -18, 18);
-    sectionLiquidState.currentX += sectionLiquidState.velocityX * frame;
-    sectionLiquidState.currentY += sectionLiquidState.velocityY * frame;
-    sectionLiquidState.arcX *= Math.pow(0.9, frame);
-    sectionLiquidState.arcY *= Math.pow(0.82, frame);
-  }
-  sectionLiquidState.radius += (targetRadius - sectionLiquidState.radius) * 0.08 * frame;
-
-  const directDistance = Math.hypot(targetX - sectionLiquidState.currentX, targetY - sectionLiquidState.currentY);
-
-  const lockDistance = Math.hypot(
-    sectionLiquidState.targetX - sectionLiquidState.currentX,
-    sectionLiquidState.targetY - sectionLiquidState.currentY,
-  );
-  const lockVelocity = Math.hypot(
-    sectionLiquidState.velocityX,
-    sectionLiquidState.velocityY,
-  );
-  if (sectionLiquidStackLock && lockDistance < 0.75 && lockVelocity < 0.15) {
-    sectionLiquidState.currentX = sectionLiquidState.targetX;
-    sectionLiquidState.currentY = sectionLiquidState.targetY;
-    sectionLiquidState.lastX = sectionLiquidState.targetX;
-    sectionLiquidState.lastY = sectionLiquidState.targetY;
-    sectionLiquidState.arcX = 0;
-    sectionLiquidState.arcY = 0;
-    sectionLiquidState.velocityX = 0;
-    sectionLiquidState.velocityY = 0;
-  }
-
-  const velocityX = sectionLiquidState.currentX - sectionLiquidState.lastX;
-  const velocityY = sectionLiquidState.currentY - sectionLiquidState.lastY;
-  const travel = Math.hypot(velocityX, velocityY);
-  if (travel > 0.15) sectionLiquidState.angle = Math.atan2(velocityY, velocityX);
-  sectionLiquidState.speed = clampValue(sectionLiquidState.speed * 0.88 + clampValue(travel / 24, 0, 1) * 0.12, 0, 1);
-  sectionLiquidState.lastX = sectionLiquidState.currentX;
-  sectionLiquidState.lastY = sectionLiquidState.currentY;
-
   const overlayRect = getLandingLayoutRect(overlay);
-  const layoutViewport = getLandingLayoutViewport(overlay);
-  const bounds = {
-    bottom: layoutViewport.height - overlayRect.top,
-    height: layoutViewport.height,
-    left: -overlayRect.left,
-    right: layoutViewport.width - overlayRect.left,
-    top: -overlayRect.top,
-    width: layoutViewport.width,
-  };
-  const moveIntensity = clampValue(Math.max(sectionLiquidState.speed, directDistance / 340), 0, 1);
-  const renderRadius = sectionLiquidState.radius * (1 - moveIntensity * 0.34);
   const activeKey = sectionLiquidState.lastTargetKey;
+  const radius = sectionLiquidState.targetRadius;
+  const size = radius * 4;
   const path = buildHeroLiquidPath(
-    sectionLiquidState.currentX - overlayRect.left,
-    sectionLiquidState.currentY - overlayRect.top,
-    renderRadius,
-    now * 0.001,
-    sectionLiquidState.speed,
-    sectionLiquidState.angle,
-    bounds,
+    size / 2,
+    size / 2,
+    radius,
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : now * 0.001,
+    0,
+    -0.35,
+    { left: 0, top: 0, right: size, bottom: size, width: size, height: size },
   );
+  // Keep the crisp mask local to the mark instead of rasterizing the entire page.
+  const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><path fill="white" d="${path}"/></svg>`;
+  overlay.style.maskImage = `url("data:image/svg+xml,${encodeURIComponent(mask)}")`;
+  overlay.style.maskSize = `${size}px ${size}px`;
+  overlay.style.maskPosition = `${sectionLiquidState.targetX - overlayRect.left - size / 2}px ${sectionLiquidState.targetY - overlayRect.top - size / 2}px`;
 
   overlay.classList.toggle("is-active", Boolean(activeKey) && activeKey !== "hero");
   overlay.dataset.activeKey = activeKey;
-  applyHeroClip(overlay, path);
 
-  const mobileCanRest = window.innerWidth <= 900
-    && !sectionLiquidState.journeyActive
-    && directDistance < 0.5
-    && lockVelocity < 0.05
-    && Math.abs(targetRadius - sectionLiquidState.radius) < 0.1
-    && Math.abs(sectionLiquidState.arcX) + Math.abs(sectionLiquidState.arcY) < 0.2;
-  if (mobileCanRest) {
-    sectionLiquidState.currentX = targetX;
-    sectionLiquidState.currentY = targetY;
-    sectionLiquidState.lastX = targetX;
-    sectionLiquidState.lastY = targetY;
-    sectionLiquidState.radius = targetRadius;
-    sectionLiquidState.speed = 0;
-    sectionLiquidState.velocityX = 0;
-    sectionLiquidState.velocityY = 0;
-    sectionLiquidState.arcX = 0;
-    sectionLiquidState.arcY = 0;
-    if (activeKey && activeKey !== "hero") {
-      sectionLiquidIdleTimer = window.setTimeout(() => {
-        sectionLiquidIdleTimer = 0;
-        if (!sectionLiquidRaf) {
-          sectionLiquidLastFrame = performance.now();
-          sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
-        }
-      }, 34);
-    }
-    return;
-  }
-
+  // Keep the mark attached to sticky headings while their layout changes.
   sectionLiquidRaf = requestAnimationFrame(animateSectionLiquid);
 }
 
@@ -3729,7 +3359,10 @@ function updateNegativeWorldPositions() {
   const overlay = sectionLiquidRef.value;
   const pageHost = sectionLiquidRef.value?.querySelector<HTMLElement>("[data-negative-world='page']");
   if (root && overlay && pageHost) {
-    if (window.innerWidth <= 900) overlay.classList.remove("is-stack-active");
+    const stackPinned = window.innerWidth > 900
+      && sectionLiquidState.lastTargetKey === "stack"
+      && Boolean(sectionLiquidStackLock);
+    overlay.classList.toggle("is-stack-active", stackPinned);
     overlay.style.position = "";
     overlay.style.right = "";
     overlay.style.bottom = "";
@@ -3744,7 +3377,7 @@ function updateNegativeWorldPositions() {
       "[data-stack-section] > .vz-sticky",
     );
 
-    if (window.innerWidth > 900 && sectionLiquidState.lastTargetKey === "stack") {
+    if (stackPinned) {
       overlay.style.left = "0px";
       overlay.style.top = "0px";
       overlay.style.width = formatStablePx(layoutViewport.width);
@@ -3800,7 +3433,6 @@ function scheduleUpdate() {
     raf = 0;
     updateScrollEffects();
     updateClientCubePosition();
-    updateFooterGameFromScroll();
     syncNegativeWorlds();
   });
 }
@@ -3815,7 +3447,6 @@ onMounted(async () => {
   sectionLiquidLastScrollY = window.scrollY;
   sectionLiquidViewportWidth = window.innerWidth;
   sectionLiquidViewportScale = window.visualViewport?.scale ?? 1;
-  footerGameLastScrollY = window.scrollY;
   handleHeaderResize();
   await nextTick();
   setupClientLayoutObserver();
@@ -3885,12 +3516,10 @@ onBeforeUnmount(() => {
   if (heroFxRaf) cancelAnimationFrame(heroFxRaf);
   if (sectionLiquidRaf) cancelAnimationFrame(sectionLiquidRaf);
   if (sectionLiquidLayoutRaf) cancelAnimationFrame(sectionLiquidLayoutRaf);
-  if (sectionLiquidIdleTimer) window.clearTimeout(sectionLiquidIdleTimer);
   if (sectionLiquidResizeTimer) window.clearTimeout(sectionLiquidResizeTimer);
   stopAboutFlow();
   stackSphereCleanup?.();
   clientCubeCleanup?.();
-  stopFooterGameLoop();
 });
 
 watch(displayStackGroups, () => {
@@ -4138,8 +3767,7 @@ useHead(() => ({
 .vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__cols > div,
 .vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign > div,
 .vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign strong,
-.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__legal,
-.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer-game {
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__legal {
   opacity: 0;
   transform: translate3d(0, 28px, 0);
 }
@@ -4184,8 +3812,7 @@ useHead(() => ({
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div,
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign > div,
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign strong,
-.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal,
-.vz-motion-ready .vz-footer.is-motion-visible .vz-footer-game {
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal {
   animation: vz-motion-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
@@ -4238,7 +3865,6 @@ useHead(() => ({
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign > div { animation-delay: 0.54s; }
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign strong { animation-delay: 0.62s; }
 .vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal { animation-delay: 0.72s; }
-.vz-motion-ready .vz-footer.is-motion-visible .vz-footer-game { animation-delay: 0.82s; }
 
 .vz-preloader {
   position: fixed;
@@ -4723,7 +4349,8 @@ useHead(() => ({
   background: transparent;
   isolation: isolate;
   transition: opacity 0.22s ease;
-  will-change: clip-path, opacity;
+  mask-repeat: no-repeat;
+  will-change: opacity;
 }
 
 .vz-section-liquid::before {
@@ -4746,6 +4373,12 @@ useHead(() => ({
 
 .vz-section-liquid.is-active {
   opacity: 1;
+}
+
+.vz-section-liquid[data-active-key="hero"] {
+  visibility: hidden;
+  opacity: 0;
+  transition: none;
 }
 
 .vz-section-liquid.is-stack-active {
@@ -4797,7 +4430,7 @@ useHead(() => ({
 }
 
 .vz-negative-world .vz-cases__heading > p,
-.vz-negative-world .vz-cases__heading .vz-section-label {
+.vz-section-liquid .vz-negative-world .vz-section-label {
   visibility: hidden;
 }
 
@@ -4893,8 +4526,7 @@ useHead(() => ({
 .vz-negative-world h2 span span,
 .vz-negative-world .vz-about__head h2,
 .vz-negative-world .vz-footer__sign strong,
-.vz-negative-world .vz-footer__sign strong span,
-.vz-negative-world .vz-footer-game__letter {
+.vz-negative-world .vz-footer__sign strong span {
   background:
     linear-gradient(104deg, #f7f9ff 0%, #ad9cff 38%, #51d8ff 72%, #ffffff 100%);
   background-clip: text;
@@ -6019,206 +5651,6 @@ useHead(() => ({
   letter-spacing: 0.06em;
 }
 
-.vz-footer-game {
-  position: relative;
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 0 40px 68px;
-  cursor: pointer;
-  user-select: none;
-  touch-action: manipulation;
-}
-
-.vz-footer-game__hitbox {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  width: 100%;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.vz-footer-game__hitbox:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: -2px;
-}
-
-.vz-footer-game__hud {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 12px;
-  color: var(--muted2);
-  font-family: "JetBrains Mono", monospace;
-  font-size: calc(var(--type-micro) + 1px);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.vz-footer-game__track {
-  position: relative;
-  overflow: hidden;
-  height: clamp(150px, 16vw, 188px);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  background:
-    linear-gradient(180deg, transparent 0%, rgba(154, 160, 168, 0.05) 100%);
-}
-
-.vz-footer-game__track::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  opacity: 0.46;
-  background-image:
-    linear-gradient(to right, var(--border2) 1px, transparent 1px),
-    linear-gradient(to bottom, var(--border2) 1px, transparent 1px);
-  background-size: 52px 52px;
-  mask-image: linear-gradient(90deg, transparent, #000 16%, #000 84%, transparent);
-  pointer-events: none;
-}
-
-.vz-footer-game__ground {
-  position: absolute;
-  right: 0;
-  bottom: 39px;
-  left: 0;
-  height: 1px;
-  background: var(--hair);
-}
-
-.vz-footer-game__ground::before {
-  content: "";
-  position: absolute;
-  right: 0;
-  bottom: -6px;
-  left: 0;
-  height: 6px;
-  background: repeating-linear-gradient(90deg, var(--border) 0 18px, transparent 18px 34px);
-}
-
-.vz-footer-game__dino {
-  position: absolute;
-  bottom: 40px;
-  left: 72px;
-  z-index: 2;
-  width: 50px;
-  height: 56px;
-  transform-origin: 50% 100%;
-  will-change: transform;
-}
-
-.vz-footer-game__dino::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 1px;
-  width: 28px;
-  height: 25px;
-  border-radius: 3px 6px 2px 2px;
-  background: var(--ink);
-}
-
-.vz-footer-game__dino::after,
-.vz-footer-game__dino b {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  width: 8px;
-  height: 17px;
-  background: var(--ink);
-  transform-origin: top center;
-}
-
-.vz-footer-game__dino::after {
-  left: 14px;
-}
-
-.vz-footer-game__dino b {
-  left: 28px;
-}
-
-.vz-footer-game__dino span {
-  position: absolute;
-  right: 12px;
-  bottom: 13px;
-  width: 31px;
-  height: 28px;
-  border-radius: 6px 5px 2px 2px;
-  background: var(--ink);
-}
-
-.vz-footer-game__dino span::before {
-  content: "";
-  position: absolute;
-  top: 10px;
-  left: -16px;
-  width: 20px;
-  height: 10px;
-  background: var(--ink);
-  clip-path: polygon(0 10%, 100% 35%, 100% 100%, 0 72%);
-}
-
-.vz-footer-game__dino i {
-  position: absolute;
-  top: 7px;
-  right: 8px;
-  z-index: 1;
-  width: 4px;
-  height: 4px;
-  background: var(--bg);
-}
-
-.vz-footer-game__letter {
-  position: absolute;
-  bottom: 35px;
-  left: 0;
-  z-index: 1;
-  min-width: 58px;
-  color: var(--ink);
-  font-size: clamp(54px, 5.2vw, 82px);
-  font-weight: 700;
-  letter-spacing: -0.08em;
-  line-height: 0.86;
-  text-align: center;
-  text-transform: uppercase;
-  will-change: transform;
-}
-
-.vz-footer-game.is-paused .vz-footer-game__track {
-  opacity: 0.74;
-}
-
-.vz-footer-game.is-crashed .vz-footer-game__track {
-  border-color: var(--ink);
-}
-
-.vz-footer-game.is-running .vz-footer-game__dino::after {
-  animation: vz-dino-leg-a 0.2s steps(2, end) infinite;
-}
-
-.vz-footer-game.is-running .vz-footer-game__dino b {
-  animation: vz-dino-leg-b 0.2s steps(2, end) infinite;
-}
-
-@keyframes vz-dino-leg-a {
-  0%,
-49% { transform: translateY(0); }
-  50%,
-100% { transform: translateY(5px); }
-}
-
-@keyframes vz-dino-leg-b {
-  0%,
-49% { transform: translateY(5px); }
-  50%,
-100% { transform: translateY(0); }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .vz-nav[data-nav-visible] {
     transition:
@@ -6240,9 +5672,7 @@ useHead(() => ({
 .vz-client-connector span,
 .vz-hero__negative,
 .vz-hero__negative-plane,
-.vz-section-liquid,
-.vz-footer-game__dino::after,
-.vz-footer-game__dino b {
+.vz-section-liquid {
     transition: none !important;
     animation: none !important;
   }
@@ -6796,26 +6226,6 @@ useHead(() => ({
     gap: 6px;
     padding: 16px 20px 34px;
   }
-
-  .vz-footer-game {
-    padding: 0 20px 44px;
-  }
-
-  .vz-footer-game__hud {
-    gap: 10px;
-    font-size: calc(var(--type-micro) + 1px);
-    letter-spacing: 0.11em;
-  }
-
-  .vz-footer-game__track {
-    height: 138px;
-  }
-
-  .vz-footer-game__letter {
-    bottom: 36px;
-    min-width: 48px;
-    font-size: 58px;
-  }
 }
 
 @media (max-width: 900px) and (max-height: 700px) {
@@ -6943,6 +6353,7 @@ useHead(() => ({
 }
 
 .vz-contacts__buttons {
+  flex-wrap: wrap;
   width: fit-content;
   margin-inline: auto;
 }
