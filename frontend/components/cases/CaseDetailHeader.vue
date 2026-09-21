@@ -17,7 +17,6 @@
   <header
     class="case-header"
     :data-nav-visible="isHeaderShown ? 'true' : 'false'"
-    :data-menu-open="isMenuOpen ? 'true' : undefined"
     :data-media-collision="isHeaderMediaColliding ? 'true' : undefined"
     :data-scrolled="hasScrolled ? 'true' : 'false'"
     :style="headerStyle"
@@ -38,35 +37,26 @@
       <div class="case-header__actions">
         <button class="case-header__icon" type="button" :aria-label="locale === 'ru' ? 'Сменить тему' : 'Change theme'" @click="$emit('toggle-theme')"><SiteThemeIcon :theme="theme" /></button>
         <NuxtLink class="case-header__cta" to="/#cases">{{ locale === "ru" ? "Все кейсы" : "All cases" }} ↗</NuxtLink>
-        <SiteMenuButton
-          class="case-header__menu"
-          :expanded="isMenuOpen"
-          controls="case-mobile-menu"
-          :label="locale === 'ru' ? 'Открыть меню кейса' : 'Open case menu'"
-          @activate="isMenuOpen = true"
-        />
       </div>
     </div>
 
-    <MobileSiteMenu :open="isMenuOpen" id="case-mobile-menu" brand-variant="case" :theme="theme" :locale="locale" @close="isMenuOpen = false" @toggle-theme="$emit('toggle-theme')" />
   </header>
+  <MobileSiteMenu id="case-mobile-menu" :theme="theme" :locale="locale" @toggle-theme="$emit('toggle-theme')" />
 </template>
 
 <script setup lang="ts">
-import SiteMenuButton from "~/components/ui/SiteMenuButton.vue";
 import MobileSiteMenu from "~/components/ui/MobileSiteMenu.vue";
 import SiteBrand from "~/components/ui/SiteBrand.vue";
 import SiteThemeIcon from "~/components/ui/SiteThemeIcon.vue";
 defineProps<{ locale: "ru" | "en"; theme: "light" | "dark"; hasTechnical: boolean }>();
 defineEmits<{ "toggle-theme": [] }>();
-const isMenuOpen = ref(false);
 const isHeaderVisible = ref(true);
 const headerInnerRef = ref<HTMLElement | null>(null);
 const headerMediaShift = ref(0);
 const hasScrolled = ref(false);
 const isHeaderMediaColliding = ref(false);
 const isHeaderMediaCovered = ref(false);
-const isHeaderShown = computed(() => isMenuOpen.value || (isHeaderVisible.value && !isHeaderMediaCovered.value));
+const isHeaderShown = computed(() => isHeaderVisible.value && !isHeaderMediaCovered.value);
 const headerStyle = computed(() => ({ "--case-header-media-shift": `${headerMediaShift.value}px` }));
 let isHeaderZoneHovered = false;
 let isHeaderHovered = false;
@@ -88,7 +78,7 @@ function isDesktopHeaderViewport() {
 function updateHeaderMediaCollision() {
   hasScrolled.value = window.scrollY > 12;
   const headerInner = headerInnerRef.value;
-  if (!isDesktopHeaderViewport() || !headerInner || isMenuOpen.value) {
+  if (!isDesktopHeaderViewport() || !headerInner) {
     headerMediaShift.value = 0;
     isHeaderMediaColliding.value = false;
     isHeaderMediaCovered.value = false;
@@ -134,7 +124,7 @@ function queueHeaderHide(delay = 820) {
   }
   headerIdleTimer = window.setTimeout(() => {
     headerIdleTimer = null;
-    if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused || isMenuOpen.value) return;
+    if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused) return;
     isHeaderVisible.value = false;
   }, delay);
 }
@@ -153,12 +143,6 @@ function handleHeaderScroll() {
     headerLastScrollY = nextScrollY;
     revealHeader();
     queueHeaderHide();
-    return;
-  }
-
-  if (isMenuOpen.value) {
-    headerLastScrollY = nextScrollY;
-    revealHeader();
     return;
   }
 

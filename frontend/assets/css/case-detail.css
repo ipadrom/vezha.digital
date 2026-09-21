@@ -62,7 +62,7 @@
 
 @media (max-width: 900px) {
   .case-page { --case-pad: 18px; }
-  .case-header { padding: 10px 20px 0; }
+  .case-header { display: none; padding: 10px 20px 0; }
   .case-header-hover-zone { display: none; }
   .case-header__inner { grid-template-columns: auto auto; justify-content: space-between; height: 60px; padding: 0 8px 0 16px; }
   .case-header__nav, .case-header__cta { display: none; }
@@ -73,6 +73,3 @@
   .case-results__lead, .case-results .case-metrics, .case-results blockquote { margin-left: 0; }.case-results .case-metrics.is-grid { grid-template-columns: 1fr; }.case-results .case-metric { min-height: 0; }
   .case-technical__map { min-height: 480px; }.case-technical__node { font-size: 8px; padding: 10px; }.case-technical__node.n-4, .case-technical__node.n-5 { display: none; }.case-technical__list { grid-template-columns: 1fr; }.case-technical__list div { border-right: 0; border-bottom: 1px solid var(--border); }.case-gallery { grid-template-columns: 1fr; }.case-gallery__item--wide { grid-column: auto; }
 }
-
-.case-header[data-menu-open="true"] .case-header__inner { visibility: hidden; pointer-events: none; transition: none; }
-.case-header[data-menu-open="true"]::before { opacity: 0; }

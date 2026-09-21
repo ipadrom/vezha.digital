@@ -24,7 +24,6 @@
     <nav
       class="vz-nav"
       :data-nav-visible="isHeaderShown ? 'true' : 'false'"
-      :data-menu-open="isMenuOpen ? 'true' : undefined"
       :aria-hidden="isHeaderShown ? undefined : 'true'"
       :inert="isHeaderShown ? undefined : true"
       :aria-label="copy.nav.aria"
@@ -43,11 +42,10 @@
           <SiteThemeIcon :theme="theme" />
         </button>
         <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
-        <SiteMenuButton class="vz-menu-button" :label="copy.nav.menuOpen" :expanded="isMenuOpen" controls="landing-mobile-menu" data-nav-toggle @activate="isMenuOpen = true" />
       </div>
     </nav>
 
-    <MobileSiteMenu :open="isMenuOpen" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @close="isMenuOpen = false" @toggle-theme="toggleTheme" />
+    <MobileSiteMenu :visible="!showPreloader" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @toggle-theme="toggleTheme" />
 
     <Teleport to="body">
       <div
@@ -134,7 +132,6 @@
 </template>
 
 <script setup lang="ts">
-import SiteMenuButton from "~/components/ui/SiteMenuButton.vue";
 import MobileSiteMenu from "~/components/ui/MobileSiteMenu.vue";
 import SiteBrand from "~/components/ui/SiteBrand.vue";
 import SiteThemeIcon from "~/components/ui/SiteThemeIcon.vue";
@@ -362,10 +359,9 @@ const introProgress = ref(0);
 const aboutSceneGate = createInitialSceneGate();
 const stackSceneGate = createInitialSceneGate();
 const theme = ref<ThemeMode>("light");
-const isMenuOpen = ref(false);
 const isHeaderVisible = ref(false);
 const isHeaderBlockedByStack = ref(false);
-const isHeaderShown = computed(() => !showPreloader.value && (isMenuOpen.value || (isHeaderVisible.value && !isHeaderBlockedByStack.value)));
+const isHeaderShown = computed(() => !showPreloader.value && (isHeaderVisible.value && !isHeaderBlockedByStack.value));
 const activeStackIndex = ref(0);
 const activeClientSegment = ref(0);
 const enableMotionLayer = true;
@@ -858,7 +854,7 @@ function queueHeaderHide(delay = 820) {
   }
   headerIdleTimer = window.setTimeout(() => {
     headerIdleTimer = null;
-    if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused || isMenuOpen.value) return;
+    if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused) return;
     isHeaderVisible.value = false;
   }, delay);
 }
@@ -875,12 +871,6 @@ function handleHeaderScroll() {
     headerLastScrollY = nextScrollY;
     revealHeader();
     queueHeaderHide();
-    return;
-  }
-
-  if (isMenuOpen.value) {
-    headerLastScrollY = nextScrollY;
-    revealHeader();
     return;
   }
 
@@ -3992,12 +3982,6 @@ useHead(() => ({
   visibility: visible;
 }
 
-.vz-nav[data-menu-open="true"] {
-  visibility: hidden;
-  pointer-events: none;
-  transition: none;
-}
-
 .vz-nav-hover-zone {
   position: fixed;
   top: 0;
@@ -5713,6 +5697,7 @@ useHead(() => ({
   }
 
   .vz-nav {
+    display: none;
     top: 10px;
     right: 20px;
     left: 20px;
