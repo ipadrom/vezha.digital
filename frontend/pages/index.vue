@@ -3925,10 +3925,6 @@ useHead(() => ({
   line-height: 0.86;
 }
 
-.vz-preloader__count span:last-child {
-  color: var(--idle);
-}
-
 .vz-preloader__meta {
   color: var(--muted);
   font-size: var(--type-label);
