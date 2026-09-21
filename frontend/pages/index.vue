@@ -366,7 +366,8 @@ const stackSceneGate = createInitialSceneGate();
 const theme = ref<ThemeMode>("light");
 const isMenuOpen = ref(false);
 const isHeaderVisible = ref(false);
-const isHeaderShown = computed(() => !showPreloader.value && (isHeaderVisible.value || isMenuOpen.value));
+const isHeaderBlockedByStack = ref(false);
+const isHeaderShown = computed(() => !showPreloader.value && (isMenuOpen.value || (isHeaderVisible.value && !isHeaderBlockedByStack.value)));
 const activeStackIndex = ref(0);
 const activeClientSegment = ref(0);
 const enableMotionLayer = true;
@@ -820,18 +821,24 @@ function isDesktopHeaderViewport() {
   return window.matchMedia("(min-width: 901px)").matches;
 }
 
-function isDesktopStackScrollLockActive() {
-  if (!isDesktopHeaderViewport()) return false;
+function updateHeaderStackCollision() {
+  const stack = rootRef.value?.querySelector<HTMLElement>("[data-stack-section]");
+  const header = rootRef.value?.querySelector<HTMLElement>(".vz-nav");
+  if (!stack || !header) {
+    isHeaderBlockedByStack.value = false;
+    return false;
+  }
 
-  const stack = document.querySelector<HTMLElement>("[data-stack-section]");
-  if (!stack) return false;
-
+  // Use the resting position: the hidden header is translated above the viewport.
+  const headerTop = header.offsetTop;
+  const headerBottom = headerTop + header.offsetHeight;
   const rect = stack.getBoundingClientRect();
-  return rect.top <= 1 && rect.bottom >= window.innerHeight - 1;
+  isHeaderBlockedByStack.value = rect.top < headerBottom && rect.bottom > headerTop;
+  return isHeaderBlockedByStack.value;
 }
 
 function revealHeader() {
-  if (isDesktopStackScrollLockActive()) {
+  if (updateHeaderStackCollision()) {
     clearHeaderIdleTimer();
     isHeaderVisible.value = false;
     return;
@@ -924,6 +931,7 @@ function handleHeaderFocusOut(event: FocusEvent) {
 }
 
 function handleHeaderResize() {
+  updateHeaderStackCollision();
   const isDesktop = isDesktopHeaderViewport();
   headerLastScrollY = Math.max(0, window.scrollY);
   if (headerWasDesktop === isDesktop) return;
