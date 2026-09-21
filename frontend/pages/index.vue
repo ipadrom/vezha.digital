@@ -3245,6 +3245,8 @@ const negativeCloneSurfaceTokens = [
 function cleanupNegativeClone(clone: HTMLElement) {
   clone.dataset.negativeClone = "true";
   clone.setAttribute("aria-hidden", "true");
+  // Visual copies contain buttons with pointer-events:auto; keep all copies inert.
+  clone.inert = true;
   clone.removeAttribute("id");
   clone.classList.remove("vz-motion-ready");
   negativeCloneSurfaceTokens.forEach(([property, value]) => {
@@ -3559,7 +3561,7 @@ watch(displayServices, async () => {
   startSectionLiquid();
 });
 
-const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t);document.documentElement.style.colorScheme=t}catch(e){}}();`;
+const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t)}catch(e){}}();`;
 
 useHead(() => ({
   htmlAttrs: {

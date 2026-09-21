@@ -52,7 +52,7 @@ SUPPORTED_BLOCK_LAYOUTS: dict[str, set[str]] = {
     "challenge_solution": {"narrative", "air"},
     "insight": {"statement", "media-right"},
     "image": {"default"},
-    "image_text": {"image-right", "image-left"},
+    "image_text": {"image-right", "image-left", "client"},
     "metrics": {"cards"},
     "process": {"chapter", "phone-showcase"},
     "quote": {"default"},

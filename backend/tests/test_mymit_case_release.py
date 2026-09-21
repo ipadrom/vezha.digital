@@ -19,7 +19,22 @@ def test_release_document_matches_authored_case_and_shipped_assets():
 
     raw = migration().load_document()
     root = Path(__file__).parents[2]
-    assert raw == json.loads((root / "media/mymit-case/case.json").read_text())
+    authored = json.loads((root / "media/mymit-case/case.json").read_text())
+    CaseDocumentUpdate.model_validate(authored)
+    client = authored["blocks"][2]
+    assert authored["blocks"][1]["type"] == "media_hero"
+    assert client["is_visible"] is False
+    assert client["type"] == "image_text"
+    assert client["settings"]["layout"] == "client"
+    assert client["content_ru"]["title"] == "Константин Снегов"
+    assert (root / "frontend/public" / client["content_ru"]["image_url"].lstrip("/")).is_file()
+    assert authored["blocks"][0]["settings"]["show_project_name"] is False
+    # The original release stays immutable; current presentation changes are authored separately.
+    original_blocks = [block for block in authored["blocks"] if block is not client]
+    original_blocks[0]["settings"].pop("show_project_name")
+    for index, block in enumerate(original_blocks):
+        block["sort_order"] = index
+    assert raw == {**authored, "blocks": original_blocks}
     document = CaseDocumentUpdate.model_validate(raw)
     assert document.meta.slug == "mymit"
     assert len(document.blocks) == 12

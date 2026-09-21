@@ -33,6 +33,14 @@ An external reverse proxy terminates public HTTP/TLS and routes requests to the 
 
 Local fallback case/content utilities exist so selected pages can render when API content is unavailable. They are not a second database and should not silently diverge from published content.
 
+### Mobile header refraction
+
+Landing and case pages share `components/ui/MobileSiteMenu.vue`. Its header keeps content-sized bounds when open; a separate fixed backdrop handles outside taps.
+
+`SafariHeaderRefraction.vue` supplies mobile WebKit with an inert visual copy of only the sections intersecting the header band. It applies a regular SVG displacement filter to the clipped copy instead of an SVG `backdrop-filter`, which WebKit does not render reliably. Scroll updates move cached copies in one animation frame; content, theme and size changes invalidate them. Copies have remapped IDs, disabled interactions and frozen CSS animations, and are cleared while the menu is open. Listeners and observers are removed on unmount. Other engines retain the native backdrop path.
+
+The copy is a snapshot: video and WebGL frames are not continuously replayed, and unavailable GPU frames can remain transparent. Real iOS Safari visual/performance validation is still required; Chromium fallback-path checks are not a substitute.
+
 ### Related cases
 
 The case builder's `next_case` block is shown as **Другие проекты / More projects** in the studio. `CaseNavigation.vue` is the single renderer for cover cards on public case pages and the admin canvas; the old related-card layout is removed. Cases without a saved navigation block use the same renderer automatically. Opening such a case in the editor adds an editable default block to the in-memory document, persisted on the next save.
