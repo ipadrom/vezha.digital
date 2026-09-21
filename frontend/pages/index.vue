@@ -24,6 +24,7 @@
     <nav
       class="vz-nav"
       :data-nav-visible="isHeaderShown ? 'true' : 'false'"
+      :data-menu-open="isMenuOpen ? 'true' : undefined"
       :aria-hidden="isHeaderShown ? undefined : 'true'"
       :inert="isHeaderShown ? undefined : true"
       :aria-label="copy.nav.aria"
@@ -842,6 +843,10 @@ function revealHeader() {
 
 function queueHeaderHide(delay = 820) {
   clearHeaderIdleTimer();
+  if (!isDesktopHeaderViewport() && Math.max(0, window.scrollY) <= 12) {
+    isHeaderVisible.value = true;
+    return;
+  }
   headerIdleTimer = window.setTimeout(() => {
     headerIdleTimer = null;
     if (isHeaderZoneHovered || isHeaderHovered || isHeaderFocused || isMenuOpen.value) return;
@@ -881,22 +886,26 @@ function handleHeaderScroll() {
   queueHeaderHide();
 }
 
-function handleHeaderZonePointerEnter() {
+function handleHeaderZonePointerEnter(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderZoneHovered = true;
   revealHeader();
 }
 
-function handleHeaderZonePointerLeave() {
+function handleHeaderZonePointerLeave(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderZoneHovered = false;
   queueHeaderHide(220);
 }
 
-function handleHeaderPointerEnter() {
+function handleHeaderPointerEnter(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderHovered = true;
   revealHeader();
 }
 
-function handleHeaderPointerLeave() {
+function handleHeaderPointerLeave(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderHovered = false;
   queueHeaderHide(220);
 }
@@ -3971,6 +3980,12 @@ useHead(() => ({
   pointer-events: auto;
   transform: translate3d(0, 0, 0);
   visibility: visible;
+}
+
+.vz-nav[data-menu-open="true"] {
+  visibility: hidden;
+  pointer-events: none;
+  transition: none;
 }
 
 .vz-nav-hover-zone {

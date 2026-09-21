@@ -17,6 +17,7 @@
   <header
     class="case-header"
     :data-nav-visible="isHeaderShown ? 'true' : 'false'"
+    :data-menu-open="isMenuOpen ? 'true' : undefined"
     :data-media-collision="isHeaderMediaColliding ? 'true' : undefined"
     :data-scrolled="hasScrolled ? 'true' : 'false'"
     :style="headerStyle"
