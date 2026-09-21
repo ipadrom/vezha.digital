@@ -4,7 +4,7 @@
     <div v-if="showPreloader" ref="preloaderRef" data-preloader class="vz-preloader">
       <LandingLoaderPattern :progress="introProgress" />
       <div class="vz-preloader__bottom">
-        <div class="vz-preloader__count"><span>{{ Math.floor(introProgress).toString().padStart(2, "0") }}</span><span>%</span></div>
+        <div class="vz-preloader__count" :style="{ visibility: preloaderFontReady ? 'visible' : 'hidden' }"><span>{{ Math.floor(introProgress).toString().padStart(2, "0") }}</span><span>%</span></div>
       </div>
     </div>
 
@@ -355,6 +355,7 @@ const stackSphereRef = ref<HTMLElement | null>(null);
 const clientCubeRef = ref<HTMLElement | null>(null);
 const preloaderRef = ref<HTMLElement | null>(null);
 const showPreloader = ref(true);
+const preloaderFontReady = ref(false);
 const introProgress = ref(0);
 const aboutSceneGate = createInitialSceneGate();
 const stackSceneGate = createInitialSceneGate();
@@ -942,7 +943,10 @@ async function waitForInitialFonts() {
   const results = await Promise.allSettled([
     fonts.load('400 1em "Onest"', "VEZHA Digital"),
     fonts.load('600 1em "Onest"', "Проекты, которые работают"),
-    fonts.load('500 1em "JetBrains Mono"', "0123456789 / Loading"),
+    fonts.load('500 1em "JetBrains Mono"', "0123456789% / Loading").then((faces) => {
+      preloaderFontReady.value = faces.length > 0 && faces.every((face) => face.status === "loaded");
+      return faces;
+    }),
   ]);
   await fonts.ready;
   return results.every((result) => result.status === "fulfilled");
