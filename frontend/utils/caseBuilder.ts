@@ -242,7 +242,6 @@ export const caseBlockLayoutOptions: Record<CaseBlockType, CaseBlockLayoutOption
   image_text: [
     { value: 'image-right', label: 'Изображение справа' },
     { value: 'image-left', label: 'Изображение слева' },
-    { value: 'client', label: 'Заказчик' },
   ],
   metrics: [{ value: 'cards', label: 'Карточки показателей' }],
   process: [{ value: 'chapter', label: 'Глава кейса с раскрытиями' }, { value: 'phone-showcase', label: 'Список с телефоном' }],

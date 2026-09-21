@@ -19,9 +19,9 @@
           <div class="builder-hero__layout">
             <div class="builder-hero__project">
               <span v-if="block.content.logo_url" class="builder-hero__mark">
-                <img :src="block.content.logo_url" :alt="!heroShowsName(block) ? (block.content.title || block.content.eyebrow || '') : ''" />
+                <img :src="block.content.logo_url" alt="" />
               </span>
-              <span v-if="heroShowsName(block)">{{ block.content.title || block.content.eyebrow }}</span>
+              <span>{{ block.content.title || block.content.eyebrow }}</span>
             </div>
             <h1>{{ block.content.subtitle || block.content.title }}</h1>
             <p v-if="heroCategory(block)" class="builder-hero__category">{{ heroCategory(block) }}</p>
@@ -121,8 +121,6 @@
         <template v-else-if="block.type === 'image'">
           <figure class="builder-single-image"><img v-if="block.content.image_url" :src="block.content.image_url" :alt="block.content.alt || ''" /><div v-else class="builder-placeholder">IMAGE</div><figcaption v-if="block.content.caption">{{ block.content.caption }}</figcaption></figure>
         </template>
-
-        <CaseClientIntro v-else-if="block.type === 'image_text' && block.settings.layout === 'client'" :content="block.content" />
 
         <template v-else-if="block.type === 'image_text'">
           <div class="builder-image-text__copy"><span class="builder-eyebrow">{{ block.content.eyebrow }}</span><h2>{{ block.content.title }}</h2><p>{{ block.content.body }}</p></div>
@@ -303,7 +301,6 @@
 
 <script setup lang="ts">
 import { mobileCaseCover } from '~/utils/caseCoverMedia'
-import CaseClientIntro from '~/components/case-builder/CaseClientIntro.vue'
 import CaseNavigation from '~/components/cases/CaseNavigation.vue'
 import CaseResultCheck from './CaseResultCheck.vue'
 import CaseTechnologyMap from '~/components/case-builder/CaseTechnologyMap.vue'
@@ -324,7 +321,6 @@ const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => {
   return a.sort_order - b.sort_order
 }))
 const isSectionStart = (block: PublicBuilderBlock) => ['text', 'challenge_solution', 'insight', 'process', 'results', 'technologies', 'image_text', 'next_case'].includes(block.type) && block.settings.layout !== 'freeform' && (Number(block.settings.desktop_span) || 12) === 12
-const heroShowsName = (block: PublicBuilderBlock) => !block.content.logo_url || (props.currentSlug !== 'mymit' && block.settings.show_project_name !== false)
 const heroCategory = (block: PublicBuilderBlock) => String(block.content.industry || block.content.type_label || '').trim()
 const blockClasses = (block: PublicBuilderBlock) => [
   `builder-block--${block.type}`,

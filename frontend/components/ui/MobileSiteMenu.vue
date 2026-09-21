@@ -11,7 +11,6 @@
         </defs>
       </svg>
       <div class="site-mobile-menu-glass" :style="{ '--menu-refraction': `url(#${id}-refraction)` }" aria-hidden="true"></div>
-      <SafariHeaderRefraction :id="id" :active="visible && !open" />
       <div v-show="open" class="site-mobile-menu-backdrop" aria-hidden="true" @click="closeMenu"></div>
       <section ref="panel" :id="id" class="site-mobile-menu" :class="{ 'is-open': open }" :role="open ? 'dialog' : undefined" :aria-modal="open ? true : undefined" :aria-label="ru ? 'Меню сайта' : 'Site menu'" @keydown.tab="trapFocus">
         <header>
@@ -30,7 +29,6 @@
 </template>
 
 <script setup lang="ts">
-import SafariHeaderRefraction from './SafariHeaderRefraction.vue';
 import SiteMenuButton from './SiteMenuButton.vue';
 import SiteBrand from './SiteBrand.vue';
 import SiteThemeIcon from './SiteThemeIcon.vue';
@@ -70,7 +68,8 @@ onBeforeUnmount(() => viewport?.removeEventListener('change', closeOnDesktop));
 
 <style scoped>
 .site-mobile-menu-layer { position: fixed; inset: 0 0 auto; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(255 255 255 / 72%); --menu-rule: #ececef; }
-/* Keep the header bounds stable; only the click-away backdrop fills the viewport. */
+/* Keep the closed header away from Safari’s bottom toolbar tint detection. */
+.site-mobile-menu-layer.is-open { bottom: 0; }
 .site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(14 15 18 / 66%); --menu-rule: #26282d; }
 .site-mobile-menu-filter { position: absolute; pointer-events: none; overflow: hidden; }
 .site-mobile-menu-glass {
@@ -87,7 +86,7 @@ onBeforeUnmount(() => viewport?.removeEventListener('change', closeOnDesktop));
 @supports (backdrop-filter: url("#mobile-header-refraction")) {
   .site-mobile-menu-glass { backdrop-filter: var(--menu-refraction) blur(2px) saturate(1.12); }
 }
-.site-mobile-menu-backdrop { position: fixed; inset: 0; pointer-events: auto; }
+.site-mobile-menu-backdrop { position: absolute; inset: 0; pointer-events: auto; }
 .site-mobile-menu { position: relative; pointer-events: auto; margin: calc(10px + env(safe-area-inset-top, 0px)) 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: color-mix(in srgb, var(--menu-bg) 82%, transparent); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); backdrop-filter: saturate(1.18) blur(18px); -webkit-backdrop-filter: saturate(1.18) blur(18px); }
 .site-mobile-menu header { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 8px; }
 .site-mobile-menu-controls { display: flex; gap: 12px; }

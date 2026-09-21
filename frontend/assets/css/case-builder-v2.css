@@ -798,7 +798,6 @@
 /* Case narratives share the reading style used by process disclosures. */
 .case-page .builder-case :is(
   .builder-editorial .builder-prose,
-  .case-client__story .builder-prose,
   .builder-process-chapter__summary,
   .builder-results__body .builder-prose,
   .builder-results-list p,
@@ -1272,9 +1271,4 @@
   .builder-block--metrics.builder-block--plain .builder-metrics article:hover {
     transform: none;
   }
-}
-
-/* Client introductions use the editorial grid inside the image/text block. */
-.builder-block--image_text.builder-block--layout-client > .builder-block__inner {
-  display: block;
 }

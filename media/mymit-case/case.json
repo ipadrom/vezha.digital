@@ -32,8 +32,7 @@
         "layout": "case-header",
         "alignment": "left",
         "hero_background": "#eeeae4",
-        "hero_text": "#242526",
-        "show_project_name": false
+        "hero_text": "#242526"
       },
       "content_ru": {
         "title": "МИТ",
@@ -71,53 +70,9 @@
       }
     },
     {
-      "id": "01ca0df1-559a-4734-925a-87240a0f4dd9",
-      "type": "image_text",
-      "sort_order": 2,
-      "is_visible": false,
-      "settings": {
-        "theme": "paper",
-        "surface": "plain",
-        "width": "wide",
-        "spacing": "normal",
-        "layout": "client",
-        "alignment": "left"
-      },
-      "content_ru": {
-        "eyebrow": "Заказчик",
-        "title": "Константин Снегов",
-        "caption": "Предприниматель · МИТ",
-        "image_url": "/cases/mymit/2026-09/konstantin-snegov.jpg",
-        "alt": "Константин Снегов",
-        "body": "МИТ — сервис аренды переговорных кабинок в Москве. Тихое пространство для звонка, встречи или работы можно забронировать и оплатить через приложение.\n\nДля проекта Константина мы развивали существующее приложение: дорабатывали путь от выбора кабинки до управления сеансом, инструменты команды и связь с оборудованием.",
-        "logo_url": "/cases/mymit/2026-09/logo.svg",
-        "logo_label": "МИТ",
-        "contact_url": "https://t.me/kostyasnegov",
-        "contact_label": "Написать",
-        "project_url": "https://mymit.ru/",
-        "project_label": "Открыть проект",
-        "show_contact": false
-      },
-      "content_en": {
-        "eyebrow": "Client",
-        "title": "Konstantin Snegov",
-        "caption": "Entrepreneur · MIT",
-        "image_url": "/cases/mymit/2026-09/konstantin-snegov.jpg",
-        "alt": "Konstantin Snegov",
-        "body": "MIT is a meeting-booth rental service in Moscow. Users can book and pay for a quiet space for calls, meetings or focused work through the app.\n\nFor Konstantin’s project, we developed the existing application: improving the journey from booth selection to session controls, team tools and device integration.",
-        "logo_url": "/cases/mymit/2026-09/logo.svg",
-        "logo_label": "MIT",
-        "contact_url": "https://t.me/kostyasnegov",
-        "contact_label": "Message",
-        "project_url": "https://mymit.ru/",
-        "project_label": "Visit the project",
-        "show_contact": false
-      }
-    },
-    {
       "id": "8c60f7f9-a16b-4e69-baa8-44c239fe939f",
       "type": "text",
-      "sort_order": 3,
+      "sort_order": 2,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -142,7 +97,7 @@
     {
       "id": "2551cefb-b7a9-4bfe-9938-c289d0f88106",
       "type": "process",
-      "sort_order": 4,
+      "sort_order": 3,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -206,7 +161,7 @@
     {
       "id": "9cfe1a2b-d913-4577-b911-929f12560f1e",
       "type": "process",
-      "sort_order": 5,
+      "sort_order": 4,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -288,7 +243,7 @@
     {
       "id": "94f45b12-d134-4201-b810-c7f2f69f78b4",
       "type": "process",
-      "sort_order": 6,
+      "sort_order": 5,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -370,7 +325,7 @@
     {
       "id": "a8e44b7d-6b8f-4f88-9bf8-7807930ee6d1",
       "type": "process",
-      "sort_order": 7,
+      "sort_order": 6,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -470,7 +425,7 @@
     {
       "id": "95d034ad-8255-441f-b6ee-63737aa40fc7",
       "type": "process",
-      "sort_order": 8,
+      "sort_order": 7,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -552,7 +507,7 @@
     {
       "id": "7d77abd7-4551-447d-b5ff-259946e05fdb",
       "type": "process",
-      "sort_order": 9,
+      "sort_order": 8,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -616,7 +571,7 @@
     {
       "id": "40a9e509-b047-47e4-907d-05236606a2c6",
       "type": "process",
-      "sort_order": 10,
+      "sort_order": 9,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -700,7 +655,7 @@
     {
       "id": "624079e4-cc80-4db9-9c37-c9d3521e287a",
       "type": "results",
-      "sort_order": 11,
+      "sort_order": 10,
       "is_visible": true,
       "settings": {
         "theme": "paper",
@@ -777,7 +732,7 @@
     {
       "id": "9e67d5f5-d56e-42a9-bda1-57a8994a5356",
       "type": "technologies",
-      "sort_order": 12,
+      "sort_order": 11,
       "is_visible": true,
       "settings": {
         "theme": "paper",
