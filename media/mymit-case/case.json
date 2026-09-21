@@ -533,11 +533,11 @@
             "media_layout": "default"
           },
           {
-            "title": "Голосовые объявления по событиям брони",
-            "description": "Добавили административную настройку голосовых событий и связь с Яндекс-колонками. Объявления привязаны к жизненному циклу брони: началу, приближению окончания и завершению. Для конкретной колонки используется проверенный сценарий; администратор задаёт событие и момент его срабатывания.",
+            "title": "Интеграция с Алисой",
+            "description": "Интегрировали приложение с Яндекс-колонками с Алисой: голосовые объявления сопровождают начало сеанса, предупреждают о скором окончании и сообщают о завершении брони. В административной части настраиваются события и время их срабатывания, а для конкретной колонки используется проверенный сценарий.",
             "media_type": "image",
             "image_url": "/cases/mymit/2026-09/speaker-events.png",
-            "image_alt": "Голосовые объявления по событиям брони",
+            "image_alt": "Интеграция с Алисой",
             "media_size": "medium",
             "media_layout": "default"
           }
@@ -557,11 +557,11 @@
             "media_layout": "default"
           },
           {
-            "title": "Booking-triggered announcements",
-            "description": "Added admin configuration for voice events and integration with Yandex speakers. Announcements follow the booking lifecycle, including start, upcoming end and completion. Each speaker uses a verified scenario, with events and timing configured by an administrator.",
+            "title": "Alice integration",
+            "description": "Integrated the app with Yandex speakers powered by Alice. Spoken announcements mark the start of a session, warn that it is ending soon and announce booking completion. Administrators configure events and their timing, with a verified scenario for each speaker.",
             "media_type": "image",
             "image_url": "/cases/mymit/2026-09/speaker-events.png",
-            "image_alt": "Booking-triggered announcements",
+            "image_alt": "Alice integration",
             "media_size": "medium",
             "media_layout": "default"
           }
@@ -588,11 +588,11 @@
         "summary": "Дорабатывали серверную связь с оборудованием и поведение при изменении состояния устройств.",
         "items": [
           {
-            "title": "Подключение и доступ устройств",
-            "description": "Добавили выбор MQTT-провайдера для каждого устройства и параллельную поддержку собственного брокера и прежней интеграции. Расширили администрирование выдачей, отключением и восстановлением доступа. Настройки разделены по устройствам, поэтому новое подключение не требует одновременно переводить весь парк.",
+            "title": "Свой MQTT-сервис вместо Yandex IoT Core",
+            "description": "Разработали собственный MQTT-сервис — аналог Yandex IoT Core для задач МИТ: обмен командами и состояниями устройств, управление подключениями и доступом. Это подготовило основу для перехода с сервиса Яндекса: 1 ноября 2026 года он переходит в режим только для чтения, а 1 декабря прекращает работу. Добавили выбор провайдера для каждого устройства, чтобы переводить кабинки постепенно, сохраняя прежнюю интеграцию на время перехода.",
             "media_type": "image",
             "image_url": "/cases/mymit/2026-09/device-provider.png",
-            "image_alt": "Подключение и доступ устройств",
+            "image_alt": "Свой MQTT-сервис вместо Yandex IoT Core",
             "media_size": "medium",
             "media_layout": "default"
           },
@@ -604,6 +604,16 @@
             "image_alt": "Состояние кабинки после перезапуска",
             "media_size": "medium",
             "media_layout": "default"
+          },
+          {
+            "title": "Готовые контроллеры T Relay",
+            "description": "Заменили сборки из обычной ESP32 и отдельного релейного модуля на готовые решения T Relay. Под новое оборудование переписали прошивку, сохранив связь с приложением и управление реле в сценариях работы кабинки.",
+            "media_type": "none"
+          },
+          {
+            "title": "OTA: обновление прошивки по сети",
+            "description": "Добавили OTA — обновление прошивки контроллеров по сети. Новую версию можно передать устройству удалённо, без подключения компьютера к каждой кабинке. Это упрощает доставку исправлений и развитие прошивки после установки оборудования.",
+            "media_type": "none"
           }
         ]
       },
@@ -612,11 +622,11 @@
         "summary": "Improved backend equipment integration and device-state handling.",
         "items": [
           {
-            "title": "Device connection and access",
-            "description": "Added per-device MQTT provider selection and support for the custom broker alongside the legacy integration. Extended admin controls for issuing, disabling and restoring access. Per-device settings avoid requiring a simultaneous fleet-wide change.",
+            "title": "Our MQTT service to replace Yandex IoT Core",
+            "description": "Built our own MQTT service as an alternative to Yandex IoT Core for MIT: exchanging device commands and states, managing connections and controlling access. This provides a migration path as Yandex IoT Core becomes read-only on November 1, 2026 and shuts down on December 1. Per-device provider selection enables a gradual transition while retaining the previous integration.",
             "media_type": "image",
             "image_url": "/cases/mymit/2026-09/device-provider.png",
-            "image_alt": "Device connection and access",
+            "image_alt": "Our MQTT service to replace Yandex IoT Core",
             "media_size": "medium",
             "media_layout": "default"
           },
@@ -628,6 +638,16 @@
             "image_alt": "Booth state after restart",
             "media_size": "medium",
             "media_layout": "default"
+          },
+          {
+            "title": "Ready-made T Relay controllers",
+            "description": "Replaced assemblies built from a standard ESP32 and a separate relay module with ready-made T Relay controllers. Rewrote the firmware for the new hardware, retaining app connectivity and relay control throughout booth operation.",
+            "media_type": "none"
+          },
+          {
+            "title": "OTA: firmware updates over the network",
+            "description": "Added OTA firmware updates over the network. A new version can be delivered remotely without connecting a computer to each booth, making fixes and firmware improvements easier to distribute after installation.",
+            "media_type": "none"
           }
         ]
       }

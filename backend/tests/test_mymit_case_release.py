@@ -26,7 +26,7 @@ def test_release_document_matches_authored_case_and_shipped_assets():
     processes = [block for block in document.blocks if block.type == "process"]
     assert len(processes) == 7
     for language in ("content_ru", "content_en"):
-        assert sum(len(getattr(block, language)["items"]) for block in processes) == 19
+        assert sum(len(getattr(block, language)["items"]) for block in processes) == 21
 
     def walk(value):
         if isinstance(value, dict):
