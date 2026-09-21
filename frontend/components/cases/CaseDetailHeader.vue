@@ -38,24 +38,22 @@
       <div class="case-header__actions">
         <button class="case-header__icon" type="button" :aria-label="locale === 'ru' ? 'Сменить тему' : 'Change theme'" @click="$emit('toggle-theme')"><SiteThemeIcon :theme="theme" /></button>
         <NuxtLink class="case-header__cta" to="/#cases">{{ locale === "ru" ? "Все кейсы" : "All cases" }} ↗</NuxtLink>
-        <button
+        <SiteMenuButton
           class="case-header__menu"
-          type="button"
-          :aria-expanded="isMenuOpen"
-          aria-controls="case-mobile-menu"
-          :aria-label="locale === 'ru' ? 'Открыть меню кейса' : 'Open case menu'"
-          @click="isMenuOpen = !isMenuOpen"
-        >
-          <span></span><span></span>
-        </button>
+          :expanded="isMenuOpen"
+          controls="case-mobile-menu"
+          :label="locale === 'ru' ? 'Открыть меню кейса' : 'Open case menu'"
+          @activate="isMenuOpen = true"
+        />
       </div>
     </div>
 
-    <MobileSiteMenu v-if="isMenuOpen" id="case-mobile-menu" brand-variant="case" :theme="theme" :locale="locale" @close="isMenuOpen = false" @toggle-theme="$emit('toggle-theme')" />
+    <MobileSiteMenu :open="isMenuOpen" id="case-mobile-menu" brand-variant="case" :theme="theme" :locale="locale" @close="isMenuOpen = false" @toggle-theme="$emit('toggle-theme')" />
   </header>
 </template>
 
 <script setup lang="ts">
+import SiteMenuButton from "~/components/ui/SiteMenuButton.vue";
 import MobileSiteMenu from "~/components/ui/MobileSiteMenu.vue";
 import SiteBrand from "~/components/ui/SiteBrand.vue";
 import SiteThemeIcon from "~/components/ui/SiteThemeIcon.vue";
@@ -90,7 +88,7 @@ function isDesktopHeaderViewport() {
 function updateHeaderMediaCollision() {
   hasScrolled.value = window.scrollY > 12;
   const headerInner = headerInnerRef.value;
-  if (!headerInner || isMenuOpen.value) {
+  if (!isDesktopHeaderViewport() || !headerInner || isMenuOpen.value) {
     headerMediaShift.value = 0;
     isHeaderMediaColliding.value = false;
     isHeaderMediaCovered.value = false;
@@ -169,22 +167,26 @@ function handleHeaderScroll() {
   queueHeaderHide();
 }
 
-function handleHeaderZonePointerEnter() {
+function handleHeaderZonePointerEnter(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderZoneHovered = true;
   revealHeader();
 }
 
-function handleHeaderZonePointerLeave() {
+function handleHeaderZonePointerLeave(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderZoneHovered = false;
   queueHeaderHide(220);
 }
 
-function handleHeaderPointerEnter() {
+function handleHeaderPointerEnter(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderHovered = true;
   revealHeader();
 }
 
-function handleHeaderPointerLeave() {
+function handleHeaderPointerLeave(event: PointerEvent) {
+  if (event.pointerType === "touch") return;
   isHeaderHovered = false;
   queueHeaderHide(220);
 }

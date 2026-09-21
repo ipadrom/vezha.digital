@@ -43,14 +43,11 @@
           <SiteThemeIcon :theme="theme" />
         </button>
         <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
-        <button class="vz-menu-button" type="button" :aria-label="copy.nav.menuOpen" :aria-expanded="isMenuOpen" aria-controls="landing-mobile-menu" data-nav-toggle @click="isMenuOpen = true">
-          <span></span>
-          <span></span>
-        </button>
+        <SiteMenuButton class="vz-menu-button" :label="copy.nav.menuOpen" :expanded="isMenuOpen" controls="landing-mobile-menu" data-nav-toggle @activate="isMenuOpen = true" />
       </div>
     </nav>
 
-    <MobileSiteMenu v-if="isMenuOpen" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @close="isMenuOpen = false" @toggle-theme="toggleTheme" />
+    <MobileSiteMenu :open="isMenuOpen" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @close="isMenuOpen = false" @toggle-theme="toggleTheme" />
 
     <Teleport to="body">
       <div
@@ -137,6 +134,7 @@
 </template>
 
 <script setup lang="ts">
+import SiteMenuButton from "~/components/ui/SiteMenuButton.vue";
 import MobileSiteMenu from "~/components/ui/MobileSiteMenu.vue";
 import SiteBrand from "~/components/ui/SiteBrand.vue";
 import SiteThemeIcon from "~/components/ui/SiteThemeIcon.vue";
@@ -822,6 +820,10 @@ function isDesktopHeaderViewport() {
 }
 
 function updateHeaderStackCollision() {
+  if (!isDesktopHeaderViewport()) {
+    isHeaderBlockedByStack.value = false;
+    return false;
+  }
   const stack = rootRef.value?.querySelector<HTMLElement>("[data-stack-section]");
   const header = rootRef.value?.querySelector<HTMLElement>(".vz-nav");
   if (!stack || !header) {
