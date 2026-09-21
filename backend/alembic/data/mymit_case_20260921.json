@@ -1,0 +1,868 @@
+{
+  "meta": {
+    "slug": "mymit",
+    "name_ru": "МИТ — развитие приложения для бронирования кабинок",
+    "name_en": "MIT — evolving a booth booking application",
+    "type_ru": "Развитие приложения",
+    "type_en": "Application development",
+    "description_ru": "Доработка существующего приложения МИТ: бронирование, оплата, аналитика и взаимодействие с оборудованием.",
+    "description_en": "Improvements to the existing MIT application: booking, payments, analytics and device integration.",
+    "subtitle_ru": "Доработка и развитие существующего продукта",
+    "subtitle_en": "Developing an existing product",
+    "industry_ru": "Аренда переговорных кабинок",
+    "industry_en": "Meeting booth rental",
+    "year": "2026",
+    "image_url": "/cases/mymit/2026-09/cover.svg",
+    "cover_image_url": "/cases/mymit/2026-09/cover.svg",
+    "is_featured": true,
+    "sort_order": 3,
+    "seo_noindex": true
+  },
+  "blocks": [
+    {
+      "id": "6b837024-52cd-46bd-b0c3-61a9d09f10e8",
+      "type": "hero",
+      "sort_order": 0,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "full",
+        "spacing": "large",
+        "layout": "case-header",
+        "alignment": "left",
+        "hero_background": "#eeeae4",
+        "hero_text": "#242526"
+      },
+      "content_ru": {
+        "title": "МИТ",
+        "subtitle": "Доработали приложение для бронирования и управления кабинками.",
+        "industry": "Развитие существующего продукта",
+        "logo_url": "/cases/mymit/2026-09/logo.svg"
+      },
+      "content_en": {
+        "title": "MIT",
+        "subtitle": "Evolving an existing booth booking and control app.",
+        "industry": "Existing product development",
+        "logo_url": "/cases/mymit/2026-09/logo.svg"
+      }
+    },
+    {
+      "id": "a2029929-4b0b-43de-99ca-f1f614757d97",
+      "type": "media_hero",
+      "sort_order": 1,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "full",
+        "spacing": "compact",
+        "layout": "media-natural",
+        "alignment": "left"
+      },
+      "content_ru": {
+        "image_url": "/cases/mymit/2026-09/cover.svg",
+        "alt": "МИТ: фирменная визуализация кабинки и настоящие экраны бронирования на тестовых данных"
+      },
+      "content_en": {
+        "image_url": "/cases/mymit/2026-09/cover.svg",
+        "alt": "MIT booth artwork and actual booking screens with sandbox data"
+      }
+    },
+    {
+      "id": "8c60f7f9-a16b-4e69-baa8-44c239fe939f",
+      "type": "text",
+      "sort_order": 2,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "overview",
+        "alignment": "left",
+        "anchor": "story"
+      },
+      "content_ru": {
+        "eyebrow": "О проекте",
+        "title": "Подключились к существующему приложению и взяли на себя его дальнейшую доработку.",
+        "body": "МИТ — сервис аренды переговорных кабинок. Пользователь выбирает место и время, оплачивает бронь и управляет сеансом из приложения. За этим сценарием стоят расписания, платежи, уведомления и связь с физическим оборудованием.\n\nПриложение было разработано до нашего участия. Вежа Диджитал занималась его развитием: дорабатывала пользовательские сценарии, серверную логику и инструменты администрирования.\n\nРабота затронула весь путь пользователя: вход, знакомство с сервисом, выбор кабинки, оплату и управление сеансом. Параллельно развивали административную часть, аналитику, уведомления и связь приложения с оборудованием."
+      },
+      "content_en": {
+        "eyebrow": "About the project",
+        "title": "We joined an existing application to develop it further.",
+        "body": "MIT is a meeting-booth rental service. Users select a location and time, pay for a booking and manage their session in the app. Schedules, payments, notifications and physical devices support that experience.\n\nThe application was built before our involvement. VEZHA Digital worked on subsequent improvements to user journeys, backend logic and administration tools.\n\nThe work covered sign-in, onboarding, booth discovery, payments and session management. In parallel, we extended administration, analytics, notifications and the connection to physical equipment."
+      }
+    },
+    {
+      "id": "2551cefb-b7a9-4bfe-9938-c289d0f88106",
+      "type": "process",
+      "sort_order": 3,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "content_ru": {
+        "eyebrow": "Веб-версия и вход",
+        "summary": "Развивали самостоятельное приложение: от первого входа до подсказок во время бронирования.",
+        "items": [
+          {
+            "title": "Вход без обязательного Telegram",
+            "description": "Объединили пользовательские маршруты в самостоятельной веб-версии и сохранили Telegram как дополнительный канал. Доработали вход по телефону: получение кода звонком, по СМС и через MAX, переключение между способами и повторную отправку. Добавили Яндекс ID и доступ к поддержке из сценариев входа.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/auth-channels.png",
+            "image_alt": "Вход без обязательного Telegram",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Обучение внутри приложения",
+            "description": "Добавили последовательный тур по основным действиям: выбор кабинки, календарь, проверка брони и управление сеансом. Подсказки привязаны к нужным элементам интерфейса, в том числе на мобильном экране. Сохраняем прохождение обучения и пропускаем уже выполненные шаги, например разрешение уведомлений.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/onboarding.png",
+            "image_alt": "Обучение внутри приложения",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Web app and sign-in",
+        "summary": "Developed the standalone experience, from first sign-in to guidance during booking.",
+        "items": [
+          {
+            "title": "Sign-in beyond Telegram",
+            "description": "Unified user routes in a standalone web app, retaining Telegram as an optional channel. Improved phone sign-in with call, SMS and MAX codes, channel switching and retries. Added Yandex ID and access to support during authentication.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/auth-channels.png",
+            "image_alt": "Sign-in beyond Telegram",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Guided onboarding",
+            "description": "Added a guided tour through booth selection, the calendar, booking review and session controls. Tips point to the relevant UI elements, including on mobile. Completion is saved, and resolved steps such as notification permission are skipped.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/onboarding.png",
+            "image_alt": "Guided onboarding",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "9cfe1a2b-d913-4577-b911-929f12560f1e",
+      "type": "process",
+      "sort_order": 4,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "content_ru": {
+        "eyebrow": "Поиск кабинки",
+        "summary": "Доработали выбор места: знакомые точки, поиск по городу и условия посещения.",
+        "items": [
+          {
+            "title": "Избранные кабинки",
+            "description": "Добавили избранное и отдельную вкладку для сохранённых кабинок. Сердце на карточке показывает, сохранена ли точка, а счётчик во вкладке помогает ориентироваться в списке. Привычную кабинку можно найти без повторного поиска по всем адресам.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/favorites.png",
+            "image_alt": "Избранные кабинки",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Поиск по адресу и метро",
+            "description": "Добавили поиск по адресам, станциям метро и ключевым словам, учли написание через «е» и «ё». Доработали определение ближайшей кабинки на карте и поведение геолокации в мобильном браузере. На скрине — отфильтрованный результат запроса «Парк культуры».",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/search.png",
+            "image_alt": "Поиск по адресу и метро",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Расписание и условия доступа",
+            "description": "Добавили управление часами работы кабинок и недельное расписание в карточке. Текущий день выделен, чтобы время работы можно было проверить с первого взгляда. Для точек с ограниченным доступом доработали отдельную отметку и пояснение условий посещения.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/working-hours.png",
+            "image_alt": "Расписание и условия доступа",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Finding a booth",
+        "summary": "Improved location discovery, saved places and access information.",
+        "items": [
+          {
+            "title": "Favorite booths",
+            "description": "Added favorites and a dedicated saved-booth tab. A heart marks saved locations, and the tab count reflects the list. Users can return to a familiar booth without searching all addresses again.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/favorites.png",
+            "image_alt": "Favorite booths",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Address and metro search",
+            "description": "Added address, metro and keyword search, including Russian spelling normalization. Improved nearest-booth discovery and mobile-browser geolocation. The screenshot shows the filtered result for Park Kultury.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/search.png",
+            "image_alt": "Address and metro search",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Hours and access conditions",
+            "description": "Added booth working-hours controls and a weekly schedule in the booth details. Today is highlighted for quick reference. Restricted-access locations received a dedicated badge and an explanation of access conditions.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/working-hours.png",
+            "image_alt": "Hours and access conditions",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "94f45b12-d134-4201-b810-c7f2f69f78b4",
+      "type": "process",
+      "sort_order": 5,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "content_ru": {
+        "eyebrow": "Бронирование и сеанс",
+        "summary": "Переработали выбор времени и ситуации, когда у пользователя меняются планы.",
+        "items": [
+          {
+            "title": "Проверка интервала перед оплатой",
+            "description": "Переработали сценарий бронирования с календарём, тарифами и доступными временными слотами. Выбранный интервал и стоимость подтверждаются отдельно, до перехода к оплате. Пользователь видит время начала и окончания, а доступность рассчитывается с учётом расписания и других броней.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/booking-interval.png",
+            "image_alt": "Проверка интервала перед оплатой",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Несколько броней и ранний старт",
+            "description": "Доработали отображение параллельных бронирований и переход к управлению конкретным сеансом. Добавили явное действие «Начать раньше»: оно появляется перед началом подходящей брони. При раннем старте время сдвигается с сохранением оплаченной длительности — приложение не запускает сеанс без действия пользователя.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/early-start.png",
+            "image_alt": "Несколько броней и ранний старт",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Перенос без повторной оплаты",
+            "description": "Добавили перенос существующей брони на другую дату и время. Пользователь выбирает доступный интервал, сохраняя длительность и стоимость исходного тарифа. Новые параметры видны на кнопке подтверждения, поэтому перенос не требует отмены и повторной оплаты бронирования.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/reschedule.png",
+            "image_alt": "Перенос без повторной оплаты",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Booking and sessions",
+        "summary": "Reworked time selection and the flows users need when plans change.",
+        "items": [
+          {
+            "title": "Reviewing time before payment",
+            "description": "Reworked booking with a calendar, tariffs and available time slots. The chosen interval and price are confirmed before checkout. Users see both start and end times, with availability based on working hours and other bookings.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/booking-interval.png",
+            "image_alt": "Reviewing time before payment",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Multiple bookings and early starts",
+            "description": "Improved concurrent booking display and navigation to the selected session. Added an explicit Start early action before eligible bookings. Early activation shifts the interval while preserving the paid duration; the app does not start the session without user action.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/early-start.png",
+            "image_alt": "Multiple bookings and early starts",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Rescheduling without another payment",
+            "description": "Added rescheduling to another date and available time interval while preserving the original duration and tariff. The confirmation shows the new details, without requiring cancellation and a second payment.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/reschedule.png",
+            "image_alt": "Rescheduling without another payment",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "a8e44b7d-6b8f-4f88-9bf8-7807930ee6d1",
+      "type": "process",
+      "sort_order": 6,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "content_ru": {
+        "eyebrow": "Оплата и время",
+        "summary": "Доработали сохранённую оплату, продление, остаток минут и правила после окончания сеанса.",
+        "items": [
+          {
+            "title": "Несколько способов оплаты",
+            "description": "Расширили интеграцию с ЮKassa: несколько сохранённых способов, выбор основного и отдельная отвязка. Доработали возврат в оплату после привязки карты или СБП и восстановление незавершённого сценария. В профиле видны доступные способы и текущий основной.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/payment-methods.png",
+            "image_alt": "Несколько способов оплаты",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Стоимость продления до подтверждения",
+            "description": "Связали расчёт дополнительного времени с тарифом конкретного бронирования. Доработали продление активных и запланированных сеансов, отображение нового окончания и ожидающего платежа. Пользователь проверяет итог до подтверждения; сервер применяет оплаченное продление к нужной брони.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/extension.png",
+            "image_alt": "Стоимость продления до подтверждения",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Баланс неиспользованных минут",
+            "description": "Добавили баланс минут после раннего завершения и историю его изменений в профиле. При продлении пользователь выбирает, сколько минут использовать: интерфейс показывает доступный остаток, ограничение для выбранного интервала и уменьшение суммы к оплате. На фрагменте применены 15 минут с баланса.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/minute-balance.png",
+            "image_alt": "Баланс неиспользованных минут",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Правила дополнительного времени",
+            "description": "Доработали платное время после завершения основного сеанса: бесплатное окно выхода, стоимость минуты, резерв и расчёт фактического использования. Перед оплатой показываем условия для выбранного способа. Отдельно обработали неуспешный резерв и ограничение, которое не позволяет дополнительному времени мешать следующей брони.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/overstay-rules.png",
+            "image_alt": "Правила дополнительного времени",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Payments and time",
+        "summary": "Improved saved payments, extensions, minute balances and end-of-session rules.",
+        "items": [
+          {
+            "title": "Multiple payment methods",
+            "description": "Extended YooKassa integration with multiple saved methods, a preferred method and individual removal. Improved the return to checkout after card or SBP binding and recovery of interrupted flows. The profile shows available methods and the default.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/payment-methods.png",
+            "image_alt": "Multiple payment methods",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Extension cost before confirmation",
+            "description": "Linked additional-time pricing to the specific booking tariff. Improved extensions for active and scheduled sessions, new end-time display and pending-payment handling. Users review the total before confirming, and the backend applies paid extensions to the correct booking.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/extension.png",
+            "image_alt": "Extension cost before confirmation",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Unused-minute balance",
+            "description": "Added a balance for unused minutes after early completion and a history in the profile. During an extension, users choose how many minutes to use and see the available balance, interval limit and resulting discount. The fragment shows 15 minutes applied.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/minute-balance.png",
+            "image_alt": "Unused-minute balance",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Overstay rules",
+            "description": "Improved overstay handling: the free exit window, per-minute rate, payment reservation and actual usage calculation. Terms are shown before payment for the selected method. Also handled failed reservations and limits that protect the next booking.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/overstay-rules.png",
+            "image_alt": "Overstay rules",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "95d034ad-8255-441f-b6ee-63737aa40fc7",
+      "type": "process",
+      "sort_order": 7,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "content_ru": {
+        "eyebrow": "Управление сервисом",
+        "summary": "Расширили административные инструменты для работы с бронированиями, показателями и скидками.",
+        "items": [
+          {
+            "title": "Аналитика по кабинкам и периодам",
+            "description": "Добавили показатели выручки, броней, новых и повторных пользователей, популярности тарифов и загрузки. Доработали расчёт доступного времени: учитываем расписание, дату появления кабинки и данные за завершённые дни. Период и локация выбираются в фильтрах; график в кейсе построен на демонстрационных данных.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/analytics-detail.png",
+            "image_alt": "Аналитика по кабинкам и периодам",
+            "media_size": "full",
+            "media_layout": "default"
+          },
+          {
+            "title": "Поиск и управление бронированиями",
+            "description": "Добавили поиск, фильтры по кабинке и серверную пагинацию в административных списках. Доработали управление завершением брони и работу с платежами. Администратор может сузить список до нужной точки и проверить статус, интервал и стоимость конкретного посещения.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/admin-bookings.png",
+            "image_alt": "Поиск и управление бронированиями",
+            "media_size": "full",
+            "media_layout": "default"
+          },
+          {
+            "title": "Промокоды с персональными лимитами",
+            "description": "Доработали промокоды для бронирования и продления: ограничения по кабинкам, срок действия и повторное применение. Лимит использований и бюджет скидки считаются отдельно для каждого пользователя. Это позволяет задавать условия многоразового предложения, не расходуя общий лимит всеми клиентами сразу.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/promo-limits.png",
+            "image_alt": "Промокоды с персональными лимитами",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Service operations",
+        "summary": "Extended administration for bookings, reporting and discounts.",
+        "items": [
+          {
+            "title": "Analytics by booth and period",
+            "description": "Added revenue, bookings, new and returning users, tariff popularity and utilization metrics. Improved capacity calculations using schedules, booth creation dates and completed-day snapshots. Reports filter by period and location; case figures use demonstration data.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/analytics-detail.png",
+            "image_alt": "Analytics by booth and period",
+            "media_size": "full",
+            "media_layout": "default"
+          },
+          {
+            "title": "Booking search and management",
+            "description": "Added search, booth filters and server-side pagination to admin lists. Improved booking completion controls and payment handling. Administrators can narrow the list to a location and inspect a visit’s status, interval and cost.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/admin-bookings.png",
+            "image_alt": "Booking search and management",
+            "media_size": "full",
+            "media_layout": "default"
+          },
+          {
+            "title": "Per-user promo limits",
+            "description": "Improved promo codes for bookings and extensions with booth restrictions, validity periods and repeated use. Usage count and discount budget are tracked per user, allowing repeat offers without treating all customers as one shared allowance.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/promo-limits.png",
+            "image_alt": "Per-user promo limits",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "7d77abd7-4551-447d-b5ff-259946e05fdb",
+      "type": "process",
+      "sort_order": 8,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "content_ru": {
+        "eyebrow": "Уведомления",
+        "summary": "Развивали сообщения в браузере и голосовые подсказки внутри кабинки.",
+        "items": [
+          {
+            "title": "Push-рассылки и оповещения",
+            "description": "Добавили Web Push в рассылки и административные оповещения, а также отображение результата доставки по получателям. Доработали приглашение включить уведомления. На сервере отсекаем устаревшие напоминания после перерыва в работе, чтобы пользователю не приходили уже неактуальные сообщения.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/push-mailings.png",
+            "image_alt": "Push-рассылки и оповещения",
+            "media_size": "full",
+            "media_layout": "default"
+          },
+          {
+            "title": "Голосовые объявления по событиям брони",
+            "description": "Добавили административную настройку голосовых событий и связь с Яндекс-колонками. Объявления привязаны к жизненному циклу брони: началу, приближению окончания и завершению. Для конкретной колонки используется проверенный сценарий; администратор задаёт событие и момент его срабатывания.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/speaker-events.png",
+            "image_alt": "Голосовые объявления по событиям брони",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Notifications",
+        "summary": "Developed browser notifications and spoken announcements in booths.",
+        "items": [
+          {
+            "title": "Push mailings and alerts",
+            "description": "Added Web Push to mailings and admin alerts, plus per-recipient delivery results. Improved the notification-permission prompt. The backend discards stale reminders after downtime so users do not receive obsolete messages.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/push-mailings.png",
+            "image_alt": "Push mailings and alerts",
+            "media_size": "full",
+            "media_layout": "default"
+          },
+          {
+            "title": "Booking-triggered announcements",
+            "description": "Added admin configuration for voice events and integration with Yandex speakers. Announcements follow the booking lifecycle, including start, upcoming end and completion. Each speaker uses a verified scenario, with events and timing configured by an administrator.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/speaker-events.png",
+            "image_alt": "Booking-triggered announcements",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "40a9e509-b047-47e4-907d-05236606a2c6",
+      "type": "process",
+      "sort_order": 9,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "chapter",
+        "alignment": "left",
+        "open_first": true,
+        "disclosure_mode": "single"
+      },
+      "content_ru": {
+        "eyebrow": "Кабинка и приложение",
+        "summary": "Дорабатывали серверную связь с оборудованием и поведение при изменении состояния устройств.",
+        "items": [
+          {
+            "title": "Подключение и доступ устройств",
+            "description": "Добавили выбор MQTT-провайдера для каждого устройства и параллельную поддержку собственного брокера и прежней интеграции. Расширили администрирование выдачей, отключением и восстановлением доступа. Настройки разделены по устройствам, поэтому новое подключение не требует одновременно переводить весь парк.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/device-provider.png",
+            "image_alt": "Подключение и доступ устройств",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Состояние кабинки после перезапуска",
+            "description": "Доработали обработку состояния устройств, контроль связи и сверку реле после перезагрузки. Исправили сценарий продления около конца брони, чтобы отложенное выключение не гасило свет во время продлённого сеанса. В административной карточке видны связь, последнее сообщение устройства и версия прошивки; здесь показан локальный симулятор.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/device-status.png",
+            "image_alt": "Состояние кабинки после перезапуска",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Booth and application",
+        "summary": "Improved backend equipment integration and device-state handling.",
+        "items": [
+          {
+            "title": "Device connection and access",
+            "description": "Added per-device MQTT provider selection and support for the custom broker alongside the legacy integration. Extended admin controls for issuing, disabling and restoring access. Per-device settings avoid requiring a simultaneous fleet-wide change.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/device-provider.png",
+            "image_alt": "Device connection and access",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Booth state after restart",
+            "description": "Improved device-state handling, connectivity monitoring and relay reconciliation after reboot. Fixed extensions near session end so a delayed shutoff does not turn lights off during extended time. The admin card shows connectivity, heartbeat and firmware version; this example uses the local simulator.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/device-status.png",
+            "image_alt": "Booth state after restart",
+            "media_size": "medium",
+            "media_layout": "default"
+          }
+        ]
+      }
+    },
+    {
+      "id": "624079e4-cc80-4db9-9c37-c9d3521e287a",
+      "type": "results",
+      "sort_order": 10,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "air",
+        "alignment": "left",
+        "anchor": "evidence"
+      },
+      "content_ru": {
+        "eyebrow": "Что изменилось",
+        "body": "Развили существующий продукт сразу на нескольких уровнях — от пользовательского сценария до серверной связи с оборудованием.",
+        "items": [
+          {
+            "title": "Самостоятельная веб-версия.",
+            "text": " Пользовательские сценарии доступны без обязательного запуска приложения внутри Telegram."
+          },
+          {
+            "title": "Больше возможностей для бронирования.",
+            "text": " Поиск, избранное, перенос и продление дополнены доработками оплаты и промокодов."
+          },
+          {
+            "title": "Понятные расчёты времени.",
+            "text": " Продление, баланс минут и условия после окончания сеанса связаны с тарифом конкретной брони."
+          },
+          {
+            "title": "Управление сервисом.",
+            "text": " Команда может анализировать загрузку, находить брони и задавать персональные лимиты промокодов."
+          },
+          {
+            "title": "Уведомления по событиям.",
+            "text": " Push и голосовые объявления дополняют сценарии бронирования; каналы и события настраиваются в административной части."
+          },
+          {
+            "title": "Связь с оборудованием.",
+            "text": " Добавлены настройки подключения устройств, контроль связи и восстановление состояния после перезапуска."
+          }
+        ],
+        "tags": []
+      },
+      "content_en": {
+        "eyebrow": "What changed",
+        "body": "Developed the existing product across the user experience, backend logic and equipment integration.",
+        "items": [
+          {
+            "title": "Standalone web experience.",
+            "text": " User journeys no longer require opening the app inside Telegram."
+          },
+          {
+            "title": "More booking options.",
+            "text": " Search, favorites, rescheduling and extensions are supported by payment and promo-code improvements."
+          },
+          {
+            "title": "Clear time calculations.",
+            "text": " Extensions, minute balances and overstay terms follow the tariff of each booking."
+          },
+          {
+            "title": "Service management.",
+            "text": " The team can analyse occupancy, find bookings and set per-user promo-code limits."
+          },
+          {
+            "title": "Event-based notifications.",
+            "text": " Push and voice announcements support booking flows, with channels and events configured in the admin interface."
+          },
+          {
+            "title": "Equipment integration.",
+            "text": " Added device connection settings, connectivity monitoring and state recovery after restarts."
+          }
+        ],
+        "tags": []
+      }
+    },
+    {
+      "id": "9e67d5f5-d56e-42a9-bda1-57a8994a5356",
+      "type": "technologies",
+      "sort_order": 11,
+      "is_visible": true,
+      "settings": {
+        "theme": "paper",
+        "surface": "plain",
+        "width": "wide",
+        "spacing": "large",
+        "layout": "contours",
+        "alignment": "left",
+        "anchor": "technical"
+      },
+      "content_ru": {
+        "eyebrow": "Стек проекта",
+        "title": "",
+        "summary": "Работали в существующей архитектуре приложения и расширяли её интеграции.",
+        "items": [
+          {
+            "id": "next",
+            "label": "Next.js / React",
+            "icon": "react",
+            "group": "Приложение",
+            "category": "",
+            "description": "Пользовательские экраны и административный интерфейс существующего продукта.",
+            "related_ids": []
+          },
+          {
+            "id": "fastapi",
+            "label": "FastAPI / Python",
+            "icon": "python",
+            "group": "Сервер",
+            "category": "",
+            "description": "Бронирования, авторизация, расчёты и интеграции.",
+            "related_ids": []
+          },
+          {
+            "id": "postgres",
+            "label": "PostgreSQL",
+            "icon": "postgresql",
+            "group": "Сервер",
+            "category": "",
+            "description": "Пользователи, расписания, бронирования и история операций.",
+            "related_ids": []
+          },
+          {
+            "id": "celery",
+            "label": "Celery / Redis",
+            "icon": "redis",
+            "group": "Сервер",
+            "category": "",
+            "description": "Фоновые задачи, расписание уведомлений и обработка событий.",
+            "related_ids": []
+          },
+          {
+            "id": "payments",
+            "label": "ЮKassa",
+            "icon": "credit-card",
+            "group": "Интеграции",
+            "category": "",
+            "description": "Оплата бронирований, сохранённые способы и дополнительное время.",
+            "related_ids": []
+          },
+          {
+            "id": "mqtt",
+            "label": "MQTT",
+            "icon": "radio",
+            "group": "Оборудование",
+            "category": "",
+            "description": "Команды устройствам, события и синхронизация состояния кабинок.",
+            "related_ids": []
+          },
+          {
+            "id": "push",
+            "label": "Web Push / WebSocket",
+            "icon": "bell",
+            "group": "Интеграции",
+            "category": "",
+            "description": "Оповещения и обновление состояния в интерфейсе.",
+            "related_ids": []
+          }
+        ]
+      },
+      "content_en": {
+        "eyebrow": "Technology stack",
+        "title": "",
+        "summary": "Worked within the existing architecture and extended its integrations.",
+        "items": [
+          {
+            "id": "next",
+            "label": "Next.js / React",
+            "icon": "react",
+            "group": "Application",
+            "category": "",
+            "description": "User-facing screens and the existing admin interface.",
+            "related_ids": []
+          },
+          {
+            "id": "fastapi",
+            "label": "FastAPI / Python",
+            "icon": "python",
+            "group": "Backend",
+            "category": "",
+            "description": "Bookings, authentication, calculations and integrations.",
+            "related_ids": []
+          },
+          {
+            "id": "postgres",
+            "label": "PostgreSQL",
+            "icon": "postgresql",
+            "group": "Backend",
+            "category": "",
+            "description": "Users, schedules, bookings and operation history.",
+            "related_ids": []
+          },
+          {
+            "id": "celery",
+            "label": "Celery / Redis",
+            "icon": "redis",
+            "group": "Backend",
+            "category": "",
+            "description": "Background jobs, notification scheduling and event processing.",
+            "related_ids": []
+          },
+          {
+            "id": "payments",
+            "label": "ЮKassa",
+            "icon": "credit-card",
+            "group": "Integrations",
+            "category": "",
+            "description": "Booking payments, saved methods and additional time.",
+            "related_ids": []
+          },
+          {
+            "id": "mqtt",
+            "label": "MQTT",
+            "icon": "radio",
+            "group": "Equipment",
+            "category": "",
+            "description": "Device commands, events and booth-state reconciliation.",
+            "related_ids": []
+          },
+          {
+            "id": "push",
+            "label": "Web Push / WebSocket",
+            "icon": "bell",
+            "group": "Integrations",
+            "category": "",
+            "description": "Notifications and live interface state updates.",
+            "related_ids": []
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -60,7 +60,7 @@ yarn dev
 yarn build
 ```
 
-The production `frontend/Dockerfile` currently invokes `yarn install --frozen-lockfile` after copying only `package*.json`; it does not copy `yarn.lock` into that install layer. The production image therefore uses Yarn but is not reproducible from the repository lock file as written.
+The production `frontend/Dockerfile` copies `package.json` and `yarn.lock` before running `yarn install --frozen-lockfile`, so the container installs the versions fixed by the Yarn lock file.
 
 The root Makefile still uses npm. This is a known inconsistency, not permission to update lock files. Until a package manager and reproducible Docker path are selected, avoid dependency changes unless the task explicitly includes resolving the mismatch.
 

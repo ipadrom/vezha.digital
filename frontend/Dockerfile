@@ -13,7 +13,7 @@ ENV NUXT_PUBLIC_TELEGRAM_BOT_USERNAME=$NUXT_PUBLIC_TELEGRAM_BOT_USERNAME
 ENV NUXT_APP_BASE_URL=$NUXT_APP_BASE_URL
 
 # Install dependencies
-COPY package*.json ./
+COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 RUN rm -rf .nuxt node_modules/.cache
 
