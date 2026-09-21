@@ -33,47 +33,23 @@
       @focusin="handleHeaderFocusIn"
       @focusout="handleHeaderFocusOut"
     >
-      <a class="vz-logo" href="#hero" aria-label="VEZHA Digital">
-        <span>VEZHA</span>
-        <small>Digital</small>
-      </a>
+      <SiteBrand class="vz-logo" :theme="theme" to="/#hero" />
       <div class="vz-nav__links" data-nav-links>
         <a v-for="item in navItems" :key="item.href" :href="item.href">{{ item.label }}</a>
       </div>
       <div class="vz-nav__actions">
         <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
-          {{ theme === "dark" ? "☀" : "☾" }}
+          <SiteThemeIcon :theme="theme" />
         </button>
         <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
-        <button class="vz-menu-button" type="button" :aria-label="copy.nav.menuOpen" data-nav-toggle @click="isMenuOpen = true">
+        <button class="vz-menu-button" type="button" :aria-label="copy.nav.menuOpen" :aria-expanded="isMenuOpen" aria-controls="landing-mobile-menu" data-nav-toggle @click="isMenuOpen = true">
           <span></span>
           <span></span>
         </button>
       </div>
     </nav>
 
-    <div v-show="isMenuOpen" class="vz-mobile-menu" data-mobile-menu>
-      <div class="vz-mobile-menu__top">
-        <div class="vz-logo">
-          <span>VEZHA</span>
-          <small>Digital</small>
-        </div>
-        <div class="vz-mobile-menu__controls">
-          <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
-            {{ theme === "dark" ? "☀" : "☾" }}
-          </button>
-          <button class="vz-icon-button" type="button" :aria-label="copy.nav.menuClose" @click="isMenuOpen = false">✕</button>
-        </div>
-      </div>
-      <div class="vz-mobile-menu__links">
-        <a v-for="item in navItems" :key="item.href" :href="item.href" @click="isMenuOpen = false">{{ item.label }}</a>
-      </div>
-      <a class="vz-mobile-menu__cta" href="#contacts" @click="isMenuOpen = false">{{ copy.nav.mobileCta }}</a>
-      <div class="vz-mobile-menu__bottom">
-        <span>{{ copy.hero.meta[0] }}</span>
-        <span>{{ copy.hero.meta[1] }}</span>
-      </div>
-    </div>
+    <MobileSiteMenu v-if="isMenuOpen" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @close="isMenuOpen = false" @toggle-theme="toggleTheme" />
 
     <Teleport to="body">
       <div
@@ -166,6 +142,9 @@
 </template>
 
 <script setup lang="ts">
+import MobileSiteMenu from "~/components/ui/MobileSiteMenu.vue";
+import SiteBrand from "~/components/ui/SiteBrand.vue";
+import SiteThemeIcon from "~/components/ui/SiteThemeIcon.vue";
 import LandingAbout from "~/components/landing/LandingAbout.vue";
 import LandingCases from "~/components/landing/LandingCases.vue";
 import LandingLoaderPattern from "~/components/landing/LandingLoaderPattern.vue";

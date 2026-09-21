@@ -1,5 +1,5 @@
 <template>
-  <div class="builder-next-shell">
+  <div ref="shell" class="builder-next-shell">
     <header class="builder-next-header">
       <div>
         <span v-if="content.eyebrow" class="builder-eyebrow">{{ content.eyebrow }}</span>
@@ -34,6 +34,36 @@ const navigationTitle = computed(() => props.content.title && !['Следующ�
 const allCasesLabel = computed(() => props.content.cta_label && !['Открыть', 'Open'].includes(props.content.cta_label) ? props.content.cta_label : props.locale === 'ru' ? 'Все кейсы' : 'All cases')
 const { data: publishedProjects } = useNavigationCases(() => props.locale)
 const relatedCases = computed(() => selectRelatedCases(props.relatedProjects ?? publishedProjects.value, props.content, props.currentSlug))
+const shell = ref<HTMLElement | null>(null)
+let resizeObserver: ResizeObserver | undefined
+let fitFrame = 0
+function fitTitles() {
+  shell.value?.querySelectorAll<HTMLElement>('.case-cover-content').forEach(content => {
+    const title = content.querySelector<HTMLElement>('h3')
+    const category = content.querySelector<HTMLElement>('.case-cover-type')
+    const action = content.querySelector<HTMLElement>('.case-cover-action')
+    if (!title || !action) return
+    title.style.removeProperty('font-size')
+    const style = getComputedStyle(content)
+    const available = content.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)
+      - action.offsetHeight - (category?.offsetHeight || 0) - parseFloat(style.rowGap)
+      - parseFloat(getComputedStyle(title).marginTop)
+    let size = parseFloat(getComputedStyle(title).fontSize)
+    while (title.scrollHeight > available && size > 14) {
+      size = Math.max(14, size - 1)
+      title.style.fontSize = `${size}px`
+    }
+  })
+}
+function queueTitleFit() { cancelAnimationFrame(fitFrame); fitFrame = requestAnimationFrame(fitTitles) }
+watch(relatedCases, async () => { await nextTick(); queueTitleFit() })
+onMounted(() => {
+  resizeObserver = new ResizeObserver(queueTitleFit)
+  if (shell.value) resizeObserver.observe(shell.value)
+  void document.fonts.ready.then(queueTitleFit)
+  queueTitleFit()
+})
+onBeforeUnmount(() => { resizeObserver?.disconnect(); cancelAnimationFrame(fitFrame) })
 </script>
 
 <style scoped>
@@ -70,4 +100,8 @@ const relatedCases = computed(() => selectRelatedCases(props.relatedProjects ?? 
 @media (prefers-reduced-motion: reduce) {
   .case-cover-shade, .case-cover-details, .case-cover-action { transition: none; transform: none; }
 }
+.case-cover-content { justify-content: space-between; gap: 14px; }
+.case-cover-content h3 { margin: 10px 0 0; transition-property: none; }
+.case-cover-link { min-height: 220px; }
+.case-cover-link > img { min-height: 220px; object-fit: cover; }
 </style>

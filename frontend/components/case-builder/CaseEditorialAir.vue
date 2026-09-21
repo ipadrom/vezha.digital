@@ -60,6 +60,9 @@ const items = computed(() => Array.isArray(props.content.items)
 .case-air__benefits :deep(.case-result-check) { grid-column: 1; grid-row: 1; align-self: center; margin-top: 0; }
 .case-air__benefits p { grid-column: 2; font-size: clamp(.9rem, .85rem + .2cqw, 1.05rem); line-height: 1.65; }
 .case-air__benefits strong { grid-column: 2; grid-row: 1; display: block; font-size: var(--case-type-body, 16px); line-height: 1.4; white-space: pre-line; }
+.case-air__benefits li { grid-row: span 2; grid-template-rows: subgrid; }
+.case-air__benefits strong { align-self: center; }
+.case-air__benefits p { grid-row: 2; align-self: start; }
 @container case-air (max-width: 760px) {
   .case-air__layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
   .case-air h2 { max-width: none; }
