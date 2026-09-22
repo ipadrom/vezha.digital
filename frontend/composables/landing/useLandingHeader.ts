@@ -13,7 +13,7 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
   let isHeaderZoneHovered = false;
   let isHeaderHovered = false;
   let isHeaderFocused = false;
-  let headerIdleTimer: ReturnType<typeof setTimeout> | null = null;
+  let headerIdleTimer: number | null = null;
   let headerLastScrollY = 0;
   let headerWasDesktop: boolean | null = null;
 

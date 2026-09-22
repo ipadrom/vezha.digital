@@ -241,15 +241,14 @@ test("all pages and landing controls use native scrolling", () => {
   const mainCss = readFileSync("assets/css/main.css", "utf8");
   const stackScroll = readFileSync("composables/landing/useLandingStackScroll.ts", "utf8");
   const services = readFileSync("components/landing/LandingServices.vue", "utf8");
-  const cases = readFileSync("components/landing/LandingCases.vue", "utf8");
 
   assert.doesNotMatch(landing, /useDesktopSmoothScroll\(\)/);
   assert.doesNotMatch(casePage, /useDesktopSmoothScroll\(\)/);
-  assert.match(mainCss, /html\s*\{[^}]*scroll-behavior:\s*auto;/s);
-  assert.doesNotMatch(mainCss, /\.lenis|scroll-behavior:\s*smooth/);
+  assert.match(mainCss, /html\s*\{[^}]*scroll-behavior:\s*smooth;/s);
+  assert.match(mainCss, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?html\s*\{[^}]*scroll-behavior:\s*auto;/s);
+  assert.doesNotMatch(mainCss, /\.lenis/);
   assert.match(stackScroll, /window\.scrollTo\(\{[^}]*behavior:\s*"auto"/s);
-  assert.match(services, /nav\.scrollTo\(\{[^}]*behavior:\s*"auto"/s);
-  assert.match(cases, /tabList\.scrollTo\(\{[^}]*behavior:\s*"auto"/s);
+  assert.match(services, /nav\.scrollTo\(\{[^}]*behavior:\s*animate && !reduceMotion \? "smooth" : "auto"/s);
 });
 
 test("case videos expose autoplay, loop and control settings", () => {

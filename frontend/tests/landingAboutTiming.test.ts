@@ -28,18 +28,16 @@ test("anchors the about card bottom while animating to the active content height
   assert.match(about, /@media \(max-width: 900px\)[\s\S]*?\.vz-about__intro-slot\s*\{[^}]*width:\s*min\(100%, 520px\);/s);
 });
 
-test("uses 12px mobile case metadata without shrinking the case title", () => {
+test("compacts the case controls and summary on narrow screens", () => {
   const casesCss = readFileSync("assets/css/landing-cases.css", "utf8");
   const mobileCss = casesCss.slice(casesCss.indexOf("@media (max-width: 620px)"));
 
-  assert.match(mobileCss, /\.vz-cases__fact dd,\s*\.vz-cases__stack-card strong\s*\{[^}]*font-size:\s*12px;/s);
-  assert.match(mobileCss, /\.vz-cases__fact dt,\s*\.vz-cases__stack-card > span\s*\{[^}]*display:\s*block;[^}]*top:\s*6px;[^}]*left:\s*8px;/s);
-  assert.match(mobileCss, /\.vz-cases__caption > \.vz-cases__identity\s*\{[^}]*border-radius:\s*14px;/s);
-  assert.match(mobileCss, /\.vz-cases__caption\s*\{[^}]*grid-template-rows:\s*auto\s*repeat\(2, minmax\(0, 1fr\)\)\s*minmax\(44px, auto\)\s*auto;/s);
-  assert.match(mobileCss, /\.vz-cases__fact:nth-child\(1\),\s*\.vz-cases__fact:nth-child\(2\)\s*\{[^}]*min-height:\s*0;[^}]*padding-block:\s*5px;/s);
-  assert.match(mobileCss, /\.vz-cases__fact:nth-child\(1\) dd,\s*\.vz-cases__fact:nth-child\(2\) dd\s*\{[^}]*min-height:\s*0;/s);
-  assert.doesNotMatch(mobileCss, /\.vz-cases__fact dd,\s*\.vz-cases__stack-card strong\s*\{[^}]*transform:/s);
-  assert.match(mobileCss, /\.vz-cases__identity h3\s*\{[^}]*font-size:\s*clamp\(18px, 5\.2vw, 21px\);/s);
+  assert.match(mobileCss, /\.vz-cases__stage\s*\{[^}]*--case-control-inset:\s*8px;[^}]*border-radius:\s*14px;/s);
+  assert.match(mobileCss, /\.vz-cases\s*\{[^}]*padding-inline:\s*16px;/s);
+  assert.match(mobileCss, /\.vz-cases__controls button\s*\{[^}]*width:\s*32px;[^}]*height:\s*32px;/s);
+  assert.match(mobileCss, /\.vz-cases__counter\s*\{[^}]*min-width:\s*44px;[^}]*font-size:\s*11px;/s);
+  assert.match(mobileCss, /\.vz-cases__summary\s*\{[^}]*flex-direction:\s*column;[^}]*gap:\s*18px;[^}]*margin-top:\s*20px;/s);
+  assert.match(mobileCss, /\.vz-cases__open\s*\{[^}]*min-height:\s*54px;[^}]*justify-content:\s*space-between;/s);
 });
 
 test("keeps the liquid hero spot enabled on mobile", () => {
@@ -100,8 +98,8 @@ test("animates the mobile stack card to each content height", () => {
   assert.match(responsiveCss, /\.vz-stack__mobile-details-body > div\s*\{[^}]*display:\s*flex;/s);
 });
 
-test("keeps a 22px mobile gap between the case selector and visual", () => {
+test("keeps a 32px mobile gap between the case heading and stage", () => {
   const cases = readFileSync("assets/css/landing-cases.css", "utf8");
 
-  assert.match(cases, /@media \(max-width: 900px\)[\s\S]*?\.vz-cases__active\s*\{[^}]*margin-top:\s*22px;/s);
+  assert.match(cases, /@media \(max-width: 900px\)[\s\S]*?\.vz-cases__heading\s*\{[^}]*margin-bottom:\s*32px;/s);
 });

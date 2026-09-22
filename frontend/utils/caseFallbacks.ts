@@ -1,5 +1,5 @@
 import type { IProjectDetail } from "./interfaces/IProjects";
-import { getWellnessCaseBlocks } from "./wellnessCaseBuilder";
+import { getWellnessCaseBlocks } from "./wellnessCaseBuilder.ts";
 
 type LocaleCode = "ru" | "en";
 

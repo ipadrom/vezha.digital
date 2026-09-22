@@ -6,6 +6,10 @@ const landingPage = readFileSync(
   new URL("../assets/css/landing-sections.css", import.meta.url),
   "utf8",
 );
+const responsiveCss = readFileSync(
+  new URL("../assets/css/landing-responsive.css", import.meta.url),
+  "utf8",
+);
 
 const sharedRule = landingPage.match(
   /\.vz-stack-item span:not\(\[data-dot\], \[data-halo\]\),\s*\.vz-hero__stats span\s*\{([^}]*)\}/,
@@ -26,7 +30,7 @@ test("shares compact capsule styling between stack and hero", () => {
     "border-radius: 999px;",
     "color: var(--chipink);",
     'font-family: "JetBrains Mono", monospace;',
-    "font-size: 12px;",
+    "font-size: var(--type-chip);",
     "letter-spacing: 0.03em;",
     "text-transform: none;",
   ]) {
@@ -50,7 +54,7 @@ test("keeps mobile hero capsule labels on one line", () => {
     "compact capsule labels should not wrap",
   );
   assert.ok(
-    landingPage.includes("grid-template-columns: repeat(2, max-content);"),
-    "mobile hero capsule columns should use their content width",
+    /@media \(max-width: 900px\)[\s\S]*?\.vz-hero__stats\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/s.test(responsiveCss),
+    "mobile hero capsules should share a two-column grid",
   );
 });
