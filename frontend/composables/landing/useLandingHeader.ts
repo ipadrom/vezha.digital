@@ -60,7 +60,7 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
 
   function queueHeaderHide(delay = 820) {
     clearHeaderIdleTimer();
-    if (!isDesktopHeaderViewport() && Math.max(0, window.scrollY) <= 12) {
+    if (Math.max(0, window.scrollY) <= 12) {
       isHeaderVisible.value = true;
       return;
     }
@@ -79,16 +79,17 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
       return;
     }
 
+    // Like the case pages: at the very top the header stays put on every viewport.
+    if (nextScrollY <= 12) {
+      headerLastScrollY = nextScrollY;
+      revealHeader();
+      return;
+    }
+
     if (isDesktopHeaderViewport()) {
       headerLastScrollY = nextScrollY;
       revealHeader();
       queueHeaderHide();
-      return;
-    }
-
-    if (nextScrollY <= 12) {
-      headerLastScrollY = nextScrollY;
-      revealHeader();
       return;
     }
 
@@ -142,7 +143,7 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
 
     headerWasDesktop = isDesktop;
     clearHeaderIdleTimer();
-    isHeaderVisible.value = !isDesktop;
+    isHeaderVisible.value = headerLastScrollY <= 12 || !isDesktop;
   }
 
   onMounted(() => {

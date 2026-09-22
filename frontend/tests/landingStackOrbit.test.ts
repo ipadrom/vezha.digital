@@ -664,7 +664,9 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(header, /window\.addEventListener\("scroll", handleHeaderScroll/);
   assert.match(landing, /class="vz-nav-hover-zone"/);
   assert.match(header, /function queueHeaderHide\(delay = 820\)/);
-  assert.match(header, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(isDesktopHeaderViewport\(\)\)[\s\S]*?if \(nextScrollY <= 12\)[\s\S]*?revealHeader\(\);[\s\S]*?queueHeaderHide\(\);/s);
+  assert.match(header, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(nextScrollY <= 12\)[\s\S]*?revealHeader\(\);\s*return;[\s\S]*?if \(isDesktopHeaderViewport\(\)\)/s);
+  assert.match(header, /function queueHeaderHide\(delay = 820\)\s*\{\s*clearHeaderIdleTimer\(\);\s*if \(Math\.max\(0, window\.scrollY\) <= 12\) \{\s*isHeaderVisible\.value = true;\s*return;/s);
+  assert.match(header, /function handleHeaderResize\(\)[\s\S]*?isHeaderVisible\.value = headerLastScrollY <= 12 \|\| !isDesktop;/s);
   assert.match(header, /function updateHeaderStackCollision\(\)[\s\S]*?querySelector<HTMLElement>\("\[data-stack-section\]"\)[\s\S]*?isHeaderBlockedByStack\.value = rect\.top < headerBottom && rect\.bottom > headerTop;/s);
   assert.match(header, /function revealHeader\(\)\s*\{\s*if \(updateHeaderStackCollision\(\)\) \{[^}]*clearHeaderIdleTimer\(\);[^}]*isHeaderVisible\.value = false;/s);
   assert.doesNotMatch(header, /isHeaderVisible\.value = delta < 0/);
