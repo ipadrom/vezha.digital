@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div class="site-mobile-menu-layer" :class="{ 'is-hidden': !shown }" :data-theme="theme" :aria-hidden="shown ? undefined : 'true'" :inert="shown ? undefined : true" @keydown.esc.stop.prevent="closeMenu">
-      <div class="site-mobile-menu-glass" aria-hidden="true"></div>
+      <div class="site-mobile-menu-glass" aria-hidden="true"><span></span></div>
       <section ref="panel" :id="id" class="site-mobile-menu" :class="{ 'is-open': open }" :role="open ? 'dialog' : undefined" :aria-modal="open ? true : undefined" :aria-label="ru ? 'Меню сайта' : 'Site menu'" @keydown.tab="trapFocus">
         <header>
           <SiteBrand class="site-mobile-menu-logo" :theme="theme" @click="open = false" />
@@ -84,11 +84,19 @@ onBeforeUnmount(() => {
   left: 0;
   height: calc(88px + env(safe-area-inset-top, 0px));
   pointer-events: none;
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+}
+
+/* WebKit paints an opaque fill when one element carries both a mask and a
+   backdrop filter, so the blur lives on a child of the masked box. */
+.site-mobile-menu-glass > span {
+  position: absolute;
+  display: block;
+  inset: 0;
   background: transparent;
   backdrop-filter: blur(14px) saturate(1.12);
   -webkit-backdrop-filter: blur(14px) saturate(1.12);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
 }
 .site-mobile-menu { position: relative; pointer-events: auto; margin: calc(10px + env(safe-area-inset-top, 0px)) 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100svh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: var(--menu-bg); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); backdrop-filter: saturate(1.18) blur(18px); -webkit-backdrop-filter: saturate(1.18) blur(18px); }
 .site-mobile-menu header { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 8px; }
