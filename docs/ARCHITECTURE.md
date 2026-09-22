@@ -154,6 +154,17 @@ and displays result items in an unnumbered two-column grid. Result items may
 include an optional `title` alongside `text`; older text-only items are unchanged.
 On narrow containers the layout stacks. Existing default layouts are preserved.
 
+The `image_text` block offers a third layout, `client` ("Заказчик"), rendered by
+`CaseClientIntro.vue` on the public page. It keeps the section heading on the left and
+splits the right side into a portrait column with the client's name and caption and a
+column with the description. Links come from `contact_url` / `project_url` and are
+filtered to http(s); `show_contact: false` hides the contact button. A hero block can
+set `settings.show_project_name: false` so the cover does not repeat a name the logo
+already carries. Migration `o1d2e3f4a5b6` publishes the MyMIT client block after the
+cover with `is_visible: false`, renumbers the remaining blocks and patches draft and
+published snapshots separately, leaving other editorial content untouched. The block is
+editable and can be shown from the admin without another migration.
+
 ## Media tooling
 
 - `media/wellness-promo-remotion/` produces the Training product film and compact process/context animations.

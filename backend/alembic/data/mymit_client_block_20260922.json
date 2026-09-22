@@ -1,0 +1,44 @@
+{
+  "id": "01ca0df1-559a-4734-925a-87240a0f4dd9",
+  "type": "image_text",
+  "sort_order": 2,
+  "is_visible": false,
+  "settings": {
+    "theme": "paper",
+    "surface": "plain",
+    "width": "wide",
+    "spacing": "normal",
+    "layout": "client",
+    "alignment": "left"
+  },
+  "content_ru": {
+    "eyebrow": "Заказчик",
+    "title": "Константин Снегов",
+    "caption": "Предприниматель · МИТ",
+    "image_url": "/cases/mymit/2026-09/konstantin-snegov.jpg",
+    "alt": "Константин Снегов",
+    "body": "МИТ — сервис аренды переговорных кабинок в Москве. Тихое пространство для звонка, встречи или работы можно забронировать и оплатить через приложение.\n\nДля проекта Константина мы развивали существующее приложение: дорабатывали путь от выбора кабинки до управления сеансом, инструменты команды и связь с оборудованием.",
+    "logo_url": "/cases/mymit/2026-09/logo.svg",
+    "logo_label": "МИТ",
+    "contact_url": "https://t.me/kostyasnegov",
+    "contact_label": "Написать",
+    "project_url": "https://mymit.ru/",
+    "project_label": "Открыть проект",
+    "show_contact": false
+  },
+  "content_en": {
+    "eyebrow": "Client",
+    "title": "Konstantin Snegov",
+    "caption": "Entrepreneur · MIT",
+    "image_url": "/cases/mymit/2026-09/konstantin-snegov.jpg",
+    "alt": "Konstantin Snegov",
+    "body": "MIT is a meeting-booth rental service in Moscow. Users can book and pay for a quiet space for calls, meetings or focused work through the app.\n\nFor Konstantin’s project, we developed the existing application: improving the journey from booth selection to session controls, team tools and device integration.",
+    "logo_url": "/cases/mymit/2026-09/logo.svg",
+    "logo_label": "MIT",
+    "contact_url": "https://t.me/kostyasnegov",
+    "contact_label": "Message",
+    "project_url": "https://mymit.ru/",
+    "project_label": "Visit the project",
+    "show_contact": false
+  }
+}
