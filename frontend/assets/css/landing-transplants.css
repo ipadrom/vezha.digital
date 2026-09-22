@@ -1,0 +1,128 @@
+/* Scoped prod transplants: Services + Development Anatomy only. */
+
+
+.vz-preloader__top,
+.vz-preloader__meta,
+.vz-section-label,
+.vz-hero__meta,
+.vz-hero__kicker,
+.vz-hero__stats,
+.vz-scroll-hint,
+.vz-footer__top,
+.vz-footer__cols > div > span,
+.vz-footer__sign > div,
+.vz-footer__legal {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vz-hero h1 > span,
+.vz-clients h2 > span,
+.vz-contacts h2 > span {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.vz-hero h1 span span,
+.vz-clients h2 span span,
+.vz-contacts h2 span span {
+  display: block;
+}
+
+.vz-about__cols p,
+.vz-sec-meta p {
+  color: var(--text2);
+  line-height: 1.65;
+}
+
+.vz-stack {
+  position: relative;
+  border-top: 1px solid var(--border2);
+}
+
+.vz-sec-head h2,
+.vz-clients h2,
+.vz-contacts h2 {
+  margin: 0;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.vz-stack-item > div:last-child > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vz-stack-item span:not([data-dot], [data-halo]) {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 7px 13px;
+  border: 1px solid var(--chipbd);
+  border-radius: 999px;
+  color: var(--chipink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--type-chip);
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 900px) {
+
+  .vz-hero__grid,
+.vz-about__grid,
+.vz-clients__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Final alignment guard: later transplant rules must not override contact centering. */
+.vz-contacts__inner {
+  display: flex;
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.vz-contacts__inner > h2 {
+  width: min(100%, 18ch);
+  margin-inline: auto;
+}
+
+.vz-contacts__buttons {
+  flex-wrap: wrap;
+  width: fit-content;
+  margin-inline: auto;
+}
+
+@media (min-width: 2200px) and (min-height: 1000px) {
+  html {
+    --landing-presentation-scale: 1.5;
+    --landing-layout-viewport-width: 66.6666667vw;
+    --landing-layout-viewport-half-width: 33.3333333vw;
+    --landing-layout-viewport-height: 66.6666667vh;
+    --landing-stack-scroll-height: 253.3333333vh;
+    --landing-client-grid-fluid-height: 37.3333333vh;
+    zoom: 1.5;
+    overflow-x: clip;
+  }
+
+  body {
+    width: 66.6666667vw;
+    overflow-x: clip;
+  }
+}
+
+
+@media (max-width: 900px) {
+  .vz-contacts__buttons {
+    width: 100%;
+    max-width: 520px;
+  }
+}
+

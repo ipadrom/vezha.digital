@@ -1,0 +1,214 @@
+.vz-nav {
+  position: fixed;
+  top: 12px;
+  right: max(40px, calc((100% - 1240px) / 2));
+  left: max(40px, calc((100% - 1240px) / 2));
+  z-index: 210;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  height: 64px;
+  align-items: center;
+  padding: 0 12px 0 20px;
+  border: 1px solid color-mix(in srgb, var(--border) 68%, white);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--navbg) 82%, transparent);
+  box-shadow: 0 14px 42px rgb(34 38 54 / 10%);
+  backdrop-filter: saturate(1.18) blur(18px);
+  -webkit-backdrop-filter: saturate(1.18) blur(18px);
+  box-sizing: border-box;
+  transform-origin: top center;
+  transition:
+    opacity 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 220ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    visibility 0s linear;
+  will-change: opacity, transform;
+}
+
+.vz-nav[data-nav-visible="false"] {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, calc(-100% - 24px), 0);
+  visibility: hidden;
+  transition:
+    opacity 180ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    transform 220ms var(--ease-out, cubic-bezier(0.23, 1, 0.32, 1)),
+    visibility 0s linear 220ms;
+}
+
+.vz-nav[data-nav-visible="true"] {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(0, 0, 0);
+  visibility: visible;
+}
+
+.vz-nav-hover-zone {
+  position: fixed;
+  top: 0;
+  right: max(24px, calc((100% - 1280px) / 2));
+  left: max(24px, calc((100% - 1280px) / 2));
+  z-index: 209;
+  height: 96px;
+  background: transparent;
+}
+
+.vz-logo {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.vz-logo span {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.vz-logo small {
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--type-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.vz-nav__links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+}
+
+.vz-nav__links a,
+.vz-footer a {
+  color: var(--text2);
+  text-decoration: none;
+}
+
+.vz-nav__links a {
+  font-size: var(--type-control);
+}
+
+.vz-nav__actions {
+  display: flex;
+  align-items: center;
+  justify-self: end;
+  gap: 12px;
+}
+
+.vz-icon-button,
+.vz-menu-button {
+  display: flex;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 16%);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.vz-icon-button,
+.vz-menu-button {
+  width: 44px;
+}
+
+.vz-nav__cta,
+.vz-button,
+.vz-mobile-menu__cta {
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.vz-nav__cta {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 20px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: var(--type-control);
+}
+
+.vz-menu-button {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vz-menu-button span {
+  display: block;
+  width: 17px;
+  height: 1px;
+  flex: 0 0 1px;
+  background: var(--ink);
+}
+
+.vz-mobile-menu {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 24px 40px;
+  background: var(--bg);
+}
+
+.vz-mobile-menu__top,
+.vz-mobile-menu__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vz-mobile-menu__controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vz-mobile-menu__links {
+  display: flex;
+  flex-direction: column;
+  margin-top: 38px;
+}
+
+.vz-mobile-menu__links a {
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+  color: var(--ink);
+  font-size: var(--type-feature);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.vz-mobile-menu__cta {
+  display: inline-flex;
+  min-height: 52px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 30px;
+  padding: 12px 17px;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: var(--type-control);
+  text-align: center;
+}
+
+.vz-mobile-menu__bottom {
+  margin-top: auto;
+  padding-top: 30px;
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: var(--type-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}

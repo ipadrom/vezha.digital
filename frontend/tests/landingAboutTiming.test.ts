@@ -74,29 +74,29 @@ test("releases the desktop stack liquid lock when the sticky section exits", () 
 });
 
 test("keeps the compact mobile hero title at exactly 32px", () => {
-  const landing = readFileSync("pages/index.vue", "utf8");
-  const compactMobileCss = landing.slice(landing.indexOf("@media (max-width: 520px)"));
+  const responsiveCss = readFileSync("assets/css/landing-responsive.css", "utf8");
+  const compactMobileCss = responsiveCss.slice(responsiveCss.indexOf("@media (max-width: 520px)"));
 
   assert.match(compactMobileCss, /\.vz-hero h1\s*\{[^}]*font-size:\s*2rem;/s);
   assert.match(compactMobileCss, /\.vz-hero__grid p\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
 });
 
 test("renders both mobile header menu lines with the same thin pixel geometry", () => {
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const navCss = readFileSync("assets/css/landing-nav.css", "utf8");
 
-  assert.match(landing, /\.vz-menu-button\s*\{[^}]*flex-direction:\s*column;[^}]*gap:\s*4px;/s);
-  assert.match(landing, /\.vz-menu-button span\s*\{[^}]*width:\s*17px;[^}]*height:\s*1px;[^}]*flex:\s*0 0 1px;/s);
+  assert.match(navCss, /\.vz-menu-button\s*\{[^}]*flex-direction:\s*column;[^}]*gap:\s*4px;/s);
+  assert.match(navCss, /\.vz-menu-button span\s*\{[^}]*width:\s*17px;[^}]*height:\s*1px;[^}]*flex:\s*0 0 1px;/s);
 });
 
 test("animates the mobile stack card to each content height", () => {
   const stack = readFileSync("components/landing/LandingStack.vue", "utf8");
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const responsiveCss = readFileSync("assets/css/landing-responsive.css", "utf8");
 
   assert.match(stack, /ref="mobileDetailsRef" class="vz-stack__mobile-details"[\s\S]*?name="vz-stack-mobile-card"[\s\S]*?@enter="resizeMobileDetailsForContent"/);
   assert.match(stack, /function syncMobileDetailsHeight[\s\S]*?card\.style\.height = `\$\{targetHeight\}px`/);
   assert.match(stack, /\.vz-stack__mobile-details\s*\{[^}]*overflow:\s*hidden;[^}]*transition:\s*height 360ms var\(--ease-out/s);
   assert.match(stack, /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.vz-stack__mobile-details\s*\{[^}]*transition:\s*none;/s);
-  assert.match(landing, /\.vz-stack__mobile-details-body > div\s*\{[^}]*display:\s*flex;/s);
+  assert.match(responsiveCss, /\.vz-stack__mobile-details-body > div\s*\{[^}]*display:\s*flex;/s);
 });
 
 test("keeps a 22px mobile gap between the case selector and visual", () => {

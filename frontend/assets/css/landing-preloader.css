@@ -1,0 +1,58 @@
+.vz-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px;
+  background: var(--bg);
+  transition: transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.vz-preloader__top,
+.vz-preloader__meta,
+.vz-section-label,
+.vz-hero__meta,
+.vz-hero__kicker,
+.vz-hero__stats,
+.vz-footer__top,
+.vz-footer__cols > div > span,
+.vz-footer__sign > div,
+.vz-footer__legal {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vz-preloader__top {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--type-label);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.vz-preloader__bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 30px;
+}
+
+.vz-preloader__count {
+  color: var(--ink);
+  font-family: "JetBrains Mono", monospace;
+  font-size: clamp(72px, 17vw, 230px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 0.86;
+}
+
+.vz-preloader__meta {
+  color: var(--muted);
+  font-size: var(--type-label);
+  letter-spacing: 0.16em;
+  line-height: 1.7;
+  text-align: right;
+  text-transform: uppercase;
+}

@@ -1,0 +1,121 @@
+.vz-motion-ready [data-reveal] {
+  filter: none !important;
+}
+
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__meta,
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__kicker,
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__grid,
+.vz-motion-ready #hero:not(.is-motion-visible) .vz-hero__stats,
+.vz-motion-ready #hero:not(.is-motion-visible) > .vz-marquee,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-section-label,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__head h2,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__intro,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__flow,
+.vz-motion-ready .vz-about:not(.is-motion-visible) .vz-about__proof,
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-section-label,
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-capsules button,
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-copy > *,
+.vz-motion-ready .vz-contacts:not(.is-motion-visible) .vz-section-label,
+.vz-motion-ready .vz-contacts:not(.is-motion-visible) .vz-contacts__buttons,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__top,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__cols > div,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign > div,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign strong,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__legal {
+  opacity: 0;
+  transform: translate3d(0, 28px, 0);
+}
+
+.vz-motion-ready .vz-client-connector,
+.vz-motion-ready .vz-footer__top,
+.vz-motion-ready .vz-footer__sign {
+  transform-origin: left center;
+}
+
+.vz-motion-ready .vz-client-connector span {
+  transform-origin: center bottom;
+}
+
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-connector,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__top,
+.vz-motion-ready .vz-footer:not(.is-motion-visible) .vz-footer__sign {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.vz-motion-ready .vz-clients:not(.is-motion-visible) .vz-client-connector span {
+  opacity: 0;
+  transform: translateX(-50%) scaleY(0);
+}
+
+.vz-motion-ready #hero.is-motion-visible .vz-hero__meta,
+.vz-motion-ready #hero.is-motion-visible .vz-hero__kicker,
+.vz-motion-ready #hero.is-motion-visible .vz-hero__grid,
+.vz-motion-ready #hero.is-motion-visible .vz-hero__stats,
+.vz-motion-ready #hero.is-motion-visible > .vz-marquee,
+.vz-motion-ready .vz-about.is-motion-visible .vz-section-label,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__head h2,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__intro,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__flow,
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__proof,
+.vz-motion-ready .vz-clients.is-motion-visible .vz-section-label,
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy > *,
+.vz-motion-ready .vz-contacts.is-motion-visible .vz-section-label,
+.vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__buttons,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__top,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign > div,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign strong,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal {
+  animation: vz-motion-rise 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-connector,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__top,
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign {
+  animation: vz-motion-line-x 0.9s cubic-bezier(0.76, 0, 0.24, 1) both;
+}
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-connector span {
+  animation: vz-motion-line-y 0.62s cubic-bezier(0.76, 0, 0.24, 1) 0.42s both;
+}
+
+.vz-motion-ready #hero.is-motion-visible .vz-hero__kicker { animation-delay: 0.08s; }
+.vz-motion-ready #hero.is-motion-visible .vz-hero__grid { animation-delay: 0.34s; }
+.vz-motion-ready #hero.is-motion-visible .vz-hero__stats { animation-delay: 0.5s; }
+.vz-motion-ready #hero.is-motion-visible > .vz-marquee { animation-delay: 0.62s; }
+
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__head h2 { animation-delay: 0.12s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__intro { animation-delay: 0.2s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__flow { animation-delay: 0.3s; }
+.vz-motion-ready .vz-about.is-motion-visible .vz-about__proof { animation-delay: 0.38s; }
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button {
+  animation: vz-motion-pop 0.82s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button:nth-child(1) { animation-delay: 0.12s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button:nth-child(2) { animation-delay: 0.2s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-capsules button:nth-child(3) { animation-delay: 0.28s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy > span { animation-delay: 0.42s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy h3 { animation-delay: 0.48s; }
+.vz-motion-ready .vz-clients.is-motion-visible .vz-client-copy p { animation-delay: 0.58s; }
+
+.vz-motion-ready .vz-client-copy > span,
+.vz-motion-ready .vz-client-copy h3,
+.vz-motion-ready .vz-client-copy p {
+  animation: vz-client-copy-in 0.56s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.vz-motion-ready .vz-client-copy h3 { animation-delay: 0.04s; }
+.vz-motion-ready .vz-client-copy p { animation-delay: 0.1s; }
+
+.vz-motion-ready .vz-contacts.is-motion-visible .vz-contacts__buttons { animation-delay: 0.32s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(1) { animation-delay: 0.14s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(2) { animation-delay: 0.22s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(3) { animation-delay: 0.3s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__cols > div:nth-child(4) { animation-delay: 0.38s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign { animation-delay: 0.46s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign > div { animation-delay: 0.54s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__sign strong { animation-delay: 0.62s; }
+.vz-motion-ready .vz-footer.is-motion-visible .vz-footer__legal { animation-delay: 0.72s; }

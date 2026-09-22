@@ -1,0 +1,191 @@
+.vz-hero {
+  --hero-art-bottom: 138px;
+  position: relative;
+  isolation: isolate;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 150px 40px 32px;
+}
+
+.vz-hero__art {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: var(--hero-art-bottom);
+  left: 0;
+  z-index: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.vz-contacts__art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.vz-aura,
+.vz-contacts__art > div {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--aura) 0%, transparent 70%);
+}
+
+.vz-aura--top {
+  top: -110px;
+  right: -42px;
+  width: 540px;
+  height: 540px;
+}
+
+.vz-orbit {
+  position: absolute;
+  top: 52%;
+  right: 1%;
+  width: min(56vmin, 540px);
+  height: min(56vmin, 540px);
+  transform: translateY(-50%);
+}
+
+.vz-orbit svg {
+  width: 100%;
+  height: 100%;
+  color: var(--hair);
+  opacity: 0.55;
+  animation: vz-orbit 48s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.vz-hero__negative {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  overflow: hidden;
+  opacity: 0;
+  pointer-events: none;
+  clip-path: circle(0 at 64% 48%);
+  contain: paint;
+  transition: opacity 0.42s ease;
+  will-change: clip-path, opacity;
+}
+
+.vz-hero.is-hero-fx-active .vz-hero__negative {
+  opacity: 1;
+}
+
+.vz-hero__negative-plane {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--ink);
+}
+
+.vz-hero__inner,
+.vz-contacts__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.vz-hero__meta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: var(--type-label);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.vz-hero__kicker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: var(--type-label);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.vz-hero h1 {
+  margin: 22px 0 0;
+  font-size: var(--type-display);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.vz-hero h1 > span,
+.vz-clients h2 > span,
+.vz-contacts h2 > span {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+}
+
+.vz-hero h1 > span {
+  padding-bottom: 0.06em;
+}
+
+.vz-hero h1 span span,
+.vz-clients h2 span span,
+.vz-contacts h2 span span {
+  display: block;
+}
+
+.vz-hero__grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 60px;
+  align-items: end;
+  margin-top: 50px;
+}
+
+.vz-hero__grid p {
+  max-width: 52ch;
+  margin: 0;
+  color: var(--text2);
+  font-size: var(--type-lead);
+  line-height: 1.55;
+}
+
+.vz-hero__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-end;
+  justify-self: end;
+}
+
+.vz-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--type-control);
+}
+
+.vz-button--dark {
+  padding: 16px 28px;
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.vz-button--light {
+  padding: 17px 28px;
+  border: 1px solid var(--dotbd);
+  color: var(--ink);
+}
+
+.vz-button-link {
+  display: inline-flex;
+  gap: 9px;
+  padding-left: 4px;
+  color: var(--ink);
+  font-size: var(--type-control);
+  font-weight: 500;
+  text-decoration: none;
+}

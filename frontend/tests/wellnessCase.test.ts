@@ -185,7 +185,7 @@ test("case header hides an open mobile menu outside the mobile breakpoint", () =
 
 test("case sections and the compact landing header share the 1240px container", () => {
   const builderCss = readFileSync("assets/css/case-builder-public.css", "utf8");
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const landing = readFileSync("assets/css/landing-nav.css", "utf8");
 
   assert.match(builderCss, /\.builder-block--wide\s+\.builder-block__inner\s*\{[^}]*width:\s*min\(100%,\s*1240px\);/s);
   assert.match(builderCss, /\.builder-block--full\s+\.builder-block__inner\s*\{[^}]*width:\s*100%;/s);
@@ -529,7 +529,7 @@ test("builder headings use the same UI typography as the standard case pages", (
 
 test("landing and case pages share one global typography source", () => {
   const globalCss = readFileSync("assets/css/main.css", "utf8");
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const landing = readFileSync("assets/css/landing-base.css", "utf8");
   const caseCss = readFileSync("assets/css/case-builder-v2.css", "utf8");
 
   assert.match(globalCss, /--type-display:\s*clamp\(/);

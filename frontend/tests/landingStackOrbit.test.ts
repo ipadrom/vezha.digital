@@ -268,7 +268,7 @@ test("keeps mobile service navigation on one line with only the active item fill
 });
 
 test("sets the desktop stack support copy to 17px at 2K", () => {
-  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const landingPage = readFileSync("assets/css/landing-sections.css", "utf8");
 
   assert.match(
     landingPage,
@@ -397,7 +397,8 @@ test("keeps the expanded mobile proof card selected from the start", () => {
 });
 
 test("sets the requested client heading as two fixed lines without shrinking its type", () => {
-  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const landingPage = readFileSync("assets/css/landing-clients.css", "utf8");
+  const responsiveCss = readFileSync("assets/css/landing-responsive.css", "utf8");
   const clients = readFileSync("components/landing/LandingClients.vue", "utf8");
   const messages = JSON.parse(readFileSync("locales/ru.json", "utf8"));
 
@@ -408,7 +409,7 @@ test("sets the requested client heading as two fixed lines without shrinking its
   assert.match(landingPage, /\.vz-clients__grid\s*\{[^}]*grid-template-columns:\s*minmax\(400px, 0\.82fr\) minmax\(0, 1\.18fr\);/s);
   assert.match(landingPage, /\.vz-clients h2\s*\{[^}]*font-size:\s*var\(--type-section\);/s);
   assert.match(landingPage, /\.vz-clients__title-line\s*\{[^}]*white-space:\s*nowrap;/s);
-  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-clients__title-line\s*\{[^}]*display:\s*block;[^}]*white-space:\s*normal;/s);
+  assert.match(responsiveCss, /@media \(max-width: 900px\)[\s\S]*?\.vz-clients__title-line\s*\{[^}]*display:\s*block;[^}]*white-space:\s*normal;/s);
 });
 
 test("resynchronizes the liquid heading mask after layout and viewport changes", () => {
@@ -534,7 +535,7 @@ test("aligns the desktop client heading and cube to the active-copy gap", () => 
 });
 
 test("keeps the client connector stable and matches both heading gaps", () => {
-  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const landingPage = readFileSync("assets/css/landing-clients.css", "utf8");
 
   assert.doesNotMatch(landingPage, /--client-line-adjust/);
   assert.match(landingPage, /\.vz-client-connector\s*\{[^}]*height:\s*48px;[^}]*border-bottom:\s*1px solid var\(--border\);/s);
@@ -543,7 +544,7 @@ test("keeps the client connector stable and matches both heading gaps", () => {
 });
 
 test("matches mobile hero capsules to the service capsule grid", () => {
-  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const landingPage = readFileSync("assets/css/landing-responsive.css", "utf8");
 
   assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-hero__stats\s*\{[^}]*width:\s*100%;[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);[^}]*justify-items:\s*stretch;[^}]*gap:\s*6px;/s);
   assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-hero__stats span\s*\{[^}]*width:\s*100%;[^}]*min-height:\s*42px;[^}]*padding:\s*6px 8px;[^}]*background:\s*var\(--bg\);[^}]*font-size:\s*clamp\(0\.625rem, 0\.6rem \+ 0\.1vw, 0\.6875rem\);[^}]*line-height:\s*1\.25;[^}]*text-align:\s*center;[^}]*white-space:\s*normal;/s);
@@ -680,7 +681,7 @@ test("keeps the mobile liquid mark mounted during browser chrome height changes"
 });
 
 test("keeps the open mobile menu controls aligned with the closed header", () => {
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const landing = readFileSync("assets/css/landing-responsive.css", "utf8");
 
   assert.match(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-nav\s*\{[^}]*top:\s*10px;[^}]*right:\s*20px;[^}]*left:\s*20px;[^}]*height:\s*60px;[^}]*padding:\s*0 8px 0 16px;/s);
   assert.match(landing, /@media \(max-width: 900px\)[\s\S]*?\.vz-mobile-menu\s*\{[^}]*padding:\s*10px 20px max\(40px, env\(safe-area-inset-bottom\)\);/s);
@@ -719,7 +720,7 @@ test("gives desktop service cards extra vertical capacity around a fixed center"
 test("lifts the requested landing cards without the old grey outline glint", () => {
   const about = readFileSync("components/landing/LandingAbout.vue", "utf8");
   const css = readFileSync("assets/css/landing-redesign.css", "utf8");
-  const page = readFileSync("pages/index.vue", "utf8");
+  const page = readFileSync("assets/css/landing-clients.css", "utf8");
 
   assert.match(about, /\.vz-about__intro:hover,[\s\S]*?\.vz-about__proof-reveal\[data-active="true"\]:hover\s*\{[^}]*box-shadow:\s*var\(--landing-card-hover-shadow\);[^}]*translate:\s*0 -6px;/s);
   assert.match(css, /Requested landing cards use the full surface response[\s\S]*?:is\([\s\S]*?\.vz-about__intro,[\s\S]*?\.vz-about__proof-reveal,[\s\S]*?\.vz-service-caption,[\s\S]*?\.vz-client-card-slot[\s\S]*?\)::before\s*\{[^}]*display:\s*none;/s);
@@ -844,7 +845,7 @@ test("uses the hidden shell at both Mobile viewport sizes", () => {
 });
 
 test("keeps compact Mobile orbit lines outside the shared sphere fade mask", () => {
-  const pageSource = readFileSync("pages/index.vue", "utf8");
+  const pageSource = readFileSync("assets/css/landing-responsive.css", "utf8");
 
   assert.match(
     pageSource,
@@ -853,7 +854,7 @@ test("keeps compact Mobile orbit lines outside the shared sphere fade mask", () 
 });
 
 test("gives compact Mobile a wider canvas without enlarging its scene", () => {
-  const pageSource = readFileSync("pages/index.vue", "utf8");
+  const pageSource = readFileSync("assets/css/landing-responsive.css", "utf8");
 
   assert.match(
     pageSource,

@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const landingPage = readFileSync(
-  new URL("../pages/index.vue", import.meta.url),
+  new URL("../assets/css/landing-sections.css", import.meta.url),
   "utf8",
 );
 
