@@ -41,7 +41,7 @@
     </div>
 
   </header>
-  <MobileSiteMenu id="case-mobile-menu" :theme="theme" :locale="locale" @toggle-theme="$emit('toggle-theme')" />
+  <MobileSiteMenu id="case-mobile-menu" :visible="isHeaderShown" :theme="theme" :locale="locale" @toggle-theme="$emit('toggle-theme')" @close="holdHeader" />
 </template>
 
 <script setup lang="ts">
@@ -151,6 +151,13 @@ function handleHeaderScroll() {
   queueHeaderHide();
 }
 
+// Restart the idle countdown instead of dropping the header the moment a
+// transient overlay, such as the mobile menu, stops holding it open.
+function holdHeader() {
+  revealHeader();
+  queueHeaderHide();
+}
+
 function handleHeaderZonePointerEnter(event: PointerEvent) {
   if (event.pointerType === "touch") return;
   isHeaderZoneHovered = true;
@@ -196,7 +203,7 @@ function handleHeaderResize() {
 
   headerWasDesktop = isDesktop;
   clearHeaderIdleTimer();
-  isHeaderVisible.value = headerLastScrollY <= 12 || !isDesktop;
+  isHeaderVisible.value = headerLastScrollY <= 12;
 }
 
 onMounted(() => {

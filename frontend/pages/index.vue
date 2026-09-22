@@ -45,7 +45,7 @@
       </div>
     </nav>
 
-    <MobileSiteMenu :visible="isHeaderShown" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @toggle-theme="toggleTheme" />
+    <MobileSiteMenu :visible="isHeaderShown" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @toggle-theme="toggleTheme" @close="holdHeader" />
 
     <Teleport to="body">
       <div
@@ -193,6 +193,7 @@ const { restoreInitialHashPosition, setupReveals, updateScrollEffects } = useScr
 const theme = ref<ThemeMode>("light");
 const {
   isHeaderShown,
+  holdHeader,
   handleHeaderZonePointerEnter,
   handleHeaderZonePointerLeave,
   handleHeaderPointerEnter,

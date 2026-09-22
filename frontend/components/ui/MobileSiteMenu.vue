@@ -23,8 +23,10 @@ import SiteMenuButton from './SiteMenuButton.vue';
 import SiteBrand from './SiteBrand.vue';
 import SiteThemeIcon from './SiteThemeIcon.vue';
 const props = withDefaults(defineProps<{ visible?: boolean; theme: 'light' | 'dark'; locale: 'ru' | 'en'; id: string }>(), { visible: true });
-const emit = defineEmits<{ 'toggle-theme': [] }>();
+const emit = defineEmits<{ 'toggle-theme': []; close: [] }>();
 const open = ref(false);
+// Closing hands the header back to the scroll state, which grants the usual grace period.
+watch(open, (isOpen) => { if (!isOpen) emit('close'); });
 // An open menu outranks the scroll state: it must not slide away under the finger.
 const shown = computed(() => props.visible || open.value);
 const ru = computed(() => props.locale === 'ru');

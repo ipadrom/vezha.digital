@@ -183,6 +183,14 @@ test("case header hides an open mobile menu outside the mobile breakpoint", () =
   assert.match(css, /@media\s*\(max-width:\s*900px\)\s*\{[\s\S]*\.case-header__mobile-nav\s*\{[^}]*display:\s*flex;/s);
 });
 
+test("case pages fade the mobile header on idle like the landing does", () => {
+  const header = readFileSync("components/cases/CaseDetailHeader.vue", "utf8");
+
+  assert.match(header, /<MobileSiteMenu id="case-mobile-menu" :visible="isHeaderShown"[^>]*@close="holdHeader"/);
+  assert.match(header, /function holdHeader\(\)\s*\{\s*revealHeader\(\);\s*queueHeaderHide\(\);\s*\}/s);
+  assert.doesNotMatch(header, /isHeaderVisible\.value = headerLastScrollY <= 12 \|\| !isDesktop/);
+});
+
 test("case sections and the compact landing header share the 1240px container", () => {
   const builderCss = readFileSync("assets/css/case-builder-public.css", "utf8");
   const landing = readFileSync("assets/css/landing-nav.css", "utf8");

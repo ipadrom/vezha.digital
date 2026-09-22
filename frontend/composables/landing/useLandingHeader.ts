@@ -98,6 +98,13 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
     queueHeaderHide();
   }
 
+  // Restart the idle countdown instead of dropping the header the moment a
+  // transient overlay, such as the mobile menu, stops holding it open.
+  function holdHeader() {
+    revealHeader();
+    queueHeaderHide();
+  }
+
   function handleHeaderZonePointerEnter(event: PointerEvent) {
     if (event.pointerType === "touch") return;
     isHeaderZoneHovered = true;
@@ -160,6 +167,7 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
 
   return {
     isHeaderShown,
+    holdHeader,
     handleHeaderZonePointerEnter,
     handleHeaderZonePointerLeave,
     handleHeaderPointerEnter,
