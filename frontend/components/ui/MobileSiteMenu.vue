@@ -78,10 +78,11 @@ onBeforeUnmount(() => {
 .site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(20 21 24 / 66%); --menu-rule: #26282d; }
 .site-mobile-menu-glass {
   position: absolute;
-  top: env(safe-area-inset-top, 0px);
+  /* Blur the status bar strip too, instead of leaving the page's flat fill there. */
+  top: 0;
   right: 0;
   left: 0;
-  height: 88px;
+  height: calc(88px + env(safe-area-inset-top, 0px));
   pointer-events: none;
   background: transparent;
   backdrop-filter: blur(14px) saturate(1.12);
