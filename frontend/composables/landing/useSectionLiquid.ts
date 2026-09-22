@@ -677,9 +677,16 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
     );
     // Keep the crisp mask local to the mark instead of rasterizing the entire page.
     const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><path fill="white" d="${path}"/></svg>`;
-    overlay.style.maskImage = `url("data:image/svg+xml,${encodeURIComponent(mask)}")`;
-    overlay.style.maskSize = `${size}px ${size}px`;
-    overlay.style.maskPosition = `${sectionLiquidState.targetX - overlayRect.left - size / 2}px ${sectionLiquidState.targetY - overlayRect.top - size / 2}px`;
+    const maskImage = `url("data:image/svg+xml,${encodeURIComponent(mask)}")`;
+    const maskSize = `${size}px ${size}px`;
+    const maskPosition = `${sectionLiquidState.targetX - overlayRect.left - size / 2}px ${sectionLiquidState.targetY - overlayRect.top - size / 2}px`;
+    overlay.style.maskImage = maskImage;
+    overlay.style.maskSize = maskSize;
+    overlay.style.maskPosition = maskPosition;
+    // Safari still reads the prefixed longhands, like the hero clip path does.
+    overlay.style.setProperty("-webkit-mask-image", maskImage);
+    overlay.style.setProperty("-webkit-mask-size", maskSize);
+    overlay.style.setProperty("-webkit-mask-position", maskPosition);
 
     overlay.classList.toggle("is-active", Boolean(activeKey) && activeKey !== "hero");
     overlay.dataset.activeKey = activeKey;
@@ -1096,6 +1103,23 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
       const rect = getLandingLayoutRect(root);
       const layoutViewport = getLandingLayoutViewport(root);
       const height = Math.max(root.scrollHeight, root.offsetHeight, layoutViewport.height);
+
+      // iOS Safari drops the mask when the composited layer is as tall as the
+      // whole document, so on mobile the overlay is pinned to the viewport.
+      // Mask geometry is viewport relative already, so nothing else changes.
+      if (window.innerWidth <= 900) {
+        overlay.style.position = "fixed";
+        overlay.style.left = "0px";
+        overlay.style.top = "0px";
+        overlay.style.width = formatStablePx(layoutViewport.width);
+        overlay.style.height = formatStablePx(layoutViewport.height);
+        overlay.style.minHeight = "0px";
+        pageHost.style.left = "0px";
+        pageHost.style.top = "0px";
+        pageHost.style.width = "100%";
+        pageHost.style.minHeight = "0px";
+        return;
+      }
       const cloneStackSticky = pageHost.querySelector<HTMLElement>(
         "[data-negative-clone='true'] [data-stack-section] > .vz-sticky",
       );

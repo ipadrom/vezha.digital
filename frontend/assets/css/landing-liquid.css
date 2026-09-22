@@ -12,6 +12,7 @@
   isolation: isolate;
   transition: opacity 0.22s ease;
   mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
   will-change: opacity;
 }
 
