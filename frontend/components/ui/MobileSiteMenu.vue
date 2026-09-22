@@ -1,17 +1,7 @@
 <template>
   <Teleport to="body">
-    <div v-show="visible" class="site-mobile-menu-layer" :class="{ 'is-open': open }" :data-theme="theme" @keydown.esc.stop.prevent="closeMenu">
-      <svg class="site-mobile-menu-filter" width="0" height="0" aria-hidden="true" focusable="false">
-        <defs>
-          <filter :id="`${id}-refraction`" x="-10%" y="-40%" width="120%" height="180%" color-interpolation-filters="sRGB">
-            <feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="2" seed="8" result="glass-waves" />
-            <feGaussianBlur in="glass-waves" stdDeviation="2" result="glass-map" />
-            <feDisplacementMap in="SourceGraphic" in2="glass-map" scale="24" xChannelSelector="R" yChannelSelector="G" />
-          </filter>
-        </defs>
-      </svg>
-      <div class="site-mobile-menu-glass" :style="{ '--menu-refraction': `url(#${id}-refraction)` }" aria-hidden="true"></div>
-      <div v-show="open" class="site-mobile-menu-backdrop" aria-hidden="true" @click="closeMenu"></div>
+    <div v-show="visible" class="site-mobile-menu-layer" :data-theme="theme" @keydown.esc.stop.prevent="closeMenu">
+      <div class="site-mobile-menu-glass" aria-hidden="true"></div>
       <section ref="panel" :id="id" class="site-mobile-menu" :class="{ 'is-open': open }" :role="open ? 'dialog' : undefined" :aria-modal="open ? true : undefined" :aria-label="ru ? 'Меню сайта' : 'Site menu'" @keydown.tab="trapFocus">
         <header>
           <SiteBrand class="site-mobile-menu-logo" :theme="theme" @click="open = false" />
@@ -49,6 +39,14 @@ function closeMenu() {
   open.value = false;
   panel.value?.querySelector<HTMLButtonElement>('.site-menu-button')?.focus({ preventScroll: true });
 }
+function closeOnOutsidePointer(event: PointerEvent) {
+  if (!open.value) return;
+  const target = event.target;
+  if (target instanceof Node && panel.value?.contains(target)) return;
+  event.preventDefault();
+  event.stopPropagation();
+  closeMenu();
+}
 function closeOnDesktop(event: MediaQueryListEvent) { if (event.matches) open.value = false; }
 function trapFocus(event: KeyboardEvent) {
   if (!open.value) return;
@@ -62,20 +60,24 @@ watch(() => props.visible, (visible) => { if (!visible) open.value = false; });
 onMounted(() => {
   viewport = window.matchMedia('(min-width: 901px)');
   viewport.addEventListener('change', closeOnDesktop);
+  document.addEventListener('pointerdown', closeOnOutsidePointer, true);
 });
-onBeforeUnmount(() => viewport?.removeEventListener('change', closeOnDesktop));
+onBeforeUnmount(() => {
+  viewport?.removeEventListener('change', closeOnDesktop);
+  document.removeEventListener('pointerdown', closeOnOutsidePointer, true);
+});
 </script>
 
 <style scoped>
-.site-mobile-menu-layer { position: fixed; inset: 0 0 auto; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(255 255 255 / 72%); --menu-rule: #ececef; }
-/* Keep the closed header away from Safari’s bottom toolbar tint detection. */
-.site-mobile-menu-layer.is-open { bottom: 0; }
-.site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(14 15 18 / 66%); --menu-rule: #26282d; }
-.site-mobile-menu-filter { position: absolute; pointer-events: none; overflow: hidden; }
+/* Stay content-sized. A full-viewport fixed layer makes iOS Safari inset the safe areas and paint them white. */
+.site-mobile-menu-layer { position: fixed; top: 0; right: 0; left: 0; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(247 248 250 / 94%); --menu-rule: #ececef; }
+.site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(20 21 24 / 94%); --menu-rule: #26282d; }
 .site-mobile-menu-glass {
   position: absolute;
-  inset: 0 0 auto;
-  height: calc(98px + env(safe-area-inset-top, 0px));
+  top: env(safe-area-inset-top, 0px);
+  right: 0;
+  left: 0;
+  height: 88px;
   pointer-events: none;
   background: transparent;
   backdrop-filter: blur(14px) saturate(1.12);
@@ -83,11 +85,7 @@ onBeforeUnmount(() => viewport?.removeEventListener('change', closeOnDesktop));
   mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
 }
-@supports (backdrop-filter: url("#mobile-header-refraction")) {
-  .site-mobile-menu-glass { backdrop-filter: var(--menu-refraction) blur(2px) saturate(1.12); }
-}
-.site-mobile-menu-backdrop { position: absolute; inset: 0; pointer-events: auto; }
-.site-mobile-menu { position: relative; pointer-events: auto; margin: calc(10px + env(safe-area-inset-top, 0px)) 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: color-mix(in srgb, var(--menu-bg) 82%, transparent); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); backdrop-filter: saturate(1.18) blur(18px); -webkit-backdrop-filter: saturate(1.18) blur(18px); }
+.site-mobile-menu { position: relative; pointer-events: auto; margin: calc(10px + env(safe-area-inset-top, 0px)) 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100svh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: var(--menu-bg); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); }
 .site-mobile-menu header { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 8px; }
 .site-mobile-menu-controls { display: flex; gap: 12px; }
 .site-mobile-menu button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--menu-rule); box-sizing: border-box; border-radius: 50%; background: rgb(255 255 255 / 16%); color: inherit; cursor: pointer; }
