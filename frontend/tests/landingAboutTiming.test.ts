@@ -43,9 +43,10 @@ test("uses 12px mobile case metadata without shrinking the case title", () => {
 });
 
 test("keeps the liquid hero spot enabled on mobile", () => {
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const landing = readFileSync("composables/landing/useSectionLiquid.ts", "utf8");
+  const liquidCss = readFileSync("assets/css/landing-liquid.css", "utf8");
   const startHeroFx = landing.slice(landing.indexOf("function startHeroNegative"), landing.indexOf("function animateHeroNegative"));
-  const mobileLiquidCss = landing.slice(landing.indexOf("@media (max-width: 900px)", landing.indexOf(".vz-section-liquid__target")));
+  const mobileLiquidCss = liquidCss.slice(liquidCss.indexOf("@media (max-width: 900px)", liquidCss.indexOf(".vz-section-liquid__target")));
 
   assert.doesNotMatch(startHeroFx, /window\.innerWidth\s*<=\s*900/);
   assert.doesNotMatch(mobileLiquidCss, /\.vz-hero__negative\s*\{[^}]*display:\s*none;/s);
@@ -57,7 +58,7 @@ test("keeps the liquid hero spot enabled on mobile", () => {
 });
 
 test("releases the desktop stack liquid lock when the sticky section exits", () => {
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const landing = readFileSync("composables/landing/useSectionLiquid.ts", "utf8");
   const sectionLiquidAnimation = landing.slice(
     landing.indexOf("function animateSectionLiquid"),
     landing.indexOf("function updateHeroNegative"),

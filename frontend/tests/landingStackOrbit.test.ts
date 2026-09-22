@@ -413,7 +413,7 @@ test("sets the requested client heading as two fixed lines without shrinking its
 });
 
 test("resynchronizes the liquid heading mask after layout and viewport changes", () => {
-  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const landingPage = readFileSync("composables/landing/useSectionLiquid.ts", "utf8");
 
   assert.match(landingPage, /sectionLiquidStackLock = null;[\s\S]*?syncNegativeWorlds\(true\);/s);
   assert.match(landingPage, /targetHost\.replaceChildren\(\.\.\.clonedChildren\);/);
@@ -673,7 +673,7 @@ test("keeps the services menu visible and reveals only the global header while s
 });
 
 test("keeps the mobile liquid mark mounted during browser chrome height changes", () => {
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const landing = readFileSync("composables/landing/useSectionLiquid.ts", "utf8");
 
   assert.match(landing, /const widthChanged = Math\.abs\(nextViewportWidth - sectionLiquidViewportWidth\) > 1;/);
   assert.match(landing, /if \(nextViewportWidth <= 900 && !widthChanged && !scaleChanged\)\s*\{\s*startSectionLiquid\(\);\s*return;/s);
