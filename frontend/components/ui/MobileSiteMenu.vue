@@ -72,17 +72,17 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Stay content-sized. A full-viewport fixed layer makes iOS Safari inset the safe areas and paint them white. */
-.site-mobile-menu-layer { position: fixed; top: 0; right: 0; left: 0; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(247 248 250 / 72%); --menu-rule: #ececef; transition: transform 0.26s ease, opacity 0.2s ease, visibility 0.26s; }
-.site-mobile-menu-layer.is-hidden { transform: translateY(calc(-100% - 24px)); opacity: 0; visibility: hidden; pointer-events: none; }
+/* Stay content-sized and clear of the screen edges. iOS Safari tints the safe area next to any fixed box touching an edge,
+   and with no colour to sample it paints the root background, white. The layer therefore starts below the status bar. */
+.site-mobile-menu-layer { position: fixed; top: env(safe-area-inset-top, 0px); right: 0; left: 0; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(247 248 250 / 72%); --menu-rule: #ececef; transition: transform 0.26s ease, opacity 0.2s ease, visibility 0.26s; }
+.site-mobile-menu-layer.is-hidden { transform: translateY(calc(-100% - 24px - env(safe-area-inset-top, 0px))); opacity: 0; visibility: hidden; pointer-events: none; }
 .site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(20 21 24 / 66%); --menu-rule: #26282d; }
 .site-mobile-menu-glass {
   position: absolute;
-  /* Blur the status bar strip too, instead of leaving the page's flat fill there. */
   top: 0;
   right: 0;
   left: 0;
-  height: calc(88px + env(safe-area-inset-top, 0px));
+  height: 88px;
   pointer-events: none;
   mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
@@ -98,7 +98,7 @@ onBeforeUnmount(() => {
   backdrop-filter: blur(14px) saturate(1.12);
   -webkit-backdrop-filter: blur(14px) saturate(1.12);
 }
-.site-mobile-menu { position: relative; pointer-events: auto; margin: calc(10px + env(safe-area-inset-top, 0px)) 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100svh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: var(--menu-bg); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); backdrop-filter: saturate(1.18) blur(18px); -webkit-backdrop-filter: saturate(1.18) blur(18px); }
+.site-mobile-menu { position: relative; pointer-events: auto; margin: 10px 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100svh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: var(--menu-bg); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); backdrop-filter: saturate(1.18) blur(18px); -webkit-backdrop-filter: saturate(1.18) blur(18px); }
 .site-mobile-menu header { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 8px; }
 .site-mobile-menu-controls { display: flex; gap: 12px; }
 .site-mobile-menu button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--menu-rule); box-sizing: border-box; border-radius: 50%; background: rgb(255 255 255 / 16%); color: inherit; cursor: pointer; }
