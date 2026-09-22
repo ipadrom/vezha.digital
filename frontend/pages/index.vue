@@ -45,7 +45,7 @@
       </div>
     </nav>
 
-    <MobileSiteMenu :visible="!showPreloader" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @toggle-theme="toggleTheme" />
+    <MobileSiteMenu :visible="isHeaderShown" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @toggle-theme="toggleTheme" />
 
     <Teleport to="body">
       <div

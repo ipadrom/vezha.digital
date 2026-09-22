@@ -149,7 +149,7 @@ test("case header follows the landing header structure on desktop and mobile", (
   assert.doesNotMatch(header, /Math\.abs\(delta\) < 6|isHeaderVisible\.value = delta < 0/);
   assert.doesNotMatch(header, /function queueHeaderHide\(delay = 820\)[\s\S]*?if \(!isDesktopHeaderViewport\(\)\) return;/s);
   assert.match(header, /let headerWasDesktop: boolean \| null = null/);
-  assert.match(header, /isHeaderVisible\.value = headerLastScrollY <= 12 \|\| !isDesktop/);
+  assert.match(header, /isHeaderVisible\.value = headerLastScrollY <= 12;/);
   assert.match(header, /window\.addEventListener\("scroll", handleHeaderScroll, \{ passive: true \}\)/);
   assert.match(header, /window\.addEventListener\("resize", handleHeaderResize, \{ passive: true \}\)/);
   assert.doesNotMatch(header, /toggle-locale|case-header__locale|English version/);

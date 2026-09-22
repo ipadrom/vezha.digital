@@ -143,7 +143,7 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
 
     headerWasDesktop = isDesktop;
     clearHeaderIdleTimer();
-    isHeaderVisible.value = headerLastScrollY <= 12 || !isDesktop;
+    isHeaderVisible.value = headerLastScrollY <= 12;
   }
 
   onMounted(() => {

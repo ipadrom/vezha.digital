@@ -666,7 +666,14 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(header, /function queueHeaderHide\(delay = 820\)/);
   assert.match(header, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(nextScrollY <= 12\)[\s\S]*?revealHeader\(\);\s*return;[\s\S]*?if \(isDesktopHeaderViewport\(\)\)/s);
   assert.match(header, /function queueHeaderHide\(delay = 820\)\s*\{\s*clearHeaderIdleTimer\(\);\s*if \(Math\.max\(0, window\.scrollY\) <= 12\) \{\s*isHeaderVisible\.value = true;\s*return;/s);
-  assert.match(header, /function handleHeaderResize\(\)[\s\S]*?isHeaderVisible\.value = headerLastScrollY <= 12 \|\| !isDesktop;/s);
+  assert.match(header, /function handleHeaderResize\(\)[\s\S]*?isHeaderVisible\.value = headerLastScrollY <= 12;/s);
+  const mobileMenu = readFileSync("components/ui/MobileSiteMenu.vue", "utf8");
+  assert.match(landing, /<MobileSiteMenu :visible="isHeaderShown"/);
+  assert.match(mobileMenu, /const shown = computed\(\(\) => props\.visible \|\| open\.value\)/);
+  assert.match(mobileMenu, /class="site-mobile-menu-layer" :class="\{ 'is-hidden': !shown \}"/);
+  assert.doesNotMatch(mobileMenu, /watch\(\(\) => props\.visible/);
+  assert.match(mobileMenu, /\.site-mobile-menu-layer\.is-hidden \{[^}]*visibility: hidden;/s);
+  assert.match(mobileMenu, /\.site-mobile-menu \{[^}]*backdrop-filter: saturate\(1\.18\) blur\(18px\);/s);
   assert.match(header, /function updateHeaderStackCollision\(\)[\s\S]*?querySelector<HTMLElement>\("\[data-stack-section\]"\)[\s\S]*?isHeaderBlockedByStack\.value = rect\.top < headerBottom && rect\.bottom > headerTop;/s);
   assert.match(header, /function revealHeader\(\)\s*\{\s*if \(updateHeaderStackCollision\(\)\) \{[^}]*clearHeaderIdleTimer\(\);[^}]*isHeaderVisible\.value = false;/s);
   assert.doesNotMatch(header, /isHeaderVisible\.value = delta < 0/);

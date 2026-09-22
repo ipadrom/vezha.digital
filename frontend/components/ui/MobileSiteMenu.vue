@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div v-show="visible" class="site-mobile-menu-layer" :data-theme="theme" @keydown.esc.stop.prevent="closeMenu">
+    <div class="site-mobile-menu-layer" :class="{ 'is-hidden': !shown }" :data-theme="theme" :aria-hidden="shown ? undefined : 'true'" :inert="shown ? undefined : true" @keydown.esc.stop.prevent="closeMenu">
       <div class="site-mobile-menu-glass" aria-hidden="true"></div>
       <section ref="panel" :id="id" class="site-mobile-menu" :class="{ 'is-open': open }" :role="open ? 'dialog' : undefined" :aria-modal="open ? true : undefined" :aria-label="ru ? 'Меню сайта' : 'Site menu'" @keydown.tab="trapFocus">
         <header>
@@ -25,6 +25,8 @@ import SiteThemeIcon from './SiteThemeIcon.vue';
 const props = withDefaults(defineProps<{ visible?: boolean; theme: 'light' | 'dark'; locale: 'ru' | 'en'; id: string }>(), { visible: true });
 const emit = defineEmits<{ 'toggle-theme': [] }>();
 const open = ref(false);
+// An open menu outranks the scroll state: it must not slide away under the finger.
+const shown = computed(() => props.visible || open.value);
 const ru = computed(() => props.locale === 'ru');
 const links = computed(() => [
   { href: '/#cases', label: ru.value ? 'Кейсы' : 'Cases' },
@@ -56,7 +58,6 @@ function trapFocus(event: KeyboardEvent) {
   if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
   else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 }
-watch(() => props.visible, (visible) => { if (!visible) open.value = false; });
 onMounted(() => {
   viewport = window.matchMedia('(min-width: 901px)');
   viewport.addEventListener('change', closeOnDesktop);
@@ -70,8 +71,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* Stay content-sized. A full-viewport fixed layer makes iOS Safari inset the safe areas and paint them white. */
-.site-mobile-menu-layer { position: fixed; top: 0; right: 0; left: 0; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(247 248 250 / 94%); --menu-rule: #ececef; }
-.site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(20 21 24 / 94%); --menu-rule: #26282d; }
+.site-mobile-menu-layer { position: fixed; top: 0; right: 0; left: 0; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(247 248 250 / 72%); --menu-rule: #ececef; transition: transform 0.26s ease, opacity 0.2s ease, visibility 0.26s; }
+.site-mobile-menu-layer.is-hidden { transform: translateY(calc(-100% - 24px)); opacity: 0; visibility: hidden; pointer-events: none; }
+.site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(20 21 24 / 66%); --menu-rule: #26282d; }
 .site-mobile-menu-glass {
   position: absolute;
   top: env(safe-area-inset-top, 0px);
@@ -85,7 +87,7 @@ onBeforeUnmount(() => {
   mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
 }
-.site-mobile-menu { position: relative; pointer-events: auto; margin: calc(10px + env(safe-area-inset-top, 0px)) 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100svh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: var(--menu-bg); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); }
+.site-mobile-menu { position: relative; pointer-events: auto; margin: calc(10px + env(safe-area-inset-top, 0px)) 20px 0; padding: 0 8px 0 16px; overflow: auto; max-height: calc(100svh - 24px - env(safe-area-inset-top, 0px)); border: 1px solid color-mix(in srgb, var(--menu-rule) 68%, white); border-radius: 30px; background: var(--menu-bg); box-shadow: 0 14px 42px rgb(34 38 54 / 10%); backdrop-filter: saturate(1.18) blur(18px); -webkit-backdrop-filter: saturate(1.18) blur(18px); }
 .site-mobile-menu header { display: flex; align-items: center; justify-content: space-between; height: 58px; gap: 8px; }
 .site-mobile-menu-controls { display: flex; gap: 12px; }
 .site-mobile-menu button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--menu-rule); box-sizing: border-box; border-radius: 50%; background: rgb(255 255 255 / 16%); color: inherit; cursor: pointer; }
@@ -94,5 +96,6 @@ onBeforeUnmount(() => {
 .site-mobile-menu nav a { display: flex; align-items: center; min-height: 56px; border-top: 1px solid var(--menu-rule); color: inherit; font-size: 17px; font-weight: 500; text-decoration: none; }
 .site-mobile-menu nav a:first-child { border-top: 0; }
 .site-mobile-menu :is(a, button):focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .site-mobile-menu-layer { transition: none; } }
 @media (min-width: 901px) { .site-mobile-menu-layer { display: none !important; } }
 </style>
