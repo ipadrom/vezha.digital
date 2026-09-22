@@ -11,8 +11,6 @@
   background: transparent;
   isolation: isolate;
   transition: opacity 0.22s ease;
-  mask-repeat: no-repeat;
-  -webkit-mask-repeat: no-repeat;
   will-change: opacity;
 }
 
@@ -88,6 +86,7 @@
 @media (max-width: 900px) {
   .vz-section-liquid {
     contain: layout paint style;
+    will-change: auto;
   }
 
   .vz-section-liquid .vz-negative-world--page {

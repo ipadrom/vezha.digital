@@ -665,28 +665,27 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
     const overlayRect = getLandingLayoutRect(overlay);
     const activeKey = sectionLiquidState.lastTargetKey;
     const radius = sectionLiquidState.targetRadius;
-    const size = radius * 4;
+    const centerX = sectionLiquidState.targetX - overlayRect.left;
+    const centerY = sectionLiquidState.targetY - overlayRect.top;
+    // Clip the mark the way the hero does. iOS Safari renders a clip path on a
+    // layer this tall but silently drops a mask image on one.
     const path = buildHeroLiquidPath(
-      size / 2,
-      size / 2,
+      centerX,
+      centerY,
       radius,
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : now * 0.001,
       0,
       -0.35,
-      { left: 0, top: 0, right: size, bottom: size, width: size, height: size },
+      {
+        left: 0,
+        top: 0,
+        right: overlayRect.width,
+        bottom: overlayRect.height,
+        width: overlayRect.width,
+        height: overlayRect.height,
+      },
     );
-    // Keep the crisp mask local to the mark instead of rasterizing the entire page.
-    const mask = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><path fill="white" d="${path}"/></svg>`;
-    const maskImage = `url("data:image/svg+xml,${encodeURIComponent(mask)}")`;
-    const maskSize = `${size}px ${size}px`;
-    const maskPosition = `${sectionLiquidState.targetX - overlayRect.left - size / 2}px ${sectionLiquidState.targetY - overlayRect.top - size / 2}px`;
-    overlay.style.maskImage = maskImage;
-    overlay.style.maskSize = maskSize;
-    overlay.style.maskPosition = maskPosition;
-    // Safari still reads the prefixed longhands, like the hero clip path does.
-    overlay.style.setProperty("-webkit-mask-image", maskImage);
-    overlay.style.setProperty("-webkit-mask-size", maskSize);
-    overlay.style.setProperty("-webkit-mask-position", maskPosition);
+    applyHeroClip(overlay, path);
 
     overlay.classList.toggle("is-active", Boolean(activeKey) && activeKey !== "hero");
     overlay.dataset.activeKey = activeKey;
@@ -1103,23 +1102,6 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
       const rect = getLandingLayoutRect(root);
       const layoutViewport = getLandingLayoutViewport(root);
       const height = Math.max(root.scrollHeight, root.offsetHeight, layoutViewport.height);
-
-      // iOS Safari drops the mask when the composited layer is as tall as the
-      // whole document, so on mobile the overlay is pinned to the viewport.
-      // Mask geometry is viewport relative already, so nothing else changes.
-      if (window.innerWidth <= 900) {
-        overlay.style.position = "fixed";
-        overlay.style.left = "0px";
-        overlay.style.top = "0px";
-        overlay.style.width = formatStablePx(layoutViewport.width);
-        overlay.style.height = formatStablePx(layoutViewport.height);
-        overlay.style.minHeight = "0px";
-        pageHost.style.left = "0px";
-        pageHost.style.top = "0px";
-        pageHost.style.width = "100%";
-        pageHost.style.minHeight = "0px";
-        return;
-      }
       const cloneStackSticky = pageHost.querySelector<HTMLElement>(
         "[data-negative-clone='true'] [data-stack-section] > .vz-sticky",
       );
