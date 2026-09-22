@@ -128,6 +128,9 @@ export type LandingCopy = {
   contacts: {
     label: string;
     title: string;
+    copied: string;
+    copyEmailAria: string;
+    copyPhoneAria: string;
     emailCta: string;
   };
   footer: {

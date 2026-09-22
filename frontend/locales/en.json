@@ -577,6 +577,9 @@
     "contacts": {
       "label": "Contacts",
       "title": "Let's discuss the project and calculate the exact cost",
+      "copied": "Copied",
+      "copyEmailAria": "Copy the email address",
+      "copyPhoneAria": "Copy the phone number",
       "emailCta": "Email us"
     },
     "footer": {
