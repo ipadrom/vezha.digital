@@ -678,6 +678,16 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.doesNotMatch(responsiveCss, /@media \(max-width: 900px\)[\s\S]*?\.vz-nav\[data-nav-visible\]\s*\{[^}]*transition:\s*none;/s);
 });
 
+test("keeps negative-world clones out of pointer hit testing", () => {
+  const liquidCss = readFileSync("assets/css/landing-liquid.css", "utf8");
+  const about = readFileSync("components/landing/LandingAbout.vue", "utf8");
+
+  // The about proof switcher re-enables pointer events on itself, and its clone
+  // inside the liquid overlay used to swallow hover and clicks on the real one.
+  assert.match(about, /\.vz-about__proof-switcher\[data-visible="true"\]\s*\{[^}]*pointer-events:\s*auto;/s);
+  assert.match(liquidCss, /\.vz-section-liquid,\s*\.vz-section-liquid \*\s*\{[^}]*pointer-events:\s*none !important;/s);
+});
+
 test("keeps the mobile liquid mark mounted during browser chrome height changes", () => {
   const landing = readFileSync("composables/landing/useSectionLiquid.ts", "utf8");
 

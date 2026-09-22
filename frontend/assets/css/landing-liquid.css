@@ -15,6 +15,13 @@
   will-change: opacity;
 }
 
+/* Cloned sections keep their own pointer-events rules (e.g. the about proof
+   switcher), so force the whole overlay out of hit testing. */
+.vz-section-liquid,
+.vz-section-liquid * {
+  pointer-events: none !important;
+}
+
 .vz-section-liquid::before {
   content: "";
   position: absolute;
