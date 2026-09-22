@@ -572,7 +572,7 @@ test("crossfades the about flow label fill instead of snapping the black state",
 test("exposes the final about endpoint as the localized support step", () => {
   const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
   const aboutGoo = readFileSync("components/landing/LandingAboutGoo.vue", "utf8");
-  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const landingPage = readFileSync("composables/landing/useAboutFlow.ts", "utf8");
 
   for (const [locale, title, duration] of [
     ["ru", "Поддержка", "2 месяца"],
@@ -596,7 +596,7 @@ test("exposes the final about endpoint as the localized support step", () => {
 
 test("keeps click navigation near 1.5 seconds and activates only the selected stage", () => {
   const aboutGoo = readFileSync("components/landing/LandingAboutGoo.vue", "utf8");
-  const landingPage = readFileSync("pages/index.vue", "utf8");
+  const landingPage = readFileSync("composables/landing/useAboutFlow.ts", "utf8");
 
   assert.match(aboutGoo, /const CLICK_NAVIGATION_TOTAL_MS = 1500;/);
   assert.match(aboutGoo, /const navigationMotionMs = CLICK_NAVIGATION_TOTAL_MS - CLICK_NAVIGATION_SETTLE_MS;/);

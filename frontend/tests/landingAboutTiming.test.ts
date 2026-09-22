@@ -4,7 +4,7 @@ import test from "node:test";
 
 test("fills the active route point clockwise and advances every 4.5 seconds", () => {
   const about = readFileSync("components/landing/LandingAbout.vue", "utf8");
-  const landing = readFileSync("pages/index.vue", "utf8");
+  const landing = readFileSync("composables/landing/useAboutFlow.ts", "utf8");
 
   assert.match(landing, /const aboutFlowStepDurationMs = 4500;/);
   assert.match(landing, /const aboutFlowResultDelayMs = aboutSupportStepIndex \* aboutFlowStepDurationMs;/);
