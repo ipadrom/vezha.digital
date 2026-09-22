@@ -1,10 +1,10 @@
 # Current state
 
-Snapshot: 2026-08-31. This is a static repository assessment; live production was not queried.
+Snapshot: 2026-09-22. This is a static repository assessment; live production was not queried.
 
 ## Working capabilities
 
-- Public bilingual landing and service pages.
+- Public bilingual landing (split into section components and composables) and service pages, with a scroll-aware mobile header shared by the landing and case pages.
 - Public project/case pages with structured case blocks and local fallbacks.
 - Telegram-authenticated admin studio.
 - CRUD for services, projects, content dictionaries and site settings.
@@ -16,20 +16,22 @@ Snapshot: 2026-08-31. This is a static repository assessment; live production wa
 
 ## Verification state
 
-- Backend has 3 pytest files with 21 test functions.
-- Frontend has 6 `node:test` files with a large set of structural and behavior assertions.
+- Backend has 14 pytest files with 64 test functions.
+- Frontend has 12 `node:test` files (about 160 tests), mostly structural assertions over component and CSS sources.
+- Six case-builder assertions in `frontend/tests/wellnessCase.test.ts` fail on `main` and have not been updated yet.
 - Tests are not executed by GitHub Actions.
 - Frontend has no canonical `test` or `lint` package script.
 - Live Telegram login, MinIO, production data, DNS/reverse proxy and deployment health are `Unknown / needs verification`.
 
 ## Known maintenance issues
 
-- Frontend Docker invokes Yarn but does not copy `yarn.lock` before its frozen install; the root Makefile uses npm. The canonical package manager and a lock-reproducible Docker path need a decision.
+- Frontend Docker installs with `yarn install --frozen-lockfile` from `yarn.lock`, the root Makefile uses npm, and `frontend/` also contains a `pnpm-lock.yaml`. The canonical package manager needs a decision.
 - Root scaffolding files and the placeholder `backend/main.py` can mislead new contributors.
 - Legacy `DEPLOY.md` and `deploy.sh` do not describe the current GitHub Actions/Compose path. A token-shaped literal in `DEPLOY.md` requires external verification and possible rotation before sanitization.
-- Local ignored artifacts include dependency directories, builds, logs, Remotion outputs, visual QA captures and an intentional secondary worktree. They were not cleaned.
+- Local ignored artifacts include dependency directories, builds, logs, Remotion outputs and visual QA captures. They were not cleaned.
 - Manual code snapshots exist under ignored `design-concepts/`; retention needs a human decision.
-- The frontend landing page and fallback case utilities are large and deserve careful, focused changes rather than broad rewrites.
+- Some landing composables are still large (`useLandingStackSphere.ts`, `useSectionLiquid.ts`), as are the fallback case utilities. Change them in focused steps rather than broad rewrites.
+- Mobile header and overlay changes need a real-iPhone check; see `DEVELOPMENT.md`.
 
 ## Current priorities
 

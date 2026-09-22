@@ -64,7 +64,29 @@ The production `frontend/Dockerfile` copies `package.json` and `yarn.lock` befor
 
 The root Makefile still uses npm. This is a known inconsistency, not permission to update lock files. Until a package manager and reproducible Docker path are selected, avoid dependency changes unless the task explicitly includes resolving the mismatch.
 
-Frontend tests use Node's test runner but have no canonical package script. Run only the relevant existing test file using the Node version configured for the project, and record the exact command in the handoff. Do not claim the whole frontend suite passed unless every test file was run.
+Frontend tests use Node's test runner but have no canonical package script. Most of them read component and CSS sources and assert on their structure, so a refactor that moves code must move the matching assertions. Run the relevant files from `frontend/`:
+
+```bash
+node --experimental-strip-types --test tests/landingStackOrbit.test.ts
+node --test tests/landingHeroCapsules.test.mjs
+```
+
+`--experimental-strip-types` is needed for `.ts` files on Node 22 and is harmless on newer versions. Record the exact command in the handoff, and do not claim the whole frontend suite passed unless every test file was run. On `main` as of 2026-09-22, six case-builder assertions in `wellnessCase.test.ts` already fail. Compare against a clean `HEAD` before attributing a failure to your change.
+
+`nuxt dev` falls back to another port when 3000 is taken (for example by Docker). Do not run `yarn build` while `nuxt dev` is running, because they share `.nuxt/`.
+
+### Checking mobile layout on a real iPhone
+
+Chromium device emulation does not reproduce iOS Safari's status-bar and toolbar tinting, safe-area behavior or its focus-ring heuristics. For mobile header, overlay or safe-area changes, open the dev server on a phone before merging.
+
+- Same Wi-Fi: `yarn dev --host`, then open `http://<machine-LAN-IP>:3000`.
+- Any network over HTTPS: run a temporary Cloudflare quick tunnel (`brew install cloudflared`, no account needed) to the dev server's port:
+
+  ```bash
+  cloudflared tunnel --url http://localhost:3000 --http-host-header localhost:3000
+  ```
+
+  Open the printed `*.trycloudflare.com` URL on the phone. `--http-host-header` avoids Vite's host check. If `nuxt dev` listens only on IPv6, use `'http://[::1]:<port>'` (quoted in zsh). Anyone with the URL can open the site while the tunnel runs, so stop it after checking.
 
 During `nuxt dev`, the public API client sends browser requests through the frontend's `/api` proxy. Nitro forwards them to `NUXT_PUBLIC_API_URL` (default `http://localhost:8000`), so alternate local preview ports do not require backend CORS changes. Production requests continue to use the configured API URL directly.
 
@@ -79,7 +101,7 @@ Each Remotion directory is an independent npm package. Use its README and packag
 ## Safe change checklist
 
 1. Confirm the target surface: public site, admin, API, schema, media or video.
-2. Check `git status`; preserve unrelated work and the local worktree.
+2. Check `git status`; preserve unrelated work and any local worktrees.
 3. Search for existing components, composables, schemas and services.
 4. Run focused checks.
 5. Inspect `git diff --check` and the final diff.

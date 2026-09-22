@@ -21,7 +21,7 @@ An external reverse proxy terminates public HTTP/TLS and routes requests to the 
 
 `frontend/` is a Nuxt 3 application.
 
-- `pages/index.vue` renders the main landing experience.
+- `pages/index.vue` renders the main landing experience (see [Landing page](#landing-page)).
 - `pages/services/[id].vue` renders service detail.
 - `pages/cases/[slug].vue` renders published cases.
 - `pages/admin/` contains the private studio, media library, project management and case builder.
@@ -30,6 +30,17 @@ An external reverse proxy terminates public HTTP/TLS and routes requests to the 
 - `composables/useCaseAdmin.ts` and `utils/caseBuilder.ts` are part of the existing case-authoring system.
 - `components/case-builder/` renders structured case documents publicly.
 - `locales/` contains `ru/en` UI strings; content records also carry language-specific fields.
+
+### Landing page
+
+`pages/index.vue` only composes the landing. Sections live in `components/landing/Landing*.vue`; behavior lives in `composables/landing/` (content, header, preloader, services, stack scroll/sphere, client cube, section liquid, scroll reveals); styles live in `assets/css/landing-*.css`, loaded by the page in a fixed order so the cascade stays stable. `useLandingContent.ts` maps `locales/` strings into typed section copy.
+
+Headers:
+
+- Above 900px, the landing uses the pill `.vz-nav` (`assets/css/landing-nav.css`); case pages use `CaseDetailHeader.vue`.
+- At 900px and below, both use `components/ui/MobileSiteMenu.vue`, teleported to `body`. The parent passes `visible` from its scroll state. `useLandingHeader.ts` on the landing and `CaseDetailHeader.vue` on cases reveal the header near the top or on upward scroll, then hide it after 820ms idle. An open menu keeps the header shown; closing it emits `close`, and the parent restarts the idle countdown through `holdHeader`.
+
+iOS Safari 26 constraint: Safari tints the status bar from the first full-width `position: fixed` box it hit-tests just inside the top edge. If that box or a descendant at that point has `backdrop-filter`, Safari cannot read a colour and paints the root background (white on the light landing). The fixed `.site-mobile-menu-layer` therefore stays `visibility: hidden; pointer-events: none` with visible children, which Safari skips. Apply the same pattern to any new full-width fixed overlay, or give it a real `background-color`. `opacity: 0` does not hide an element from this sampling. Chromium previews do not reproduce this behavior.
 
 Local fallback case/content utilities exist so selected pages can render when API content is unavailable. They are not a second database and should not silently diverge from published content.
 

@@ -36,7 +36,7 @@ The two Remotion packages generate assets for Vezha cases. They remain in the re
 
 ### Frontend package manager
 
-Docker uses Yarn while the Makefile uses npm, and both lock files exist. One manager must be selected before dependency maintenance. Until then: `Unknown / needs verification`.
+Docker uses Yarn while the Makefile uses npm; `frontend/` holds both `yarn.lock` and `pnpm-lock.yaml`, and the root has a stray `package-lock.json`. One manager must be selected before dependency maintenance. Until then: `Unknown / needs verification`.
 
 ### Canonical operational deployment documentation
 
@@ -48,4 +48,4 @@ Backend and frontend tests exist but are not CI gates. The required fast suite, 
 
 ### Legacy local artifacts and snapshots
 
-The worktree is intentional; the long-term value of design code snapshots, root visual captures and retained Remotion renders needs a human retention decision.
+The long-term value of design code snapshots, root visual captures and retained Remotion renders needs a human retention decision.

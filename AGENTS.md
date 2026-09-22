@@ -1,6 +1,6 @@
 # VEZHA Digital agent instructions
 
-If the workspace-level `../../AGENTS.md` exists, read it first. This file remains the complete repository-level instruction set when the repository is used as a standalone clone; parent instructions may add stricter workspace safety rules.
+Apply available parent rules; this file also supports standalone clones.
 
 ## Scope and entry points
 
@@ -8,9 +8,10 @@ If the workspace-level `../../AGENTS.md` exists, read it first. This file remain
 - Backend entry: `backend/app/main.py`. Ignore the placeholder `backend/main.py`.
 - Public API is mounted under `/api`; authenticated administration is under `/api/admin`.
 - Database models are in `backend/app/models/`; migrations are in `backend/alembic/versions/`.
+- The landing is `frontend/pages/index.vue` composed from `components/landing/`, `composables/landing/` and `assets/css/landing-*.css`; the mobile header is `components/ui/MobileSiteMenu.vue`.
 - The current case system already has backend schemas/services, admin composables and public builders. Search before creating a second case-authoring path.
 
-Work only in this repository unless a task explicitly names another project. Preserve `.worktrees/` and all unrelated local changes.
+Work only in this repository unless a task explicitly names another project. Preserve any `.worktrees/` checkouts and all unrelated local changes.
 
 Before editing, inspect `git status`. Do not discard, reset, stash, commit or push existing work without explicit authorization.
 
@@ -29,32 +30,16 @@ Do not edit or commit dependency/build output such as:
 - Remotion `out/` unless a media-delivery task explicitly requires rendered artifacts;
 - `.codex-logs/`, `browser/`, root `image*.png` and local design/QA output.
 
-The local `.worktrees/cases-product-showcase` checkout is intentional. Do not delete or modify it from the main checkout unless explicitly requested.
-
 ## Development workflow
 
-Read only the documentation relevant to the task:
+Read relevant source and direct dependencies first; reuse existing composables, utilities, services and case-authoring paths. Patch the minimum file set. Read docs only when needed:
+- `README.md`: orientation/setup; `docs/DEVELOPMENT.md`: commands and checks.
+- `docs/ARCHITECTURE.md`, `docs/CURRENT_STATE.md`: architecture, API, schema, auth, integrations, persisted-content compatibility or cross-layer behavior.
+- Deployment docs, `.github/workflows/deploy.yml`, Compose/Docker: deployment tasks.
+- `docs/DECISIONS.md`: relevant architectural decisions.
+- `docs/superpowers/`: historical rationale only, never proof of current behavior.
 
-- use `README.md` for repository orientation and common setup;
-- use `docs/ARCHITECTURE.md` and `docs/CURRENT_STATE.md` for architecture, API, schema, authentication, integrations, persisted-content compatibility or cross-layer behavior;
-- use `docs/DEVELOPMENT.md` for setup, tests and local workflows;
-- use the deployment sections of the current docs, `.github/workflows/deploy.yml` and Compose/Docker configuration for deployment work;
-- use `docs/DECISIONS.md` when a task changes or depends on an architectural decision.
-
-Files under `docs/superpowers/` are historical plans and specifications. They are not proof of current behavior and should not be read unless the task specifically needs historical design rationale.
-
-Before changing behavior:
-
-1. Determine whether the target is public content, admin content, case documents, media, API, schema, authentication, integration, setup or deployment.
-2. Read the relevant current documentation from the routing list above and inspect the implementation/configuration that proves current behavior.
-3. Search frontend composables/utilities and backend services for an existing implementation before adding a new path.
-4. Choose and patch the minimum file set.
-
-After changing code:
-
-1. Run focused backend or frontend checks described in `docs/DEVELOPMENT.md`.
-2. Inspect the diff and verify no generated files or unrelated case content changed.
-3. Update documentation only if architecture, public APIs, schema, authentication, external integrations, setup/development workflow, deployment, an accepted/open decision or persisted-content compatibility materially changed. Small bug fixes, copy/cosmetic changes and private implementation details normally require no documentation update.
+Reuse already verified context. Batch independent checks and keep output bounded. Run focused checks from DEVELOPMENT (frontend tests: `node --experimental-strip-types --test tests/<file>`), check mobile layout changes on a real iPhone (Chromium previews miss Safari's status-bar tinting), review the diff for generated files or unrelated case changes. Update docs only for material changes to the contracts/workflows above or accepted/open decisions; cosmetic fixes and private refactors normally need none.
 
 ## Database and deployment safety
 

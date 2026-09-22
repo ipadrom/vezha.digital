@@ -12,6 +12,7 @@ video/wellness-promo/             Lifestyle storyboard/final promo
 docs/                             Current architecture and development documentation
 docker-compose.dev.yml            Local container development
 docker-compose.prod.yml           Production service topology
+docker-compose.yml                Older combined topology, not used by the deploy workflow
 .github/workflows/deploy.yml      Production SSH deployment
 ```
 
