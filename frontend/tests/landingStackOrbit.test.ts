@@ -675,7 +675,10 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(mobileMenu, /watch\(open, \(isOpen\) => \{ if \(!isOpen\) emit\('close'\); \}\)/);
   assert.match(landing, /<MobileSiteMenu :visible="isHeaderShown"[^>]*@close="holdHeader"/);
   assert.match(header, /function holdHeader\(\)\s*\{\s*revealHeader\(\);\s*queueHeaderHide\(\);\s*\}/s);
-  assert.match(mobileMenu, /\.site-mobile-menu-layer\.is-hidden \{[^}]*visibility: hidden;/s);
+  // Safari skips a visibility: hidden fixed layer when tinting the status bar; only its children show.
+  assert.match(mobileMenu, /\.site-mobile-menu-layer \{[^}]*position: fixed;[^}]*visibility: hidden;[^}]*pointer-events: none;/s);
+  assert.match(mobileMenu, /\.site-mobile-menu-layer > \* \{[^}]*visibility: visible;/s);
+  assert.match(mobileMenu, /\.site-mobile-menu-layer\.is-hidden > \* \{[^}]*visibility: hidden;/s);
   assert.match(mobileMenu, /\.site-mobile-menu \{[^}]*backdrop-filter: saturate\(1\.18\) blur\(18px\);/s);
   assert.match(header, /function updateHeaderStackCollision\(\)[\s\S]*?querySelector<HTMLElement>\("\[data-stack-section\]"\)[\s\S]*?isHeaderBlockedByStack\.value = rect\.top < headerBottom && rect\.bottom > headerTop;/s);
   assert.match(header, /function revealHeader\(\)\s*\{\s*if \(updateHeaderStackCollision\(\)\) \{[^}]*clearHeaderIdleTimer\(\);[^}]*isHeaderVisible\.value = false;/s);

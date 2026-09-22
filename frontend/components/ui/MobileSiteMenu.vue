@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <div class="site-mobile-menu-layer" :class="{ 'is-hidden': !shown }" :data-theme="theme" :aria-hidden="shown ? undefined : 'true'" :inert="shown ? undefined : true" @keydown.esc.stop.prevent="closeMenu">
+    <div class="site-mobile-menu-layer" :class="{ 'is-hidden': !shown }" :data-theme="theme" :aria-hidden="shown ? undefined : 'true'" :inert="shown ? undefined : true" @keydown.esc.stop.prevent="closeMenu()">
       <div class="site-mobile-menu-glass" aria-hidden="true"><span></span></div>
       <section ref="panel" :id="id" class="site-mobile-menu" :class="{ 'is-open': open }" :role="open ? 'dialog' : undefined" :aria-modal="open ? true : undefined" :aria-label="ru ? 'Меню сайта' : 'Site menu'" @keydown.tab="trapFocus">
         <header>
@@ -38,10 +38,11 @@ const links = computed(() => [
 ]);
 const panel = ref<HTMLElement | null>(null);
 let viewport: MediaQueryList | null = null;
-function closeMenu() {
+// Only a keyboard close hands focus back to the toggle: after a tap Safari would draw its focus ring.
+function closeMenu(restoreFocus = true) {
   if (!open.value) return;
   open.value = false;
-  panel.value?.querySelector<HTMLButtonElement>('.site-menu-button')?.focus({ preventScroll: true });
+  if (restoreFocus) panel.value?.querySelector<HTMLButtonElement>('.site-menu-button')?.focus({ preventScroll: true });
 }
 function closeOnOutsidePointer(event: PointerEvent) {
   if (!open.value) return;
@@ -49,7 +50,7 @@ function closeOnOutsidePointer(event: PointerEvent) {
   if (target instanceof Node && panel.value?.contains(target)) return;
   event.preventDefault();
   event.stopPropagation();
-  closeMenu();
+  closeMenu(false);
 }
 function closeOnDesktop(event: MediaQueryListEvent) { if (event.matches) open.value = false; }
 function trapFocus(event: KeyboardEvent) {
@@ -72,10 +73,13 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Stay content-sized and clear of the screen edges. iOS Safari tints the safe area next to any fixed box touching an edge,
-   and with no colour to sample it paints the root background, white. The layer therefore starts below the status bar. */
-.site-mobile-menu-layer { position: fixed; top: env(safe-area-inset-top, 0px); right: 0; left: 0; z-index: 1200; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(247 248 250 / 72%); --menu-rule: #ececef; transition: transform 0.26s ease, opacity 0.2s ease, visibility 0.26s; }
-.site-mobile-menu-layer.is-hidden { transform: translateY(calc(-100% - 24px - env(safe-area-inset-top, 0px))); opacity: 0; visibility: hidden; pointer-events: none; }
+/* iOS Safari tints the status bar from the fixed box it hit-tests just inside the top edge (WebKit fixedContainerEdges).
+   A backdrop filter anywhere in that lineage yields no colour, so the bar falls back to the root background, white.
+   The layer itself stays visibility: hidden, which makes WebKit skip it and sample the page; its children opt back in. */
+.site-mobile-menu-layer { position: fixed; top: env(safe-area-inset-top, 0px); right: 0; left: 0; z-index: 1200; visibility: hidden; pointer-events: none; color: #202127; font-family: var(--font-ui, sans-serif); --menu-bg: rgb(247 248 250 / 72%); --menu-rule: #ececef; transition: transform 0.26s ease, opacity 0.2s ease; }
+.site-mobile-menu-layer > * { visibility: visible; transition: visibility 0.26s; }
+.site-mobile-menu-layer.is-hidden { transform: translateY(calc(-100% - 24px - env(safe-area-inset-top, 0px))); opacity: 0; pointer-events: none; }
+.site-mobile-menu-layer.is-hidden > * { visibility: hidden; }
 .site-mobile-menu-layer[data-theme="dark"] { color: #f2f3f7; --menu-bg: rgb(20 21 24 / 66%); --menu-rule: #26282d; }
 .site-mobile-menu-glass {
   position: absolute;
