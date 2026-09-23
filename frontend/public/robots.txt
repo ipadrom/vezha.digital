@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /admin
+Disallow: /prototypes
+
+Sitemap: https://vezha.digital/sitemap.xml

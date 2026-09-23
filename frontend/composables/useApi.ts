@@ -17,7 +17,9 @@ export const useApi = () => {
     lang?: string
   ): Promise<T> => {
     // Use the Nuxt dev proxy so preview ports do not depend on backend CORS origins.
-    const requestOrigin = import.meta.dev && import.meta.client ? window.location.origin : apiUrl
+    const requestOrigin = import.meta.dev && import.meta.client
+      ? window.location.origin
+      : (import.meta.server && config.apiInternalUrl) || apiUrl
     const url = new URL(`${requestOrigin}/api${endpoint}`)
 
     // Get locale safely

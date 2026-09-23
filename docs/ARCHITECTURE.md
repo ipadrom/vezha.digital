@@ -29,7 +29,8 @@ An external reverse proxy terminates public HTTP/TLS and routes requests to the 
 - `composables/useAuth.ts` stores the admin JWT and calls protected endpoints.
 - `composables/useCaseAdmin.ts` and `utils/caseBuilder.ts` are part of the existing case-authoring system.
 - `components/case-builder/` renders structured case documents publicly.
-- `locales/` contains `ru/en` UI strings; content records also carry language-specific fields.
+- `locales/` contains `ru/en` UI strings; content records also carry language-specific fields. Russian is the default locale (what crawlers see); browsers that ask for English get English on the same URLs.
+- SEO: `utils/seo.ts` holds the site URL and share-image rules; case pages load their data during SSR for meta tags; `server/routes/sitemap.xml.ts` lists the landing and public cases that are not noindex; `public/robots.txt` points at it.
 
 ### Landing page
 

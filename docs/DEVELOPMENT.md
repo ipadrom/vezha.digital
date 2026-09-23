@@ -88,7 +88,7 @@ Chromium device emulation does not reproduce iOS Safari's status-bar and toolbar
 
   Open the printed `*.trycloudflare.com` URL on the phone. `--http-host-header` avoids Vite's host check. If `nuxt dev` listens only on IPv6, use `'http://[::1]:<port>'` (quoted in zsh). Anyone with the URL can open the site while the tunnel runs, so stop it after checking.
 
-During `nuxt dev`, the public API client sends browser requests through the frontend's `/api` proxy. Nitro forwards them to `NUXT_PUBLIC_API_URL` (default `http://localhost:8000`), so alternate local preview ports do not require backend CORS changes. Production requests continue to use the configured API URL directly.
+During `nuxt dev`, the public API client sends browser requests through the frontend's `/api` proxy. Nitro forwards them to `NUXT_PUBLIC_API_URL` (default `http://localhost:8000`), so alternate local preview ports do not require backend CORS changes. Production requests continue to use the configured API URL directly. Server-side renders (case pages, `/sitemap.xml`) use the private `NUXT_API_INTERNAL_URL` when it is set; production Compose points it at `http://vezha-backend:8000`.
 
 ### Local loader playground
 

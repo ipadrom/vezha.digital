@@ -140,6 +140,7 @@ import LandingCases from "~/components/landing/LandingCases.vue";
 import LandingLoaderPattern from "~/components/landing/LandingLoaderPattern.vue";
 import CaseScrollThumb from "~/components/cases/CaseScrollThumb.vue";
 import { useLandingContent } from "~/composables/landing/useLandingContent";
+import { defaultShareImage, siteUrl } from "~/utils/seo";
 import { useLandingHeader } from "~/composables/landing/useLandingHeader";
 import { useLandingPreloader } from "~/composables/landing/useLandingPreloader";
 import { useAboutFlow } from "~/composables/landing/useAboutFlow";
@@ -365,6 +366,15 @@ watch(displayServices, async () => {
 
 const themeInitScript = `!function(){try{var t=localStorage.getItem("vz_theme");if(t!=="dark"&&t!=="light"){t=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"}document.documentElement.setAttribute("data-theme",t);document.documentElement.style.colorScheme=t}catch(e){}}();`;
 
+const organizationJsonLd = JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "VEZHA Digital",
+  url: `${siteUrl}/`,
+  logo: `${siteUrl}/logo.png`,
+  email: "contact@vezha.digital",
+});
+
 useHead(() => ({
   htmlAttrs: {
     lang: currentLocale.value,
@@ -380,14 +390,15 @@ useHead(() => ({
     { property: "og:title", content: copy.value.head.ogTitle },
     { property: "og:description", content: copy.value.head.ogDescription },
     { property: "og:type", content: "website" },
-    { property: "og:url", content: "https://vezha.digital/" },
-    { property: "og:image", content: "https://vezha.digital/og-image.png" },
+    { property: "og:url", content: `${siteUrl}/` },
+    { property: "og:image", content: defaultShareImage },
     { property: "og:image:width", content: "1200" },
     { property: "og:image:height", content: "630" },
     { property: "og:image:alt", content: "VEZHA Digital" },
     { name: "twitter:card", content: "summary_large_image" },
   ],
   link: [
+    { rel: "canonical", href: `${siteUrl}/` },
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
     { rel: "preconnect", href: "https://fonts.gstatic.com", crossorigin: "" },
     {
@@ -396,6 +407,11 @@ useHead(() => ({
     },
   ],
   script: [
+    {
+      key: "vz-organization",
+      type: "application/ld+json",
+      innerHTML: organizationJsonLd,
+    },
     {
       key: "vz-theme-init",
       innerHTML: themeInitScript,

@@ -38,17 +38,19 @@ export default defineNuxtConfig({
       { code: 'ru', iso: 'ru-RU', name: 'Русский', file: 'ru.json' },
       { code: 'en', iso: 'en-US', name: 'English', file: 'en.json' },
     ],
-    defaultLocale: 'en',
+    defaultLocale: 'ru',
     lazy: true,
     langDir: 'locales',
     strategy: 'no_prefix',
     detectBrowserLanguage: {
       useCookie: false,
-      fallbackLocale: 'en',
+      fallbackLocale: 'ru',
     },
   },
 
   runtimeConfig: {
+    // Server-side renders reach the backend over the Compose network instead of the public domain.
+    apiInternalUrl: '',
     public: {
       apiUrl: process.env.NUXT_PUBLIC_API_URL || 'http://localhost:8000',
       telegramBotUsername: process.env.NUXT_PUBLIC_TELEGRAM_BOT_USERNAME || '',

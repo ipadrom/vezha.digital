@@ -40,6 +40,7 @@ services:
     restart: unless-stopped
     environment:
       - NUXT_PUBLIC_TELEGRAM_BOT_USERNAME=${TELEGRAM_BOT_USERNAME:?TELEGRAM_BOT_USERNAME must be set}
+      - NUXT_API_INTERNAL_URL=http://vezha-backend:8000
     ports:
       - "127.0.0.1:3002:3000"
     depends_on:

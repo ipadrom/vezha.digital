@@ -61,6 +61,7 @@ import PublicCaseBuilder from "~/components/case-builder/PublicCaseBuilder.vue";
 import type { IProjectDetail, IProjects } from "~/utils/interfaces/IProjects";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
 import { caseHeroColorDefaults, normalizeHexColor } from "~/utils/caseBuilder";
+import { absoluteSiteUrl, shareImageUrl } from "~/utils/seo";
 
 definePageMeta({ layout: false });
 const route = useRoute();
@@ -75,8 +76,23 @@ useHead(() => ({
 }));
 const slug = computed(() => String(route.params.slug));
 const fallbacks = computed(() => getCaseFallbacks(currentLocale.value));
-const project = ref<IProjectDetail | null>(null);
-const publicProjects = ref<IProjects[]>([]);
+// Loaded during SSR so crawlers and link previews get the case title, description and image.
+const { data: caseData, refresh: refreshCase } = await useAsyncData(`case-page:${slug.value}`, async () => {
+  const [projectResult, projectsResult] = await Promise.allSettled([
+    getProjectBySlug(slug.value, currentLocale.value),
+    getProjects(currentLocale.value),
+  ]);
+  return {
+    project: projectResult.status === "fulfilled" ? projectResult.value : null,
+    projects: projectsResult.status === "fulfilled" ? projectsResult.value : null,
+  };
+}, { watch: [slug, currentLocale] });
+const project = computed<IProjectDetail | null>(() => caseData.value?.project || fallbacks.value.find((item) => item.slug === slug.value) || null);
+const publicProjects = computed<IProjects[]>(() => caseData.value?.projects || fallbacks.value);
+if (!project.value) throw createError({ statusCode: 404, statusMessage: "Case not found", fatal: true });
+watch(project, (value) => {
+  if (!value) showError({ statusCode: 404, statusMessage: "Case not found" });
+});
 const caseIndex = computed(() => Math.max(0, fallbacks.value.findIndex((item) => item.slug === project.value?.slug)));
 const relatedProjects = computed(() => publicProjects.value.filter(item => item.slug !== slug.value));
 const two = (value: number) => String(value).padStart(2, "0");
@@ -85,34 +101,28 @@ const heroBackground = computed(() => {
   return hero ? normalizeHexColor(hero.settings?.hero_background, caseHeroColorDefaults.background) : null;
 });
 
-async function loadProject() {
-  const fallback = fallbacks.value.find((item) => item.slug === slug.value) || null;
-  const [projectResult, projectsResult] = await Promise.allSettled([
-    getProjectBySlug(slug.value, currentLocale.value),
-    getProjects(currentLocale.value),
-  ]);
-  project.value = projectResult.status === "fulfilled" ? projectResult.value : fallback;
-  publicProjects.value = projectsResult.status === "fulfilled" ? projectsResult.value : fallbacks.value;
-  if (!project.value) throw createError({ statusCode: 404, statusMessage: "Case not found" });
-  applySeo();
-}
-function applySeo() {
-  if (!project.value) return;
-  useSeoMeta({
-    title: project.value.seo_title || `${project.value.name} — VEZHA Digital`,
-    description: project.value.seo_description || project.value.description || project.value.subtitle || "",
-    ogImage: project.value.seo_image_url || project.value.cover_image_url || project.value.image_url || undefined,
-    robots: project.value.seo_noindex || project.value.metrics.some((metric) => metric.is_demo) ? "noindex, nofollow" : undefined,
-  });
-}
+const seoDescription = computed(() => project.value?.seo_description || project.value?.description || project.value?.subtitle || "");
+const canonicalUrl = computed(() => absoluteSiteUrl(`/cases/${slug.value}`));
+useSeoMeta({
+  title: () => project.value?.seo_title || `${project.value?.name} — VEZHA Digital`,
+  description: seoDescription,
+  ogTitle: () => project.value?.seo_title || project.value?.name,
+  ogDescription: seoDescription,
+  ogType: "article",
+  ogUrl: canonicalUrl,
+  ogImage: () => shareImageUrl(project.value?.seo_image_url, project.value?.cover_image_url, project.value?.image_url),
+  twitterCard: "summary_large_image",
+  robots: () => project.value?.seo_noindex || project.value?.metrics.some((metric) => metric.is_demo) ? "noindex, nofollow" : undefined,
+});
+useHead({ link: [{ rel: "canonical", href: canonicalUrl }] });
 function toggleTheme() {
   theme.value = theme.value === "light" ? "dark" : "light";
   localStorage.setItem("vz_theme", theme.value);
 }
-watch([slug, currentLocale], loadProject);
 onMounted(() => {
   theme.value = localStorage.getItem("vz_theme") === "dark" ? "dark" : "light";
-  loadProject();
+  // A failed server-side fetch rendered the local fallback; retry from the browser.
+  if (!caseData.value?.project) refreshCase();
 });
 </script>
 
