@@ -116,4 +116,7 @@ onMounted(() => {
 
 <style src="~/assets/css/case-detail.css"></style>
 
-<style src="~/assets/css/site-polish.css"></style>
+<style>
+/* Not a src block: plugin-vue maps one src file to one SFC, and index.vue owns this one. */
+@import "~/assets/css/site-polish.css";
+</style>

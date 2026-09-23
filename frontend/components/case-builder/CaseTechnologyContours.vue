@@ -1,9 +1,11 @@
 <template>
   <section ref="rootElement" class="technology-contours" :style="mapStyle" :aria-label="content.eyebrow || copy.label" :data-motion-instant="keyboardMode" @keydown.capture="keyboardMode = true" @pointerdown.capture="keyboardMode = false">
+    <header v-if="content.eyebrow" class="technology-contours__heading">
+      <h2>{{ content.eyebrow }}</h2>
+    </header>
     <div ref="surfaceElement" class="technology-contours__surface" :class="{ 'is-measured': measurementReady }" :style="{ height: surfaceHeight === null ? undefined : `${surfaceHeight}px` }">
       <div ref="bodyElement" class="technology-contours__body">
-        <header v-if="content.eyebrow || content.title || content.summary" class="technology-contours__intro">
-          <small v-if="content.eyebrow">{{ content.eyebrow }}</small>
+        <header v-if="content.title || content.summary" class="technology-contours__intro">
           <h3 v-if="content.title">{{ content.title }}</h3>
           <p v-if="content.summary">{{ content.summary }}</p>
         </header>
@@ -177,8 +179,9 @@ onBeforeUnmount(() => {
 .technology-contours[data-motion-instant="true"] fieldset { transition: none; }
 .technology-contours[data-motion-instant="true"] .technology-copy-enter-from,
 .technology-contours[data-motion-instant="true"] .technology-copy-leave-to { opacity: 1; transform: none; }
+.technology-contours__heading { margin-bottom: var(--case-editorial-gap, 32px); }
+.technology-contours__heading h2 { max-width: 13ch; margin: 0; font-size: var(--case-type-subhead, 26px); line-height: 1.1; font-weight: 540; letter-spacing: -.035em; text-wrap: balance; overflow-wrap: anywhere; }
 .technology-contours__intro { max-width: 780px; margin-bottom: 30px; }
-.technology-contours__intro > small { display: block; margin-bottom: 12px; font-size: 11px; font-weight: 600; color: var(--technology-muted); }
 .technology-contours__intro h3 { margin: 0; font-size: clamp(22px, 2.5cqw, 30px); font-weight: 550; line-height: 1.2; letter-spacing: -.03em; text-wrap: balance; }
 .technology-contours__intro p { margin: 14px 0 0; max-width: 72ch; font-size: 14px; line-height: 1.65; color: var(--technology-muted); }
 .technology-contours__layout { display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: clamp(24px, 3.5cqw, 44px); align-items: start; }

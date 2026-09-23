@@ -318,6 +318,10 @@ const builderRoot = ref<HTMLElement | null>(null)
 const reduceMotion = ref(true)
 const allowAutoplay = ref(false)
 let motionQuery: MediaQueryList | null = null
+// Phones start with every process accordion collapsed, whatever open_first says.
+const phoneQuery = import.meta.client ? window.matchMedia('(max-width: 760px)') : null
+const isPhone = ref(Boolean(phoneQuery?.matches))
+const syncPhone = () => { isPhone.value = Boolean(phoneQuery?.matches) }
 const orderedBlocks = computed(() => [...props.blocks].sort((a, b) => {
   if (a.type === 'hero' && b.type !== 'hero') return -1
   if (a.type !== 'hero' && b.type === 'hero') return 1
@@ -358,9 +362,10 @@ const blockGridStyle = (block: PublicBuilderBlock): Record<string, string> => {
 const processOpen = reactive<Record<string, number[]>>({})
 const processActive = reactive<Record<string, number | null>>({})
 const processDisclosureMode = (block: PublicBuilderBlock): 'single' | 'multiple' => block.settings.disclosure_mode === 'single' ? 'single' : 'multiple'
-const processOpenIndexes = (block: PublicBuilderBlock): number[] => processOpen[block.id] ?? (block.settings.open_first === false ? [] : [0])
+const opensFirst = (block: PublicBuilderBlock) => block.settings.open_first !== false && !isPhone.value
+const processOpenIndexes = (block: PublicBuilderBlock): number[] => processOpen[block.id] ?? (opensFirst(block) ? [0] : [])
 const processActiveIndex = (block: PublicBuilderBlock): number | null => processActive[block.id] === undefined
-  ? (block.settings.open_first === false ? null : 0)
+  ? (opensFirst(block) ? 0 : null)
   : processActive[block.id]
 const isProcessOpen = (block: PublicBuilderBlock, index: number) => processOpenIndexes(block).includes(index)
 const isProcessActive = (block: PublicBuilderBlock, index: number) => processActiveIndex(block) === index
@@ -407,9 +412,13 @@ const syncMediaMotion = async () => {
 onMounted(() => {
   motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
   motionQuery.addEventListener('change', syncMediaMotion)
+  phoneQuery?.addEventListener('change', syncPhone)
   void syncMediaMotion()
 })
-onBeforeUnmount(() => motionQuery?.removeEventListener('change', syncMediaMotion))
+onBeforeUnmount(() => {
+  motionQuery?.removeEventListener('change', syncMediaMotion)
+  phoneQuery?.removeEventListener('change', syncPhone)
+})
 </script>
 
 <style src="~/assets/css/case-builder-public.css"></style>

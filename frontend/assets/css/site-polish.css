@@ -66,7 +66,7 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .case-page[data-case-slug="mymit"] .builder-media-hero { isolation: isolate; background: #eeeae4; }
 .case-page[data-case-slug="mymit"] .builder-media-hero picture,
 .case-page[data-case-slug="mymit"] .builder-media-hero img { border-radius: 0; }
-.case-page :is(.builder-editorial__heading h2, .builder-challenge__heading h2, .builder-insight__heading h2, .builder-results__heading h2, .builder-process-chapter h3, .case-air h2, .builder-image-text__copy h2, .case-story > header h2, .case-results > header h2, .wellness-chapter__header h2) { font-size: var(--case-section-heading); line-height: 1.08; }
+.case-page :is(.builder-editorial__heading h2, .builder-challenge__heading h2, .builder-insight__heading h2, .builder-results__heading h2, .builder-process-chapter h3, .case-air h2, .technology-contours__heading h2, .builder-image-text__copy h2, .case-story > header h2, .case-results > header h2, .wellness-chapter__header h2) { font-size: var(--case-section-heading); line-height: 1.08; }
 .case-page .builder-process-chapter h3 { overflow-wrap: anywhere; hyphens: auto; }
 .case-page .builder-case { --case-section-space: var(--case-section-gap); }
 /* Section starts are semantic; supporting media retain their existing compact gap. */
@@ -75,7 +75,6 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .case-page .builder-block:has(+ [data-section-start="true"]) { margin-bottom: 0; }
 .case-page .builder-block--plain:has(+ [data-section-start="true"]) > .builder-block__inner { padding-bottom: 0; }
 .case-page :is(.case-story, .case-gallery, .case-results, .case-technical, .case-next) { margin-block: var(--case-section-gap) 0; padding-block: 0; }
-.case-page .technology-contours__intro > small { font-size: 13px; }
 .case-page .technology-contours__intro h3 { font-size: clamp(26px, 2.9cqw, 35px); }
 @media (min-width: 768px) { .case-page { --case-section-heading: 40px; --case-section-gap: 120px; } }
 @media (min-width: 1100px) {
@@ -86,6 +85,8 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 }
 @media (max-width: 767px) {
   .case-page { --case-section-heading: clamp(24px, 7.5vw, 32px); }
+  /* One 20px page gutter on phones: the outer builder padding already provides it. */
+  .case-page .builder-case { --case-content-gutter: 0px; }
   .case-page .builder-block[data-section-start="true"] { margin-top: calc(var(--case-section-gap) - 12px); }
   .case-page .technology-contours__groups { mask-image: linear-gradient(to right, #000 0%, #000 calc(100% - 24px), transparent); padding-right: 24px; scroll-padding-inline: 12px; }
 }

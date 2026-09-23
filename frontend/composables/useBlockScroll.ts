@@ -10,7 +10,8 @@ export const useBlockScroll = () => {
         const scrollY = Number(document.body.dataset.scrollY || 0)
         document.body.classList.remove('modal-no-scroll')
         document.body.style.top = ''
-        window.scrollTo(0, scrollY)
+        // html has scroll-behavior: smooth; restoring must jump, not animate from the top.
+        window.scrollTo({top: scrollY, behavior: 'instant'})
     }
 
     return {lockScroll, unlockScroll}
