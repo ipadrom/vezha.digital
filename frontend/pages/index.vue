@@ -380,6 +380,12 @@ useHead(() => ({
     { property: "og:title", content: copy.value.head.ogTitle },
     { property: "og:description", content: copy.value.head.ogDescription },
     { property: "og:type", content: "website" },
+    { property: "og:url", content: "https://vezha.digital/" },
+    { property: "og:image", content: "https://vezha.digital/og-image.png" },
+    { property: "og:image:width", content: "1200" },
+    { property: "og:image:height", content: "630" },
+    { property: "og:image:alt", content: "VEZHA Digital" },
+    { name: "twitter:card", content: "summary_large_image" },
   ],
   link: [
     { rel: "preconnect", href: "https://fonts.googleapis.com" },
