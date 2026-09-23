@@ -77,7 +77,8 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .case-page .builder-block:has(+ [data-section-start="true"]) { margin-bottom: 0; }
 .case-page .builder-block--plain:has(+ [data-section-start="true"]) > .builder-block__inner { padding-bottom: 0; }
 .case-page :is(.case-story, .case-gallery, .case-results, .case-technical, .case-next) { margin-block: var(--case-section-gap) 0; padding-block: 0; }
-.case-page .technology-contours__intro h3 { font-size: clamp(26px, 2.9cqw, 35px); }
+/* The section h2 sits above the card, so its own title reads as a lead line, not a second heading. */
+.case-page .technology-contours__intro h3 { font-size: var(--case-type-body, 18px); font-weight: 560; line-height: 1.45; letter-spacing: -.01em; }
 @media (min-width: 768px) { .case-page { --case-section-heading: 40px; --case-section-gap: 120px; } }
 @media (min-width: 1100px) {
   .case-page { --case-section-heading: 48px; --case-section-gap: 144px; }
