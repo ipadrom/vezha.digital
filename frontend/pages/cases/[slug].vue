@@ -28,8 +28,6 @@
         <CaseVisual :project="project" :index-label="two(caseIndex + 1)" :locale="currentLocale" variant="wide" />
       </section>
 
-      <WellnessCaseStudy v-if="project.slug === 'wellness-app'" :project="project" :locale="currentLocale" />
-      <template v-else>
       <section id="story" class="case-story">
         <header><span>{{ currentLocale === "ru" ? "01 / История" : "01 / Story" }}</span><h2>{{ currentLocale === "ru" ? "Сначала — задача. Потом — интерфейс." : "The task comes first. The interface follows." }}</h2></header>
         <div class="case-story__chapters">
@@ -42,7 +40,6 @@
       <CaseGallery :gallery="project.gallery" :locale="currentLocale" />
       <CaseResults :summary="project.result_summary" :metrics="project.metrics" :testimonial="project.testimonial" :author="project.testimonial_author" :locale="currentLocale" />
       <CaseTechnicalModule :technologies="project.technologies" :project-type="project.type" :locale="currentLocale" />
-      </template>
       </template>
       <section v-if="!project.blocks?.some(block => block.type === 'next_case')" class="builder-case"><div class="builder-block builder-block--next_case"><div class="builder-block__inner"><CaseNavigation :content="{ title: currentLocale === 'ru' ? 'Другие проекты' : 'More projects', cta_label: currentLocale === 'ru' ? 'Все кейсы' : 'All cases' }" :locale="currentLocale" :related-projects="relatedProjects" :current-slug="slug" /></div></div></section>
       </CaseMediaViewer>
@@ -59,7 +56,6 @@ import CaseResults from "~/components/cases/CaseResults.vue";
 import CaseScrollThumb from "~/components/cases/CaseScrollThumb.vue";
 import CaseTechnicalModule from "~/components/cases/CaseTechnicalModule.vue";
 import CaseVisual from "~/components/cases/CaseVisual.vue";
-import WellnessCaseStudy from "~/components/cases/WellnessCaseStudy.vue";
 import PublicCaseBuilder from "~/components/case-builder/PublicCaseBuilder.vue";
 import type { IProjectDetail, IProjects } from "~/utils/interfaces/IProjects";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";

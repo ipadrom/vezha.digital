@@ -30,12 +30,12 @@ test("next project wraps and metric layouts stay explicit", () => {
 });
 
 test("published API cases replace fallbacks and featured cases stay first", () => {
-  const api = [project("api-case", 1, false), project("wellness-app", 5)];
-  const fallback = [project("wellness-app", 0), project("fallback-only", 2)];
+  const api = [project("api-case", 1, false), project("featured-case", 5)];
+  const fallback = [project("featured-case", 0), project("fallback-only", 2)];
   assert.deepEqual(
     mergeFeaturedProjects(api, fallback).map((item) => item.slug),
-    ["wellness-app", "api-case"],
+    ["featured-case", "api-case"],
   );
   assert.equal(mergeFeaturedProjects([], fallback).length, 2);
-  assert.deepEqual(selectPublishedProjects(api).map((item) => item.slug), ["wellness-app", "api-case"]);
+  assert.deepEqual(selectPublishedProjects(api).map((item) => item.slug), ["featured-case", "api-case"]);
 });

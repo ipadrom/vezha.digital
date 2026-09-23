@@ -71,7 +71,7 @@ node --experimental-strip-types --test tests/landingStackOrbit.test.ts
 node --test tests/landingHeroCapsules.test.mjs
 ```
 
-`--experimental-strip-types` is needed for `.ts` files on Node 22 and is harmless on newer versions. Record the exact command in the handoff, and do not claim the whole frontend suite passed unless every test file was run. On `main` as of 2026-09-22, six case-builder assertions in `wellnessCase.test.ts` already fail. Compare against a clean `HEAD` before attributing a failure to your change.
+`--experimental-strip-types` is needed for `.ts` files on Node 22 and is harmless on newer versions. Record the exact command in the handoff, and do not claim the whole frontend suite passed unless every test file was run. Compare against a clean `HEAD` before attributing a failure to your change.
 
 `nuxt dev` falls back to another port when 3000 is taken (for example by Docker). Do not run `yarn build` while `nuxt dev` is running, because they share `.nuxt/`.
 

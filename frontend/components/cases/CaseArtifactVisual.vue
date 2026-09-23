@@ -2,23 +2,7 @@
   <figure class="case-artifact" :class="`case-artifact--${safeSlug}`">
     <span class="case-artifact__index" aria-hidden="true">{{ indexLabel }}</span>
 
-    <div v-if="safeSlug === 'wellness-app'" class="case-artifact__wellness" aria-hidden="true">
-      <video
-        ref="wellnessVideo"
-        class="case-artifact__wellness-video"
-        muted
-        loop
-        playsinline
-        preload="metadata"
-        poster="/cases/wellness-app/wellness-promo-poster.jpg"
-        tabindex="-1"
-        @loadedmetadata="syncWellnessPlayback"
-      >
-        <source src="/cases/wellness-app/wellness-promo.mp4" type="video/mp4" />
-      </video>
-    </div>
-
-    <picture v-else-if="imageUrl" class="case-artifact__picture">
+    <picture v-if="imageUrl" class="case-artifact__picture">
       <source v-if="mobileCaseCover(imageUrl)" media="(max-width: 767px)" :srcset="mobileCaseCover(imageUrl)" type="image/webp" />
       <img
       class="case-artifact__cover"
@@ -133,32 +117,6 @@ const imageUrl = computed(() => {
 const caption = computed(() => props.locale === "ru"
   ? `Интерфейсные артефакты проекта ${props.project.name}`
   : `Product interface artifacts for ${props.project.name}`);
-const wellnessVideo = ref<HTMLVideoElement | null>(null);
-let reduceMotionQuery: MediaQueryList | undefined;
-
-function syncWellnessPlayback() {
-  const video = wellnessVideo.value;
-  if (!video) return;
-
-  if (reduceMotionQuery?.matches) {
-    video.pause();
-    if (video.readyState > 0) video.currentTime = 0;
-    return;
-  }
-
-  void video.play().catch(() => {
-    // The poster remains visible if a browser blocks autoplay.
-  });
-}
-
-onMounted(() => {
-  reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  reduceMotionQuery.addEventListener("change", syncWellnessPlayback);
-  syncWellnessPlayback();
-});
-
-onBeforeUnmount(() => reduceMotionQuery?.removeEventListener("change", syncWellnessPlayback));
-
 const labels = computed(() => props.locale === "ru" ? {
   accepted: "Заказ принят",
   add: "Добавить",
@@ -285,25 +243,9 @@ const labels = computed(() => props.locale === "ru" ? {
   letter-spacing: -.07em;
 }
 
-.case-artifact__wellness,
 .case-artifact__menu {
   position: absolute;
   inset: 0;
-}
-
-.case-artifact__wellness {
-  overflow: hidden;
-  background: #05070a;
-}
-
-.case-artifact__wellness-video {
-  position: relative;
-  z-index: 1;
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  pointer-events: none;
 }
 
 .artifact-device {
@@ -436,7 +378,6 @@ const labels = computed(() => props.locale === "ru" ? {
     aspect-ratio: auto;
   }
 
-  .case-artifact__wellness-video,
   .case-artifact__cover {
     object-fit: contain;
   }
@@ -453,12 +394,8 @@ const labels = computed(() => props.locale === "ru" ? {
 
 @media (max-width: 900px) {
   .case-artifact { min-height: 0; aspect-ratio: 4 / 5; border-radius: 18px; }
-  .case-artifact--wellness-app, .case-artifact--ssag { aspect-ratio: 16 / 9; }
+  .case-artifact--ssag { aspect-ratio: 16 / 9; }
   .case-artifact__index { top: 2%; right: 1%; font-size: clamp(130px, 42vw, 220px); }
-  .case-artifact__wellness-video {
-    height: 100%;
-    object-fit: cover;
-  }
   .artifact-device--plan, .artifact-menu-phone--catalog { left: -16%; bottom: -5%; width: 58%; }
   .artifact-device--session, .artifact-menu-phone--detail { top: 5%; width: 66%; }
   .artifact-device--food, .artifact-menu-phone--status { right: -16%; bottom: -6%; width: 58%; }

@@ -68,7 +68,7 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .case-page[data-case-slug="mymit"] .builder-media-hero { isolation: isolate; background: #eeeae4; }
 .case-page[data-case-slug="mymit"] .builder-media-hero picture,
 .case-page[data-case-slug="mymit"] .builder-media-hero img { border-radius: 0; }
-.case-page :is(.builder-editorial__heading h2, .builder-challenge__heading h2, .builder-insight__heading h2, .builder-results__heading h2, .builder-process-chapter h3, .case-air h2, .technology-contours__heading h2, .builder-image-text__copy h2, .case-story > header h2, .case-results > header h2, .wellness-chapter__header h2) { font-size: var(--case-section-heading); line-height: 1.08; }
+.case-page :is(.builder-editorial__heading h2, .builder-challenge__heading h2, .builder-insight__heading h2, .builder-results__heading h2, .builder-process-chapter h3, .case-air h2, .technology-contours__heading h2, .builder-image-text__copy h2, .case-story > header h2, .case-results > header h2) { font-size: var(--case-section-heading); line-height: 1.08; }
 .case-page .builder-process-chapter h3 { overflow-wrap: anywhere; hyphens: auto; }
 .case-page .builder-case { --case-section-space: var(--case-section-gap); }
 /* Section starts are semantic; supporting media retain their existing compact gap. */
@@ -99,7 +99,6 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
   .case-switch-enter-from, [data-direction="previous"] > .case-switch-enter-from, .case-switch-leave-to, .case-switch-enter-from > *, [data-direction="previous"] > .case-switch-enter-from > * { opacity: 1; transform: none; }
 }
 
-.case-page .wellness-chapter { padding-block: 0; margin-block: var(--case-section-gap) 0; }
 
 @media (min-width: 1100px) {
   .case-page .builder-block--process:not(.builder-block--layout-phone-showcase, .builder-block--layout-freeform) > .builder-block__inner { overflow: visible; }

@@ -178,8 +178,7 @@ editable and can be shown from the admin without another migration.
 
 ## Media tooling
 
-- `media/wellness-promo-remotion/` produces the Training product film and compact process/context animations.
-- `video/wellness-promo/` produces storyboard and final lifestyle promo compositions.
+- `media/` holds per-case source media and Remotion packages (for example `gbu-crew-graph-remotion/`).
 
 These packages support Vezha project cases. They are not separate business services and have no backend runtime dependency.
 

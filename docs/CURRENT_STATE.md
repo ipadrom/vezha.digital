@@ -16,9 +16,8 @@ Snapshot: 2026-09-22. This is a static repository assessment; live production wa
 
 ## Verification state
 
-- Backend has 14 pytest files with 64 test functions.
-- Frontend has 12 `node:test` files (about 160 tests), mostly structural assertions over component and CSS sources.
-- Six case-builder assertions in `frontend/tests/wellnessCase.test.ts` fail on `main` and have not been updated yet.
+- Backend has 15 pytest files with 63 test functions.
+- Frontend has 11 `node:test` files, mostly structural assertions over component and CSS sources.
 - Tests are not executed by GitHub Actions.
 - Frontend has no canonical `test` or `lint` package script.
 - Live Telegram login, MinIO, production data, DNS/reverse proxy and deployment health are `Unknown / needs verification`.

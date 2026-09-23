@@ -7,8 +7,7 @@ Production website and content platform for VEZHA Digital. The repository contai
 ```text
 frontend/                         Nuxt 3 public site and admin studio
 backend/                          FastAPI API, SQLAlchemy models and Alembic migrations
-media/wellness-promo-remotion/    Training product film and process animations
-video/wellness-promo/             Lifestyle storyboard/final promo
+media/                            Per-case source media and Remotion packages
 docs/                             Current architecture and development documentation
 docker-compose.dev.yml            Local container development
 docker-compose.prod.yml           Production service topology
