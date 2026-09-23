@@ -51,6 +51,7 @@
 import CaseArtifactVisual from "~/components/cases/CaseArtifactVisual.vue";
 import type { IProjects } from "~/utils/interfaces/IProjects";
 import { mergeFeaturedProjects, moveCaseIndex } from "~/utils/landingCases";
+import { mobileCaseCover } from "~/utils/caseCoverMedia";
 
 const props = defineProps<{
   projects: IProjects[];
@@ -89,6 +90,24 @@ function onControlsKeydown(event: KeyboardEvent) {
 }
 watch(cases, () => {
   if (activeIndex.value >= cases.value.length) activeIndex.value = 0;
+});
+// Decode every cover ahead of time so a switch never waits on the network or decodes mid-wipe.
+const preloadedCovers: HTMLImageElement[] = [];
+function preloadCovers() {
+  const phone = window.matchMedia("(max-width: 767px)").matches;
+  for (const project of cases.value) {
+    const source = project.cover_image_url || project.image_url;
+    const src = (phone && mobileCaseCover(source)) || source;
+    if (!src || preloadedCovers.some((image) => image.src.endsWith(src))) continue;
+    const image = new Image();
+    image.src = src;
+    void image.decode().catch(() => undefined);
+    preloadedCovers.push(image);
+  }
+}
+onMounted(() => {
+  preloadCovers();
+  watch(cases, preloadCovers);
 });
 </script>
 

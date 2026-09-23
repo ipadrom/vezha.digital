@@ -25,7 +25,6 @@
       :src="imageUrl"
       alt=""
       aria-hidden="true"
-      loading="lazy"
       />
     </picture>
 
