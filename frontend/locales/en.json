@@ -287,7 +287,8 @@
         "Stores",
         "AI",
         "Systems",
-        "Mobile"
+        "Mobile",
+        "Support"
       ],
       "navAria": "Service navigation",
       "previousAria": "Previous service",
@@ -361,6 +362,20 @@
           "activity": "Recent activity",
           "firstPayment": "Service subscription",
           "secondPayment": "Design payment"
+        },
+        "support": {
+          "title": "Support",
+          "uptime": "Uptime",
+          "firstTask": "iOS payment bug",
+          "secondTask": "New CRM report",
+          "thirdTask": "Dependency updates",
+          "fixed": "Fixed",
+          "inProgress": "In progress",
+          "monitoring": "Monitoring",
+          "incidents": "Incidents",
+          "response": "Response",
+          "responseValue": "< 1 h",
+          "releases": "Releases"
         }
       },
       "commercialLabels": {
@@ -403,6 +418,11 @@
           "price": "from $5,000",
           "timeline": "from 8 weeks",
           "included": ["UX/UI design", "iOS and Android", "API integrations", "Publishing"]
+        },
+        {
+          "price": "By agreement",
+          "timeline": "∞",
+          "included": ["Code audit", "Bug fixes", "New features", "Monitoring"]
         }
       ],
       "asideCta": {
@@ -481,6 +501,16 @@
             "iOS",
             "Android",
             "PWA"
+          ]
+        },
+        {
+          "n": "08",
+          "title": "Support for existing products",
+          "desc": "We take over a live product: fix bugs, extend features and keep it stable.",
+          "meta": [
+            "Audit",
+            "Improvements",
+            "Monitoring"
           ]
         }
       ]

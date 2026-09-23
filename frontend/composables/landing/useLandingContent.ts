@@ -93,7 +93,7 @@ export type LandingCopy = {
     label: string;
     title: string;
     hint: [string, string];
-    navLabels: [string, string, string, string, string, string, string];
+    navLabels: string[];
     navAria: string;
     previousAria: string;
     nextAria: string;
@@ -213,7 +213,7 @@ export function useLandingContent() {
   const displayServices = computed<DisplayService[]>(() => {
     if (!services.value.length) return fallbackServices.value;
 
-    return services.value.slice(0, 7).map((service, index) => ({
+    return services.value.slice(0, 8).map((service, index) => ({
       n: toNumber(index + 1),
       title: service.name || service.title || fallbackServices.value[index]?.title || copy.value.services.fallbackTitle,
       desc: service.description || service.about || fallbackServices.value[index]?.desc || copy.value.services.fallbackDesc,

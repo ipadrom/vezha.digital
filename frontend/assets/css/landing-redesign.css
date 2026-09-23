@@ -454,7 +454,8 @@
 .vz-screen-shop,
 .vz-screen-ai,
 .vz-screen-corp,
-.vz-screen-mobile {
+.vz-screen-mobile,
+.vz-screen-support {
   display: flex;
   height: 100%;
   flex-direction: column;
@@ -1760,6 +1761,112 @@
   background: var(--surface);
   color: var(--muted);
   font: 6px "JetBrains Mono", monospace;
+}
+
+.vz-service-ui--support {
+  display: grid;
+  grid-template-rows: 42px auto 1fr 64px;
+  padding: 0 16px 15px;
+}
+
+.vz-service-ui--support > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: calc(var(--type-micro) + 1px);
+}
+
+.vz-service-ui--support > header b {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #c6ffdb;
+  color: #19552d;
+  font-size: var(--type-micro);
+}
+
+/* Uptime strip: one amber day keeps it from reading as a flat decoration. */
+.vz-service-ui--support section {
+  display: grid;
+  grid-template-columns: repeat(28, 1fr);
+  gap: 3px;
+  height: 26px;
+}
+
+.vz-service-ui--support section i {
+  border-radius: 2px;
+  background: linear-gradient(180deg, #51d8ff, #ad9cff);
+  opacity: 0.75;
+}
+
+.vz-service-ui--support section i:nth-child(19) {
+  background: #ffc46b;
+  opacity: 1;
+}
+
+.vz-service-ui--support main {
+  display: grid;
+  align-content: center;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  margin-block: 12px;
+}
+
+.vz-service-ui--support main p {
+  display: grid;
+  grid-template-columns: 30px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 36px;
+  margin: 0;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--border);
+  font-size: var(--type-micro);
+}
+
+.vz-service-ui--support main p:last-child {
+  border-bottom: 0;
+}
+
+.vz-service-ui--support main small {
+  color: var(--muted);
+  font: var(--type-micro) "JetBrains Mono", monospace;
+}
+
+.vz-service-ui--support main i {
+  padding: 4px 6px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--muted);
+  font: var(--type-micro) "JetBrains Mono", monospace;
+}
+
+.vz-service-ui--support main i.is-done {
+  background: #c6ffdb;
+  color: #19552d;
+}
+
+.vz-service-ui--support main i.is-active {
+  background: var(--ink);
+  color: var(--bg);
+}
+
+.vz-service-ui--support footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.vz-service-ui--support footer span {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: var(--type-micro);
+}
+
+.vz-service-ui--support footer b {
+  color: var(--ink);
 }
 
 .vz-service-ui--mobile > main {

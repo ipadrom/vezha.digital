@@ -193,10 +193,10 @@ test("lists the same five native Mobile technologies in both locales", () => {
   }
 });
 
-test("provides seven compact service navigation labels in both locales", () => {
+test("provides eight compact service navigation labels in both locales", () => {
   const expectedByLocale = {
-    ru: ["Mini Apps", "Боты", "Веб-сайты", "Магазины", "AI", "Системы", "Mobile"],
-    en: ["Mini Apps", "Bots", "Websites", "Stores", "AI", "Systems", "Mobile"],
+    ru: ["Mini Apps", "Боты", "Веб-сайты", "Магазины", "AI", "Системы", "Mobile", "Поддержка"],
+    en: ["Mini Apps", "Bots", "Websites", "Stores", "AI", "Systems", "Mobile", "Support"],
   };
 
   for (const locale of ["ru", "en"] as const) {

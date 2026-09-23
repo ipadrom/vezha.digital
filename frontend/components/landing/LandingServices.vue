@@ -228,6 +228,18 @@
                               <div class="vz-corp-chart"><i v-for="bar in 6" :key="bar"></i></div>
                             </div>
                           </div>
+                          <div v-else-if="screen === 'support'" class="vz-screen-support">
+                            <div class="vz-service-ui vz-service-ui--support">
+                              <header><span>{{ copy.screens.support.title }}</span><b>{{ copy.screens.support.uptime }} 99.9%</b></header>
+                              <section><i v-for="bar in 28" :key="bar"></i></section>
+                              <main>
+                                <p><small>#128</small><span>{{ copy.screens.support.firstTask }}</span><i class="is-done">{{ copy.screens.support.fixed }}</i></p>
+                                <p><small>#129</small><span>{{ copy.screens.support.secondTask }}</span><i class="is-active">{{ copy.screens.support.inProgress }}</i></p>
+                                <p><small>#130</small><span>{{ copy.screens.support.thirdTask }}</span><i>{{ copy.screens.support.monitoring }}</i></p>
+                              </main>
+                              <footer><span>{{ copy.screens.support.incidents }} <b>0</b></span><span>{{ copy.screens.support.response }} <b>{{ copy.screens.support.responseValue }}</b></span><span>{{ copy.screens.support.releases }} <b>12</b></span></footer>
+                            </div>
+                          </div>
                           <div v-else class="vz-screen-mobile">
                             <div class="vz-service-ui vz-service-ui--mobile">
                               <header><span></span><b>{{ copy.screens.mobile.greeting }}</b><i>•••</i></header>
@@ -286,7 +298,7 @@ type LandingServicesCopy = {
   label: string;
   title: string;
   hint: [string, string];
-  navLabels: [string, string, string, string, string, string, string];
+  navLabels: string[];
   navAria: string;
   previousAria: string;
   nextAria: string;
@@ -311,7 +323,7 @@ type LandingServicesCopy = {
 const props = defineProps<{ services: LandingService[]; copy: LandingServicesCopy }>();
 const emit = defineEmits<{ activeChange: [index: number] }>();
 const rootRef = ref<HTMLElement | null>(null);
-const serviceScreens = ["miniapp", "bot", "site", "shop", "ai", "corp", "mobile"] as const;
+const serviceScreens = ["miniapp", "bot", "site", "shop", "ai", "corp", "mobile", "support"] as const;
 const serviceCount = computed(() => props.services.length);
 const { activeIndex, select } = useLandingServices(rootRef, serviceCount, (index) => emit("activeChange", index));
 const activeServiceCallouts = computed(() => props.copy.commercial[activeIndex.value]?.included ?? []);
