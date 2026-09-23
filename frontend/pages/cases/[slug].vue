@@ -1,6 +1,7 @@
 <template>
   <div class="case-page" :data-theme="theme" :data-case-slug="slug">
     <CaseScrollThumb :theme="theme" />
+    <div v-if="heroBackground" class="case-top-tint" :style="{ backgroundColor: heroBackground }" aria-hidden="true" />
     <CaseDetailHeader :locale="currentLocale" :theme="theme" :has-technical="Boolean(project?.technologies.length)" @toggle-theme="toggleTheme" />
 
     <main v-if="project">
@@ -59,6 +60,7 @@ import CaseVisual from "~/components/cases/CaseVisual.vue";
 import PublicCaseBuilder from "~/components/case-builder/PublicCaseBuilder.vue";
 import type { IProjectDetail, IProjects } from "~/utils/interfaces/IProjects";
 import { getCaseFallbacks } from "~/utils/caseFallbacks";
+import { caseHeroColorDefaults, normalizeHexColor } from "~/utils/caseBuilder";
 
 definePageMeta({ layout: false });
 const route = useRoute();
@@ -78,6 +80,10 @@ const publicProjects = ref<IProjects[]>([]);
 const caseIndex = computed(() => Math.max(0, fallbacks.value.findIndex((item) => item.slug === project.value?.slug)));
 const relatedProjects = computed(() => publicProjects.value.filter(item => item.slug !== slug.value));
 const two = (value: number) => String(value).padStart(2, "0");
+const heroBackground = computed(() => {
+  const hero = project.value?.blocks?.find((block) => block.type === "hero");
+  return hero ? normalizeHexColor(hero.settings?.hero_background, caseHeroColorDefaults.background) : null;
+});
 
 async function loadProject() {
   const fallback = fallbacks.value.find((item) => item.slug === slug.value) || null;
@@ -113,6 +119,12 @@ onMounted(() => {
 <style src="~/assets/css/case-detail.css"></style>
 
 <style>
+/* iOS Safari tints its status band from the first full-width fixed box with a plain background at the top edge
+   (sampled 4px inside). This strip gives it the case header colour; the root background covers the bottom band. */
+.case-top-tint { display: none; }
+@media (max-width: 900px) {
+  .case-top-tint { position: fixed; top: 0; right: 0; left: 0; z-index: 211; display: block; height: 6px; }
+}
 /* Not a src block: plugin-vue maps one src file to one SFC, and index.vue owns this one. */
 @import "~/assets/css/site-polish.css";
 </style>

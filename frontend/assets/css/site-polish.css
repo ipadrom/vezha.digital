@@ -1,5 +1,8 @@
 /* Final public-site refinements; retain the incumbent visual tokens. */
-html.landing-route, html.case-route { background: #fff; }
+/* iOS Safari paints its status and toolbar bands from the root background when no fixed box claims the edge,
+   so the root carries the page's own edge colour instead of white. */
+html.landing-route { background: #e4ecfb; }
+html.case-route { background: #f6f7fe; }
 html.landing-route[data-theme="dark"], html.case-route--dark { background: #111214; }
 html.landing-route body, html.case-route body { background: inherit; margin: 0; }
 html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 100svh; }
