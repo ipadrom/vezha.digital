@@ -45,7 +45,7 @@
       </div>
     </nav>
 
-    <MobileSiteMenu :visible="isHeaderShown" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" @toggle-theme="toggleTheme" @close="holdHeader" />
+    <MobileSiteMenu :visible="isHeaderShown" id="landing-mobile-menu" :theme="theme" :locale="currentLocale" :contact-email="contactEmail" @toggle-theme="toggleTheme" @close="holdHeader" />
 
     <Teleport to="body">
       <div

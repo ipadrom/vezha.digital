@@ -21,11 +21,11 @@
             <span class="vz-contacts__value-copied" aria-hidden="true" :style="{ opacity: copiedKey === 'email' ? 1 : 0 }">{{ copy.copied }}</span>
           </span>
         </button>
-        <a class="vz-button vz-button--light" href="https://t.me/vezha_digital" target="_blank" rel="noopener noreferrer">
+        <a class="vz-button vz-button--light" :href="contactTelegram.url" target="_blank" rel="noopener noreferrer">
           <svg class="vz-contact-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
             <path d="M21.4 3.6c.3-1.2-.5-1.7-1.4-1.3L2.5 9c-1.2.5-1.2 1.2-.2 1.5l4.5 1.4L17.3 5.3c.5-.3.9-.1.5.3l-8.5 7.7-.3 4.7c.5 0 .7-.2 1-.5l2.2-2.1 4.6 3.4c.9.5 1.5.3 1.7-.8L21.4 3.6Z" />
           </svg>
-          <span>Telegram @vezha_digital</span>
+          <span>Telegram {{ contactTelegram.handle }}</span>
         </a>
         <button class="vz-button vz-button--light" type="button" :aria-label="copy.copyPhoneAria" @click="copyValue('phone', contactPhone)">
           <svg class="vz-contact-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
@@ -43,6 +43,8 @@
 </template>
 
 <script setup lang="ts">
+import { contactPhone, contactTelegram, useContactCopy } from "~/composables/useContactCopy";
+
 defineProps<{
   copy: {
     label: string;
@@ -55,51 +57,7 @@ defineProps<{
   contactEmail: string;
 }>();
 
-const contactPhone = "8 (993) 900-23-66";
-const copiedKey = ref<"email" | "phone" | null>(null);
-let copiedTimer: ReturnType<typeof setTimeout> | null = null;
-
-async function writeClipboard(value: string) {
-  try {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(value);
-      return true;
-    }
-  } catch {
-    // Permission denied or an insecure context; fall through to the legacy path.
-  }
-
-  try {
-    const field = document.createElement("textarea");
-    field.value = value;
-    field.setAttribute("readonly", "");
-    field.style.position = "fixed";
-    field.style.top = "0";
-    field.style.opacity = "0";
-    document.body.append(field);
-    field.select();
-    const copied = document.execCommand("copy");
-    field.remove();
-    return copied;
-  } catch {
-    return false;
-  }
-}
-
-async function copyValue(key: "email" | "phone", value: string) {
-  if (!await writeClipboard(value)) return;
-
-  copiedKey.value = key;
-  if (copiedTimer) clearTimeout(copiedTimer);
-  copiedTimer = setTimeout(() => {
-    copiedKey.value = null;
-    copiedTimer = null;
-  }, 1600);
-}
-
-onBeforeUnmount(() => {
-  if (copiedTimer) clearTimeout(copiedTimer);
-});
+const { copiedKey, copyValue } = useContactCopy();
 </script>
 
 <style scoped>

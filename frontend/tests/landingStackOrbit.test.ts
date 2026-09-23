@@ -672,7 +672,7 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(mobileMenu, /const shown = computed\(\(\) => props\.visible \|\| open\.value\)/);
   assert.match(mobileMenu, /class="site-mobile-menu-layer" :class="\{ 'is-hidden': !shown \}"/);
   assert.doesNotMatch(mobileMenu, /watch\(\(\) => props\.visible/);
-  assert.match(mobileMenu, /watch\(open, \(isOpen\) => \{ if \(!isOpen\) emit\('close'\); \}\)/);
+  assert.match(mobileMenu, /watch\(open, \(isOpen\) => \{ if \(!isOpen\) \{ emit\('close'\);/);
   assert.match(landing, /<MobileSiteMenu :visible="isHeaderShown"[^>]*@close="holdHeader"/);
   assert.match(header, /function holdHeader\(\)\s*\{\s*revealHeader\(\);\s*queueHeaderHide\(\);\s*\}/s);
   // Safari skips a visibility: hidden fixed layer when tinting the status bar; only its children show.
