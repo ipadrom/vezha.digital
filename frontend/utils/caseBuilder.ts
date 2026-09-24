@@ -507,8 +507,8 @@ export const createCaseBlock = (type: CaseBlockType, layout?: string): CaseBlock
     content_ru: structuredClone(defaults[0]),
     content_en: structuredClone(defaults[1]),
     settings: {
-      theme: ['hero', 'media_hero', 'insight'].includes(type) ? 'ink' : type === 'technologies' ? 'soft' : type === 'next_case' ? 'signal' : 'paper',
-      surface: ['text', 'image', 'metrics', 'challenge_solution', 'process', 'results'].includes(type) ? 'plain' : 'card',
+      theme: ['hero', 'media_hero', 'insight'].includes(type) ? 'ink' : type === 'technologies' ? 'soft' : 'paper',
+      surface: ['text', 'image', 'metrics', 'challenge_solution', 'process', 'results', 'next_case'].includes(type) ? 'plain' : 'card',
       width: type === 'hero' ? 'full' : ['media_hero', 'text', 'image', 'metrics', 'process', 'results', 'technologies', 'next_case', 'insight'].includes(type) ? 'wide' : 'standard',
       spacing: ['hero', 'text', 'process', 'results', 'next_case', 'insight'].includes(type) ? 'large' : ['image', 'technologies', 'media_hero'].includes(type) ? 'compact' : 'normal',
       layout: layout && caseBlockLayoutOptions[type].some(option => option.value === layout) ? layout : defaultCaseBlockLayouts[type],

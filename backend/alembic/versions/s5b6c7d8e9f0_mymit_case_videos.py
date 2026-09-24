@@ -1,5 +1,8 @@
 """Add MyMIT interaction videos and dev-branch items without touching other editorial content.
 
+The first release of this revision updated only block order and settings, so drafts kept
+the old fragments; v8e9f0a1b2c3 re-applies the patch to draft and published content.
+
 Revision ID: s5b6c7d8e9f0
 Revises: r4a5b6c7d8e9
 """
@@ -158,7 +161,12 @@ def upgrade_cases(db):
                 db.execute(
                     blocks.update()
                     .where(blocks.c.project_id == pid, blocks.c.id == block["id"])
-                    .values(sort_order=block["sort_order"], settings=block["settings"])
+                    .values(
+                        sort_order=block["sort_order"],
+                        settings=block["settings"],
+                        content_ru=block["content_ru"],
+                        content_en=block["content_en"],
+                    )
                 )
             else:
                 db.execute(blocks.insert().values(project_id=pid, **block))

@@ -184,7 +184,10 @@ editable and can be shown from the admin without another migration. Migration
 `poster_url` on `process` items), inserts the return-visit and exact-amount
 items and refreshes the early-start copy, matching items by title so other edited
 descriptions survive; the release snapshot `mymit_case_20260921.json` carries the same
-content for fresh environments.
+content for fresh environments. Its first release updated only block order and settings, so
+`v8e9f0a1b2c3` re-applies the patch to block rows and the published snapshot and turns a
+saved navigation block from the signal fill to the plain paper look of the automatic one;
+`createCaseBlock` now creates navigation blocks that way.
 
 ## Media tooling
 
