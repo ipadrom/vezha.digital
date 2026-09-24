@@ -72,3 +72,27 @@ def test_detail_keeps_optional_groups_empty() -> None:
     assert detail.gallery == []
     assert detail.technologies == []
     assert detail.timeline == "4 недели"
+
+
+def test_public_summary_orders_by_the_project_column_not_the_snapshot() -> None:
+    project = SimpleNamespace(
+        id=uuid.uuid4(),
+        slug="signal",
+        sort_order=0,
+        is_featured=False,
+        published_data={
+            "meta": {
+                "slug": "signal",
+                "name_ru": "Сигнал",
+                "name_en": "Signal",
+                "is_featured": True,
+                "sort_order": 7,
+            },
+            "blocks": [],
+        },
+    )
+
+    summary = serialize_project_summary(project, "ru")
+
+    assert summary.sort_order == 0
+    assert summary.is_featured is True

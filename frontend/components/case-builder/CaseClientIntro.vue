@@ -47,13 +47,16 @@ const paragraphs = computed(() => String(props.content.body || '').split(/\n\s*\
 .case-client__content { display: grid; grid-template-columns: minmax(310px, 1.15fr) minmax(0, 1.7fr); align-items: start; gap: clamp(28px, 3vw, 48px); }
 .case-client__person { display: flex; flex-direction: column; align-items: center; width: fit-content; max-width: 100%; gap: 24px; min-width: 0; }
 .case-client__person > img { width: min(100%, 220px); height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 50%; }
+/* Name, caption and buttons sit centred under the portrait. */
+.case-client__person > div { width: 100%; text-align: center; }
 .case-client h3 { margin: 0; white-space: nowrap; font: 540 clamp(22px, 2vw, 28px)/1.12 var(--font-ui); letter-spacing: -0.035em; }
 .case-client__person p { margin: 12px 0 0; font-size: 15px; line-height: 1.5; color: var(--case-muted); }
 .case-client__story { min-width: 0; }
 .case-client__story p { margin: 0; }
 .case-client__inline-logo { display: inline-block; width: auto; height: 0.95em; vertical-align: -0.04em; }
 .case-client__story p + p { margin-top: 1.58em; }
-.case-client__actions { display: flex; justify-content: center; width: fit-content; max-width: 100%; gap: 8px; margin: 24px auto 0; }
+/* Equal columns: both buttons take the width of the wider label. */
+.case-client__actions { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; justify-content: center; width: fit-content; max-width: 100%; gap: 8px; margin: 24px auto 0; }
 .case-client__actions--single { width: 100%; }
 .case-client__actions--single .case-client__button { width: 100%; font-size: 16px; }
 .case-client__button { display: flex; align-items: center; justify-content: center; gap: 7px; min-width: 0; min-height: 48px; padding: 11px 10px; box-sizing: border-box; border: 1px solid color-mix(in srgb, var(--case-ink) 18%, transparent); border-radius: 999px; background: transparent; color: var(--case-ink); font: 500 14px/1.3 var(--font-ui); text-decoration: none; }

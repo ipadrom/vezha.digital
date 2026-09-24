@@ -100,7 +100,9 @@ def serialize_project_summary(project: Any, lang: str) -> ProjectPublic:
             hero_metric_value=meta.get("hero_metric_value") or None,
             hero_metric_label=_snapshot_value(meta, "hero_metric_label", lang),
             is_featured=bool(meta.get("is_featured")),
-            sort_order=int(meta.get("sort_order", 0)),
+            # The public order is the project column, which the admin list reorders; the
+            # published snapshot keeps whatever position the case had when it was published.
+            sort_order=int(getattr(project, "sort_order", None) or 0),
             metrics=_snapshot_metrics(blocks),
         )
     return ProjectPublic(
@@ -140,11 +142,19 @@ def serialize_project_detail(project: Any, lang: str) -> ProjectDetailPublic:
             **summary,
             year=meta.get("year") or None,
             timeline=_snapshot_value(meta, "timeline", lang),
-            challenge=challenge_block.content.get("challenge") if challenge_block else None,
-            solution=challenge_block.content.get("solution") if challenge_block else None,
-            result_summary=metrics_block.content.get("summary") if metrics_block else None,
+            challenge=(
+                challenge_block.content.get("challenge") if challenge_block else None
+            ),
+            solution=(
+                challenge_block.content.get("solution") if challenge_block else None
+            ),
+            result_summary=(
+                metrics_block.content.get("summary") if metrics_block else None
+            ),
             testimonial=quote_block.content.get("quote") if quote_block else None,
-            testimonial_author=quote_block.content.get("author") if quote_block else None,
+            testimonial_author=(
+                quote_block.content.get("author") if quote_block else None
+            ),
             gallery=[],
             technologies=[
                 ProjectTechnologyPublic(
@@ -153,7 +163,9 @@ def serialize_project_detail(project: Any, lang: str) -> ProjectDetailPublic:
                     sort_order=index,
                 )
                 for index, item in enumerate(
-                    technology_block.content.get("items", []) if technology_block else []
+                    technology_block.content.get("items", [])
+                    if technology_block
+                    else []
                 )
             ],
             blocks=blocks,
@@ -205,4 +217,6 @@ def replace_project_children(
     if gallery is not None:
         project.gallery = [ProjectGalleryItem(**item.model_dump()) for item in gallery]
     if technologies is not None:
-        project.technologies = [ProjectTechnology(**item.model_dump()) for item in technologies]
+        project.technologies = [
+            ProjectTechnology(**item.model_dump()) for item in technologies
+        ]
