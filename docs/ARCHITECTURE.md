@@ -114,6 +114,10 @@ Admin edits case document
 
 The case builder is an established product surface. New case formats should extend its block/schema system unless a separate architecture is explicitly approved.
 
+The public order of cases is the `projects.sort_order` column. The admin cases list changes it by drag and drop (or arrow keys on the row handle) through `PATCH /api/admin/projects/reorder`; the document meta reports the column value and neither saving a draft nor publishing writes `sort_order` back, so an editor tab opened before a reorder cannot restore a stale position.
+
+The client introduction (`image_text` / `client`) exposes its buttons in the block inspector: the contact link and label with a "show contact button" switch, the project link and label, and the button logo.
+
 The process block offers two compositions: the existing `chapter` and
 `phone-showcase` ("Список с телефоном"), also available as a separate library
 preset. The public renderer and admin canvas share the same interactive

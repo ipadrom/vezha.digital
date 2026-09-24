@@ -38,8 +38,24 @@
       <span>{{ cases.length ? 'Измените поиск или фильтр.' : 'Создайте первый кейс и соберите его из блоков.' }}</span>
     </div>
 
-    <section v-else class="case-list">
-      <article v-for="(item, index) in filteredCases" :key="item.id" class="case-row">
+    <section v-else class="case-list" :class="{ 'case-list--locked': !canReorder }" :aria-label="canReorder ? 'Кейсы, порядок меняется перетаскиванием' : 'Кейсы'">
+      <p v-if="!canReorder" class="case-list__hint">Чтобы менять порядок перетаскиванием, сбросьте поиск и фильтр.</p>
+      <p v-else-if="orderNotice" class="case-list__hint" :class="{ 'case-list__hint--error': orderError }" role="status">{{ orderNotice }}</p>
+      <article
+        v-for="(item, index) in filteredCases"
+        :key="item.id"
+        class="case-row"
+        :class="{ 'case-row--dragging': dragIndex === index, 'case-row--target': dragOverIndex === index && dragIndex !== index }"
+        :draggable="canReorder"
+        @dragstart="startDrag(index, $event)"
+        @dragover.prevent="dragOverIndex = index"
+        @dragleave="dragOverIndex === index && (dragOverIndex = null)"
+        @drop.prevent="dropAt(index)"
+        @dragend="endDrag"
+      >
+        <button v-if="canReorder" class="case-row__handle" type="button" :aria-label="`Переместить «${item.name_ru || 'Без названия'}»: позиция ${index + 1} из ${filteredCases.length}`" title="Перетащите, чтобы изменить порядок на сайте" @keydown.up.prevent="move(index, -1)" @keydown.down.prevent="move(index, 1)">
+          <span /><span /><span />
+        </button>
         <NuxtLink class="case-row__cover" :to="`/admin/cases/${item.id}`">
           <img v-if="item.cover_image_url" :src="item.cover_image_url" alt="" />
           <span v-else>{{ String(index + 1).padStart(2, '0') }}</span>
@@ -74,13 +90,19 @@ definePageMeta({ layout: 'admin-layout' })
 useHead({ title: 'Кейсы — VEZHA Studio' })
 
 const router = useRouter()
-const { listCases, createCase, duplicateCase, deleteCase } = useCaseAdmin()
+const { listCases, reorderCases, createCase, duplicateCase, deleteCase } = useCaseAdmin()
 const cases = ref<CaseSummary[]>([])
 const loading = ref(true)
 const creating = ref(false)
 const error = ref('')
 const search = ref('')
 const statusFilter = ref<'all' | CaseStatus>('all')
+const dragIndex = ref<number | null>(null)
+const dragOverIndex = ref<number | null>(null)
+const orderNotice = ref('')
+const orderError = ref(false)
+// Dragging is only meaningful over the whole list: a filtered view would hide the neighbours.
+const canReorder = computed(() => !search.value.trim() && statusFilter.value === 'all' && cases.value.length > 1)
 
 const filters: Array<{ value: 'all' | CaseStatus; label: string }> = [
   { value: 'all', label: 'Все' },
@@ -104,6 +126,45 @@ const countByStatus = (status: 'all' | CaseStatus) => status === 'all'
 
 const statusLabel = (status: CaseStatus) => ({ draft: 'Черновик', published: 'Опубликован', hidden: 'Скрыт' }[status])
 const formatDate = (value: string) => new Intl.DateTimeFormat('ru-RU', { day: '2-digit', month: 'short' }).format(new Date(value))
+
+function startDrag(index: number, event: DragEvent) {
+  if (!canReorder.value) { event.preventDefault(); return }
+  dragIndex.value = index
+  event.dataTransfer?.setData('text/plain', String(index))
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move'
+}
+
+function endDrag() { dragIndex.value = null; dragOverIndex.value = null }
+
+function dropAt(index: number) {
+  const from = dragIndex.value
+  endDrag()
+  if (from === null || from === index) return
+  void move(from, index - from)
+}
+
+let orderRequest = 0
+async function move(from: number, delta: number) {
+  const to = from + delta
+  if (!canReorder.value || to < 0 || to >= cases.value.length || delta === 0) return
+  const previous = cases.value
+  const next = previous.slice()
+  const [item] = next.splice(from, 1)
+  next.splice(to, 0, item)
+  cases.value = next.map((entry, sort_order) => ({ ...entry, sort_order }))
+  orderError.value = false
+  orderNotice.value = 'Сохраняем порядок…'
+  const request = ++orderRequest
+  try {
+    await reorderCases(cases.value.map(entry => entry.id))
+    if (request === orderRequest) orderNotice.value = 'Порядок сохранён: так кейсы идут на сайте.'
+  } catch (cause) {
+    if (request !== orderRequest) return
+    cases.value = previous
+    orderError.value = true
+    orderNotice.value = cause instanceof Error ? `Не удалось сохранить порядок: ${cause.message}` : 'Не удалось сохранить порядок'
+  }
+}
 
 async function loadCases() {
   loading.value = true
@@ -159,6 +220,16 @@ onMounted(loadCases)
 .cases-toolbar__filters button.active { color: var(--studio-ink); background: var(--studio-blue-soft); }
 .cases-toolbar__filters small { margin-left: 5px; font: 500 10px var(--font-mono); }
 .case-list { max-width: 1360px; margin: 0 auto; display: grid; gap: 8px; }
+.case-list__hint { margin: 0 0 4px; color: var(--studio-muted); font-size: 12px; }
+.case-list__hint--error { color: var(--studio-danger); }
+.case-row__handle { display: grid; align-content: center; justify-items: center; gap: 4px; width: 26px; padding: 0; border: 0; border-right: 1px solid var(--studio-line); background: transparent; cursor: grab; touch-action: none; }
+.case-row__handle span { width: 12px; height: 2px; border-radius: 1px; background: #b7c0ce; }
+.case-row__handle:hover span, .case-row__handle:focus-visible span { background: var(--studio-blue); }
+.case-row__handle:focus-visible { outline: 2px solid var(--studio-blue); outline-offset: -2px; }
+.case-row[draggable="true"] { cursor: grab; }
+.case-row--dragging { opacity: .45; }
+.case-row--target { border-color: var(--studio-blue); box-shadow: 0 0 0 3px var(--studio-blue-soft); }
+.case-list:not(.case-list--locked) .case-row { grid-template-columns: 26px 148px minmax(0, 1fr) auto; }
 .case-row { min-height: 116px; display: grid; grid-template-columns: 148px minmax(0, 1fr) auto; border: 1px solid var(--studio-line); border-radius: 12px; overflow: hidden; background: var(--studio-white); transition: border-color .18s, transform .18s; }
 .case-row:hover { border-color: #b7c0ce; transform: translateY(-1px); }
 .case-row__cover { position: relative; min-height: 116px; display: grid; place-items: center; overflow: hidden; color: #9aa4b4; background: #e9edf2; font: 600 28px var(--font-mono); text-decoration: none; }
@@ -182,6 +253,6 @@ onMounted(loadCases)
 .cases-state b { color: var(--studio-ink); font-size: 18px; }
 .cases-state button { border: 0; color: var(--studio-blue); background: none; cursor: pointer; }
 .cases-state--error b { color: var(--studio-danger); }
-@media (max-width: 900px) { .case-row { grid-template-columns: 110px 1fr; } .case-row__actions { grid-column: 1 / -1; width: auto; display: flex; gap: 16px; border-top: 1px solid var(--studio-line); border-left: 0; } .case-row__main { align-items: flex-start; } }
+@media (max-width: 900px) { .case-row { grid-template-columns: 110px 1fr; } .case-list:not(.case-list--locked) .case-row { grid-template-columns: 26px 110px 1fr; } .case-row__actions { grid-column: 1 / -1; width: auto; display: flex; gap: 16px; border-top: 1px solid var(--studio-line); border-left: 0; } .case-row__main { align-items: flex-start; } }
 @media (max-width: 660px) { .cases-index { padding: 28px 14px 60px; } .cases-index__header { align-items: stretch; flex-direction: column; } .cases-toolbar { align-items: stretch; flex-direction: column; } .cases-toolbar label { min-width: 0; } .cases-toolbar__filters { overflow-x: auto; } .case-row { grid-template-columns: 82px 1fr; } .case-row__main { padding: 15px; flex-direction: column; gap: 12px; } .case-row__state { min-width: 0; } }
 </style>

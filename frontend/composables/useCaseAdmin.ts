@@ -27,6 +27,8 @@ export const useCaseAdmin = () => {
   const hideCase = (id: string) => fetchWithAuth<CaseDocument>(`/cases/${id}/hide`, { method: 'POST' })
   const duplicateCase = (id: string) => fetchWithAuth<CaseDocument>(`/cases/${id}/duplicate`, { method: 'POST' })
   const deleteCase = (id: string) => fetchWithAuth<{ message: string }>(`/cases/${id}`, { method: 'DELETE' })
+  // Cases are projects, so their public order is the shared project sort order.
+  const reorderCases = (ids: string[]) => fetchWithAuth<{ message: string }>('/projects/reorder', { method: 'PATCH', body: JSON.stringify({ items: ids.map((id, sort_order) => ({ id, sort_order })) }) })
   const listRevisions = (id: string) => fetchWithAuth<CaseRevision[]>(`/cases/${id}/revisions`)
   const restoreRevision = (id: string, revisionId: string) => fetchWithAuth<CaseDocument>(`/cases/${id}/revisions/${revisionId}/restore`, { method: 'POST' })
 
@@ -55,6 +57,7 @@ export const useCaseAdmin = () => {
 
   return {
     listCases,
+    reorderCases,
     getCase,
     createCase,
     saveCase,

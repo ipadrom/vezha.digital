@@ -24,8 +24,8 @@
       <label><span>Обложка карточки</span><AdminMediaInput :model-value="meta.cover_image_url" @update:model-value="set('cover_image_url', $event)" /></label>
       <label><span>Ссылка на продукт</span><input :value="meta.project_url" type="url" @input="set('project_url', valueOf($event))" /></label>
       <div class="inspector-pair">
-        <label><span>Порядок</span><input :value="meta.sort_order" type="number" @input="set('sort_order', Number(valueOf($event)))" /></label>
         <label class="check"><input :checked="meta.is_featured" type="checkbox" @change="set('is_featured', checkedOf($event))" /><span>На главной</span></label>
+        <p class="inspector-hint">Порядок кейсов на сайте меняется перетаскиванием в списке кейсов.</p>
       </div>
     </details>
 

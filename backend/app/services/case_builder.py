@@ -81,7 +81,12 @@ def legacy_blocks(project: Project) -> list[CaseBlockInput]:
         )
     ]
 
-    if project.challenge_ru or project.solution_ru or project.challenge_en or project.solution_en:
+    if (
+        project.challenge_ru
+        or project.solution_ru
+        or project.challenge_en
+        or project.solution_en
+    ):
         blocks.append(
             CaseBlockInput(
                 id=uuid4(),
@@ -106,7 +111,9 @@ def legacy_blocks(project: Project) -> list[CaseBlockInput]:
             )
         )
 
-    for item in sorted(project.gallery, key=lambda gallery_item: gallery_item.sort_order):
+    for item in sorted(
+        project.gallery, key=lambda gallery_item: gallery_item.sort_order
+    ):
         blocks.append(
             CaseBlockInput(
                 id=uuid4(),
@@ -207,8 +214,18 @@ def legacy_blocks(project: Project) -> list[CaseBlockInput]:
         CaseBlockInput(
             id=uuid4(),
             type="next_case",
-            content_ru={"title": "Другие проекты", "case_slugs": [], "cta_label": "Все кейсы", "card_cta_label": "Смотреть кейс"},
-            content_en={"title": "More projects", "case_slugs": [], "cta_label": "All cases", "card_cta_label": "View case"},
+            content_ru={
+                "title": "Другие проекты",
+                "case_slugs": [],
+                "cta_label": "Все кейсы",
+                "card_cta_label": "Смотреть кейс",
+            },
+            content_en={
+                "title": "More projects",
+                "case_slugs": [],
+                "cta_label": "All cases",
+                "card_cta_label": "View case",
+            },
             settings={"theme": "signal", "width": "wide", "spacing": "large"},
             sort_order=len(blocks),
         )
@@ -217,9 +234,15 @@ def legacy_blocks(project: Project) -> list[CaseBlockInput]:
 
 
 def project_meta(project: Project) -> CaseMeta:
-    if project.draft_data:
-        return CaseMeta.model_validate(project.draft_data)
-    return legacy_meta(project)
+    meta = (
+        CaseMeta.model_validate(project.draft_data)
+        if project.draft_data
+        else legacy_meta(project)
+    )
+    # The project column is the single source of the public order: the admin list reorders it
+    # directly, so a draft saved earlier must not report or restore a stale position.
+    meta.sort_order = project.sort_order
+    return meta
 
 
 def project_blocks(project: Project) -> list[CaseBlockInput]:
@@ -249,7 +272,10 @@ def restored_blocks(snapshot_blocks: list[dict[str, Any]]) -> list[CaseBlockInpu
 
 
 def block_snapshot(blocks: list[CaseBlockInput]) -> list[dict[str, Any]]:
-    return [block.model_dump(mode="json") for block in sorted(blocks, key=lambda item: item.sort_order)]
+    return [
+        block.model_dump(mode="json")
+        for block in sorted(blocks, key=lambda item: item.sort_order)
+    ]
 
 
 def draft_snapshot(project: Project) -> dict[str, Any]:
@@ -259,12 +285,20 @@ def draft_snapshot(project: Project) -> dict[str, Any]:
     }
 
 
+def comparable_snapshot(snapshot: dict[str, Any]) -> dict[str, Any]:
+    """Snapshot without the case position, which is reordered outside the editor."""
+    meta = {**snapshot.get("meta", {}), "sort_order": 0}
+    return {**snapshot, "meta": meta}
+
+
 def has_unpublished_changes(project: Project) -> bool:
     if project.status == "draft":
         return True
     if not project.published_data:
         return bool(project.draft_data or project.blocks)
-    return draft_snapshot(project) != project.published_data
+    return comparable_snapshot(draft_snapshot(project)) != comparable_snapshot(
+        project.published_data
+    )
 
 
 def document_response(project: Project) -> CaseDocumentResponse:
@@ -273,7 +307,9 @@ def document_response(project: Project) -> CaseDocumentResponse:
         id=project.id,
         status=project.status,
         meta=project_meta(project),
-        blocks=[CaseBlockResponse.model_validate(block.model_dump()) for block in blocks],
+        blocks=[
+            CaseBlockResponse.model_validate(block.model_dump()) for block in blocks
+        ],
         has_unpublished_changes=has_unpublished_changes(project),
         published_at=project.published_at,
         updated_at=project.updated_at,
@@ -337,13 +373,12 @@ def apply_published_meta(project: Project, meta: CaseMeta) -> None:
         "hero_metric_label_ru",
         "hero_metric_label_en",
         "is_featured",
-        "sort_order",
     ):
         value = getattr(meta, field)
         if field == "type_ru":
             value = value or "Проект"
         elif field == "type_en":
             value = value or "Project"
-        elif field not in {"name_ru", "name_en", "is_featured", "sort_order"}:
+        elif field not in {"name_ru", "name_en", "is_featured"}:
             value = value or None
         setattr(project, field, value)

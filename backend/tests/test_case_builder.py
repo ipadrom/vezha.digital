@@ -7,12 +7,21 @@ import pytest
 from pydantic import ValidationError
 
 from app.schemas.case_builder import CaseBlockInput, CaseDocumentUpdate, CaseMeta
-from app.services.case_builder import restored_blocks
+from app.services.case_builder import (
+    apply_published_meta,
+    draft_snapshot,
+    has_unpublished_changes,
+    project_meta,
+    restored_blocks,
+)
 from app.services.projects import serialize_project_detail, serialize_project_summary
 
 
 def load_legacy_cleanup_migration():
-    path = Path(__file__).parents[1] / "alembic/versions/v2k3l4m5n6o7_remove_legacy_case_blocks.py"
+    path = (
+        Path(__file__).parents[1]
+        / "alembic/versions/v2k3l4m5n6o7_remove_legacy_case_blocks.py"
+    )
     spec = spec_from_file_location("legacy_case_cleanup_migration", path)
     assert spec and spec.loader
     module = module_from_spec(spec)
@@ -21,7 +30,10 @@ def load_legacy_cleanup_migration():
 
 
 def load_zagorulko_story_migration():
-    path = Path(__file__).parents[1] / "alembic/versions/w3l4m5n6o7p8_zagorulko_orders_story.py"
+    path = (
+        Path(__file__).parents[1]
+        / "alembic/versions/w3l4m5n6o7p8_zagorulko_orders_story.py"
+    )
     spec = spec_from_file_location("zagorulko_orders_story_migration", path)
     assert spec and spec.loader
     module = module_from_spec(spec)
@@ -222,8 +234,20 @@ def test_process_disclosure_settings_allow_single_or_multiple_open_items() -> No
 def test_editorial_text_tags_process_summary_and_metric_intro_are_preserved() -> None:
     overview = CaseBlockInput(
         type="text",
-        content_ru={"kicker": "Кейс", "eyebrow": "О проекте", "title": "Ключевой тезис", "body": "Описание", "tags": ["Nuxt 3", "FastAPI"]},
-        content_en={"kicker": "Case", "eyebrow": "About", "title": "Key statement", "body": "Description", "tags": ["Nuxt 3", "FastAPI"]},
+        content_ru={
+            "kicker": "Кейс",
+            "eyebrow": "О проекте",
+            "title": "Ключевой тезис",
+            "body": "Описание",
+            "tags": ["Nuxt 3", "FastAPI"],
+        },
+        content_en={
+            "kicker": "Case",
+            "eyebrow": "About",
+            "title": "Key statement",
+            "body": "Description",
+            "tags": ["Nuxt 3", "FastAPI"],
+        },
         settings={"layout": "overview"},
     )
     process = CaseBlockInput(
@@ -345,8 +369,34 @@ def test_video_block_preserves_playback_preferences() -> None:
 def test_process_preserves_disclosure_media_tags_and_plain_surface() -> None:
     block = CaseBlockInput(
         type="process",
-        content_ru={"items": [{"title": "Исследование", "description": "Текст", "image_url": "/process.gif", "image_alt": "Команда", "video_url": "/process.mp4", "poster_url": "/poster.webp", "media_size": "compact", "tags": ["UX", "Strategy"]}]},
-        content_en={"items": [{"title": "Research", "description": "Copy", "image_url": "/process.gif", "image_alt": "Team", "video_url": "/process.webm", "poster_url": "/poster.webp", "media_size": "full", "tags": ["UX", "Strategy"]}]},
+        content_ru={
+            "items": [
+                {
+                    "title": "Исследование",
+                    "description": "Текст",
+                    "image_url": "/process.gif",
+                    "image_alt": "Команда",
+                    "video_url": "/process.mp4",
+                    "poster_url": "/poster.webp",
+                    "media_size": "compact",
+                    "tags": ["UX", "Strategy"],
+                }
+            ]
+        },
+        content_en={
+            "items": [
+                {
+                    "title": "Research",
+                    "description": "Copy",
+                    "image_url": "/process.gif",
+                    "image_alt": "Team",
+                    "video_url": "/process.webm",
+                    "poster_url": "/poster.webp",
+                    "media_size": "full",
+                    "tags": ["UX", "Strategy"],
+                }
+            ]
+        },
         settings={"surface": "plain"},
     )
 
@@ -389,7 +439,10 @@ def test_custom_block_preserves_freeform_elements_and_responsive_geometry() -> N
     block = CaseBlockInput(
         type="custom",
         content_ru={"title": "Свой блок", "elements": [element]},
-        content_en={"title": "Custom block", "elements": [{**element, "text": "Free heading"}]},
+        content_en={
+            "title": "Custom block",
+            "elements": [{**element, "text": "Free heading"}],
+        },
         settings={"layout": "freeform", "freeform_height_mobile": 720},
     )
 
@@ -433,7 +486,10 @@ def test_cleanup_migration_removes_gallery_and_canonicalizes_layouts() -> None:
     normalized = cleanup._normalize_blocks(blocks)
 
     assert [block["type"] for block in normalized] == ["process", "results"]
-    assert [block["settings"]["layout"] for block in normalized] == ["chapter", "statement"]
+    assert [block["settings"]["layout"] for block in normalized] == [
+        "chapter",
+        "statement",
+    ]
     assert [block["sort_order"] for block in normalized] == [0, 1]
 
 
@@ -475,7 +531,11 @@ def test_zagorulko_story_is_a_bilingual_three_task_document() -> None:
                 assert content["title"]
             else:
                 assert content["title"] == ""
-                assert content.get("body") or content.get("challenge") or content.get("summary")
+                assert (
+                    content.get("body")
+                    or content.get("challenge")
+                    or content.get("summary")
+                )
     assert [block.type for block in document.blocks] == [
         "hero",
         "text",
@@ -501,7 +561,9 @@ def test_zagorulko_story_is_a_bilingual_three_task_document() -> None:
         "technologies",
     ]
     by_name = {
-        name: next(block for block in document.blocks if block.id == migration._uuid(name))
+        name: next(
+            block for block in document.blocks if block.id == migration._uuid(name)
+        )
         for name in (
             "recognition-flow",
             "recognition-media-pair",
@@ -554,7 +616,10 @@ def test_zagorulko_story_is_a_bilingual_three_task_document() -> None:
         assert media_pair.content_ru["controls"] is False
     assert by_name["crew-stack"].settings.layout == "map"
     assert by_name["finance-stack"].settings.layout == "map"
-    assert by_name["finance-system-map"].settings.model_dump()["map_background"] == "#F5F6FB"
+    assert (
+        by_name["finance-system-map"].settings.model_dump()["map_background"]
+        == "#F5F6FB"
+    )
     assert all(block.type != "media_hero" for block in document.blocks)
     assert sum(block.type == "image" for block in document.blocks) == 3
     assert sum(block.type == "video" for block in document.blocks) == 1
@@ -572,8 +637,8 @@ def test_zagorulko_story_is_a_bilingual_three_task_document() -> None:
         for block in document.blocks
         if block.type in {"image", "video"}
     )
-    assert by_name["crew-input"].content_ru["video_url"].endswith(
-        "crew-network-graph.mp4"
+    assert (
+        by_name["crew-input"].content_ru["video_url"].endswith("crew-network-graph.mp4")
     )
     assert by_name["crew-input"].content_ru["autoplay"] is True
     assert by_name["crew-input"].content_ru["loop"] is True
@@ -598,7 +663,9 @@ def test_zagorulko_story_is_a_bilingual_three_task_document() -> None:
     assert "Через две недели те же заказы нужны уже для расчётов" in serialized_ru
     assert "ФОТО 6 · ИСХОДНЫЕ СООБЩЕНИЯ" in serialized_ru
     assert "ФОТО 7 · ГОТОВЫЙ ПЕРИОД" in serialized_ru
-    assert "заказ получает отдельный статус и не участвует в начислениях" in serialized_ru
+    assert (
+        "заказ получает отдельный статус и не участвует в начислениях" in serialized_ru
+    )
     assert "Google Apps Script" in serialized_ru
     assert "deliberately anonymised" in serialized_en
     assert "ГБУ" not in serialized_ru
@@ -620,7 +687,9 @@ def test_zagorulko_russian_copy_has_no_dash_or_colon_separators() -> None:
             for index, child in enumerate(value):
                 check_copy(child, f"{path}[{index}]")
         elif isinstance(value, str):
-            assert not any(separator in value for separator in ("—", ":", " – ", " - ")), path
+            assert not any(
+                separator in value for separator in ("—", ":", " – ", " - ")
+            ), path
 
     for block in migration._story_blocks():
         check_copy(block["content_ru"], str(block["id"]))
@@ -657,7 +726,10 @@ def test_public_serializer_defaults_empty_project_type() -> None:
 
 
 def test_related_case_selection_survives_block_roundtrip():
-    block = CaseBlockInput(type="next_case", content_ru={"case_slugs": ["demo-b", "demo-a"], "card_cta_label": "View"})
+    block = CaseBlockInput(
+        type="next_case",
+        content_ru={"case_slugs": ["demo-b", "demo-a"], "card_cta_label": "View"},
+    )
     restored = CaseBlockInput.model_validate(block.model_dump())
     assert restored.content_ru["case_slugs"] == ["demo-b", "demo-a"]
     assert restored.content_ru["card_cta_label"] == "View"
@@ -665,7 +737,53 @@ def test_related_case_selection_survives_block_roundtrip():
 
 def test_related_case_selection_limits_and_legacy_compatibility():
     with pytest.raises(ValidationError):
-        CaseBlockInput(type="next_case", content_ru={"case_slugs": ["a", "b", "c", "d"]})
+        CaseBlockInput(
+            type="next_case", content_ru={"case_slugs": ["a", "b", "c", "d"]}
+        )
     block = CaseBlockInput(type="next_case", content_ru={"case_slug": "legacy-demo"})
     assert block.content_ru["case_slug"] == "legacy-demo"
     assert block.content_ru["case_slugs"] is None
+
+
+def test_case_order_comes_from_the_project_column_not_the_draft() -> None:
+    draft = CaseMeta(
+        slug="signal", name_ru="Сигнал", name_en="Signal", sort_order=9
+    ).model_dump(mode="json")
+    project = SimpleNamespace(draft_data=draft, sort_order=2, is_featured=False)
+
+    assert project_meta(project).sort_order == 2
+
+    apply_published_meta(
+        project, CaseMeta.model_validate({**draft, "is_featured": True})
+    )
+    assert project.sort_order == 2
+    assert project.is_featured is True
+
+
+def test_reordering_a_published_case_does_not_flag_a_new_draft() -> None:
+    meta = CaseMeta(slug="signal", name_ru="Сигнал", name_en="Signal", sort_order=0)
+    block = SimpleNamespace(
+        id=uuid4(),
+        type="hero",
+        content_ru={"title": "Сигнал"},
+        content_en={"title": "Signal"},
+        settings={"layout": "case-header"},
+        sort_order=0,
+        is_visible=True,
+    )
+    project = SimpleNamespace(
+        status="published",
+        draft_data=meta.model_dump(mode="json"),
+        blocks=[block],
+        sort_order=0,
+        published_data=None,
+    )
+    project.published_data = draft_snapshot(project)
+    assert has_unpublished_changes(project) is False
+
+    project.sort_order = 5  # moved in the admin list
+    assert project_meta(project).sort_order == 5
+    assert has_unpublished_changes(project) is False
+
+    block.content_ru = {"title": "Другой заголовок"}
+    assert has_unpublished_changes(project) is True

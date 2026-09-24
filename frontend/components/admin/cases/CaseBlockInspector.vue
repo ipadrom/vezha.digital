@@ -29,7 +29,7 @@
       <label v-for="field in fields" :key="field.key">
         <span>{{ field.label }}</span>
         <AdminMediaInput v-if="field.media" :model-value="content[field.key] || ''" :accept="field.accept" @update:model-value="setContent(field.key, $event)" />
-        <input v-else-if="field.kind === 'checkbox'" type="checkbox" :checked="Boolean(content[field.key])" @change="setContentBoolean(field.key, $event)" />
+        <input v-else-if="field.kind === 'checkbox'" type="checkbox" :checked="field.key in content ? Boolean(content[field.key]) : field.defaultValue === true" @change="setContentBoolean(field.key, $event)" />
         <select v-else-if="field.kind === 'select'" :value="content[field.key] || field.defaultValue || ''" @change="setContent(field.key, valueOf($event))">
           <option v-for="option in field.options" :key="option.value" :value="option.value">{{ option.label }}</option>
         </select>
@@ -189,7 +189,7 @@ import type { CaseBlock, CaseElementType, CaseFreeformElement, CaseLocale } from
 import { blockLabel, caseBlockLayoutOptions, caseHeroColorDefaults, deepClone, normalizeHexColor, technologyMapColorDefaults } from '~/utils/caseBuilder'
 import { technologyIcons, technologyId } from '~/utils/caseTechnologies'
 
-type Field = { key: string; label: string; kind?: string; rows?: number; media?: boolean; accept?: string; defaultValue?: string; options?: Array<{ value: string; label: string }> }
+type Field = { key: string; label: string; kind?: string; rows?: number; media?: boolean; accept?: string; defaultValue?: string | boolean; options?: Array<{ value: string; label: string }> }
 type GridViewport = 'desktop' | 'tablet' | 'mobile'
 type GridPosition = 'auto' | 'left' | 'center' | 'right'
 const props = defineProps<{ block: CaseBlock; locale: CaseLocale; currentSlug?: string }>()
@@ -284,8 +284,21 @@ const itemFieldMap: Record<string, Field[]> = {
 }
 const itemDefaults: Record<string, any> = { metrics: { value: '', label: '', context: '' }, process: { title: '', description: '', media_type: 'none', media_note: '', image_url: '', image_alt: '', video_url: '', poster_url: '', media_size: 'medium', tags: [] }, results: { text: '' }, technologies: { label: '', category: 'stack' } }
 const itemNames: Record<string, string> = { metrics: 'Метрика', process: 'Этап', results: 'Вывод', technologies: 'Технология' }
+// The client introduction keeps its links in the block content; expose them so the buttons can be edited without a migration.
+const clientFields: Field[] = [
+  { key: 'caption', label: 'Подпись под именем' },
+  { key: 'show_contact', label: 'Показывать кнопку связи', kind: 'checkbox', defaultValue: true },
+  { key: 'contact_url', label: 'Ссылка для связи (https://…)' },
+  { key: 'contact_label', label: 'Подпись кнопки связи' },
+  { key: 'project_url', label: 'Ссылка на проект (https://…)' },
+  { key: 'project_label', label: 'Подпись кнопки проекта' },
+  { key: 'logo_url', label: 'Логотип на кнопке проекта', media: true, accept: 'image/*' },
+]
 const fields = computed(() => {
   const base = isFreeform.value ? [] : fieldMap[props.block.type] || []
+  if (props.block.type === 'image_text' && props.block.settings.layout === 'client') {
+    return [...base.filter(field => field.key !== 'caption'), ...clientFields]
+  }
   if (props.block.settings.layout !== 'air') return base
   const labels: Record<string, string> = { title: 'Вводный абзац', solution_label: 'Выделенное начало решения', impact_label: 'Выделенное начало эффекта' }
   return base.filter(field => field.key !== 'challenge_label').map(field => ({ ...field, label: labels[field.key] || field.label }))
