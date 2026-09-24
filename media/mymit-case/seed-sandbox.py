@@ -15,6 +15,7 @@ from app.booking.models import Booth, BoothSchedule, BoothPhoto, Booking, Bookin
 from app.payments.models import Payment, UserPaymentMethod
 from app.favorites.models import UserFavoriteBooth
 from app.devices.models import Device
+from app.return_visits.models import ReturnCampaign, ReturnBonus
 
 async def seed():
     now = datetime.now(ZoneInfo('Europe/Moscow')).replace(tzinfo=None)
@@ -27,10 +28,11 @@ async def seed():
             await db.flush()
         user.name = 'Демо-пользователь'
         booths = []
-        for name, address, metro, image in [
-            ('МИТ · У парка', 'Демо-локация · павильон у парка', ['Парк культуры'], 'cabin_inside.jpg'),
-            ('МИТ · Деловой квартал', 'Демо-локация · деловой центр', ['Деловой центр'], 'office.jpg'),
-            ('МИТ · На набережной', 'Демо-локация · набережная', ['Киевская'], 'cabin_inside.jpg'),
+        # Approximate Moscow coordinates so the map renders; demo locations, not client addresses.
+        for name, address, metro, image, lat, lng in [
+            ('МИТ · У парка', 'Демо-локация · павильон у парка', ['Парк культуры'], 'cabin_inside.jpg', 55.7355, 37.5936),
+            ('МИТ · Деловой квартал', 'Демо-локация · деловой центр', ['Деловой центр'], 'office.jpg', 55.7486, 37.5395),
+            ('МИТ · На набережной', 'Демо-локация · набережная', ['Киевская'], 'cabin_inside.jpg', 55.7437, 37.5664),
         ]:
             booth = await db.scalar(select(Booth).where(Booth.sort_order == 120+len(booths)))
             if booth is None:
@@ -42,7 +44,7 @@ async def seed():
                 for day in range(7):
                     db.add(BoothSchedule(booth_id=booth.id,day_of_week=day,open_time=time(0),close_time=time(23,59)))
                 db.add(BoothPhoto(booth_id=booth.id,url=f'/images/landing/{image}',caption='Демонстрационная локация'))
-            booth.name=name; booth.address=address; booth.metro=metro
+            booth.name=name; booth.address=address; booth.metro=metro; booth.latitude=lat; booth.longitude=lng
             booth.description='Для созвона, встречи и спокойной работы. Демонстрационная кабинка.'
             device_key=f'case-demo-board-{booth.id}'
             if not await db.scalar(select(Device.id).where(Device.device_id==device_key)):
@@ -55,6 +57,9 @@ async def seed():
                 if not await db.scalar(select(BoothDayCapacity.id).where(BoothDayCapacity.booth_id==booth.id, BoothDayCapacity.date==date)):
                     db.add(BoothDayCapacity(booth_id=booth.id,date=date,available_minutes=1439,
                                            open_time=time(0),close_time=time(23,59),is_closed=False))
+        # Keep the stand's own virtual booth after the demo locations in lists and on the map.
+        for local_booth in (await db.scalars(select(Booth).where(Booth.sort_order < 120))).all():
+            local_booth.sort_order = 999
         await db.flush()
         if await db.get(UserFavoriteBooth,(user.id,booths[0].id)) is None:
             db.add(UserFavoriteBooth(user_id=user.id,booth_id=booths[0].id))
@@ -95,6 +100,21 @@ async def seed():
             db.add(Payment(user_id=user.id,booking_id=booking.id,amount=amount,status='succeeded',purpose='booking',
                            idempotency_key=marker,created_at=start-timedelta(hours=4),paid_at=start-timedelta(hours=4)))
             if key in ('active','scheduled','early'): booking_ids[key]=booking.id
+        # Return-visit reward (dev branch): a demo campaign and one available bonus for the demo user.
+        campaign = await db.scalar(select(ReturnCampaign).where(ReturnCampaign.name == 'Демо · возвращение в МИТ'))
+        if campaign is None:
+            campaign = ReturnCampaign(name='Демо · возвращение в МИТ', enabled=True, promo_code_ids=[], discount_percent=Decimal('25'),
+                                      starts_at=now-timedelta(days=30), ends_at=now+timedelta(days=60))
+            db.add(campaign); await db.flush()
+        month_end = (now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)+timedelta(days=32)).replace(day=1)
+        bonus = await db.scalar(select(ReturnBonus).where(ReturnBonus.campaign_id==campaign.id, ReturnBonus.user_id==user.id))
+        source = await db.scalar(select(Payment.booking_id).where(Payment.idempotency_key=='case-demo-history-1-0'))
+        if bonus is None:
+            bonus = ReturnBonus(campaign_id=campaign.id, user_id=user.id, source_booking_id=source, discount_percent=Decimal('25'),
+                                issued_at=now-timedelta(days=1), expires_at=month_end, status='available')
+            db.add(bonus)
+        else:
+            bonus.status='available'; bonus.booking_id=None; bonus.revoked_at=None; bonus.expires_at=month_end
         await db.commit()
         print('Created isolated case fixtures; no real equipment or payment provider used.')
         print('Demo booth IDs:',[b.id for b in booths],'Booking IDs:',booking_ids)

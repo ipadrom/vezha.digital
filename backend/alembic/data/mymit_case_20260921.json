@@ -116,8 +116,9 @@
           {
             "title": "Вход без обязательного Telegram",
             "description": "Объединили пользовательские маршруты в самостоятельной веб-версии и сохранили Telegram как дополнительный канал. Доработали вход по телефону: получение кода звонком, по СМС и через MAX, переключение между способами и повторную отправку. Добавили Яндекс ID и доступ к поддержке из сценариев входа.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/auth-channels.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/auth.mp4",
+            "poster_url": "/cases/mymit/2026-09/auth.jpg",
             "image_alt": "Вход без обязательного Telegram",
             "media_size": "medium",
             "media_layout": "default"
@@ -125,8 +126,9 @@
           {
             "title": "Обучение внутри приложения",
             "description": "Добавили последовательный тур по основным действиям: выбор кабинки, календарь, проверка брони и управление сеансом. Подсказки привязаны к нужным элементам интерфейса, в том числе на мобильном экране. Сохраняем прохождение обучения и пропускаем уже выполненные шаги, например разрешение уведомлений.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/onboarding.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/onboarding.mp4",
+            "poster_url": "/cases/mymit/2026-09/onboarding.jpg",
             "image_alt": "Обучение внутри приложения",
             "media_size": "medium",
             "media_layout": "default"
@@ -140,8 +142,9 @@
           {
             "title": "Sign-in beyond Telegram",
             "description": "Unified user routes in a standalone web app, retaining Telegram as an optional channel. Improved phone sign-in with call, SMS and MAX codes, channel switching and retries. Added Yandex ID and access to support during authentication.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/auth-channels.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/auth.mp4",
+            "poster_url": "/cases/mymit/2026-09/auth.jpg",
             "image_alt": "Sign-in beyond Telegram",
             "media_size": "medium",
             "media_layout": "default"
@@ -149,8 +152,9 @@
           {
             "title": "Guided onboarding",
             "description": "Added a guided tour through booth selection, the calendar, booking review and session controls. Tips point to the relevant UI elements, including on mobile. Completion is saved, and resolved steps such as notification permission are skipped.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/onboarding.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/onboarding.mp4",
+            "poster_url": "/cases/mymit/2026-09/onboarding.jpg",
             "image_alt": "Guided onboarding",
             "media_size": "medium",
             "media_layout": "default"
@@ -180,8 +184,9 @@
           {
             "title": "Избранные кабинки",
             "description": "Добавили избранное и отдельную вкладку для сохранённых кабинок. Сердце на карточке показывает, сохранена ли точка, а счётчик во вкладке помогает ориентироваться в списке. Привычную кабинку можно найти без повторного поиска по всем адресам.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/favorites.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/favorites.mp4",
+            "poster_url": "/cases/mymit/2026-09/favorites.jpg",
             "image_alt": "Избранные кабинки",
             "media_size": "medium",
             "media_layout": "default"
@@ -189,8 +194,9 @@
           {
             "title": "Поиск по адресу и метро",
             "description": "Добавили поиск по адресам, станциям метро и ключевым словам, учли написание через «е» и «ё». Доработали определение ближайшей кабинки на карте и поведение геолокации в мобильном браузере. На скрине — отфильтрованный результат запроса «Парк культуры».",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/search.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/search.mp4",
+            "poster_url": "/cases/mymit/2026-09/search.jpg",
             "image_alt": "Поиск по адресу и метро",
             "media_size": "medium",
             "media_layout": "default"
@@ -213,8 +219,9 @@
           {
             "title": "Favorite booths",
             "description": "Added favorites and a dedicated saved-booth tab. A heart marks saved locations, and the tab count reflects the list. Users can return to a familiar booth without searching all addresses again.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/favorites.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/favorites.mp4",
+            "poster_url": "/cases/mymit/2026-09/favorites.jpg",
             "image_alt": "Favorite booths",
             "media_size": "medium",
             "media_layout": "default"
@@ -222,8 +229,9 @@
           {
             "title": "Address and metro search",
             "description": "Added address, metro and keyword search, including Russian spelling normalization. Improved nearest-booth discovery and mobile-browser geolocation. The screenshot shows the filtered result for Park Kultury.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/search.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/search.mp4",
+            "poster_url": "/cases/mymit/2026-09/search.jpg",
             "image_alt": "Address and metro search",
             "media_size": "medium",
             "media_layout": "default"
@@ -262,17 +270,19 @@
           {
             "title": "Проверка интервала перед оплатой",
             "description": "Переработали сценарий бронирования с календарём, тарифами и доступными временными слотами. Выбранный интервал и стоимость подтверждаются отдельно, до перехода к оплате. Пользователь видит время начала и окончания, а доступность рассчитывается с учётом расписания и других броней.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/booking-interval.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/interval.mp4",
+            "poster_url": "/cases/mymit/2026-09/interval.jpg",
             "image_alt": "Проверка интервала перед оплатой",
             "media_size": "medium",
             "media_layout": "default"
           },
           {
             "title": "Несколько броней и ранний старт",
-            "description": "Доработали отображение параллельных бронирований и переход к управлению конкретным сеансом. Добавили явное действие «Начать раньше»: оно появляется перед началом подходящей брони. При раннем старте время сдвигается с сохранением оплаченной длительности — приложение не запускает сеанс без действия пользователя.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/early-start.png",
+            "description": "Доработали отображение параллельных бронирований и переход к управлению конкретным сеансом. Добавили явное действие «Начать раньше»: оно появляется за 15 минут до начала подходящей брони. При раннем старте сервер проверяет, что кабинка свободна, и сдвигает начало и окончание с сохранением оплаченной длительности; то же окно в 15 минут используют приложение и доступ к оборудованию. Приложение не запускает сеанс без действия пользователя.",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/earlystart.mp4",
+            "poster_url": "/cases/mymit/2026-09/earlystart.jpg",
             "image_alt": "Несколько броней и ранний старт",
             "media_size": "medium",
             "media_layout": "default"
@@ -280,8 +290,9 @@
           {
             "title": "Перенос без повторной оплаты",
             "description": "Добавили перенос существующей брони на другую дату и время. Пользователь выбирает доступный интервал, сохраняя длительность и стоимость исходного тарифа. Новые параметры видны на кнопке подтверждения, поэтому перенос не требует отмены и повторной оплаты бронирования.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/reschedule.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/reschedule.mp4",
+            "poster_url": "/cases/mymit/2026-09/reschedule.jpg",
             "image_alt": "Перенос без повторной оплаты",
             "media_size": "medium",
             "media_layout": "default"
@@ -295,17 +306,19 @@
           {
             "title": "Reviewing time before payment",
             "description": "Reworked booking with a calendar, tariffs and available time slots. The chosen interval and price are confirmed before checkout. Users see both start and end times, with availability based on working hours and other bookings.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/booking-interval.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/interval.mp4",
+            "poster_url": "/cases/mymit/2026-09/interval.jpg",
             "image_alt": "Reviewing time before payment",
             "media_size": "medium",
             "media_layout": "default"
           },
           {
             "title": "Multiple bookings and early starts",
-            "description": "Improved concurrent booking display and navigation to the selected session. Added an explicit Start early action before eligible bookings. Early activation shifts the interval while preserving the paid duration; the app does not start the session without user action.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/early-start.png",
+            "description": "Improved concurrent booking display and navigation to the selected session. Added an explicit Start early action that appears 15 minutes before an eligible booking. On early activation the backend checks that the booth is free and shifts the start and end while preserving the paid duration; the app and device access use the same 15-minute window. The session never starts without user action.",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/earlystart.mp4",
+            "poster_url": "/cases/mymit/2026-09/earlystart.jpg",
             "image_alt": "Multiple bookings and early starts",
             "media_size": "medium",
             "media_layout": "default"
@@ -313,8 +326,9 @@
           {
             "title": "Rescheduling without another payment",
             "description": "Added rescheduling to another date and available time interval while preserving the original duration and tariff. The confirmation shows the new details, without requiring cancellation and a second payment.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/reschedule.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/reschedule.mp4",
+            "poster_url": "/cases/mymit/2026-09/reschedule.jpg",
             "image_alt": "Rescheduling without another payment",
             "media_size": "medium",
             "media_layout": "default"
@@ -353,8 +367,9 @@
           {
             "title": "Стоимость продления до подтверждения",
             "description": "Связали расчёт дополнительного времени с тарифом конкретного бронирования. Доработали продление активных и запланированных сеансов, отображение нового окончания и ожидающего платежа. Пользователь проверяет итог до подтверждения; сервер применяет оплаченное продление к нужной брони.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/extension.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/extension.mp4",
+            "poster_url": "/cases/mymit/2026-09/extension.jpg",
             "image_alt": "Стоимость продления до подтверждения",
             "media_size": "medium",
             "media_layout": "default"
@@ -362,8 +377,9 @@
           {
             "title": "Баланс неиспользованных минут",
             "description": "Добавили баланс минут после раннего завершения и историю его изменений в профиле. При продлении пользователь выбирает, сколько минут использовать: интерфейс показывает доступный остаток, ограничение для выбранного интервала и уменьшение суммы к оплате. На фрагменте применены 15 минут с баланса.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/minute-balance.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/minutes.mp4",
+            "poster_url": "/cases/mymit/2026-09/minutes.jpg",
             "image_alt": "Баланс неиспользованных минут",
             "media_size": "medium",
             "media_layout": "default"
@@ -376,6 +392,21 @@
             "image_alt": "Правила дополнительного времени",
             "media_size": "medium",
             "media_layout": "default"
+          },
+          {
+            "title": "Скидка за повторное посещение",
+            "description": "Добавили кампании повторных визитов: после завершённого и оплаченного посещения по промокоду кампании пользователь получает бонус на следующую бронь до конца месяца. Баннер на главной показывает размер скидки и срок, а при выборе времени приложение само пересчитывает стоимость: цена без скидки, скидка и итог видны до оплаты. Бонус не суммируется с промокодами и минутами; сервер повторно проверяет цену при создании брони и оплате.",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/returnvisit.mp4",
+            "poster_url": "/cases/mymit/2026-09/returnvisit.jpg",
+            "image_alt": "Скидка за повторное посещение",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Суммы с копейками и точная длительность",
+            "description": "Скидки за повторный визит и промокоды дают суммы вроде 517,5 ₽. Часть экранов округляла их до рубля, и в разных местах пользователь видел разные цифры. Ввели общий формат денежных сумм с копейками для баннера ожидающей оплаты, страницы оплаты, экрана брони, продления, выбора тарифа и карточек кабинок. В карточке брони показываем фактически оплаченную длительность, а не округление до ближайшего тарифа.",
+            "media_type": "none"
           }
         ]
       },
@@ -395,8 +426,9 @@
           {
             "title": "Extension cost before confirmation",
             "description": "Linked additional-time pricing to the specific booking tariff. Improved extensions for active and scheduled sessions, new end-time display and pending-payment handling. Users review the total before confirming, and the backend applies paid extensions to the correct booking.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/extension.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/extension.mp4",
+            "poster_url": "/cases/mymit/2026-09/extension.jpg",
             "image_alt": "Extension cost before confirmation",
             "media_size": "medium",
             "media_layout": "default"
@@ -404,8 +436,9 @@
           {
             "title": "Unused-minute balance",
             "description": "Added a balance for unused minutes after early completion and a history in the profile. During an extension, users choose how many minutes to use and see the available balance, interval limit and resulting discount. The fragment shows 15 minutes applied.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/minute-balance.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/minutes.mp4",
+            "poster_url": "/cases/mymit/2026-09/minutes.jpg",
             "image_alt": "Unused-minute balance",
             "media_size": "medium",
             "media_layout": "default"
@@ -418,6 +451,21 @@
             "image_alt": "Overstay rules",
             "media_size": "medium",
             "media_layout": "default"
+          },
+          {
+            "title": "Return-visit discount",
+            "description": "Added return-visit campaigns: after a completed, paid visit with a campaign promo code, the user receives a bonus for the next booking until the end of the month. A banner on the home screen shows the discount and deadline, and the price is recalculated automatically when a time is chosen, with the original price, discount and total visible before payment. The bonus does not stack with promo codes or minutes; the backend re-checks the price when the booking is created and paid.",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/returnvisit.mp4",
+            "poster_url": "/cases/mymit/2026-09/returnvisit.jpg",
+            "image_alt": "Return-visit discount",
+            "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Exact amounts and durations",
+            "description": "Return-visit discounts and promo codes produce amounts such as 517.5 ₽. Some screens rounded them to whole rubles, so users saw different figures in different places. Introduced one shared money format with kopecks for the pending-payment banner, payment page, booking screen, extensions, tariff picker and booth cards. Booking cards now show the actual paid duration instead of rounding to the nearest tariff.",
+            "media_type": "none"
           }
         ]
       }
@@ -444,8 +492,9 @@
           {
             "title": "Аналитика по кабинкам и периодам",
             "description": "Добавили показатели выручки, броней, новых и повторных пользователей, популярности тарифов и загрузки. Доработали расчёт доступного времени: учитываем расписание, дату появления кабинки и данные за завершённые дни. Период и локация выбираются в фильтрах; график в кейсе построен на демонстрационных данных.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/analytics-detail.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/analytics.mp4",
+            "poster_url": "/cases/mymit/2026-09/analytics.jpg",
             "image_alt": "Аналитика по кабинкам и периодам",
             "media_size": "full",
             "media_layout": "default"
@@ -453,8 +502,9 @@
           {
             "title": "Поиск и управление бронированиями",
             "description": "Добавили поиск, фильтры по кабинке и серверную пагинацию в административных списках. Доработали управление завершением брони и работу с платежами. Администратор может сузить список до нужной точки и проверить статус, интервал и стоимость конкретного посещения.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/admin-bookings.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/admin-bookings.mp4",
+            "poster_url": "/cases/mymit/2026-09/admin-bookings.jpg",
             "image_alt": "Поиск и управление бронированиями",
             "media_size": "full",
             "media_layout": "default"
@@ -467,6 +517,15 @@
             "image_alt": "Промокоды с персональными лимитами",
             "media_size": "medium",
             "media_layout": "default"
+          },
+          {
+            "title": "Кампании повторных визитов",
+            "description": "В административной части добавили раздел кампаний: название, процент бонуса, период действия, промокоды −50% и включение. Условия фиксируются в момент выдачи бонуса, поэтому изменение настроек не затрагивает уже обещанные скидки. По каждой кампании видны выданные бонусы, оплаченные и завершённые повторные визиты и конверсия; показы и клики по баннеру сохраняются для аналитики. Возвраты, переносы с доплатой и конкурирующие брони обрабатываются на сервере.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/return-visits-admin.png",
+            "image_alt": "Кампании повторных визитов",
+            "media_size": "full",
+            "media_layout": "default"
           }
         ]
       },
@@ -477,8 +536,9 @@
           {
             "title": "Analytics by booth and period",
             "description": "Added revenue, bookings, new and returning users, tariff popularity and utilization metrics. Improved capacity calculations using schedules, booth creation dates and completed-day snapshots. Reports filter by period and location; case figures use demonstration data.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/analytics-detail.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/analytics.mp4",
+            "poster_url": "/cases/mymit/2026-09/analytics.jpg",
             "image_alt": "Analytics by booth and period",
             "media_size": "full",
             "media_layout": "default"
@@ -486,8 +546,9 @@
           {
             "title": "Booking search and management",
             "description": "Added search, booth filters and server-side pagination to admin lists. Improved booking completion controls and payment handling. Administrators can narrow the list to a location and inspect a visit’s status, interval and cost.",
-            "media_type": "image",
-            "image_url": "/cases/mymit/2026-09/admin-bookings.png",
+            "media_type": "video",
+            "video_url": "/cases/mymit/2026-09/admin-bookings.mp4",
+            "poster_url": "/cases/mymit/2026-09/admin-bookings.jpg",
             "image_alt": "Booking search and management",
             "media_size": "full",
             "media_layout": "default"
@@ -499,6 +560,15 @@
             "image_url": "/cases/mymit/2026-09/promo-limits.png",
             "image_alt": "Per-user promo limits",
             "media_size": "medium",
+            "media_layout": "default"
+          },
+          {
+            "title": "Return-visit campaigns",
+            "description": "Added a campaign section to the admin panel: name, bonus percentage, validity period, −50% promo codes and an on/off switch. Terms are fixed when a bonus is issued, so later setting changes do not affect promised discounts. Each campaign shows issued bonuses, paid and completed repeat visits and the conversion rate; banner impressions and clicks are recorded for analytics. Refunds, paid rescheduling and concurrent bookings are handled on the backend.",
+            "media_type": "image",
+            "image_url": "/cases/mymit/2026-09/return-visits-admin.png",
+            "image_alt": "Return-visit campaigns",
+            "media_size": "full",
             "media_layout": "default"
           }
         ]
@@ -676,7 +746,7 @@
           },
           {
             "title": "Больше возможностей для бронирования.",
-            "text": " Поиск, избранное, перенос и продление дополнены доработками оплаты и промокодов."
+            "text": " Поиск, избранное, перенос, продление и скидка за повторное посещение дополнены доработками оплаты и промокодов."
           },
           {
             "title": "Понятные расчёты времени.",
@@ -707,7 +777,7 @@
           },
           {
             "title": "More booking options.",
-            "text": " Search, favorites, rescheduling and extensions are supported by payment and promo-code improvements."
+            "text": " Search, favorites, rescheduling, extensions and a return-visit discount are supported by payment and promo-code improvements."
           },
           {
             "title": "Clear time calculations.",

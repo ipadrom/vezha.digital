@@ -175,7 +175,12 @@ set `settings.show_project_name: false` so the cover does not repeat a name the 
 already carries. Migration `o1d2e3f4a5b6` publishes the MyMIT client block after the
 cover with `is_visible: false`, renumbers the remaining blocks and patches draft and
 published snapshots separately, leaving other editorial content untouched. The block is
-editable and can be shown from the admin without another migration.
+editable and can be shown from the admin without another migration. Migration
+`s5b6c7d8e9f0` swaps eleven MyMIT fragments for recorded clips (`video_url` plus
+`poster_url` on `process` items), inserts the return-visit and exact-amount
+items and refreshes the early-start copy, matching items by title so other edited
+descriptions survive; the release snapshot `mymit_case_20260921.json` carries the same
+content for fresh environments.
 
 ## Media tooling
 
