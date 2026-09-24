@@ -77,6 +77,8 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 /* Section starts are semantic; supporting media retain their existing compact gap. */
 .case-page .builder-block[data-section-start="true"] { margin-top: calc(var(--case-section-gap) - 18px); margin-bottom: 0; }
 .case-page .builder-block[data-section-start="true"] > .builder-block__inner { padding-block: 0; }
+/* The first section after the full-width cover starts closer: the cover already separates it from the header. */
+.case-page .builder-block--media_hero + .builder-block[data-section-start="true"] { margin-top: calc(var(--case-section-gap) * 0.5); }
 .case-page .builder-block:has(+ [data-section-start="true"]) { margin-bottom: 0; }
 .case-page .builder-block--plain:has(+ [data-section-start="true"]) > .builder-block__inner { padding-bottom: 0; }
 .case-page :is(.case-story, .case-gallery, .case-results, .case-technical, .case-next) { margin-block: var(--case-section-gap) 0; padding-block: 0; }
