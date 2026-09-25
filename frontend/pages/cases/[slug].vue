@@ -129,12 +129,13 @@ onMounted(() => {
 <style src="~/assets/css/case-detail.css"></style>
 
 <style>
+/* Not a src block: plugin-vue maps one src file to one SFC, and index.vue owns this one.
+   The import must open the block: CSS drops an @import that follows any rule. */
+@import "~/assets/css/site-polish.css";
 /* iOS Safari tints its status band from the first full-width fixed box with a plain background at the top edge
    (sampled 4px inside). This strip gives it the case header colour; the root background covers the bottom band. */
 .case-top-tint { display: none; }
 @media (max-width: 900px) {
   .case-top-tint { position: fixed; top: 0; right: 0; left: 0; z-index: 211; display: block; height: 6px; }
 }
-/* Not a src block: plugin-vue maps one src file to one SFC, and index.vue owns this one. */
-@import "~/assets/css/site-polish.css";
 </style>
