@@ -1,0 +1,137 @@
+{
+  "slug": "gbu-process-automation",
+  "media_dir": "/cases/gbu-process-automation/2026-09/",
+  "items": [
+    {
+      "clip": "review",
+      "title": {
+        "ru": "Проверка перед отправкой",
+        "en": "Review before sending"
+      },
+      "media_note": {
+        "ru": "Правка времени и количества людей: готовый текст заказа обновляется при вводе.",
+        "en": "Editing the time and head count: the formatted order updates as you type."
+      }
+    },
+    {
+      "clip": "locks",
+      "title": {
+        "ru": "Ручная правка и пересборка",
+        "en": "Manual changes"
+      },
+      "media_note": {
+        "ru": "Перенос двух сотрудников между бригадами, закрепление бригады и пересборка остальных.",
+        "en": "Moving two employees between crews, locking a crew and rebuilding the rest around it."
+      }
+    },
+    {
+      "clip": "history",
+      "title": {
+        "ru": "История составов",
+        "en": "Crew history"
+      },
+      "media_note": {
+        "ru": "Проверка реальной разбивки за день, сохранение и новая запись в истории, на которой учится подбор.",
+        "en": "Checking a real day's crews, saving it and the new entry in the history the selection learns from."
+      }
+    },
+    {
+      "clip": "source-live",
+      "title": {
+        "ru": "Заказы в нужном формате",
+        "en": "Preparing messages"
+      },
+      "media_note": {
+        "ru": "Слева приложение читает чат «Элит демо», справа тот же чат в MAX: четыре заказа с бригадами становятся короткими сообщениями, заказ без бригады пропущен.",
+        "en": "The app reads the demo Elite chat on the left, the same MAX chat is on the right: four crewed orders become short messages, the order without a crew is skipped."
+      },
+      "media_caption": {
+        "ru": "Запись с настоящего чата MAX в демонстрационной группе; фамилии вымышленные.",
+        "en": "Recorded from a real MAX chat in a demo group; the names are fictional."
+      }
+    },
+    {
+      "clip": "photocontrol",
+      "title": {
+        "ru": "Состав беседы под текущие заказы",
+        "en": "Chat members for current orders"
+      },
+      "media_note": {
+        "ru": "Фото-контроль: проверка бригадиров, обновление состава беседы и отправка заказов со статусом каждого шага.",
+        "en": "Photo control: leader check, chat membership update and order delivery with a status for every step."
+      }
+    },
+    {
+      "clip": "final-live",
+      "title": {
+        "ru": "Сохранённая очередь",
+        "en": "Persistent queue"
+      },
+      "media_note": {
+        "ru": "Отправка в «ФОТО СБОРА ФИНАЛ»: задание выполняется в фоне, сообщения по одному приходят в настоящую группу MAX, счётчик доходит до 5/5.",
+        "en": "Sending to the final chat: the job runs in the background, messages arrive one by one in a real MAX group and the counter reaches 5/5."
+      },
+      "media_caption": {
+        "ru": "Запись с настоящего чата MAX в демонстрационной группе; фамилии вымышленные.",
+        "en": "Recorded from a real MAX chat in a demo group; the names are fictional."
+      }
+    },
+    {
+      "clip": "sheet-update",
+      "title": {
+        "ru": "Обновление периода",
+        "en": "Updating a period"
+      },
+      "media_note": {
+        "ru": "Команда «Заказы → Создать / обновить период»: чтение чатов, новый лист периода и отчёт скрипта.",
+        "en": "The Orders → Create / update period command: reading the chats, a new period sheet and the script's report."
+      },
+      "media_caption": {
+        "ru": "Демонстрационная копия таблицы; пункты меню и сообщения повторяют рабочий скрипт.",
+        "en": "Demo replica of the workbook; menu items and messages match the production script."
+      }
+    },
+    {
+      "clip": "sheet-checks",
+      "title": {
+        "ru": "Сверка спорных заказов",
+        "en": "Reviewing exceptions"
+      },
+      "media_note": {
+        "ru": "Кнопка на контрольном листе прибавляет заказ без основы после проверки сотрудником.",
+        "en": "The button on the review sheet credits a held order after a staff check."
+      },
+      "media_caption": {
+        "ru": "Демонстрационная копия таблицы; пункты меню и сообщения повторяют рабочий скрипт.",
+        "en": "Demo replica of the workbook; menu items and messages match the production script."
+      }
+    },
+    {
+      "clip": "sheet-rerun",
+      "title": {
+        "ru": "Повторный расчёт без потери правок",
+        "en": "Repeat updates without losing edits"
+      },
+      "media_note": {
+        "ru": "Повторное обновление периода: заметка вне служебной области сохраняется, новые фамилии подсвечены.",
+        "en": "Running the update again: a note outside the managed block survives and new names are flagged."
+      },
+      "media_caption": {
+        "ru": "Демонстрационная копия таблицы; пункты меню и сообщения повторяют рабочий скрипт.",
+        "en": "Demo replica of the workbook; menu items and messages match the production script."
+      }
+    }
+  ],
+  "results": {
+    "ru": {
+      "Заказы с фото\n20 → 1 минута": "Заказы с фото\n20 минут → 1 минута",
+      "Подбор четвёрок\n30 → 5 минут": "Подбор четвёрок\n30 минут → 5 минут",
+      "Беседа и отправка\n5 → 1 минута": "Беседа и отправка\n5 минут → 1 минута"
+    },
+    "en": {
+      "Orders from photos\n20 → 1 minute": "Orders from photos\n20 minutes → 1 minute",
+      "Four-person crews\n30 → 5 minutes": "Four-person crews\n30 minutes → 5 minutes",
+      "Chat setup and delivery\n5 → 1 minute": "Chat setup and delivery\n5 minutes → 1 minute"
+    }
+  }
+}

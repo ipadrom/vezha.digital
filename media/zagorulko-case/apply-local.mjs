@@ -45,6 +45,7 @@ const stack = [
   ['docker','Docker','docker','Упаковали рабочий центр и его зависимости в один контейнер для запуска в Yandex Cloud. Рабочие данные и секреты хранятся отдельно от образа, поэтому обновление приложения не требует включать их в сборку.','The work center and its dependencies are packaged in one container for Yandex Cloud. Operational data and secrets remain outside the image rather than being included in application builds.'],
   ['gunicorn','Gunicorn','gunicorn','Запускает Flask-приложение в рабочем контейнере и обслуживает HTTP-запросы. Настроили один процесс с несколькими потоками — такая конфигурация соответствует модели блокировок приложения при работе с состоянием.','Gunicorn serves the Flask app inside the production container. One process with multiple threads preserves the app’s in-process state-locking model while handling HTTP requests.'],
 ];
+const relatedFor = {"python": ["flask", "ortools", "pillow"], "flask": ["python", "gunicorn", "interface"], "ocr": ["pillow", "python"], "green": ["apps-script", "storage", "flask"], "storage": ["green", "docker"], "apps-script": ["sheets", "green"], "ortools": ["python"], "pillow": ["ocr"], "interface": ["flask"], "sheets": ["apps-script"], "docker": ["gunicorn", "storage"], "gunicorn": ["flask", "docker"]};
 const groupFor = id => ['python','flask','interface'].includes(id) ? ['Рабочий центр','Work center']
   : ['ocr','pillow','ortools'].includes(id) ? ['Распознавание и подбор','Recognition and selection']
   : ['green','apps-script','sheets'].includes(id) ? ['MAX и расчёты','MAX and calculations']
@@ -68,7 +69,7 @@ for (const locale of ['ru', 'en']) {
     items: stack.map(([id, label, icon, ru, en], index) => ({ id, label, icon,
       category: '',
       group: groupFor(id)[locale === 'ru' ? 0 : 1], description: locale === 'ru' ? ru : en,
-      related_ids: [], x: 10 + (index % 3) * 35, y: 10 + Math.floor(index / 3) * 25 })) };
+      related_ids: relatedFor[id] || [], x: 10 + (index % 3) * 35, y: 10 + Math.floor(index / 3) * 25 })) };
 }
 const blocks = [hero, cover, overview, ...sections, results, tech].map((b, sort_order) => ({ ...b, sort_order, is_visible: true }));
 const meta = { ...doc.meta, timeline_ru: '', timeline_en: '',

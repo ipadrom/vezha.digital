@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Начисления · демонстрационная таблица</title>
+<!--
+  Staged reproduction of the client's Google Sheets workbook for the Zagorulko case videos.
+  Menu items, status texts and alert messages repeat the real Apps Script (gbu-misha/google-apps-script).
+  Everything is synthetic: names, orders and amounts are fictional; nothing here talks to Google or MAX.
+-->
+<style>
+  :root { --chrome: #f9fbfd; --line: #dadce0; --ink: #202124; --muted: #5f6368; --blue: #1a73e8; --green: #0f9d58; --sel: #1a73e8; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #fff; color: var(--ink); font: 13px/1.35 -apple-system, "Segoe UI", Roboto, Arial, sans-serif; overflow: hidden; }
+  .top { display: flex; align-items: center; gap: 12px; padding: 10px 16px 0; background: var(--chrome); }
+  .logo { width: 30px; height: 40px; border-radius: 4px; background: var(--green); position: relative; flex: none; }
+  .logo::before { content: ''; position: absolute; left: 7px; top: 14px; width: 16px; height: 16px; background:
+    linear-gradient(#fff, #fff) 0 5px / 16px 2px no-repeat, linear-gradient(#fff, #fff) 0 10px / 16px 2px no-repeat,
+    linear-gradient(#fff, #fff) 7px 0 / 2px 16px no-repeat; border: 2px solid #fff; border-radius: 2px; }
+  .titlebox { display: flex; flex-direction: column; gap: 2px; }
+  .title { font-size: 18px; color: var(--ink); }
+  .menubar { display: flex; gap: 2px; font-size: 14px; color: var(--ink); margin-left: -8px; }
+  .menubar span { padding: 3px 8px; border-radius: 4px; cursor: default; position: relative; }
+  .menubar span:hover, .menubar span.open { background: #e8eaed; }
+  .menu { position: absolute; left: 0; top: 28px; min-width: 300px; background: #fff; border-radius: 4px; box-shadow: 0 2px 6px 2px rgba(60,64,67,.15); padding: 6px 0; z-index: 20; text-align: left; }
+  .menu div { padding: 9px 24px; font-size: 14px; white-space: nowrap; cursor: default; }
+  .menu div:hover { background: #f1f3f4; }
+  .menu hr { border: 0; border-top: 1px solid var(--line); margin: 6px 0; }
+  .share { margin-left: auto; background: #c2e7ff; color: #001d35; border-radius: 20px; padding: 9px 18px; font-size: 14px; font-weight: 500; }
+  .toolbar { display: flex; align-items: center; gap: 6px; margin: 10px 16px 0; padding: 6px 12px; background: #edf2fa; border-radius: 22px; color: var(--muted); font-size: 13px; }
+  .toolbar i { display: inline-block; width: 18px; height: 18px; border-radius: 3px; background: #c4c7c5; opacity: .55; }
+  .toolbar b { font-weight: 500; color: var(--ink); }
+  .toolbar .sep { width: 1px; height: 20px; background: #c7c7c7; margin: 0 4px; }
+  .fx { display: flex; align-items: center; height: 30px; border-bottom: 1px solid var(--line); margin-top: 8px; font-size: 13px; }
+  .fx .name { width: 80px; padding: 0 12px; border-right: 1px solid var(--line); color: var(--ink); }
+  .fx .f { padding: 0 10px; color: var(--muted); font-style: italic; }
+  .fx .val { padding: 0 8px; color: var(--ink); }
+  .grid { position: relative; overflow: hidden; background: #fff; }
+  table { border-collapse: collapse; table-layout: fixed; font-family: Arial, Helvetica, sans-serif; font-size: 13px; }
+  th, td { border: 1px solid #e2e3e3; height: 24px; padding: 0 5px; white-space: nowrap; overflow: hidden; text-align: left; vertical-align: middle; }
+  th { background: #f8f9fa; color: var(--muted); font-weight: 400; text-align: center; font-size: 12px; }
+  th.rn { width: 46px; }
+  td.num { text-align: right; }
+  td.sel { outline: 2px solid var(--sel); outline-offset: -2px; }
+  .hidegrid td { border-color: transparent; }
+  .hidegrid td.bordered { border-color: #bdbdbd; }
+  .tabs { position: absolute; left: 0; right: 0; bottom: 0; height: 36px; display: flex; align-items: center; gap: 2px; padding: 0 8px; background: var(--chrome); border-top: 1px solid var(--line); font-size: 13px; }
+  .tabs .plus { width: 30px; text-align: center; color: var(--muted); font-size: 18px; }
+  .tabs .tab { padding: 6px 14px; border-radius: 6px 6px 0 0; color: var(--muted); cursor: default; }
+  .tabs .tab.active { background: #fff; color: var(--green); font-weight: 600; box-shadow: inset 0 -3px 0 var(--green); }
+  .banner { position: absolute; left: 50%; top: 96px; transform: translateX(-50%); display: none; align-items: center; gap: 18px; background: #fff; color: var(--ink); border-radius: 8px; padding: 12px 18px; box-shadow: 0 1px 3px rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15); font-size: 14px; z-index: 30; }
+  .banner.on { display: flex; }
+  .banner .spin { width: 18px; height: 18px; border: 3px solid #dfe1e5; border-top-color: var(--blue); border-radius: 50%; animation: spin .9s linear infinite; }
+  .banner a { color: var(--blue); font-weight: 500; }
+  .banner .x { color: var(--muted); font-size: 18px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .modal { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: none; align-items: center; justify-content: center; z-index: 40; }
+  .modal.on { display: flex; }
+  .dialog { width: 520px; background: #fff; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.35); overflow: hidden; }
+  .dialog h3 { margin: 0; padding: 20px 24px 8px; font-size: 20px; font-weight: 500; }
+  .dialog p { margin: 0; padding: 4px 24px 22px; font-size: 14px; color: #3c4043; line-height: 1.5; }
+  .dialog .actions { display: flex; justify-content: flex-end; padding: 0 24px 20px; }
+  .dialog button { background: var(--blue); color: #fff; border: 0; border-radius: 4px; padding: 9px 26px; font-size: 14px; font-weight: 500; letter-spacing: .2px; }
+  .approve { display: inline-block; margin: 6px 0 0 2px; padding: 0 30px; height: 46px; line-height: 46px; background: #274e13; color: #fff; border-radius: 10px; font: 600 15px -apple-system, "Segoe UI", Roboto, Arial, sans-serif; cursor: default; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .editing { outline: 2px solid var(--sel); outline-offset: -2px; background: #fff; }
+  .caret::after { content: ''; display: inline-block; width: 1px; height: 15px; background: #000; margin-left: 1px; vertical-align: -3px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="logo"></div>
+  <div class="titlebox">
+    <div class="title">Начисления · демонстрационная таблица</div>
+    <div class="menubar" id="menubar">
+      <span>Файл</span><span>Правка</span><span>Вид</span><span>Вставка</span><span>Формат</span><span>Данные</span><span>Инструменты</span><span>Расширения</span><span>Справка</span>
+      <span id="menu-orders">Заказы
+        <div class="menu" id="orders-menu" hidden>
+          <div data-action="update">Создать / обновить период</div>
+          <div data-action="approve">Прибавить все неприбавленные заказы</div>
+          <div data-action="service">Подготовить сервисный лист</div>
+          <hr>
+          <div data-action="api">Настроить API</div>
+        </div>
+      </span>
+    </div>
+  </div>
+  <div class="share">Настройки доступа</div>
+</div>
+<div class="toolbar"><i></i><i></i><i></i><span class="sep"></span><span>100%</span><span class="sep"></span><span>₽</span><span>%</span><span>.0</span><span>.00</span><span>123</span><span class="sep"></span><b>Arial</b><span class="sep"></span><b>10</b><span class="sep"></span><b>B</b><i style="width:14px"></i><b>I</b><i style="width:14px"></i><b>S</b><i style="width:14px"></i><b>A</b><span class="sep"></span><i></i><i></i><i></i><i></i></div>
+<div class="fx"><div class="name" id="cellname">A1</div><div class="f">fx</div><div class="val" id="cellvalue"></div></div>
+<div class="grid" id="grid"></div>
+<textarea id="kbd" aria-hidden="true" style="position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0"></textarea>
+<div class="tabs" id="tabs"><div class="plus">+</div><div class="plus">☰</div></div>
+<div class="banner" id="banner"><div class="spin"></div><span id="banner-text">Выполняется скрипт</span><a>Отмена</a><span class="x">✕</span></div>
+<div class="modal" id="modal"><div class="dialog"><h3>Начисления · демонстрационная таблица</h3><p id="modal-text"></p><div class="actions"><button id="modal-ok">ОК</button></div></div></div>
+<script>
+(() => {
+  const DARK = '#183E37', HEAD = '#DFEBE4', ZEBRA = '#F1F5F2', HOLD = '#FFF0D6', HOLD_INK = '#9A5215', MANUAL = '#DFF3E3', NEW = '#ff00ff';
+  const letters = n => String.fromCharCode(64 + n);
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  const $ = s => document.querySelector(s);
+  // Model: each sheet has column widths and a map "A1" -> {v, bg, color, bold, size, span, align, border}.
+  const sheets = {};
+  const mk = (name, widths, rows, opts = {}) => { sheets[name] = { widths, rows, cells: {}, hideGrid: !!opts.hideGrid, extra: opts.extra || '' }; return sheets[name]; };
+  const set = (sheet, ref, v, style = {}) => { sheet.cells[ref] = { v, ...style }; };
+  const service = mk('Сервис', [190, 520, 120, 120], 16, { hideGrid: true });
+  set(service, 'A1', 'УПРАВЛЕНИЕ ПЕРИОДАМИ И КОНТРОЛЬ ЗАКАЗОВ', { bg: '#274E13', color: '#fff', bold: true, size: 14, span: 4, align: 'center' });
+  [['A3', 'Чат Элит'], ['A4', 'Чат Стандарт'], ['A6', 'Статус'], ['A7', 'Найденный период'], ['A8', 'Предыдущий лист'], ['A9', 'Рабочий лист'], ['A10', 'Последний запуск']].forEach(([r, v]) => set(service, r, v, { bold: true, bg: '#D9EAD3' }));
+  set(service, 'B3', 'https://web.max.ru/-100200300', { bg: '#FFF2CC' }); set(service, 'B4', 'https://web.max.ru/-100200301', { bg: '#FFF2CC' });
+  for (let r = 6; r <= 10; r++) set(service, 'B' + r, '', { bg: '#F3F6F4' });
+  set(service, 'B8', '26-16-31август', { bg: '#F3F6F4' });
+
+  const EMPLOYEES = [['Примеров', 1, 0], ['Ладов', 0, 1], ['Миров', 0, 1], ['Яснов', 0, 1], ['Макетов', 1, 0], ['Зорин', 0, 1], ['Светов', 0, 1], ['Тихов', 0, 0.5], ['Полев', 0, 0.5]];
+  const fmt = n => String(n).replace('.', ',');
+  function periodSheet(filled) {
+    const s = mk('26-1-15сентябрь', [190, 150, 150, 120, 200, 150], 22, { hideGrid: true });
+    set(s, 'A1', 'Элит · Начисления по заказам', { bg: DARK, color: '#fff', size: 18, span: 6 });
+    set(s, 'A2', '1–15 сентября 2026 · единицы заказов · демонстрационный пример', { color: '#536860', span: 6 });
+    ['Сотрудник', 'Бригадир', 'Участник', 'Всего'].forEach((h, i) => set(s, letters(i + 1) + '4', h, { bg: HEAD, bold: true }));
+    set(s, 'E4', 'Примечание', { bold: true, bg: '#F3F6F4' });
+    if (filled) fillPeriod(s, EMPLOYEES);
+    return s;
+  }
+  function fillPeriod(s, rows) {
+    rows.forEach(([name, lead, part], i) => {
+      const r = 5 + i, bg = i % 2 ? ZEBRA : '';
+      set(s, 'A' + r, name, { bg }); set(s, 'B' + r, fmt(lead), { bg, num: true }); set(s, 'C' + r, fmt(part), { bg, num: true }); set(s, 'D' + r, fmt(lead + part), { bg, num: true });
+    });
+    const t = 5 + rows.length, sum = k => rows.reduce((a, r) => a + r[k], 0);
+    set(s, 'A' + t, 'ИТОГО', { bg: HEAD, bold: true }); set(s, 'B' + t, fmt(sum(1)), { bg: HEAD, bold: true, num: true }); set(s, 'C' + t, fmt(sum(2)), { bg: HEAD, bold: true, num: true }); set(s, 'D' + t, fmt(sum(1) + sum(2)), { bg: HEAD, bold: true, num: true });
+  }
+  function clearPeriod(s) { for (let r = 5; r <= 20; r++) for (const c of 'ABCD') delete s.cells[c + r]; }
+  const ORDERS = [
+    ['07/09/2026', '09:00', 'Элит', 'Примерова', 'УЧТЁН', 'Основа и заполненный заказ совпали'],
+    ['07/09/2026', '12:00', 'Элит', 'Демонова', 'УЧТЁН', 'Проверено · две половинные доли'],
+    ['08/09/2026', '11:00', 'Элит', 'Учебнова', 'НЕ ПРИБАВЛЕН', 'Нет исходного заказа без списка людей'],
+  ];
+  function controlSheet() {
+    const s = mk('26-Зк1-15сентябрь', [110, 80, 100, 170, 170, 330], 22, { hideGrid: true, extra: 'approve' });
+    set(s, 'A1', 'Элит · Проверка заказов', { bg: DARK, color: '#fff', size: 18, span: 6 });
+    set(s, 'A2', '2 заказа учтены · 1 требует проверки · вымышленные имена и места', { color: '#536860', span: 6 });
+    ['Дата', 'Время', 'Категория', 'Заказ / фамилия', 'Начисление', 'Причина'].forEach((h, i) => set(s, letters(i + 1) + '4', h, { bg: HEAD, bold: true }));
+    ORDERS.forEach((row, i) => {
+      const r = 5 + i, hold = row[4] === 'НЕ ПРИБАВЛЕН', bg = hold ? HOLD : i % 2 ? ZEBRA : '';
+      row.forEach((v, c) => set(s, letters(c + 1) + r, v, { bg, color: hold && c === 4 ? HOLD_INK : '' }));
+    });
+    set(s, 'A9', 'Заказ без основы исключён из начислений до отдельного подтверждения.', { color: '#536860', span: 6 });
+    return s;
+  }
+  // ---- rendering ----
+  let active = 'Сервис', selected = null, editing = null, editText = '';
+  function render() {
+    const s = sheets[active];
+    const g = $('#grid');
+    let html = '<table' + (s.hideGrid ? ' class="hidegrid"' : '') + '><colgroup><col style="width:46px">' + s.widths.map(w => `<col style="width:${w}px">`).join('') + '<col style="width:120px"><col style="width:120px"></colgroup>';
+    html += '<tr><th class="rn"></th>' + s.widths.map((_, i) => `<th>${letters(i + 1)}</th>`).join('') + `<th>${letters(s.widths.length + 1)}</th><th>${letters(s.widths.length + 2)}</th></tr>`;
+    for (let r = 1; r <= s.rows; r++) {
+      if (s.extra === 'approve' && r === 12) { html += `<tr><th class="rn">12</th><td colspan="${s.widths.length + 2}" style="height:58px"><span class="approve" id="approve-btn">Прибавить все неприбавленные заказы</span></td></tr>`; continue; }
+      html += `<tr><th class="rn">${r}</th>`;
+      for (let c = 1; c <= s.widths.length + 2; c++) {
+        const ref = letters(c) + r, cell = s.cells[ref];
+        if (cell && cell.skip) continue;
+        const isEdit = editing === ref, isSel = selected === ref;
+        const style = [];
+        if (cell?.bg) style.push(`background:${cell.bg}`);
+        if (cell?.color) style.push(`color:${cell.color}`);
+        if (cell?.bold) style.push('font-weight:700');
+        if (cell?.size) style.push(`font-size:${cell.size}px`); if (cell?.size >= 18) style.push('height:46px');
+        if (cell?.align) style.push(`text-align:${cell.align}`);
+        const cls = [cell?.num ? 'num' : '', isSel && !isEdit ? 'sel' : '', isEdit ? 'editing caret' : '', cell?.border ? 'bordered' : ''].filter(Boolean).join(' ');
+        const text = isEdit ? editText : (cell?.v ?? '');
+        html += `<td data-ref="${ref}" class="${cls}" style="${style.join(';')}"${cell?.span ? ` colspan="${cell.span}"` : ''}>${text}</td>`;
+        if (cell?.span) for (let k = 1; k < cell.span; k++) { const skipRef = letters(c + k) + r; s.cells[skipRef] = { skip: true, ...(s.cells[skipRef] || {}) }; }
+      }
+      html += '</tr>';
+    }
+    g.innerHTML = html + '</table>';
+    $('#cellname').textContent = selected || 'A1';
+    $('#cellvalue').textContent = editing ? editText : (selected && s.cells[selected]?.v) || '';
+    const tabs = $('#tabs');
+    tabs.querySelectorAll('.tab').forEach(t => t.remove());
+    Object.keys(sheets).forEach(name => { const t = document.createElement('div'); t.className = 'tab' + (name === active ? ' active' : ''); t.textContent = name; t.dataset.sheet = name; tabs.appendChild(t); });
+  }
+  // ---- interaction ----
+  const kbd = $('#kbd');
+  $('#grid').addEventListener('mousedown', e => {
+    const td = e.target.closest('td'); if (!td || !td.dataset.ref) return;
+    if (editing) commit();
+    selected = td.dataset.ref; render(); kbd.value = ''; kbd.focus({ preventScroll: true });
+  });
+  // Typed text arrives through the hidden textarea, so any layout (including Cyrillic) works.
+  kbd.addEventListener('input', () => { if (!selected) return; if (!editing) editing = selected; editText = kbd.value; render(); });
+  document.addEventListener('keydown', e => {
+    if ($('#modal').classList.contains('on')) { if (e.key === 'Enter') closeModal(); return; }
+    if (!selected) return;
+    if (e.key === 'Enter') { e.preventDefault(); if (editing) commit(); kbd.value = ''; return; }
+    if (e.key === 'Escape') { editing = null; kbd.value = ''; render(); }
+  });
+  function commit() { const s = sheets[active]; s.cells[editing] = { ...(s.cells[editing] || {}), v: editText, manual: true }; editing = null; render(); }
+  $('#tabs').addEventListener('click', e => { const t = e.target.closest('.tab'); if (t) { active = t.dataset.sheet; selected = null; render(); } });
+  const menu = $('#orders-menu'), trigger = $('#menu-orders');
+  trigger.addEventListener('click', e => { if (e.target.closest('.menu')) return; menu.hidden = !menu.hidden; trigger.classList.toggle('open', !menu.hidden); });
+  menu.addEventListener('click', async e => {
+    const item = e.target.closest('[data-action]'); if (!item) return;
+    menu.hidden = true; trigger.classList.remove('open');
+    if (item.dataset.action === 'update') await runPeriodUpdate();
+    if (item.dataset.action === 'approve') await addAllUncreditedOrders();
+  });
+  document.addEventListener('click', e => { if (e.target.closest('#approve-btn')) addAllUncreditedOrders(); });
+  const banner = on => $('#banner').classList.toggle('on', on);
+  function alertBox(text) { return new Promise(resolve => { $('#modal-text').textContent = text; $('#modal').classList.add('on'); $('#modal-ok').onclick = () => { closeModal(); resolve(); }; window.__closeModal = () => { closeModal(); resolve(); }; }); }
+  function closeModal() { $('#modal').classList.remove('on'); }
+  const stamp = () => { const d = new Date(); const p = n => String(n).padStart(2, '0'); return `${p(d.getDate())}.${p(d.getMonth() + 1)}.${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; };
+  // Mirrors runPeriodUpdate(): read both chats, build the report, write the period sheet, then alert.
+  async function runPeriodUpdate() {
+    banner(true);
+    const svc = sheets['Сервис'];
+    const status = t => { set(svc, 'B6', t, { bg: '#F3F6F4' }); render(); };
+    if (active === 'Сервис') { status('Читаю чат «Элит»…'); await sleep(1400); status('Читаю чат «Стандарт»…'); await sleep(1300); status('Сопоставляю заказы и считаю начисления…'); await sleep(1200); }
+    else await sleep(2600);
+    set(svc, 'B7', '1–15 сентября 2026', { bg: '#F3F6F4' }); set(svc, 'B9', '26-1-15сентябрь', { bg: '#F3F6F4' }); set(svc, 'B10', stamp(), { bg: '#F3F6F4' });
+    const fresh = !sheets['26-1-15сентябрь'];
+    const period = sheets['26-1-15сентябрь'] || periodSheet(false);
+    if (!sheets['26-Зк1-15сентябрь']) controlSheet();
+    const wasActive = active; active = '26-1-15сентябрь'; if (fresh) selected = null;
+    clearPeriod(period); render(); await sleep(fresh ? 700 : 500);
+    for (let i = 0; i < EMPLOYEES.length; i++) { fillPeriod(period, EMPLOYEES.slice(0, i + 1)); for (let r = 6 + i; r <= 20; r++) for (const c of 'ABCD') if (period.cells[c + r]?.v === 'ИТОГО' || (r > 5 + i + 1)) { /* keep totals only at the end */ } render(); await sleep(140); }
+    if (!fresh && wasActive === '26-1-15сентябрь') {
+      // A second run also reports names that were not on the roster before.
+      set(period, 'A16', 'Новые сотрудники', { bold: true, bg: '#F4CCCC' }); set(period, 'B16', 'Проверьте написание и добавьте в карточки', { color: '#536860', span: 3 });
+      set(period, 'A17', 'Росин', { bg: NEW }); render();
+    }
+    status('Период 26-1-15сентябрь обновлён'); await sleep(500);
+    banner(false);
+    await alertBox('Период 26-1-15сентябрь обновлён. Проверка пройдена');
+  }
+  // Mirrors addAllUncreditedOrders(): approve held orders, refresh credits and the control sheet, then alert.
+  async function addAllUncreditedOrders() {
+    banner(true); await sleep(2200);
+    const ctl = sheets['26-Зк1-15сентябрь'];
+    ORDERS.forEach((row, i) => { if (row[4] !== 'НЕ ПРИБАВЛЕН') return; const r = 5 + i; row.forEach((v, c) => set(ctl, letters(c + 1) + r, c === 4 ? 'ПРИБАВЛЕН ВРУЧНУЮ' : c === 5 ? 'Подтверждено сотрудником из меню таблицы' : v, { bg: MANUAL, color: c === 4 ? '#1e6b3a' : '', bold: c === 4 })); });
+    set(ctl, 'A2', '3 заказа учтены · 1 подтверждён вручную · вымышленные имена и места', { color: '#536860', span: 6 });
+    set(ctl, 'A9', 'Начисления по подтверждённому заказу добавлены на лист периода.', { color: '#536860', span: 6 });
+    render(); await sleep(900);
+    const period = sheets['26-1-15сентябрь']; if (period) { clearPeriod(period); fillPeriod(period, EMPLOYEES.concat([['Эскизов', 1, 0], ['Лучев', 0, 1], ['Ветров', 0, 1], ['Снежов', 0, 1]])); }
+    await sleep(400); banner(false);
+    await alertBox('Прибавлено заказов: 1. Начисления сотрудникам и лист Зк обновлены. Повторное нажатие не добавит их ещё раз.');
+  }
+  // Scenario presets for the recorder.
+  window.stand = {
+    setup(scenario) {
+      for (const k of Object.keys(sheets)) if (k !== 'Сервис') delete sheets[k];
+      set(service, 'B6', '', { bg: '#F3F6F4' }); set(service, 'B7', '', { bg: '#F3F6F4' }); set(service, 'B9', '', { bg: '#F3F6F4' }); set(service, 'B10', '', { bg: '#F3F6F4' });
+      selected = null; editing = null;
+      if (scenario === 'update') { active = 'Сервис'; selected = 'B6'; }
+      if (scenario === 'checks') { periodSheet(true); controlSheet(); active = '26-Зк1-15сентябрь'; selected = 'E7'; }
+      if (scenario === 'rerun') { periodSheet(true); controlSheet(); active = '26-1-15сентябрь'; selected = 'A1'; }
+      render();
+    },
+    render,
+  };
+  window.stand.setup('update');
+})();
+</script>
+</body>
+</html>

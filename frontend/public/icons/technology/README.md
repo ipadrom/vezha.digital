@@ -9,7 +9,7 @@ Vendored monochrome SVGs, served locally. Brand names remain trademarks of their
   Source https://github.com/simple-icons/simple-icons/tree/7f18aaa676087b8240b6f4ff58a6720be282da59/icons
   License in `simple-icons-LICENSE.md`.
   Brand marks used for Python, Flask, Docker, Gunicorn, JavaScript, Google Sheets,
-  Google Apps Script and Node.js. Other entries use semantic Lucide icons, not
+  Google Apps Script, Node.js, Next.js, FastAPI, PostgreSQL and Celery. Other entries use semantic Lucide icons, not
   invented brand logos.
 
 `CaseTechnologyIcon.vue` renders these as CSS masks. No remote requests or raw SVG

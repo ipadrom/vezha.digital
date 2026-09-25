@@ -34,6 +34,19 @@ export const technologyIcons = [
   { value: 'key-round', label: 'Настройки доступа' },
   { value: 'lock-keyhole', label: 'Блокировка' },
   { value: 'network', label: 'Рабочие связи' },
+  { value: 'nextdotjs', label: 'Next.js' },
+  { value: 'fastapi', label: 'FastAPI' },
+  { value: 'postgresql', label: 'PostgreSQL' },
+  { value: 'celery', label: 'Celery' },
+  { value: 'credit-card', label: 'Платежи' },
+  { value: 'bell', label: 'Уведомления' },
+  { value: 'mic', label: 'Голосовой помощник' },
+  { value: 'radio-tower', label: 'Связь с устройствами' },
+  { value: 'cpu', label: 'Контроллер' },
+  { value: 'refresh-cw', label: 'Обновления' },
+  { value: 'chart-column', label: 'Графики' },
+  { value: 'code', label: 'Код / решатель' },
+  { value: 'table', label: 'Таблица' },
 ] as const
 
 const iconNames = new Set<string>(technologyIcons.map(icon => icon.value))

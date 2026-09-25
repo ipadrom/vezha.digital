@@ -861,43 +861,62 @@
       "content_ru": {
         "eyebrow": "Стек проекта",
         "title": "",
-        "summary": "Работали в существующей архитектуре приложения и расширяли её интеграции.",
+        "summary": "Работали в существующей архитектуре приложения: развивали клиентскую часть, сервер, интеграции и связь с оборудованием кабинок.",
         "items": [
           {
             "id": "next",
             "label": "Next.js / React",
-            "icon": "react",
+            "icon": "nextdotjs",
             "group": "Приложение",
             "category": "",
-            "description": "Пользовательские экраны и административный интерфейс существующего продукта.",
-            "related_ids": []
+            "description": "Клиентское приложение и административный интерфейс существующего продукта. В нём дорабатывали вход, обучение, выбор кабинки, бронирование и экраны управления сеансом; состояние на клиенте держит небольшой стор без тяжёлых зависимостей.",
+            "related_ids": [
+              "charts",
+              "push",
+              "fastapi",
+              "payments"
+            ]
           },
           {
             "id": "fastapi",
             "label": "FastAPI / Python",
-            "icon": "python",
+            "icon": "fastapi",
             "group": "Сервер",
             "category": "",
-            "description": "Бронирования, авторизация, расчёты и интеграции.",
-            "related_ids": []
+            "description": "Сервер приложения: бронирования, проверка интервалов, расчёт стоимости с копейками, авторизация и все интеграции. Для внешних сервисов используется httpx, схемы данных описаны на Pydantic.",
+            "related_ids": [
+              "postgres",
+              "celery",
+              "payments",
+              "mqtt",
+              "alice",
+              "push"
+            ]
           },
           {
             "id": "postgres",
-            "label": "PostgreSQL",
+            "label": "PostgreSQL / SQLAlchemy",
             "icon": "postgresql",
             "group": "Сервер",
             "category": "",
-            "description": "Пользователи, расписания, бронирования и история операций.",
-            "related_ids": []
+            "description": "Пользователи, кабинки, расписания, бронирования, платежи и история операций. Доступ через асинхронный SQLAlchemy, изменения схемы идут миграциями Alembic.",
+            "related_ids": [
+              "fastapi",
+              "celery"
+            ]
           },
           {
             "id": "celery",
             "label": "Celery / Redis",
-            "icon": "redis",
+            "icon": "celery",
             "group": "Сервер",
             "category": "",
-            "description": "Фоновые задачи, расписание уведомлений и обработка событий.",
-            "related_ids": []
+            "description": "Фоновые задачи: напоминания перед сеансом, завершение и продление броней, рассылки и обработка событий устройств. Redis служит брокером, периодические задания ставит планировщик.",
+            "related_ids": [
+              "fastapi",
+              "postgres",
+              "push"
+            ]
           },
           {
             "id": "payments",
@@ -905,17 +924,25 @@
             "icon": "credit-card",
             "group": "Интеграции",
             "category": "",
-            "description": "Оплата бронирований, сохранённые способы и дополнительное время.",
-            "related_ids": []
+            "description": "Оплата бронирований, сохранённые способы оплаты, СБП, списание за дополнительное время и возвраты по правилам отмены. Статусы платежей приходят через уведомления провайдера.",
+            "related_ids": [
+              "fastapi",
+              "next"
+            ]
           },
           {
             "id": "mqtt",
-            "label": "MQTT",
-            "icon": "radio",
+            "label": "MQTT-сервис",
+            "icon": "radio-tower",
             "group": "Оборудование",
             "category": "",
-            "description": "Команды устройствам, события и синхронизация состояния кабинок.",
-            "related_ids": []
+            "description": "Собственный MQTT-сервис вместо Yandex IoT Core: команды замкам и реле, события от устройств и сверка состояния кабинок. Сервер общается с брокером через paho-mqtt.",
+            "related_ids": [
+              "fastapi",
+              "firmware",
+              "alice",
+              "ota"
+            ]
           },
           {
             "id": "push",
@@ -923,69 +950,156 @@
             "icon": "bell",
             "group": "Интеграции",
             "category": "",
-            "description": "Оповещения и обновление состояния в интерфейсе.",
-            "related_ids": []
+            "description": "Оповещения о сеансах и рассылки по сегментам через Web Push; состояние кабинки и брони обновляется в интерфейсе по WebSocket без перезагрузки.",
+            "related_ids": [
+              "next",
+              "celery",
+              "fastapi"
+            ]
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "charts",
+            "icon": "chart-column",
+            "related_ids": [
+              "next",
+              "fastapi"
+            ],
+            "label": "Recharts",
+            "group": "Приложение",
+            "description": "Графики выручки и аналитика бронирований с фильтрами в административной части. Данные считает сервер, клиент только рисует и переключает периоды."
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "alice",
+            "icon": "mic",
+            "related_ids": [
+              "fastapi",
+              "mqtt"
+            ],
+            "label": "Яндекс Алиса",
+            "group": "Интеграции",
+            "description": "Голосовые объявления в кабинке через Яндекс-колонки: начало сеанса, напоминание за пять минут и завершение. Сервер выбирает событие и текст, колонка озвучивает."
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "firmware",
+            "icon": "cpu",
+            "related_ids": [
+              "mqtt",
+              "ota"
+            ],
+            "label": "ESP32 / T Relay",
+            "group": "Оборудование",
+            "description": "Прошивка контроллеров в кабинках: сборки из ESP32 с релейным модулем заменили на готовые платы T Relay. Устройство держит связь с MQTT, исполняет команды и сообщает о своём состоянии."
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "ota",
+            "icon": "refresh-cw",
+            "related_ids": [
+              "firmware",
+              "mqtt"
+            ],
+            "label": "OTA-обновления",
+            "group": "Оборудование",
+            "description": "Обновление прошивки по сети без выезда к кабинке: устройство получает новую версию и перезапускается, состояние устройств видно в административной части."
           }
         ]
       },
       "content_en": {
         "eyebrow": "Technology stack",
         "title": "",
-        "summary": "Worked within the existing architecture and extended its integrations.",
+        "summary": "We worked within the existing architecture: the client app, the server, integrations and the link to the booth hardware.",
         "items": [
           {
             "id": "next",
             "label": "Next.js / React",
-            "icon": "react",
+            "icon": "nextdotjs",
             "group": "Application",
             "category": "",
-            "description": "User-facing screens and the existing admin interface.",
-            "related_ids": []
+            "description": "The client app and the existing admin interface. Sign-in, onboarding, booth discovery, booking and session screens were reworked here; client state lives in a small store without heavy dependencies.",
+            "related_ids": [
+              "charts",
+              "push",
+              "fastapi",
+              "payments"
+            ]
           },
           {
             "id": "fastapi",
             "label": "FastAPI / Python",
-            "icon": "python",
+            "icon": "fastapi",
             "group": "Backend",
             "category": "",
-            "description": "Bookings, authentication, calculations and integrations.",
-            "related_ids": []
+            "description": "The application server: bookings, interval checks, kopeck-accurate pricing, authentication and every integration. External services are called through httpx; data schemas are Pydantic models.",
+            "related_ids": [
+              "postgres",
+              "celery",
+              "payments",
+              "mqtt",
+              "alice",
+              "push"
+            ]
           },
           {
             "id": "postgres",
-            "label": "PostgreSQL",
+            "label": "PostgreSQL / SQLAlchemy",
             "icon": "postgresql",
             "group": "Backend",
             "category": "",
-            "description": "Users, schedules, bookings and operation history.",
-            "related_ids": []
+            "description": "Users, booths, schedules, bookings, payments and operation history. Accessed through async SQLAlchemy; schema changes ship as Alembic migrations.",
+            "related_ids": [
+              "fastapi",
+              "celery"
+            ]
           },
           {
             "id": "celery",
             "label": "Celery / Redis",
-            "icon": "redis",
+            "icon": "celery",
             "group": "Backend",
             "category": "",
-            "description": "Background jobs, notification scheduling and event processing.",
-            "related_ids": []
+            "description": "Background jobs: session reminders, booking completion and extension, mailings and device-event processing. Redis is the broker; periodic jobs are scheduled.",
+            "related_ids": [
+              "fastapi",
+              "postgres",
+              "push"
+            ]
           },
           {
             "id": "payments",
-            "label": "ЮKassa",
+            "label": "YooKassa",
             "icon": "credit-card",
             "group": "Integrations",
             "category": "",
-            "description": "Booking payments, saved methods and additional time.",
-            "related_ids": []
+            "description": "Booking payments, saved payment methods, instant bank transfers, charges for extra time and refunds under the cancellation rules. Payment statuses arrive as provider callbacks.",
+            "related_ids": [
+              "fastapi",
+              "next"
+            ]
           },
           {
             "id": "mqtt",
-            "label": "MQTT",
-            "icon": "radio",
+            "label": "MQTT service",
+            "icon": "radio-tower",
             "group": "Equipment",
             "category": "",
-            "description": "Device commands, events and booth-state reconciliation.",
-            "related_ids": []
+            "description": "An in-house MQTT service replacing Yandex IoT Core: commands to locks and relays, device events and booth-state reconciliation. The server talks to the broker through paho-mqtt.",
+            "related_ids": [
+              "fastapi",
+              "firmware",
+              "alice",
+              "ota"
+            ]
           },
           {
             "id": "push",
@@ -993,8 +1107,68 @@
             "icon": "bell",
             "group": "Integrations",
             "category": "",
-            "description": "Notifications and live interface state updates.",
-            "related_ids": []
+            "description": "Session alerts and segment mailings through Web Push; booth and booking state updates in the interface over WebSocket without a reload.",
+            "related_ids": [
+              "next",
+              "celery",
+              "fastapi"
+            ]
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "charts",
+            "icon": "chart-column",
+            "related_ids": [
+              "next",
+              "fastapi"
+            ],
+            "label": "Recharts",
+            "group": "Application",
+            "description": "Revenue charts and booking analytics with filters in the admin area. The server does the counting; the client renders and switches periods."
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "alice",
+            "icon": "mic",
+            "related_ids": [
+              "fastapi",
+              "mqtt"
+            ],
+            "label": "Yandex Alice",
+            "group": "Integrations",
+            "description": "Voice announcements in the booth through Yandex speakers: session start, a five-minute reminder and the end. The server picks the event and text; the speaker voices it."
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "firmware",
+            "icon": "cpu",
+            "related_ids": [
+              "mqtt",
+              "ota"
+            ],
+            "label": "ESP32 / T Relay",
+            "group": "Equipment",
+            "description": "Firmware for the booth controllers: ESP32 boards with a separate relay module were replaced by ready-made T Relay boards. The device keeps an MQTT connection, executes commands and reports its state."
+          },
+          {
+            "x": null,
+            "y": null,
+            "category": "",
+            "id": "ota",
+            "icon": "refresh-cw",
+            "related_ids": [
+              "firmware",
+              "mqtt"
+            ],
+            "label": "OTA updates",
+            "group": "Equipment",
+            "description": "Firmware updates over the network without visiting the booth: the device fetches the new version and restarts, and device status is visible in the admin area."
           }
         ]
       }

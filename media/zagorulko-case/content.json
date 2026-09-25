@@ -20,10 +20,11 @@
           [
             "Проверка перед отправкой",
             "Добавили редактирование полей и просмотр исходного фрагмента. Сотрудник может сверить адрес или цифру и исправить заказ до подготовки сообщения. Исходник остаётся рядом с результатом: для проверки не нужно искать фотографию в переписке. Исправляются отдельные поля, а не весь текст заказа заново.",
-            "Скриншот: Проверка перед отправкой. Вымышленные данные, читаемые поля и итог действия.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-edit.png",
-            ""
+            "Правка времени и количества людей: готовый текст заказа обновляется при вводе.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/review.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/review.mp4"
           ]
         ]
       },
@@ -43,18 +44,20 @@
           [
             "Ручная правка и пересборка",
             "Добавили ручные переносы и закрепление отдельных людей или целой бригады. После правки можно пересобрать свободные составы, сохранив уже принятые решения. Это помогает учесть изменения в списке сотрудников без повторного распределения всех с нуля.",
-            "Скриншот: Ручная правка и пересборка. Вымышленные данные, читаемые поля и итог действия.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-locks.png",
-            ""
+            "Перенос двух сотрудников между бригадами, закрепление бригады и пересборка остальных.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/locks.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/locks.mp4"
           ],
           [
             "История составов",
             "История хранится по дням: для каждого выезда сохраняются составы бригад и назначенные бригадиры. При следующем подборе алгоритм использует эти записи, чтобы оценить опыт совместной работы сотрудников. Карточки людей и правила подбора хранятся вместе с данными приложения и доступны между сеансами.",
-            "Скриншот: карточки сотрудников и история составов на демонстрационных данных.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-people.png",
-            ""
+            "Проверка реальной разбивки за день, сохранение и новая запись в истории, на которой учится подбор.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/history.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/history.mp4"
           ]
         ]
       },
@@ -65,22 +68,29 @@
           [
             "Заказы в нужном формате",
             "Реализовали загрузку истории чатов через GREEN-API. Приложение разбирает сообщения с назначенными бригадами и формирует список для проверки. Повторная загрузка учитывает исправления и не добавляет дубли. Добавили сокращение до принятого у заказчика формата — готовый текст можно проверить, скопировать или передать на отправку.",
-            "Скриншот: Заказы в нужном формате. Вымышленные данные, читаемые поля и итог действия.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-messages.png",
-            ""
+            "Слева приложение читает чат «Элит демо», справа тот же чат в MAX: четыре заказа с бригадами становятся короткими сообщениями, заказ без бригады пропущен.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/source-live.jpg",
+            "Запись с настоящего чата MAX в демонстрационной группе; фамилии вымышленные.",
+            "/cases/gbu-process-automation/2026-09/source-live.mp4"
           ],
           [
             "Состав беседы под текущие заказы",
             "Через методы GREEN-API реализовали чтение и обновление состава беседы. Программа убирает незащищённых участников и добавляет назначенных бригадиров, сохраняя владельца, администраторов и защищённых участников. Перед отправкой повторно проверяет, что запланированные изменения выполнены.",
-            "Здесь будет скриншот демонстрационной беседы MAX с участниками и заказами. Тексты подготовлены в MAX-orders.md.",
-            "image"
+            "Фото-контроль: проверка бригадиров, обновление состава беседы и отправка заказов со статусом каждого шага.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/photocontrol.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/photocontrol.mp4"
           ],
           [
             "Сохранённая очередь",
             "Для очереди заданий подключили Yandex Object Storage: в нём хранятся задания и результаты выполненных шагов. Облачный Timer запускает обработку независимо от открытой страницы, а приложение отправляет сообщения через GREEN-API. Если результат внешнего действия неизвестен, обработка останавливается для проверки без автоматического повтора.",
-            "Нужен скриншот статуса задания в рабочем центре. Пока оставлено место под кадр; реальные сообщения для съёмки не отправлялись.",
-            "image"
+            "Отправка в «ФОТО СБОРА ФИНАЛ»: задание выполняется в фоне, сообщения по одному приходят в настоящую группу MAX, счётчик доходит до 5/5.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/final-live.jpg",
+            "Запись с настоящего чата MAX в демонстрационной группе; фамилии вымышленные.",
+            "/cases/gbu-process-automation/2026-09/final-live.mp4"
           ]
         ]
       },
@@ -99,41 +109,44 @@
           [
             "Обновление периода",
             "Разработали Google Apps Script с загрузкой истории MAX через GREEN-API. Скрипт разбирает поля сообщений и сопоставляет заполненные заказы с исходными записями. В этом примере два заказа «Элит» вошли в начисления: по одной единице бригадирам, по одной — участникам и по 0,5 — Тихову и Полеву. Третий заказ вынесен на проверку.",
-            "Скриншот: Обновление периода. Вымышленные данные, читаемые поля и итог действия.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/sheet-totals.png",
-            "Пример выгрузки по заказам «Элит»."
+            "Команда «Заказы → Создать / обновить период»: чтение чатов, новый лист периода и отчёт скрипта.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/sheet-update.jpg",
+            "Демонстрационная копия таблицы; пункты меню и сообщения повторяют рабочий скрипт.",
+            "/cases/gbu-process-automation/2026-09/sheet-update.mp4"
           ],
           [
             "Сверка спорных заказов",
             "На контрольном листе для каждого заказа показан результат сверки и причина расхождения: например, отсутствует список сотрудников или исходная запись. Заказы без основы получают статус «НЕ ПРИБАВЛЕН». После проверки сотрудник может включить их в расчёт из меню таблицы.",
-            "Скриншот: Сверка спорных заказов. Вымышленные данные, читаемые поля и итог действия.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/sheet-checks.png",
-            "Пример выгрузки по заказам «Элит»."
+            "Кнопка на контрольном листе прибавляет заказ без основы после проверки сотрудником.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/sheet-checks.jpg",
+            "Демонстрационная копия таблицы; пункты меню и сообщения повторяют рабочий скрипт.",
+            "/cases/gbu-process-automation/2026-09/sheet-checks.mp4"
           ],
           [
             "Повторный расчёт без потери правок",
             "Предусмотрели повторное обновление периода: скрипт пересчитывает служебные области и сохраняет ручные данные вне них. На время операции блокирует параллельный запуск. Новые имена выводит в отдельный блок, чтобы их можно было проверить.",
-            "Скриншот: Повторный расчёт без потери правок. Вымышленные данные, читаемые поля и итог действия.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/sheet-export.png",
-            "Пример выгрузки по заказам «Элит»."
+            "Повторное обновление периода: заметка вне служебной области сохраняется, новые фамилии подсвечены.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/sheet-rerun.jpg",
+            "Демонстрационная копия таблицы; пункты меню и сообщения повторяют рабочий скрипт.",
+            "/cases/gbu-process-automation/2026-09/sheet-rerun.mp4"
           ]
         ]
       }
     ],
     "results": [
       [
-        "Заказы с фото\n20 → 1 минута",
+        "Заказы с фото\n20 минут → 1 минута",
         "Распознавание заменило ручной перенос заказов с фотографии."
       ],
       [
-        "Подбор четвёрок\n30 → 5 минут",
+        "Подбор четвёрок\n30 минут → 5 минут",
         "Время включает ручное редактирование предложенных составов."
       ],
       [
-        "Беседа и отправка\n5 → 1 минута",
+        "Беседа и отправка\n5 минут → 1 минута",
         "Добавление людей в беседу и отправку заказов полностью автоматизировали."
       ],
       [
@@ -168,10 +181,11 @@
           [
             "Review before sending",
             "We added editable fields and source fragments so staff can check and correct an address or number before preparing a message. The source stays alongside the result, so staff do not need to search the chat for the original photograph. They correct individual fields rather than rewrite the order.",
-            "Screenshot: Review before sending. Fictional data with readable fields and action results.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-edit.png",
-            ""
+            "Editing the time and head count: the formatted order updates as you type.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/review.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/review.mp4"
           ]
         ]
       },
@@ -191,18 +205,20 @@
           [
             "Manual changes",
             "We added manual moves and locks for individual people or entire crews. Staff can rebuild the remaining groups while retaining decisions already made, accommodating roster changes without restarting the whole assignment.",
-            "Screenshot: Manual changes. Fictional data with readable fields and action results.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-locks.png",
-            ""
+            "Moving two employees between crews, locking a crew and rebuilding the rest around it.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/locks.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/locks.mp4"
           ],
           [
             "Crew history",
             "History is stored by day, recording crew members and assigned leaders for each workday. Future selections use these records to assess shared work experience. Employee profiles and selection rules are stored with the application data and remain available between sessions.",
-            "Screenshot: employee profiles and crew history using fictional data.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-people.png",
-            ""
+            "Checking a real day's crews, saving it and the new entry in the history the selection learns from.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/history.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/history.mp4"
           ]
         ]
       },
@@ -213,22 +229,29 @@
           [
             "Preparing messages",
             "GREEN-API provides chat histories containing orders with assigned crews. The server prepares a review list; repeat imports account for corrections without adding duplicates. Messages are shortened to the client’s format for review, copying or delivery.",
-            "Screenshot: Preparing messages. Fictional data with readable fields and action results.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/app-messages.png",
-            ""
+            "The app reads the demo Elite chat on the left, the same MAX chat is on the right: four crewed orders become short messages, the order without a crew is skipped.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/source-live.jpg",
+            "Recorded from a real MAX chat in a demo group; the names are fictional.",
+            "/cases/gbu-process-automation/2026-09/source-live.mp4"
           ],
           [
             "Chat members for current orders",
             "GREEN-API methods read and update membership. The app removes unprotected members and adds assigned leaders while retaining the owner, administrators and protected participants. Membership changes are verified before delivery.",
-            "Reserved for the user’s screenshot of a demo MAX chat. Message text is prepared in MAX-orders.md.",
-            "image"
+            "Photo control: leader check, chat membership update and order delivery with a status for every step.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/photocontrol.jpg",
+            "",
+            "/cases/gbu-process-automation/2026-09/photocontrol.mp4"
           ],
           [
             "Persistent queue",
             "Yandex Object Storage stores jobs and completed steps. A cloud Timer triggers processing independently of the browser, while GREEN-API delivers messages. Unknown external outcomes pause processing for review without automatic retries.",
-            "Reserved for a job status screenshot. No real messages were sent for this capture.",
-            "image"
+            "Sending to the final chat: the job runs in the background, messages arrive one by one in a real MAX group and the counter reaches 5/5.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/final-live.jpg",
+            "Recorded from a real MAX chat in a demo group; the names are fictional.",
+            "/cases/gbu-process-automation/2026-09/final-live.mp4"
           ]
         ]
       },
@@ -247,41 +270,44 @@
           [
             "Updating a period",
             "The Google Apps Script retrieves MAX history through GREEN-API, parses messages and matches filled orders with source records. Two Elite orders are credited here: one unit per leader or regular participant, and 0.5 each for Tikhov and Polev. The third order is held for review.",
-            "Screenshot: Updating a period. Fictional data with readable fields and action results.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/sheet-totals.png",
-            "Sample export for Elite orders."
+            "The Orders → Create / update period command: reading the chats, a new period sheet and the script's report.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/sheet-update.jpg",
+            "Demo replica of the workbook; menu items and messages match the production script.",
+            "/cases/gbu-process-automation/2026-09/sheet-update.mp4"
           ],
           [
             "Reviewing exceptions",
             "A review sheet lists orders missing workers or a matching source record. Orders without a source are excluded from automatic credits and can be approved separately.",
-            "Screenshot: Reviewing exceptions. Fictional data with readable fields and action results.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/sheet-checks.png",
-            "Sample export for Elite orders."
+            "The button on the review sheet credits a held order after a staff check.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/sheet-checks.jpg",
+            "Demo replica of the workbook; menu items and messages match the production script.",
+            "/cases/gbu-process-automation/2026-09/sheet-checks.mp4"
           ],
           [
             "Repeat updates without losing edits",
             "The script recalculates managed areas and preserves manual data outside them. A document lock prevents concurrent updates. New names appear in a separate section for review.",
-            "Screenshot: Repeat updates without losing edits. Fictional data with readable fields and action results.",
-            "image",
-            "/cases/gbu-process-automation/2026-09/sheet-export.png",
-            "Sample export for Elite orders."
+            "Running the update again: a note outside the managed block survives and new names are flagged.",
+            "video",
+            "/cases/gbu-process-automation/2026-09/sheet-rerun.jpg",
+            "Demo replica of the workbook; menu items and messages match the production script.",
+            "/cases/gbu-process-automation/2026-09/sheet-rerun.mp4"
           ]
         ]
       }
     ],
     "results": [
       [
-        "Orders from photos\n20 → 1 minute",
+        "Orders from photos\n20 minutes → 1 minute",
         "Recognition replaced manually transcribing orders from a photograph."
       ],
       [
-        "Four-person crews\n30 → 5 minutes",
+        "Four-person crews\n30 minutes → 5 minutes",
         "This includes manual edits to the proposed crews."
       ],
       [
-        "Chat setup and delivery\n5 → 1 minute",
+        "Chat setup and delivery\n5 minutes → 1 minute",
         "Adding people to the chat and sending orders are fully automated."
       ],
       [

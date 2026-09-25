@@ -187,7 +187,7 @@ descriptions survive; the release snapshot `mymit_case_20260921.json` carries th
 content for fresh environments. Its first release updated only block order and settings, so
 `v8e9f0a1b2c3` re-applies the patch to block rows and the published snapshot and turns a
 saved navigation block from the signal fill to the plain paper look of the automatic one;
-`createCaseBlock` now creates navigation blocks that way.
+`createCaseBlock` now creates navigation blocks that way. Migration `w9f0a1b2c3d4` does the same for the Zagorulko case: it swaps nine screenshot fragments for recorded clips from `zagorulko_videos_20260925.json`, matching process items by title in each language and leaving descriptions, tags and other blocks as edited. Migration `x0g1b2c3d4e5` patches `technologies` blocks by item id from `case_stacks_20260925.json`: it links related technologies in the Zagorulko stack and expands the MyMIT stack (new items are appended, listed fields merged, custom items kept); the vendored icon set in `frontend/public/icons/technology/` grew accordingly.
 
 ## Media tooling
 
