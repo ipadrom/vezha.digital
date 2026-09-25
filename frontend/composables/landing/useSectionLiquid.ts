@@ -992,7 +992,8 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
       section.dataset.negativeSection = section.id || (section.classList.contains("vz-footer") ? "footer" : "");
       section.classList.add("is-motion-visible");
     });
-    clone.querySelectorAll<HTMLElement>(".vz-nav, .vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu, .vz-motion-atmosphere").forEach((element) => element.remove());
+    // The header blur band too: a cloned band keeps its visible state and blurs the mark's text.
+    clone.querySelectorAll<HTMLElement>(".vz-nav, .site-header-glass, .site-header-glass-filter, .vz-nav-hover-zone, .vz-section-liquid, .vz-hero__negative, .vz-preloader, .vz-mobile-menu, .vz-motion-atmosphere").forEach((element) => element.remove());
     clone.querySelectorAll<HTMLElement>("[id]").forEach((element) => element.removeAttribute("id"));
     clone.querySelectorAll<HTMLElement>("[data-reveal]").forEach((element) => {
       element.style.opacity = "1";
