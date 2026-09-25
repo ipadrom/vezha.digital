@@ -1,13 +1,5 @@
 <template>
-  <svg class="case-glass-filter" width="0" height="0" aria-hidden="true" focusable="false">
-    <defs>
-      <filter id="case-header-refraction" x="-10%" y="-40%" width="120%" height="180%" color-interpolation-filters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="2" seed="8" result="glass-waves" />
-        <feGaussianBlur in="glass-waves" stdDeviation="2" result="glass-map" />
-        <feDisplacementMap in="SourceGraphic" in2="glass-map" scale="24" xChannelSelector="R" yChannelSelector="G" />
-      </filter>
-    </defs>
-  </svg>
+  <SiteHeaderGlass :visible="isHeaderShown && hasScrolled && !isHeaderMediaColliding" />
   <div
     class="case-header-hover-zone"
     aria-hidden="true"
@@ -27,7 +19,7 @@
     @focusin="handleHeaderFocusIn"
     @focusout="handleHeaderFocusOut"
   >
-    <div ref="headerInnerRef" class="case-header__inner">
+    <div ref="headerInnerRef" class="case-header__inner site-header-pill">
       <SiteBrand class="case-header__logo" :theme="theme" />
       <nav class="case-header__nav" :aria-label="locale === 'ru' ? 'Навигация кейса' : 'Case navigation'">
         <a href="#story">{{ locale === "ru" ? "История" : "Story" }}</a>
@@ -35,8 +27,8 @@
         <a v-if="hasTechnical" href="#technical">{{ locale === "ru" ? "Система" : "System" }}</a>
       </nav>
       <div class="case-header__actions">
-        <button class="case-header__icon" type="button" :aria-label="locale === 'ru' ? 'Сменить тему' : 'Change theme'" @click="$emit('toggle-theme')"><SiteThemeIcon :theme="theme" /></button>
-        <NuxtLink class="case-header__cta" to="/#cases">{{ locale === "ru" ? "Все кейсы" : "All cases" }} ↗</NuxtLink>
+        <button class="case-header__icon site-header-icon" type="button" :aria-label="locale === 'ru' ? 'Сменить тему' : 'Change theme'" @click="$emit('toggle-theme')"><SiteThemeIcon :theme="theme" /></button>
+        <NuxtLink class="case-header__cta site-header-cta" to="/#cases">{{ locale === "ru" ? "Все кейсы" : "All cases" }} ↗</NuxtLink>
       </div>
     </div>
 
@@ -48,6 +40,7 @@
 import MobileSiteMenu from "~/components/ui/MobileSiteMenu.vue";
 import SiteBrand from "~/components/ui/SiteBrand.vue";
 import SiteThemeIcon from "~/components/ui/SiteThemeIcon.vue";
+import SiteHeaderGlass from "~/components/ui/SiteHeaderGlass.vue";
 defineProps<{ locale: "ru" | "en"; theme: "light" | "dark"; hasTechnical: boolean }>();
 defineEmits<{ "toggle-theme": [] }>();
 const isHeaderVisible = ref(true);

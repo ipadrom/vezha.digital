@@ -74,7 +74,7 @@ export default defineNuxtConfig({
     },
   },
 
-  css: ['~/assets/css/main.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/site-header.css'],
 
   compatibilityDate: '2024-01-01',
 })

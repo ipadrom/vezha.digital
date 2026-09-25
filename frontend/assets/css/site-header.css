@@ -1,0 +1,67 @@
+/* One desktop header for the landing and case pages: the pill, its controls and the blur band
+   behind it. Each page keeps only the placement and its own show/hide logic; both headers are
+   hidden below 901px, where the mobile menu takes over. */
+:root {
+  --site-header-top: 12px;
+  --site-header-height: 54px;
+  --site-header-control: 40px;
+}
+
+.site-header-pill {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  height: var(--site-header-height);
+  align-items: center;
+  padding: 0 calc((var(--site-header-height) - var(--site-header-control)) / 2) 0 20px;
+  border: 1px solid color-mix(in srgb, var(--border) 68%, white);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--site-header-bg) 82%, transparent);
+  box-shadow: 0 14px 42px rgb(34 38 54 / 10%);
+  backdrop-filter: saturate(1.18) blur(18px);
+  -webkit-backdrop-filter: saturate(1.18) blur(18px);
+  box-sizing: border-box;
+}
+
+.site-header-pill .site-header-icon {
+  width: var(--site-header-control);
+  height: var(--site-header-control);
+}
+
+.site-header-pill .site-header-cta {
+  height: var(--site-header-control);
+  min-height: var(--site-header-control);
+}
+
+/* Soft blur band behind the pill: strongest at the top edge, gone by the pill's bottom edge.
+   Desktop pointer devices only. */
+.site-header-glass-filter { position: absolute; pointer-events: none; overflow: hidden; }
+.site-header-glass {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 205;
+  height: calc(var(--site-header-top) + env(safe-area-inset-top, 0px) + var(--site-header-height));
+  pointer-events: none;
+  background: transparent;
+  backdrop-filter: blur(14px) saturate(1.12);
+  -webkit-backdrop-filter: blur(14px) saturate(1.12);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 100%);
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 180ms ease, visibility 0s linear;
+}
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) {
+  .site-header-glass { display: block; }
+}
+@supports (backdrop-filter: url("#site-header-refraction")) {
+  .site-header-glass { backdrop-filter: url("#site-header-refraction") blur(2px) saturate(1.12); }
+}
+/* Opacity alone leaves the refraction filter painting: hide the layer once the fade ends. */
+.site-header-glass[data-visible="false"] {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, visibility 0s linear 180ms;
+}

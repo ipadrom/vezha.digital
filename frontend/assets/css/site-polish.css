@@ -36,28 +36,7 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .case-switch-enter-from > * { transform: translateX(-95%); }
 [data-direction="previous"] > .case-switch-enter-from { transform: translateX(-100%); }
 [data-direction="previous"] > .case-switch-enter-from > * { transform: translateX(95%); }
-.case-header { padding-top: calc(12px + env(safe-area-inset-top, 0px)); isolation: isolate; }
-.case-header::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 -28px;
-  z-index: -1;
-  pointer-events: none;
-  background: transparent;
-  backdrop-filter: blur(14px) saturate(1.12);
-  -webkit-backdrop-filter: blur(14px) saturate(1.12);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
-  opacity: 1;
-  transition: opacity 180ms ease;
-}
-.case-glass-filter { position: absolute; pointer-events: none; overflow: hidden; }
-@supports (backdrop-filter: url("#case-header-refraction")) {
-  .case-header::before {
-    backdrop-filter: url("#case-header-refraction") blur(2px) saturate(1.12);
-  }
-}
-.case-header[data-nav-visible="false"]::before, .case-header[data-scrolled="false"]::before, .case-header[data-media-collision="true"]::before { opacity: 0; }
+.case-header { padding-top: calc(var(--site-header-top) + env(safe-area-inset-top, 0px)); }
 .case-page { --case-section-heading: 32px; --case-section-gap: 96px; }
 .case-page[data-theme="dark"] {
   background:

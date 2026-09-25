@@ -21,24 +21,9 @@
       @pointerenter="handleHeaderZonePointerEnter"
       @pointerleave="handleHeaderZonePointerLeave"
     ></div>
-    <svg class="vz-nav-glass-filter" width="0" height="0" aria-hidden="true" focusable="false">
-      <defs>
-        <filter id="landing-header-refraction" x="-10%" y="-40%" width="120%" height="180%" color-interpolation-filters="sRGB">
-          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="2" seed="8" result="glass-waves" />
-          <feGaussianBlur in="glass-waves" stdDeviation="2" result="glass-map" />
-          <feDisplacementMap in="SourceGraphic" in2="glass-map" scale="24" xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </defs>
-    </svg>
-    <div
-      v-show="!showPreloader"
-      class="vz-nav-glass"
-      aria-hidden="true"
-      :data-nav-visible="isHeaderShown ? 'true' : 'false'"
-      :data-scrolled="hasScrolled ? 'true' : 'false'"
-    ></div>
+    <SiteHeaderGlass :visible="!showPreloader && isHeaderShown && hasScrolled" />
     <nav
-      class="vz-nav"
+      class="vz-nav site-header-pill"
       :data-nav-visible="isHeaderShown ? 'true' : 'false'"
       :aria-hidden="isHeaderShown ? undefined : 'true'"
       :inert="isHeaderShown ? undefined : true"
@@ -54,10 +39,10 @@
         <a v-for="item in navItems" :key="item.href" :href="item.href">{{ item.label }}</a>
       </div>
       <div class="vz-nav__actions">
-        <button class="vz-icon-button" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
+        <button class="vz-icon-button site-header-icon" type="button" :aria-label="copy.nav.themeAria" @click="toggleTheme">
           <SiteThemeIcon :theme="theme" />
         </button>
-        <a class="vz-nav__cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
+        <a class="vz-nav__cta site-header-cta" href="#contacts" data-nav-cta>{{ copy.nav.cta }}</a>
       </div>
     </nav>
 
@@ -151,6 +136,7 @@
 import MobileSiteMenu from "~/components/ui/MobileSiteMenu.vue";
 import SiteBrand from "~/components/ui/SiteBrand.vue";
 import SiteThemeIcon from "~/components/ui/SiteThemeIcon.vue";
+import SiteHeaderGlass from "~/components/ui/SiteHeaderGlass.vue";
 import LandingAbout from "~/components/landing/LandingAbout.vue";
 import LandingCases from "~/components/landing/LandingCases.vue";
 import LandingLoaderPattern from "~/components/landing/LandingLoaderPattern.vue";
