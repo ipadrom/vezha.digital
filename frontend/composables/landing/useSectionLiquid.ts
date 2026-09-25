@@ -685,6 +685,19 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
         height: overlayRect.height,
       },
     );
+    // While the stack is pinned, the active card must read as sitting on top of the mark:
+    // punch its rounded rectangle out of the clip instead of painting the dark fill over it.
+    const card = sectionLiquidStackLock
+      ? rootRef.value?.querySelector<HTMLElement>("[data-stack-section] .vz-stack__active-card")
+      : null;
+    const cardRect = card ? getLandingLayoutRect(card) : null;
+    if (cardRect && cardRect.width > 0 && cardRect.height > 0) {
+      // The fill lives on ::before; an even-odd path of "whole overlay + card" leaves a card-shaped hole in it.
+      const hole = `M0 0 H${formatPathNumber(overlayRect.width)} V${formatPathNumber(overlayRect.height)} H0 Z ${buildRoundedRectPath(cardRect.left - overlayRect.left, cardRect.top - overlayRect.top, cardRect.width, cardRect.height, 16)}`;
+      overlay.style.setProperty("--liquid-card-hole", `"${hole}"`);
+    } else {
+      overlay.style.removeProperty("--liquid-card-hole");
+    }
     applyHeroClip(overlay, path);
 
     overlay.classList.toggle("is-active", Boolean(activeKey) && activeKey !== "hero");
@@ -911,6 +924,12 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
     }
 
     return getClosedCurvePath(points, bounds);
+  }
+
+  function buildRoundedRectPath(x: number, y: number, width: number, height: number, radius: number) {
+    const r = Math.max(0, Math.min(radius, width / 2, height / 2));
+    const f = formatPathNumber;
+    return `M${f(x + r)} ${f(y)} H${f(x + width - r)} A${f(r)} ${f(r)} 0 0 1 ${f(x + width)} ${f(y + r)} V${f(y + height - r)} A${f(r)} ${f(r)} 0 0 1 ${f(x + width - r)} ${f(y + height)} H${f(x + r)} A${f(r)} ${f(r)} 0 0 1 ${f(x)} ${f(y + height - r)} V${f(y + r)} A${f(r)} ${f(r)} 0 0 1 ${f(x + r)} ${f(y)} Z`;
   }
 
   function applyHeroClip(element: HTMLElement, value: string) {

@@ -5,6 +5,8 @@ type UseLandingHeaderOptions = {
   showPreloader: Ref<boolean>;
 };
 
+const HEADER_SAFE_MARGIN = 36;
+
 export function useLandingHeader(options: UseLandingHeaderOptions) {
   const { rootRef, showPreloader } = options;
   const isHeaderVisible = ref(false);
@@ -117,6 +119,31 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
     queueHeaderHide(220);
   }
 
+  // The hover zone no longer takes pointer events, so controls under it stay clickable;
+  // the header is summoned from document moves instead, and never while a control is hovered.
+  function handleDocumentPointerMove(event: PointerEvent) {
+    if (event.pointerType === "touch" || !isDesktopHeaderViewport()) return;
+    const zone = rootRef.value?.querySelector<HTMLElement>(".vz-nav-hover-zone");
+    const rect = zone?.getBoundingClientRect();
+    const inZone = Boolean(rect) && rect!.width > 0
+      && event.clientY <= rect!.bottom && event.clientX >= rect!.left && event.clientX <= rect!.right;
+    const overControl = inZone && event.target instanceof Element
+      && Boolean(event.target.closest("a, button, [role='button'], input, select, textarea, label, summary"));
+    // Controls marked data-header-safe get a margin around them, so approaching them does not summon the header either.
+    const nearSafeControl = inZone && !overControl && Array.from(
+      rootRef.value?.querySelectorAll<HTMLElement>("[data-header-safe]") ?? [],
+    ).some((element) => {
+      const safe = element.getBoundingClientRect();
+      return safe.width > 0 && event.clientX >= safe.left - HEADER_SAFE_MARGIN && event.clientX <= safe.right + HEADER_SAFE_MARGIN
+        && event.clientY >= safe.top - HEADER_SAFE_MARGIN && event.clientY <= safe.bottom + HEADER_SAFE_MARGIN;
+    });
+    const hovered = inZone && !overControl && !nearSafeControl;
+    if (hovered === isHeaderZoneHovered) return;
+    isHeaderZoneHovered = hovered;
+    if (hovered) revealHeader();
+    else queueHeaderHide(220);
+  }
+
   function handleHeaderPointerEnter(event: PointerEvent) {
     if (event.pointerType === "touch") return;
     isHeaderHovered = true;
@@ -157,11 +184,13 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
     handleHeaderResize();
     window.addEventListener("scroll", handleHeaderScroll, { passive: true });
     window.addEventListener("resize", handleHeaderResize, { passive: true });
+    document.addEventListener("pointermove", handleDocumentPointerMove, { passive: true });
   });
 
   onBeforeUnmount(() => {
     window.removeEventListener("scroll", handleHeaderScroll);
     window.removeEventListener("resize", handleHeaderResize);
+    document.removeEventListener("pointermove", handleDocumentPointerMove);
     clearHeaderIdleTimer();
   });
 

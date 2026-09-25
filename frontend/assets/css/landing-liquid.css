@@ -53,6 +53,12 @@
   position: fixed;
 }
 
+/* The pinned stack card reads as lying on top of the mark: its rounded rectangle is cut out of the fill. */
+.vz-section-liquid.is-stack-active::before {
+  clip-path: path(evenodd, var(--liquid-card-hole));
+  -webkit-clip-path: path(evenodd, var(--liquid-card-hole));
+}
+
 .vz-section-liquid.is-stack-active .vz-negative-world {
   visibility: hidden;
 }
@@ -99,7 +105,10 @@
 }
 
 .vz-negative-world .vz-cases__heading > p,
-.vz-section-liquid .vz-negative-world .vz-section-label {
+.vz-section-liquid .vz-negative-world .vz-section-label,
+/* The cloned stack card sits at a stale offset and would show through the mark as ghost text. */
+.vz-section-liquid .vz-negative-world .vz-stack__active-card,
+.vz-section-liquid .vz-negative-world .vz-stack__mobile-details {
   visibility: hidden;
 }
 

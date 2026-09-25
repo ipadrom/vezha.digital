@@ -23,7 +23,7 @@
         class="vz-client-interactive"
         :style="{ '--active-client-index': activeIndex }"
       >
-        <div class="vz-client-capsules" role="tablist" :aria-label="copy.tabAria">
+        <div class="vz-client-capsules" role="tablist" :aria-label="copy.tabAria" data-header-safe>
           <button
             v-for="(segment, index) in segments"
             :id="`client-tab-${segment.key}`"
