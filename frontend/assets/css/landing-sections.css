@@ -318,6 +318,11 @@
   padding: var(--section-space) 0;
 }
 
+/* Keep the pinned stack heading below the floating header on short desktop viewports. */
+@media (min-width: 901px) {
+  .vz-stack > .vz-sticky { box-sizing: border-box; padding-top: clamp(84px, 11vh, 120px); align-items: safe center; }
+}
+
 .vz-stack > .vz-sticky {
   backface-visibility: hidden;
   transform: translateZ(0);

@@ -84,9 +84,14 @@ html.landing-route #__nuxt, html.case-route #__nuxt { width: 100%; min-height: 1
 .case-page :is(.case-story, .case-gallery, .case-results, .case-technical, .case-next) { margin-block: var(--case-section-gap) 0; padding-block: 0; }
 /* The section h2 sits above the card, so its own title reads as a lead line, not a second heading. */
 .case-page .technology-contours__intro h3 { font-size: var(--case-type-body, 18px); font-weight: 560; line-height: 1.45; letter-spacing: -.01em; }
+/* Stack descriptions read as body copy, one step below the page text. */
+.case-page :is(.technology-contours__intro p, .technology-contours__detail p) { font-size: clamp(15px, 0.85rem + 0.25vw, 17px); line-height: 1.6; }
 @media (min-width: 768px) { .case-page { --case-section-heading: 40px; --case-section-gap: 120px; } }
 @media (min-width: 1100px) {
   .case-page { --case-section-heading: 48px; --case-section-gap: 144px; }
+  /* A wider heading column on desktop: the longest section words (Распознавание) fit on one line without splitting. */
+  .case-page .builder-case { --case-editorial-grid: minmax(12rem, 1.1fr) minmax(0, 1.8fr); }
+  .case-page .builder-process-chapter h3 { overflow-wrap: normal; }
   .case-page :is(.builder-editorial__heading, .builder-challenge__heading, .builder-insight__heading, .builder-results__heading, .case-air__layout > header, .builder-image-text__copy) { position: sticky; top: calc(104px + env(safe-area-inset-top, 0px)); align-self: start; }
   .case-page .builder-block:is(.builder-block--text, .builder-block--challenge_solution, .builder-block--insight, .builder-block--results, .builder-block--image_text):not(.builder-block--layout-freeform) > .builder-block__inner { overflow: visible; }
   .case-page .builder-process-chapter > h3 { position: sticky; top: calc(104px + env(safe-area-inset-top, 0px)); align-self: start; }

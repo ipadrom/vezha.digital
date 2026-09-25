@@ -42,6 +42,34 @@
   visibility: visible;
 }
 
+/* Soft blur band behind the pill, as on case pages: desktop pointer devices only. */
+.vz-nav-glass-filter { position: absolute; pointer-events: none; overflow: hidden; }
+.vz-nav-glass {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 205;
+  height: 104px;
+  pointer-events: none;
+  background: transparent;
+  backdrop-filter: blur(14px) saturate(1.12);
+  -webkit-backdrop-filter: blur(14px) saturate(1.12);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  opacity: 1;
+  transition: opacity 180ms ease;
+}
+@media (min-width: 901px) and (hover: hover) and (pointer: fine) {
+  .vz-nav-glass { display: block; }
+}
+@supports (backdrop-filter: url("#landing-header-refraction")) {
+  .vz-nav-glass { backdrop-filter: url("#landing-header-refraction") blur(2px) saturate(1.12); }
+}
+.vz-nav-glass[data-nav-visible="false"],
+.vz-nav-glass[data-scrolled="false"] { opacity: 0; }
+
 .vz-nav-hover-zone {
   position: fixed;
   top: 0;

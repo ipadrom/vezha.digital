@@ -21,6 +21,22 @@
       @pointerenter="handleHeaderZonePointerEnter"
       @pointerleave="handleHeaderZonePointerLeave"
     ></div>
+    <svg class="vz-nav-glass-filter" width="0" height="0" aria-hidden="true" focusable="false">
+      <defs>
+        <filter id="landing-header-refraction" x="-10%" y="-40%" width="120%" height="180%" color-interpolation-filters="sRGB">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.035" numOctaves="2" seed="8" result="glass-waves" />
+          <feGaussianBlur in="glass-waves" stdDeviation="2" result="glass-map" />
+          <feDisplacementMap in="SourceGraphic" in2="glass-map" scale="24" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </defs>
+    </svg>
+    <div
+      v-show="!showPreloader"
+      class="vz-nav-glass"
+      aria-hidden="true"
+      :data-nav-visible="isHeaderShown ? 'true' : 'false'"
+      :data-scrolled="hasScrolled ? 'true' : 'false'"
+    ></div>
     <nav
       class="vz-nav"
       :data-nav-visible="isHeaderShown ? 'true' : 'false'"
@@ -202,6 +218,9 @@ const {
   handleHeaderFocusIn,
   handleHeaderFocusOut,
 } = useLandingHeader({ rootRef, showPreloader });
+// The blur band behind the header appears only once the page has scrolled, as on case pages.
+const hasScrolled = ref(false);
+const updateNavGlass = () => { hasScrolled.value = window.scrollY > 12; };
 const {
   aboutFlowPhase,
   aboutFlowCycleKey,
@@ -315,6 +334,8 @@ onMounted(async () => {
     { label: "client scene", promise: clientCubeReady, weight: 15 },
   ]);
   window.addEventListener("scroll", scheduleUpdate, { passive: true });
+  window.addEventListener("scroll", updateNavGlass, { passive: true });
+  updateNavGlass();
   window.addEventListener("resize", scheduleUpdate);
   window.visualViewport?.addEventListener("resize", scheduleUpdate, { passive: true });
   await publicDataReady;
@@ -336,6 +357,7 @@ watch(activeClientSegment, async () => {
 
 onBeforeUnmount(() => {
   window.removeEventListener("scroll", scheduleUpdate);
+  window.removeEventListener("scroll", updateNavGlass);
   window.removeEventListener("resize", scheduleUpdate);
   window.visualViewport?.removeEventListener("resize", scheduleUpdate);
   if (raf) cancelAnimationFrame(raf);
