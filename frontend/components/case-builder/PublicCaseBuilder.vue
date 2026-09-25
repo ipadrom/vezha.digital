@@ -362,7 +362,8 @@ const blockGridStyle = (block: PublicBuilderBlock): Record<string, string> => {
 const processOpen = reactive<Record<string, number[]>>({})
 const processActive = reactive<Record<string, number | null>>({})
 const processDisclosureMode = (block: PublicBuilderBlock): 'single' | 'multiple' => block.settings.disclosure_mode === 'single' ? 'single' : 'multiple'
-const opensFirst = (block: PublicBuilderBlock) => block.settings.open_first !== false && !isPhone.value
+// Accordions start collapsed unless the editor ticked "open first", as the admin checkbox reads it.
+const opensFirst = (block: PublicBuilderBlock) => block.settings.open_first === true && !isPhone.value
 const processOpenIndexes = (block: PublicBuilderBlock): number[] => processOpen[block.id] ?? (opensFirst(block) ? [0] : [])
 const processActiveIndex = (block: PublicBuilderBlock): number | null => processActive[block.id] === undefined
   ? (opensFirst(block) ? 0 : null)
