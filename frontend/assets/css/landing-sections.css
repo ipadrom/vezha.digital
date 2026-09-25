@@ -318,9 +318,9 @@
   padding: var(--section-space) 0;
 }
 
-/* Keep the pinned stack heading below the floating header on short desktop viewports. */
+/* On short desktop viewports the pinned stack heading sits under the floating header: nudge only the heading down. */
 @media (min-width: 901px) {
-  .vz-stack > .vz-sticky { box-sizing: border-box; padding-top: clamp(84px, 11vh, 120px); align-items: safe center; }
+  .vz-stack .vz-sec-head { position: relative; top: clamp(16px, 5vh, 40px); }
 }
 
 .vz-stack > .vz-sticky {
