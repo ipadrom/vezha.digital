@@ -18,7 +18,7 @@
         <div class="vz-stack__mobile-layout">
           <div ref="timelineRef" class="vz-stack__timeline">
             <div class="vz-stack__line" data-stack-line :style="lineStyle">
-              <span data-line-fill :style="{ height: `${progress * 100}%` }"></span>
+              <span data-line-fill :style="{ height: `${lineProgress * 100}%` }"></span>
             </div>
             <article
               v-for="(group, index) in groups"
@@ -110,7 +110,7 @@ const lineStyle = ref<Record<string, string>>({});
 const activeCardStyle = ref<Record<string, string>>({});
 const itemCount = computed(() => props.groups.length);
 const total = computed(() => String(props.groups.length).padStart(2, "0"));
-const { activeIndex, progress, scrollToIndex } = useLandingStackScroll(
+const { activeIndex, lineProgress, scrollToIndex } = useLandingStackScroll(
   rootRef,
   itemCount,
   (index, value) => emit("activeChange", index, value),

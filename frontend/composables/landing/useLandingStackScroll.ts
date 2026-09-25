@@ -7,6 +7,10 @@ export function useLandingStackScroll(
 ) {
   const activeIndex = ref(0);
   const progress = ref(0);
+  // Rail fill in dot space: 1 / (count - 1) per group, so the fill reaches the active dot as soon as
+  // its band starts (a dot click lands at the band start) instead of the band-space progress that
+  // stops a band short of the last dot.
+  const lineProgress = ref(0);
   let raf = 0;
   let mobileAutoplayTimer: ReturnType<typeof window.setInterval> | null = null;
   let manualMobileSelection = false;
@@ -18,6 +22,7 @@ export function useLandingStackScroll(
 
     activeIndex.value = nextIndex;
     progress.value = nextProgress;
+    lineProgress.value = nextProgress;
     onIndexChange(nextIndex, nextProgress);
   }
 
@@ -66,6 +71,8 @@ export function useLandingStackScroll(
       : 0;
 
     progress.value = nextProgress;
+    const withinBand = Math.max(0, Math.min(1, nextProgress * count - nextIndex));
+    lineProgress.value = count > 1 ? Math.min(1, (nextIndex + withinBand) / (count - 1)) : 0;
     if (activeIndex.value !== nextIndex) activeIndex.value = nextIndex;
     onIndexChange(nextIndex, nextProgress);
   }
@@ -117,5 +124,5 @@ export function useLandingStackScroll(
 
   watch(itemCount, () => nextTick(scheduleUpdate));
 
-  return { activeIndex, progress, scrollToIndex, scheduleUpdate };
+  return { activeIndex, progress, lineProgress, scrollToIndex, scheduleUpdate };
 }
