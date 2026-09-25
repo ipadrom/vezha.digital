@@ -45,7 +45,10 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
     const headerTop = header.offsetTop;
     const headerBottom = headerTop + header.offsetHeight;
     const rect = stack.getBoundingClientRect();
-    isHeaderBlockedByStack.value = rect.top < headerBottom && rect.bottom > headerTop;
+    // Once the pinned panel starts scrolling away, the header returns to its usual place.
+    const pinned = stack.querySelector<HTMLElement>(":scope > .vz-sticky");
+    const isReleased = Boolean(pinned) && pinned!.getBoundingClientRect().top < -1;
+    isHeaderBlockedByStack.value = rect.top < headerBottom && rect.bottom > headerTop && !isReleased;
     return isHeaderBlockedByStack.value;
   }
 

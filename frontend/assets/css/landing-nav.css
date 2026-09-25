@@ -6,9 +6,9 @@
   z-index: 210;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  height: 64px;
+  height: 54px;
   align-items: center;
-  padding: 0 12px 0 20px;
+  padding: 0 7px 0 20px;
   border: 1px solid color-mix(in srgb, var(--border) 68%, white);
   border-radius: 999px;
   background: color-mix(in srgb, var(--navbg) 82%, transparent);
@@ -42,7 +42,8 @@
   visibility: visible;
 }
 
-/* Soft blur band behind the pill, as on case pages: desktop pointer devices only. */
+/* Soft blur band behind the pill, as on case pages: desktop pointer devices only.
+   It is strongest at the top edge and fades out by the pill's bottom edge. */
 .vz-nav-glass-filter { position: absolute; pointer-events: none; overflow: hidden; }
 .vz-nav-glass {
   display: none;
@@ -51,15 +52,16 @@
   right: 0;
   left: 0;
   z-index: 205;
-  height: 104px;
+  height: 66px;
   pointer-events: none;
   background: transparent;
   backdrop-filter: blur(14px) saturate(1.12);
   -webkit-backdrop-filter: blur(14px) saturate(1.12);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 42%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 22%, transparent 100%);
   opacity: 1;
-  transition: opacity 180ms ease;
+  visibility: visible;
+  transition: opacity 180ms ease, visibility 0s linear;
 }
 @media (min-width: 901px) and (hover: hover) and (pointer: fine) {
   .vz-nav-glass { display: block; }
@@ -67,8 +69,13 @@
 @supports (backdrop-filter: url("#landing-header-refraction")) {
   .vz-nav-glass { backdrop-filter: url("#landing-header-refraction") blur(2px) saturate(1.12); }
 }
+/* Opacity alone leaves the refraction filter painting: hide the layer once the fade ends. */
 .vz-nav-glass[data-nav-visible="false"],
-.vz-nav-glass[data-scrolled="false"] { opacity: 0; }
+.vz-nav-glass[data-scrolled="false"] {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 180ms ease, visibility 0s linear 180ms;
+}
 
 .vz-nav-hover-zone {
   position: fixed;
@@ -147,6 +154,11 @@
   width: 44px;
 }
 
+.vz-nav .vz-icon-button {
+  width: 40px;
+  height: 40px;
+}
+
 .vz-nav__cta,
 .vz-button,
 .vz-mobile-menu__cta {
@@ -165,6 +177,8 @@
   color: var(--bg);
   font-size: var(--type-control);
 }
+
+.vz-nav .vz-nav__cta { min-height: 40px; }
 
 .vz-menu-button {
   display: none;

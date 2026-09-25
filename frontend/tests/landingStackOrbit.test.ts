@@ -680,7 +680,7 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(mobileMenu, /\.site-mobile-menu-layer > \* \{[^}]*visibility: visible;/s);
   assert.match(mobileMenu, /\.site-mobile-menu-layer\.is-hidden > \* \{[^}]*visibility: hidden;/s);
   assert.match(mobileMenu, /\.site-mobile-menu \{[^}]*backdrop-filter: saturate\(1\.18\) blur\(18px\);/s);
-  assert.match(header, /function updateHeaderStackCollision\(\)[\s\S]*?querySelector<HTMLElement>\("\[data-stack-section\]"\)[\s\S]*?isHeaderBlockedByStack\.value = rect\.top < headerBottom && rect\.bottom > headerTop;/s);
+  assert.match(header, /function updateHeaderStackCollision\(\)[\s\S]*?querySelector<HTMLElement>\("\[data-stack-section\]"\)[\s\S]*?isHeaderBlockedByStack\.value = rect\.top < headerBottom && rect\.bottom > headerTop && !isReleased;/s);
   assert.match(header, /function revealHeader\(\)\s*\{\s*if \(updateHeaderStackCollision\(\)\) \{[^}]*clearHeaderIdleTimer\(\);[^}]*isHeaderVisible\.value = false;/s);
   assert.doesNotMatch(header, /isHeaderVisible\.value = delta < 0/);
   assert.match(header, /function queueHeaderHide\(delay = 820\)[\s\S]*?headerIdleTimer = window\.setTimeout/s);
