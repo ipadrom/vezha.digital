@@ -113,7 +113,7 @@
   line-height: 1.6;
 }
 
-.vz-footer__cols nav a:first-child {
+.vz-footer__cols nav a {
   color: var(--ink);
 }
 
