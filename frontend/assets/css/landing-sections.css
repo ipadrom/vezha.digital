@@ -89,6 +89,12 @@
   font-style: normal;
 }
 
+/* Labels ("CONTACTS / 06") are hidden but keep their box so headings stay put. */
+.vz-section-label,
+[data-section-label-liquid-target] {
+  visibility: hidden;
+}
+
 .vz-about {
   position: relative;
   overflow: hidden;
