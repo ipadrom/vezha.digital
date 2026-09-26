@@ -135,6 +135,8 @@ export function useLandingPreloader(options: UseLandingPreloaderOptions) {
     const replayLoader = import.meta.dev && new URLSearchParams(window.location.search).get("loader") === "1";
     if (seen && !replayLoader) {
       showPreloader.value = false;
+      // A skipped loader still leaves: reveal the hero now, not once the public data arrives.
+      void nextTick(() => options.onExit());
       return;
     }
 
