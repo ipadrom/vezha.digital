@@ -16,7 +16,6 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
   let isHeaderHovered = false;
   let isHeaderFocused = false;
   let headerIdleTimer: number | null = null;
-  let headerLastScrollY = 0;
   let headerWasDesktop: boolean | null = null;
 
   function clearHeaderIdleTimer() {
@@ -27,6 +26,21 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
 
   function isDesktopHeaderViewport() {
     return window.matchMedia("(min-width: 901px)").matches;
+  }
+
+  // On desktop the hero reads as the first screen, so the pill floating over it
+  // stays put and only starts auto-hiding once the next section reaches it.
+  function isHeaderOverHero() {
+    if (!isDesktopHeaderViewport()) return false;
+    const hero = rootRef.value?.querySelector<HTMLElement>("#hero");
+    const header = rootRef.value?.querySelector<HTMLElement>(".vz-nav");
+    if (!hero || !header) return false;
+    // Resting position, as in the stack check: the hidden header is translated above the viewport.
+    return hero.getBoundingClientRect().bottom > header.offsetTop + header.offsetHeight;
+  }
+
+  function isHeaderAtRest() {
+    return Math.max(0, window.scrollY) <= 12 || isHeaderOverHero();
   }
 
   function updateHeaderStackCollision() {
@@ -65,7 +79,7 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
 
   function queueHeaderHide(delay = 820) {
     clearHeaderIdleTimer();
-    if (Math.max(0, window.scrollY) <= 12) {
+    if (isHeaderAtRest()) {
       isHeaderVisible.value = true;
       return;
     }
@@ -77,28 +91,21 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
   }
 
   function handleHeaderScroll() {
-    const nextScrollY = Math.max(0, window.scrollY);
+    if (showPreloader.value) return;
 
-    if (showPreloader.value) {
-      headerLastScrollY = nextScrollY;
-      return;
-    }
-
-    // Like the case pages: at the very top the header stays put on every viewport.
-    if (nextScrollY <= 12) {
-      headerLastScrollY = nextScrollY;
+    // Like the case pages: at the very top the header stays put on every viewport
+    // (and on desktop, while it is over the hero).
+    if (isHeaderAtRest()) {
       revealHeader();
       return;
     }
 
     if (isDesktopHeaderViewport()) {
-      headerLastScrollY = nextScrollY;
       revealHeader();
       queueHeaderHide();
       return;
     }
 
-    headerLastScrollY = nextScrollY;
     revealHeader();
     queueHeaderHide();
   }
@@ -175,12 +182,11 @@ export function useLandingHeader(options: UseLandingHeaderOptions) {
   function handleHeaderResize() {
     updateHeaderStackCollision();
     const isDesktop = isDesktopHeaderViewport();
-    headerLastScrollY = Math.max(0, window.scrollY);
     if (headerWasDesktop === isDesktop) return;
 
     headerWasDesktop = isDesktop;
     clearHeaderIdleTimer();
-    isHeaderVisible.value = headerLastScrollY <= 12;
+    isHeaderVisible.value = isHeaderAtRest();
   }
 
   onMounted(() => {

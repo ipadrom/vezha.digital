@@ -662,9 +662,12 @@ test("keeps the services menu visible and reveals only the global header while s
   assert.match(header, /window\.addEventListener\("scroll", handleHeaderScroll/);
   assert.match(landing, /class="vz-nav-hover-zone"/);
   assert.match(header, /function queueHeaderHide\(delay = 820\)/);
-  assert.match(header, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(nextScrollY <= 12\)[\s\S]*?revealHeader\(\);\s*return;[\s\S]*?if \(isDesktopHeaderViewport\(\)\)/s);
-  assert.match(header, /function queueHeaderHide\(delay = 820\)\s*\{\s*clearHeaderIdleTimer\(\);\s*if \(Math\.max\(0, window\.scrollY\) <= 12\) \{\s*isHeaderVisible\.value = true;\s*return;/s);
-  assert.match(header, /function handleHeaderResize\(\)[\s\S]*?isHeaderVisible\.value = headerLastScrollY <= 12;/s);
+  assert.match(header, /function handleHeaderScroll\(\)[\s\S]*?if \(showPreloader\.value\)[\s\S]*?if \(isHeaderAtRest\(\)\)[\s\S]*?revealHeader\(\);\s*return;[\s\S]*?if \(isDesktopHeaderViewport\(\)\)/s);
+  assert.match(header, /function queueHeaderHide\(delay = 820\)\s*\{\s*clearHeaderIdleTimer\(\);\s*if \(isHeaderAtRest\(\)\) \{\s*isHeaderVisible\.value = true;\s*return;/s);
+  assert.match(header, /function handleHeaderResize\(\)[\s\S]*?isHeaderVisible\.value = isHeaderAtRest\(\);/s);
+  // The header rests within 12px of the top everywhere, and on desktop also while it floats over the hero.
+  assert.match(header, /function isHeaderAtRest\(\)\s*\{\s*return Math\.max\(0, window\.scrollY\) <= 12 \|\| isHeaderOverHero\(\);/s);
+  assert.match(header, /function isHeaderOverHero\(\)\s*\{\s*if \(!isDesktopHeaderViewport\(\)\) return false;[\s\S]*?querySelector<HTMLElement>\("#hero"\)[\s\S]*?return hero\.getBoundingClientRect\(\)\.bottom > header\.offsetTop \+ header\.offsetHeight;/s);
   const mobileMenu = readFileSync("components/ui/MobileSiteMenu.vue", "utf8");
   assert.match(landing, /<MobileSiteMenu :visible="isHeaderShown"/);
   assert.match(mobileMenu, /const shown = computed\(\(\) => props\.visible \|\| open\.value\)/);
