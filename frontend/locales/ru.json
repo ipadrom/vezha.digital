@@ -94,6 +94,10 @@
           "label": "Этапы"
         },
         {
+          "href": "#clients",
+          "label": "Клиенты"
+        },
+        {
           "href": "#contacts",
           "label": "Контакты"
         }

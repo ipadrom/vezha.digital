@@ -73,9 +73,11 @@ async function showView(next: 'links' | 'contacts', event: MouseEvent) {
   (next === 'contacts' ? backButton.value : ctaButton.value)?.focus();
 }
 const links = computed(() => [
-  { href: '/#cases', label: ru.value ? 'Кейсы' : 'Cases' },
   { href: '/#services', label: ru.value ? 'Услуги' : 'Services' },
-  { href: '/#about', label: ru.value ? 'О нас' : 'About' },
+  { href: '/#cases', label: ru.value ? 'Кейсы' : 'Cases' },
+  { href: '/#about', label: ru.value ? 'Кто мы' : 'About' },
+  { href: '/#stack', label: ru.value ? 'Стек' : 'Stack' },
+  { href: '/#clients', label: ru.value ? 'Клиенты' : 'Clients' },
   { href: '/#contacts', label: ru.value ? 'Контакты' : 'Contacts' },
 ]);
 const panel = ref<HTMLElement | null>(null);

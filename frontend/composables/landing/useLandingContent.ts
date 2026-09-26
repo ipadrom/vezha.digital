@@ -205,7 +205,7 @@ export function useLandingContent() {
     const order = ["#hero", "#services", "#cases", "#about", "#stack", "#clients", "#contacts"];
     return items.sort((a, b) => order.indexOf(a.href) - order.indexOf(b.href));
   });
-  const footerNavItems = computed(() => navItems.value.filter((item) => item.href !== "#contacts"));
+  const footerNavItems = computed(() => navItems.value);
   const marqueeItems = computed(() => copy.value.marqueeItems);
   const fallbackServices = computed(() => copy.value.services.fallback);
   const fallbackStackGroups = computed(() => copy.value.stack.groups);

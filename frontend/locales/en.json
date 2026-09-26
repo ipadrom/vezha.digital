@@ -94,6 +94,10 @@
           "label": "Process"
         },
         {
+          "href": "#clients",
+          "label": "Clients"
+        },
+        {
           "href": "#contacts",
           "label": "Contacts"
         }
