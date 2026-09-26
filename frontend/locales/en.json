@@ -421,7 +421,7 @@
         {
           "price": "from $5,000",
           "timeline": "from 8 weeks",
-          "included": ["UX/UI design", "iOS and Android", "API integrations", "Publishing"]
+          "included": ["UX/UI design", "Native development", "PWA version", "Store publishing"]
         },
         {
           "price": "By agreement",
