@@ -53,8 +53,15 @@
   position: fixed;
 }
 
-/* The pinned stack card reads as lying on top of the mark: its rounded rectangle is cut out of the fill. */
-.vz-section-liquid.is-stack-active::before {
+/* Desktop contact buttons show through their holes in the fill, so their negative copies would double the text. */
+@media (min-width: 901px) {
+  .vz-section-liquid .vz-negative-world .vz-contacts__buttons > .vz-button {
+    visibility: hidden;
+  }
+}
+
+/* The stack card and contact buttons read as lying on top of the mark: their rounded rectangles are cut out of the fill. */
+.vz-section-liquid:is([data-active-key="stack"], [data-active-key="contacts"])::before {
   clip-path: path(evenodd, var(--liquid-card-hole));
   -webkit-clip-path: path(evenodd, var(--liquid-card-hole));
 }

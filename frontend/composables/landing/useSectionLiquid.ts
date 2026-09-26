@@ -685,15 +685,26 @@ export function useSectionLiquid(options: UseSectionLiquidOptions) {
         height: overlayRect.height,
       },
     );
-    // While the stack is pinned, the active card must read as sitting on top of the mark:
-    // punch its rounded rectangle out of the clip instead of painting the dark fill over it.
-    const card = sectionLiquidStackLock
-      ? rootRef.value?.querySelector<HTMLElement>("[data-stack-section] .vz-stack__active-card")
-      : null;
-    const cardRect = card ? getLandingLayoutRect(card) : null;
-    if (cardRect && cardRect.width > 0 && cardRect.height > 0) {
-      // The fill lives on ::before; an even-odd path of "whole overlay + card" leaves a card-shaped hole in it.
-      const hole = `M0 0 H${formatPathNumber(overlayRect.width)} V${formatPathNumber(overlayRect.height)} H0 Z ${buildRoundedRectPath(cardRect.left - overlayRect.left, cardRect.top - overlayRect.top, cardRect.width, cardRect.height, 16)}`;
+    // Controls that must read as lying on top of the mark: the stack card (pinned or scrolling out)
+    // and the contact buttons. Their rounded rectangles are punched out of the fill instead of painted over.
+    const holeSelector = !useStackScrollLock
+      ? null
+      : activeKey === "stack"
+        ? "[data-stack-section] .vz-stack__active-card"
+        : activeKey === "contacts"
+          ? "#contacts .vz-contacts__buttons > .vz-button"
+          : null;
+    const holes = holeSelector
+      ? Array.from(rootRef.value?.querySelectorAll<HTMLElement>(holeSelector) ?? []).flatMap((element) => {
+          const rect = getLandingLayoutRect(element);
+          if (rect.width <= 0 || rect.height <= 0) return [];
+          const radius = Number.parseFloat(getComputedStyle(element).borderTopLeftRadius) || 0;
+          return [buildRoundedRectPath(rect.left - overlayRect.left, rect.top - overlayRect.top, rect.width, rect.height, radius)];
+        })
+      : [];
+    if (holes.length) {
+      // The fill lives on ::before; an even-odd path of "whole overlay + controls" leaves control-shaped holes in it.
+      const hole = `M0 0 H${formatPathNumber(overlayRect.width)} V${formatPathNumber(overlayRect.height)} H0 Z ${holes.join(" ")}`;
       overlay.style.setProperty("--liquid-card-hole", `"${hole}"`);
     } else {
       overlay.style.removeProperty("--liquid-card-hole");
