@@ -55,7 +55,6 @@ const heroRef = ref<HTMLElement | null>(null);
 let apexObserver: ResizeObserver | null = null;
 let reduceMotion: MediaQueryList | null = null;
 let pointerRaf = 0;
-let scrollRaf = 0;
 let pointerX = 0;
 let pointerY = 0;
 
@@ -79,18 +78,6 @@ function resetPointer() {
   heroRef.value?.style.setProperty("--hero-py", "0");
 }
 
-// Scroll parallax keeps some depth on touch screens, where there is no cursor.
-function handleScroll() {
-  if (scrollRaf) return;
-  scrollRaf = requestAnimationFrame(() => {
-    scrollRaf = 0;
-    const hero = heroRef.value;
-    if (!hero || reduceMotion?.matches) return;
-    const progress = Math.max(0, Math.min(1, window.scrollY / Math.max(1, hero.offsetHeight)));
-    hero.style.setProperty("--hero-scroll", progress.toFixed(3));
-  });
-}
-
 // Desktop apex sits between the first and second title lines. offsetTop ignores
 // the reveal and parallax transforms, so the apex stays put while they run.
 function syncApex() {
@@ -107,16 +94,12 @@ onMounted(() => {
   syncApex();
   apexObserver = new ResizeObserver(syncApex);
   if (heroRef.value) apexObserver.observe(heroRef.value);
-  window.addEventListener("scroll", handleScroll, { passive: true });
-  handleScroll();
   emit("hero-ready", heroRef.value, null);
 });
 
 onBeforeUnmount(() => {
   apexObserver?.disconnect();
-  window.removeEventListener("scroll", handleScroll);
   cancelAnimationFrame(pointerRaf);
-  cancelAnimationFrame(scrollRaf);
   emit("hero-ready", null, null);
 });
 </script>

@@ -5,7 +5,6 @@
   --u: clamp(0.8px, calc(100vw / 1440), 1.2px);
   --hero-px: 0;
   --hero-py: 0;
-  --hero-scroll: 0;
   --monolith-shade: #dfe2f4;
   --monolith-shade-deep: #c9cfec;
   --monolith-lit: #fbfbfe;
@@ -105,11 +104,35 @@
      lettering converge slightly upwards like a tower seen from below. */
   transform-origin: 0 0;
   transform:
-    translate3d(calc(var(--hero-px) * -16px), calc(var(--hero-py) * -10px + var(--hero-scroll) * 90px), 0)
+    translate3d(calc(var(--hero-px) * -16px), calc(var(--hero-py) * -10px), 0)
     rotateX(calc(var(--monolith-tilt) + var(--hero-py) * 2.5deg))
     rotateY(calc(var(--hero-px) * 6deg));
   transition: transform 1.2s cubic-bezier(0.22, 0.8, 0.24, 1);
   will-change: transform;
+}
+
+/* Scroll parallax keeps some depth on touch screens, where there is no cursor.
+   It runs on the browser's scroll timeline, in step with the page: fed from
+   scroll events through the 1.2s pointer transition it lagged, then jumped,
+   most visibly on iPhone. Without support the corner simply stays put. */
+@supports (animation-timeline: view()) and (animation-range: exit-crossing) {
+  @media (prefers-reduced-motion: no-preference) {
+    .vz-hero {
+      view-timeline-name: --vz-hero;
+    }
+
+    .vz-monolith__body {
+      animation: vz-monolith-drift linear both;
+      animation-timeline: --vz-hero;
+      animation-range: exit-crossing;
+    }
+  }
+}
+
+@keyframes vz-monolith-drift {
+  to {
+    translate: 0 90px;
+  }
 }
 
 /* Faces run far past the screen edges so neither far edge ever shows. */
