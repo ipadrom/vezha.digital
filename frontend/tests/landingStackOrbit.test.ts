@@ -371,7 +371,7 @@ test("keeps the about heading on three authored desktop lines and natural mobile
   const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
   const messages = JSON.parse(readFileSync("locales/ru.json", "utf8"));
 
-  assert.deepEqual(messages.landing.about.teamLeadLines, ["Команда,", "которая ведёт", "проект до запуска"]);
+  assert.deepEqual(messages.landing.about.teamLeadLines, ["Одна команда", "ведёт проект", "до запуска"]);
   assert.match(aboutComponent, /v-for="line in copy\.teamLeadLines"/);
   assert.match(aboutComponent, /class="vz-about__team-lead--mobile"[^>]*>\{\{ copy\.teamLead \}\}<\/span>/);
   assert.match(aboutComponent, /\.vz-about__head\s*\{[^}]*gap:\s*clamp\(36px, 4vw, 64px\);/s);
