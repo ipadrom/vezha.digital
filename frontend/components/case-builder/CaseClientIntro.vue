@@ -9,8 +9,15 @@
         <div>
           <h3>{{ content.title }}</h3>
           <p v-if="content.caption">{{ content.caption }}</p>
-          <div class="case-client__actions" :class="{ 'case-client__actions--single': content.show_contact === false || !safeLink(content.contact_url) }">
-            <a v-if="content.show_contact !== false && safeLink(content.contact_url)" class="case-client__button" :href="safeLink(content.contact_url)" target="_blank" rel="noopener noreferrer">
+          <div v-if="buttonCount" class="case-client__actions" :class="{ 'case-client__actions--single': buttonCount === 1 }">
+            <button v-if="email" class="case-client__button case-client__button--email" type="button" :aria-label="`${t('landing.contacts.copyEmailAria')}: ${email}`" @click="copyValue('email', email)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></svg>
+              <span class="case-client__value">
+                <span :style="{ opacity: copiedKey === 'email' ? 0 : 1 }">{{ email }}</span>
+                <span class="case-client__value-copied" aria-hidden="true" :style="{ opacity: copiedKey === 'email' ? 1 : 0 }">{{ t('landing.contacts.copied') }}</span>
+              </span>
+            </button>
+            <a v-if="contactUrl" class="case-client__button" :href="contactUrl" target="_blank" rel="noopener noreferrer">
               <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M21.4 3.6c.3-1.2-.5-1.7-1.4-1.3L2.5 9c-1.2.5-1.2 1.2-.2 1.5l4.5 1.4L17.3 5.3c.5-.3.9-.1.5.3l-8.5 7.7-.3 4.7c.5 0 .7-.2 1-.5l2.2-2.1 4.6 3.4c.9.5 1.5.3 1.7-.8L21.4 3.6Z" /></svg>
               <span>{{ content.contact_label }}</span>
             </a>
@@ -19,6 +26,7 @@
               <span>{{ content.project_label }}</span>
             </a>
           </div>
+          <p class="case-client__copy-status" role="status" aria-live="polite">{{ copiedKey ? t('landing.contacts.copied') : '' }}</p>
         </div>
       </div>
       <div class="case-client__story">
@@ -29,10 +37,19 @@
 </template>
 
 <script setup lang="ts">
+import { useContactCopy } from '~/composables/useContactCopy'
+
 const props = defineProps<{ content: Record<string, any> }>()
+const { t } = useI18n()
+const { copiedKey, copyValue } = useContactCopy()
 function safeLink(value: unknown) {
   try { const url = new URL(String(value)); return ['https:', 'http:'].includes(url.protocol) ? url.href : undefined } catch { return undefined }
 }
+// The address is copied on click, like the landing contacts, rather than opened as a mailto link.
+const email = computed(() => { const value = String(props.content.contact_email || '').trim(); return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : '' })
+const contactUrl = computed(() => props.content.show_contact === false ? undefined : safeLink(props.content.contact_url))
+// A lone button stretches across the column.
+const buttonCount = computed(() => [email.value, contactUrl.value, safeLink(props.content.project_url)].filter(Boolean).length)
 const paragraphs = computed(() => String(props.content.body || '').split(/\n\s*\n/).filter(Boolean))
 </script>
 
@@ -63,6 +80,9 @@ const paragraphs = computed(() => String(props.content.body || '').split(/\n\s*\
 .case-client__button svg { width: 20px; height: 20px; flex: 0 0 20px; }
 .case-client__button--project { background: #ff4c00; border-color: #ff4c00; color: #161616; }
 .case-client__button-logo { width: 30px; height: 14px; object-fit: contain; filter: brightness(0); }
+.case-client__value { display: inline-grid; min-width: 0; }
+.case-client__value > span { grid-area: 1 / 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: opacity 180ms ease; }
+.case-client__copy-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .case-client__button:hover { opacity: 0.88; }
 .case-client__button:focus-visible { outline: 2px solid var(--case-ink); outline-offset: 4px; }
 @media (max-width: 1100px) {

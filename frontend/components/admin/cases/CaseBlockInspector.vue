@@ -287,6 +287,7 @@ const itemNames: Record<string, string> = { metrics: 'Метрика', process: 
 // The client introduction keeps its links in the block content; expose them so the buttons can be edited without a migration.
 const clientFields: Field[] = [
   { key: 'caption', label: 'Подпись под именем' },
+  { key: 'contact_email', label: 'Почта (копируется по нажатию)' },
   { key: 'show_contact', label: 'Показывать кнопку связи', kind: 'checkbox', defaultValue: true },
   { key: 'contact_url', label: 'Ссылка для связи (https://…)' },
   { key: 'contact_label', label: 'Подпись кнопки связи' },

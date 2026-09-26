@@ -1,0 +1,34 @@
+{
+  "id": "a3594abb-8491-443d-8ec0-03559ab67178",
+  "type": "image_text",
+  "sort_order": 2,
+  "is_visible": true,
+  "settings": {
+    "theme": "paper",
+    "surface": "plain",
+    "width": "wide",
+    "spacing": "normal",
+    "layout": "client",
+    "alignment": "left"
+  },
+  "content_ru": {
+    "eyebrow": "Заказчик",
+    "title": "Лидия Минчук",
+    "caption": "Репетитор английского · Путешественник",
+    "image_url": "/cases/ssag/2026-09/lidiya-minchuk.jpg",
+    "alt": "Лидия Минчук",
+    "body": "Лидия обратилась к нам с задачей разработать MVP приложения SSAG. Приложение помогает найти в Казани место, где можно получить помощь, и быстро сообщить близким о случившемся.\n\nДля Лидии мы собрали приложение для Android с картой мест помощи, списком доверенных контактов и кнопкой SOS с отправкой SMS.",
+    "contact_email": "ridabomboni@gmail.com",
+    "show_contact": false
+  },
+  "content_en": {
+    "eyebrow": "Client",
+    "title": "Lidiya Minchuk",
+    "caption": "English tutor · Traveller",
+    "image_url": "/cases/ssag/2026-09/lidiya-minchuk.jpg",
+    "alt": "Lidiya Minchuk",
+    "body": "Lidiya came to us to build an MVP of the SSAG app. It helps people find a place in Kazan where they can get help and quickly let loved ones know what happened.\n\nWe built her an Android app with a map of help locations, a list of trusted contacts and an SOS button that sends a text message.",
+    "contact_email": "ridabomboni@gmail.com",
+    "show_contact": false
+  }
+}
