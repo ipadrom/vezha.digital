@@ -72,12 +72,11 @@ test("releases the desktop stack liquid lock when the sticky section exits", () 
   );
 });
 
-test("keeps the compact mobile hero title at exactly 32px", () => {
-  const responsiveCss = readFileSync("assets/css/landing-responsive.css", "utf8");
-  const compactMobileCss = responsiveCss.slice(responsiveCss.indexOf("@media (max-width: 520px)"));
+test("scales the mobile hero title with the viewport", () => {
+  const heroCss = readFileSync("assets/css/landing-hero.css", "utf8");
+  const mobileHeroCss = heroCss.slice(heroCss.indexOf("@media (max-width: 900px)"));
 
-  assert.match(compactMobileCss, /\.vz-hero h1\s*\{[^}]*font-size:\s*2rem;/s);
-  assert.match(compactMobileCss, /\.vz-hero__grid p\s*\{[^}]*font-size:\s*var\(--type-body\);/s);
+  assert.match(mobileHeroCss, /\.vz-hero h1\s*\{[^}]*font-size:\s*clamp\(2\.25rem, 10vw, 3\.5rem\);/s);
 });
 
 test("renders both mobile header menu lines with the same thin pixel geometry", () => {

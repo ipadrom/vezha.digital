@@ -65,11 +65,6 @@
 
     <LandingHero
       :copy="copy.hero"
-      :marquee-aria="copy.marqueeAria"
-      :marquee-items="marqueeItems"
-      @pointer-enter="updateHeroNegative"
-      @pointer-move="updateHeroNegative"
-      @pointer-leave="resetHeroNegative"
       @hero-ready="setHeroHosts"
     />
 
@@ -163,7 +158,6 @@ const {
   clientSegments,
   navItems,
   footerNavItems,
-  marqueeItems,
   displayServices,
   displayStackGroups,
   contactEmail,
@@ -239,8 +233,6 @@ const {
 const {
   enableSectionLiquid,
   setHeroHosts,
-  updateHeroNegative,
-  resetHeroNegative,
   startHeroNegative,
   startSectionLiquid,
   setupSectionLiquidLayoutObserver,

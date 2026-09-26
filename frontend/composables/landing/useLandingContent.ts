@@ -58,7 +58,7 @@ export type LandingCopy = {
     title: string[];
     text: string;
     cta: string;
-    servicesLink: string;
+    casesLink: string;
     stats: string[];
   };
   marqueeAria: string;

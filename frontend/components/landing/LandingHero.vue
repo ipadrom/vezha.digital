@@ -3,51 +3,35 @@
     id="hero"
     ref="heroRef"
     class="vz-hero"
-    @pointerenter="$emit('pointer-enter', $event)"
-    @pointermove="$emit('pointer-move', $event)"
-    @pointerleave="$emit('pointer-leave', $event)"
+    @pointermove="handlePointerMove"
+    @pointerleave="resetPointer"
   >
     <div class="vz-hero__art" aria-hidden="true">
       <div class="vz-aura vz-aura--top"></div>
-      <div class="vz-orbit">
-        <svg data-orbit viewBox="0 0 200 200" fill="none">
-          <circle cx="100" cy="100" r="98" stroke="currentColor" stroke-width="0.5" stroke-dasharray="2 7" />
-        </svg>
+      <div class="vz-monolith">
+        <div class="vz-monolith__body">
+          <div class="vz-monolith__face vz-monolith__face--left">
+            <span class="vz-monolith__brand">VEZHA</span>
+          </div>
+          <div class="vz-monolith__face vz-monolith__face--right">
+            <span class="vz-monolith__slogan"><span>Small</span><span>ideas</span><span>big</span><span>results</span></span>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="vz-hero__inner">
-      <div class="vz-hero__meta" data-hero-meta>
-        <span v-for="item in copy.meta.filter(Boolean)" :key="item">{{ item }}</span>
-      </div>
-      <div class="vz-hero__kicker" :aria-hidden="!copy.kicker || undefined">
-        <span>{{ copy.kicker }}</span>
-      </div>
       <h1>
         <span v-for="(line, index) in copy.title" :key="line"><span data-reveal :data-reveal-order="index">{{ line }}</span></span>
       </h1>
       <div class="vz-hero__grid" data-hero-grid>
-        <p>{{ copy.text }}</p>
         <div class="vz-hero__actions">
           <a class="vz-button vz-button--dark" href="#contacts">{{ copy.cta }}</a>
-          <a class="vz-button-link" href="#services">{{ copy.servicesLink }} <span aria-hidden="true">↓</span></a>
+          <a class="vz-button-link" href="#cases">{{ copy.casesLink }} <span aria-hidden="true">↓</span></a>
         </div>
       </div>
       <div class="vz-hero__stats" data-hero-stats>
         <span v-for="stat in copy.stats" :key="stat">{{ stat }}</span>
-      </div>
-    </div>
-
-    <div ref="negativeRef" class="vz-hero__negative vz-hero__negative--main" aria-hidden="true">
-      <div class="vz-hero__negative-plane" data-hero-negative-plane>
-        <div class="vz-negative-world vz-negative-world--hero" data-negative-world="hero"></div>
-      </div>
-    </div>
-
-    <div class="vz-marquee" :aria-label="marqueeAria">
-      <div>
-        <span v-for="item in marqueeItems" :key="`a-${item}`">{{ item }} <i>✦</i></span>
-        <span v-for="item in marqueeItems" :key="`b-${item}`" aria-hidden="true">{{ item }} <i>✦</i></span>
       </div>
     </div>
   </section>
@@ -56,38 +40,88 @@
 <script setup lang="ts">
 defineProps<{
   copy: {
-    meta: [string, string];
-    kicker: string;
     title: string[];
-    text: string;
     cta: string;
-    servicesLink: string;
+    casesLink: string;
     stats: string[];
   };
-  marqueeAria: string;
-  marqueeItems: string[];
 }>();
 
 const emit = defineEmits<{
-  "pointer-enter": [event: PointerEvent];
-  "pointer-move": [event: PointerEvent];
-  "pointer-leave": [event: PointerEvent];
   "hero-ready": [hero: HTMLElement | null, negative: HTMLElement | null];
 }>();
 
 const heroRef = ref<HTMLElement | null>(null);
-const negativeRef = ref<HTMLElement | null>(null);
+let apexObserver: ResizeObserver | null = null;
+let reduceMotion: MediaQueryList | null = null;
+let pointerRaf = 0;
+let scrollRaf = 0;
+let pointerX = 0;
+let pointerY = 0;
 
-onMounted(() => emit("hero-ready", heroRef.value, negativeRef.value));
-onBeforeUnmount(() => emit("hero-ready", null, null));
+// Pointer parallax: the monolith leans toward the cursor, eased by a CSS transition.
+function handlePointerMove(event: PointerEvent) {
+  const hero = heroRef.value;
+  if (!hero || event.pointerType === "touch" || reduceMotion?.matches) return;
+  const rect = hero.getBoundingClientRect();
+  pointerX = Math.max(-1, Math.min(1, ((event.clientX - rect.left) / rect.width) * 2 - 1));
+  pointerY = Math.max(-1, Math.min(1, ((event.clientY - rect.top) / rect.height) * 2 - 1));
+  if (pointerRaf) return;
+  pointerRaf = requestAnimationFrame(() => {
+    pointerRaf = 0;
+    hero.style.setProperty("--hero-px", pointerX.toFixed(3));
+    hero.style.setProperty("--hero-py", pointerY.toFixed(3));
+  });
+}
+
+function resetPointer() {
+  heroRef.value?.style.setProperty("--hero-px", "0");
+  heroRef.value?.style.setProperty("--hero-py", "0");
+}
+
+// Scroll parallax keeps some depth on touch screens, where there is no cursor.
+function handleScroll() {
+  if (scrollRaf) return;
+  scrollRaf = requestAnimationFrame(() => {
+    scrollRaf = 0;
+    const hero = heroRef.value;
+    if (!hero || reduceMotion?.matches) return;
+    const progress = Math.max(0, Math.min(1, window.scrollY / Math.max(1, hero.offsetHeight)));
+    hero.style.setProperty("--hero-scroll", progress.toFixed(3));
+  });
+}
+
+// Desktop apex sits between the first and second title lines. offsetTop ignores
+// the reveal and parallax transforms, so the apex stays put while they run.
+function syncApex() {
+  const hero = heroRef.value;
+  const inner = hero?.querySelector<HTMLElement>(".vz-hero__inner");
+  const firstLine = hero?.querySelector<HTMLElement>("h1 > span");
+  if (!hero || !inner || !firstLine) return;
+  const apexY = inner.offsetTop + firstLine.offsetTop + firstLine.offsetHeight;
+  hero.style.setProperty("--hero-apex-y", `${apexY}px`);
+}
+
+onMounted(() => {
+  reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  syncApex();
+  apexObserver = new ResizeObserver(syncApex);
+  if (heroRef.value) apexObserver.observe(heroRef.value);
+  window.addEventListener("scroll", handleScroll, { passive: true });
+  handleScroll();
+  emit("hero-ready", heroRef.value, null);
+});
+
+onBeforeUnmount(() => {
+  apexObserver?.disconnect();
+  window.removeEventListener("scroll", handleScroll);
+  cancelAnimationFrame(pointerRaf);
+  cancelAnimationFrame(scrollRaf);
+  emit("hero-ready", null, null);
+});
 </script>
 
 <style scoped>
-/* Preserve the heading position when the secondary label is empty. */
-.vz-hero__kicker {
-  min-block-size: 1lh;
-}
-
 @media (max-width: 900px) {
   .vz-hero__grid {
     margin-top: 34px;

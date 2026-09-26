@@ -554,11 +554,9 @@ test("matches mobile hero capsules to the service capsule grid", () => {
 });
 
 test("matches the mobile about label offset to the stack section divider", () => {
-  const landingPage = readFileSync("assets/css/landing-responsive.css", "utf8");
   const aboutComponent = readFileSync("components/landing/LandingAbout.vue", "utf8");
   const stackComponent = readFileSync("components/landing/LandingStack.vue", "utf8");
 
-  assert.match(landingPage, /@media \(max-width: 900px\)[\s\S]*?\.vz-hero\s*\{[^}]*padding:\s*112px 20px 0;/);
   assert.match(aboutComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-about\s*\{[^}]*padding:\s*var\(--section-space\) 20px var\(--section-space\);/);
   assert.match(stackComponent, /@media \(max-width: 900px\)[\s\S]*?\.vz-stack\s*\{[^}]*padding:\s*var\(--section-space\) 0;/);
 });

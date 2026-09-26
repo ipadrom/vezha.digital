@@ -45,27 +45,9 @@
     display: flex;
   }
 
-  .vz-hero {
-    --hero-art-bottom: 118px;
-    padding: 112px 20px 0;
-  }
-
-  .vz-hero > .vz-marquee {
-    margin-top: 16px;
-  }
-
-  .vz-hero h1 {
-    font-size: clamp(1.875rem, 8.4vw, 2.875rem);
-  }
-
-  .vz-hero__grid,
-.vz-about__grid,
+  .vz-about__grid,
 .vz-clients__grid {
     grid-template-columns: 1fr;
-  }
-
-  .vz-hero__grid {
-    gap: 30px;
   }
 
   .vz-hero__actions {
@@ -560,18 +542,6 @@
 }
 
 @media (max-width: 520px) {
-  .vz-hero__meta span {
-    font-size: var(--type-label);
-  }
-
-  .vz-hero h1 {
-    font-size: 2rem;
-  }
-
-  .vz-hero__grid p {
-    font-size: var(--type-body);
-  }
-
   .vz-footer__cols {
     gap: 22px 16px;
   }

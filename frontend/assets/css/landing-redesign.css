@@ -4203,11 +4203,6 @@
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-@keyframes vz-motion-orbit-enter {
-  from { opacity: 0; transform: translate3d(20px, 0, 0) scale(0.94); }
-  to { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
-}
-
 @keyframes vz-motion-contact-aura {
   from { transform: translate(-50%, -50%) scale(0.96); opacity: 0.72; }
   to { transform: translate(-48%, -52%) scale(1.04); opacity: 1; }
@@ -4220,10 +4215,6 @@
 
 .vz-min.vz-motion-ready .vz-nav:not([data-nav-visible]) {
   animation: vz-motion-nav-enter 600ms var(--ease-out) both;
-}
-
-.vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__art {
-  animation: vz-motion-orbit-enter 820ms var(--ease-out) 180ms both;
 }
 
 .vz-min.vz-motion-ready #hero.is-motion-visible .vz-hero__meta,
