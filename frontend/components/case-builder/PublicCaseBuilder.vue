@@ -178,7 +178,7 @@
                         </a>
                       </div>
                       <img v-else-if="item.image_url" :src="item.image_url" :alt="item.image_alt || ''" loading="lazy" decoding="async" />
-                      <video v-if="item.video_url" :autoplay="allowAutoplay" muted loop playsinline :controls="false" disablepictureinpicture disableremoteplayback @contextmenu.prevent preload="metadata" :poster="item.poster_url || undefined" :aria-label="item.title || undefined">
+                      <video v-if="item.video_url" :autoplay="allowAutoplay && isProcessOpen(block, index)" muted loop playsinline :controls="false" disablepictureinpicture disableremoteplayback @contextmenu.prevent preload="metadata" :poster="item.poster_url || undefined" :aria-label="item.title || undefined">
                         <source :src="item.video_url" />
                         {{ locale === 'ru' ? 'Ваш браузер не поддерживает видео.' : 'Your browser does not support video.' }}
                       </video>
@@ -410,6 +410,18 @@ const syncMediaMotion = async () => {
     else if (video.autoplay) void video.play().catch(() => undefined)
   })
 }
+// Stage videos play only while their panel is open and restart each time it opens:
+// with plain autoplay, collapsed ones ran from page load and opened halfway through.
+const syncProcessVideos = () => {
+  builderRoot.value?.querySelectorAll<HTMLVideoElement>('.builder-process__media video').forEach((video) => {
+    if (!video.autoplay) video.pause()
+    else if (video.paused) {
+      video.currentTime = 0
+      void video.play().catch(() => undefined)
+    }
+  })
+}
+watch([processOpen, isPhone], syncProcessVideos, { deep: true, flush: 'post' })
 onMounted(() => {
   motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
   motionQuery.addEventListener('change', syncMediaMotion)
